@@ -1,0 +1,9 @@
+<library file="*.cc" name="AnalysisVLQAnaPlugins"/> 
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="CommonTools/UtilAlgos"/>
+    <use name="root"/>
+    <flags EDM_PLUGIN="1"/>
+</library>
