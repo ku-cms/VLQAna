@@ -205,6 +205,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
 {
   produces<double>("htak4jets");
   produces<double>("htak8jets");
+  produces<vector<unsigned> >("ak4goodjets");
+  produces<vector<unsigned> >("ak8goodjets");
 
   edm::Service<TFileService> fs; 
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -312,6 +314,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   vector<TLorentzVector> p4_goodAK4Jets, p4_goodAK8Jets ; 
   JetCollection goodAK4Jets ;
+  vector<unsigned> ak4seljets, ak8seljets;
 
   //// Store good AK8 jets
   for ( unsigned ijet = 0; ijet < (h_jetAK8Pt.product())->size(); ++ijet) {
@@ -320,8 +323,10 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK4Eta.product())->at(ijet), 
         (h_jetAK4Phi.product())->at(ijet), 
         (h_jetAK4Mass.product())->at(ijet) ) ;
-    if ( jetP4Raw.Perp() > ak8jetsPtMin_ && abs(jetP4Raw.Eta()) < ak8jetsEtaMax_ ) 
+    if ( jetP4Raw.Perp() > ak8jetsPtMin_ && abs(jetP4Raw.Eta()) < ak8jetsEtaMax_ ) {
+      ak8seljets.push_back(ijet);
       p4_goodAK8Jets.push_back(jetP4Raw) ;  
+    }
   }
 
   //// Pre-selection ak8 jets 
@@ -343,6 +348,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK4Mass.product())->at(ijet) ) ;
     Jet jet(jetP4) ;
     goodAK4Jets.push_back(jet) ;
+    ak4seljets.push_back(ijet);
   }
 
   //// Pre-selection ak4 jets 
@@ -357,9 +363,13 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   std::auto_ptr<double> htak4jets ( new double(htak4.getHT()) );
   std::auto_ptr<double> htak8jets ( new double(htak8.getHT()) );
+  std::auto_ptr<vector<unsigned> > ak4goodjets ( new vector<unsigned>(ak4seljets));
+  std::auto_ptr<vector<unsigned> > ak8goodjets ( new vector<unsigned>(ak8seljets));
 
   evt.put(htak4jets, "htak4jets") ; 
   evt.put(htak8jets, "htak8jets") ; 
+  evt.put(ak4goodjets, "ak4goodjets");
+  evt.put(ak8goodjets, "ak8goodjets");
 
   return true ; 
 
