@@ -63,65 +63,69 @@ class VLQAna : public edm::EDFilter {
 
       // ----------member data ---------------------------
     std::string pn_;
-    edm::InputTag l_trigName              ; 
-    edm::InputTag l_trigBit               ; 
-    edm::InputTag l_jetAK8Pt              ; 
-    edm::InputTag l_jetAK8Eta             ; 
-    edm::InputTag l_jetAK8Phi             ; 
-    edm::InputTag l_jetAK8Mass            ; 
-    edm::InputTag l_jetAK8FilteredMass    ; 
-    edm::InputTag l_jetAK8PrunedMass      ; 
-    edm::InputTag l_jetAK8TrimmedMass     ; 
-    edm::InputTag l_jetAK8Energy          ; 
-    edm::InputTag l_jetAK8Flavour         ; 
-    edm::InputTag l_jetAK8CSV             ; 
-    edm::InputTag l_jetAK8JEC             ; 
-    edm::InputTag l_jetAK8Area            ; 
-    edm::InputTag l_jetAK8Tau1            ;  
-    edm::InputTag l_jetAK8Tau2            ;  
-    edm::InputTag l_jetAK8Tau3            ;  
-    edm::InputTag l_jetAK8nSubJets        ;  
-    edm::InputTag l_jetAK8minmass         ;  
-    edm::InputTag l_jetAK8VSubjetIndex0   ;  
-    edm::InputTag l_jetAK8VSubjetIndex1   ;  
-    edm::InputTag l_jetAK8TopSubjetIndex0 ; 
-    edm::InputTag l_jetAK8TopSubjetIndex1 ; 
-    edm::InputTag l_jetAK8TopSubjetIndex2 ; 
-    edm::InputTag l_jetAK8TopSubjetIndex3 ; 
-    edm::InputTag l_subjetAK8BDisc        ; 
-    edm::InputTag l_subjetAK8Pt           ; 
-    edm::InputTag l_subjetAK8Eta          ; 
-    edm::InputTag l_subjetAK8Phi          ; 
-    edm::InputTag l_subjetAK8Mass         ; 
-    edm::InputTag l_subjetCmsTopTagBDisc  ; 
-    edm::InputTag l_subjetCmsTopTagPt     ; 
-    edm::InputTag l_subjetCmsTopTagEta    ; 
-    edm::InputTag l_subjetCmsTopTagPhi    ; 
-    edm::InputTag l_subjetCmsTopTagMass   ; 
-    edm::InputTag l_jetAK4Pt              ; 
-    edm::InputTag l_jetAK4Eta             ; 
-    edm::InputTag l_jetAK4Phi             ; 
-    edm::InputTag l_jetAK4Mass            ; 
-    edm::InputTag l_jetAK4Energy          ; 
-    edm::InputTag l_jetAK4Flavour         ; 
-    edm::InputTag l_jetAK4CSV             ; 
-    edm::InputTag l_jetAK4JEC             ; 
-    edm::InputTag l_jetAK4nHadEnergy      ;
-    edm::InputTag l_jetAK4nEMEnergy       ;
-    edm::InputTag l_jetAK4HFHadronEnergy  ;
-    edm::InputTag l_jetAK4cHadEnergy      ;
-    edm::InputTag l_jetAK4cEMEnergy       ;
-    edm::InputTag l_jetAK4numDaughters    ;
-    edm::InputTag l_jetAK4cMultip         ;
-    edm::InputTag l_jetAK4Y               ;
-    edm::InputTag l_jetAK4Area            ; 
-    std::vector<std::string> hltPaths_    ; 
-    edm::ParameterSet JetSelParams_       ; 
-    double ak8jetsPtMin_                  ;
-    double ak8jetsEtaMax_                 ; 
-    double ak4jetsPtMin_                  ;
-    double ak4jetsEtaMax_                 ; 
-    double HTMin_                         ; 
+    edm::InputTag l_trigName                  ; 
+    edm::InputTag l_trigBit                   ; 
+    edm::InputTag l_jetAK8Pt                  ; 
+    edm::InputTag l_jetAK8Eta                 ; 
+    edm::InputTag l_jetAK8Phi                 ; 
+    edm::InputTag l_jetAK8Mass                ; 
+    edm::InputTag l_jetAK8FilteredMass        ; 
+    edm::InputTag l_jetAK8PrunedMass          ; 
+    edm::InputTag l_jetAK8TrimmedMass         ; 
+    edm::InputTag l_jetAK8Energy              ; 
+    edm::InputTag l_jetAK8Flavour             ; 
+    edm::InputTag l_jetAK8CSV                 ; 
+    edm::InputTag l_jetAK8JEC                 ; 
+    edm::InputTag l_jetAK8Area                ; 
+    edm::InputTag l_jetAK8Tau1                ;  
+    edm::InputTag l_jetAK8Tau2                ;  
+    edm::InputTag l_jetAK8Tau3                ;  
+    edm::InputTag l_jetAK8nSubJets            ;  
+    edm::InputTag l_jetAK8minmass             ;  
+    edm::InputTag l_jetAK8VSubjetIndex0       ;  
+    edm::InputTag l_jetAK8VSubjetIndex1       ;  
+    edm::InputTag l_jetAK8TopSubjetIndex0     ; 
+    edm::InputTag l_jetAK8TopSubjetIndex1     ; 
+    edm::InputTag l_jetAK8TopSubjetIndex2     ; 
+    edm::InputTag l_jetAK8TopSubjetIndex3     ; 
+    edm::InputTag l_subjetAK8BDisc            ; 
+    edm::InputTag l_subjetAK8Pt               ; 
+    edm::InputTag l_subjetAK8Eta              ; 
+    edm::InputTag l_subjetAK8Phi              ; 
+    edm::InputTag l_subjetAK8Mass             ; 
+    edm::InputTag l_subjetCmsTopTagBDisc      ; 
+    edm::InputTag l_subjetCmsTopTagPt         ; 
+    edm::InputTag l_subjetCmsTopTagEta        ; 
+    edm::InputTag l_subjetCmsTopTagPhi        ; 
+    edm::InputTag l_subjetCmsTopTagMass       ; 
+    edm::InputTag l_jetAK4Pt                  ; 
+    edm::InputTag l_jetAK4Eta                 ; 
+    edm::InputTag l_jetAK4Phi                 ; 
+    edm::InputTag l_jetAK4Mass                ; 
+    edm::InputTag l_jetAK4Energy              ; 
+    edm::InputTag l_jetAK4Flavour             ; 
+    edm::InputTag l_jetAK4CSV                 ; 
+    edm::InputTag l_jetAK4JEC                 ; 
+    edm::InputTag l_jetAK4nHadEnergy          ;
+    edm::InputTag l_jetAK4nEMEnergy           ;
+    edm::InputTag l_jetAK4HFHadronEnergy      ;
+    edm::InputTag l_jetAK4cHadEnergy          ;
+    edm::InputTag l_jetAK4cEMEnergy           ;
+    edm::InputTag l_jetAK4numDaughters        ;
+    edm::InputTag l_jetAK4cMultip             ;
+    edm::InputTag l_jetAK4Y                   ;
+    edm::InputTag l_jetAK4Area                ; 
+    std::vector<std::string> hltPaths_        ; 
+    edm::ParameterSet AK4JetSelParams_        ; 
+    edm::ParameterSet BTaggedAK4JetSelParams_ ; 
+    edm::ParameterSet AK8JetSelParams_        ; 
+    edm::ParameterSet HJetSelParams_          ; 
+    edm::ParameterSet WJetSelParams_          ; 
+    double ak8jetsPtMin_                      ;
+    double ak8jetsEtaMax_                     ; 
+    double ak4jetsPtMin_                      ;
+    double ak4jetsEtaMax_                     ; 
+    double HTMin_                             ; 
 
     TTree *tree_;
 
@@ -196,15 +200,31 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   l_jetAK4Y               (iConfig.getParameter<edm::InputTag>     ("jetAK4YLabel")),
   l_jetAK4Area            (iConfig.getParameter<edm::InputTag>     ("jetAK4AreaLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
-  JetSelParams_           (iConfig.getParameter<edm::ParameterSet> ("JetSelParams")),
+  AK4JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK4JetSelParams")),
+  BTaggedAK4JetSelParams_ (iConfig.getParameter<edm::ParameterSet> ("BTaggedAK4JetSelParams")),
+  AK8JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK8JetSelParams")),
+  HJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("HJetSelParams")),
+  WJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("WJetSelParams")),
   ak8jetsPtMin_           (iConfig.getParameter<double>            ("ak8jetsPtMin")),
   ak8jetsEtaMax_          (iConfig.getParameter<double>            ("ak8jetsEtaMax")), 
   ak4jetsPtMin_           (iConfig.getParameter<double>            ("ak4jetsPtMin")),
   ak4jetsEtaMax_          (iConfig.getParameter<double>            ("ak4jetsEtaMax")), 
   HTMin_                  (iConfig.getParameter<double>            ("HTMin"))
 {
+  produces<int>("ngoodAK4Jets");
+  produces<int>("ngoodAK8Jets");
+  produces<int>("ngoodBTaggedAK4Jets");
+  produces<int>("nWJets");
+  produces<int>("nHJets");
   produces<double>("htak4jets");
   produces<double>("htak8jets");
+  produces<double>("maxetaak4");
+  produces<double>("MassLeading2AK8");
+  produces<double>("DeltaEtaLeading2AK8");
+  produces<double>("pt1stAK8");
+  produces<double>("pt2ndAK8");
+  produces<double>("mass1stAK8");
+  produces<double>("mass2ndAK8");
 
   edm::Service<TFileService> fs; 
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -310,30 +330,39 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   }
   if (hltdecisions == 0) return false ; 
 
-  vector<TLorentzVector> p4_goodAK4Jets, p4_goodAK8Jets ; 
-  JetCollection goodAK4Jets ;
+  JetCollection goodAK8Jets, goodAK4Jets, goodBTaggedAK4Jets ;
 
   //// Store good AK8 jets
+  JetSelector ak8jetsel(AK8JetSelParams_) ;
+  pat::strbitset retak8jetsel = ak8jetsel.getBitTemplate() ;
   for ( unsigned ijet = 0; ijet < (h_jetAK8Pt.product())->size(); ++ijet) {
-    TLorentzVector jetP4Raw ;
-    jetP4Raw.SetPtEtaPhiM( (h_jetAK4Pt.product())->at(ijet), 
-        (h_jetAK4Eta.product())->at(ijet), 
-        (h_jetAK4Phi.product())->at(ijet), 
-        (h_jetAK4Mass.product())->at(ijet) ) ;
-    if ( jetP4Raw.Perp() > ak8jetsPtMin_ && abs(jetP4Raw.Eta()) < ak8jetsEtaMax_ ) 
-      p4_goodAK8Jets.push_back(jetP4Raw) ;  
+    retak8jetsel.set(false) ;
+    if (ak8jetsel(evt, ijet,retak8jetsel) == 0) { 
+      LogDebug("VLQAna") << " ak8 jet with pt = " << (h_jetAK8Pt.product())->at(ijet) << " fail jet sel\n" ; 
+      continue ;
+    }
+    TLorentzVector jetP4 ;
+    jetP4.SetPtEtaPhiM( (h_jetAK8Pt.product())->at(ijet), 
+        (h_jetAK8Eta.product())->at(ijet), 
+        (h_jetAK8Phi.product())->at(ijet), 
+        (h_jetAK8Mass.product())->at(ijet) ) ;
+    Jet jet(jetP4) ;
+    goodAK8Jets.push_back(jet) ;
   }
 
   //// Pre-selection ak8 jets 
-  if (p4_goodAK8Jets.size() < 1) return false; 
+  if (goodAK8Jets.size() < 1) return false; 
 
   //// Store good AK4 jets 
-  JetSelector ak4jetsel(JetSelParams_) ;
+  JetSelector ak4jetsel(AK4JetSelParams_) ;
+  JetSelector btaggedak4jetsel(BTaggedAK4JetSelParams_) ;
   pat::strbitset retak4jetsel = ak4jetsel.getBitTemplate() ;
+  pat::strbitset retbtaggedak4jetsel = btaggedak4jetsel.getBitTemplate() ;
   for ( unsigned ijet = 0; ijet < (h_jetAK4Pt.product())->size(); ++ijet) {
     retak4jetsel.set(false) ;
+    retbtaggedak4jetsel.set(false) ;
     if (ak4jetsel(evt, ijet,retak4jetsel) == 0) { 
-      cout << " jet with pt = " << (h_jetAK4Pt.product())->at(ijet) << " fail jet sel\n" ; 
+      LogDebug("VLQAna") << " ak4 jet with pt = " << (h_jetAK4Pt.product())->at(ijet) << " fail jet sel\n" ; 
       continue ;
     }
     TLorentzVector jetP4 ;
@@ -343,6 +372,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK4Mass.product())->at(ijet) ) ;
     Jet jet(jetP4) ;
     goodAK4Jets.push_back(jet) ;
+    if ( btaggedak4jetsel(evt, ijet,retbtaggedak4jetsel) != 0 ) goodBTaggedAK4Jets.push_back(jet) ; 
   }
 
   //// Pre-selection ak4 jets 
@@ -353,37 +383,100 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   //// Pre-selection HT
   if ( htak4.getHT() < HTMin_ ) return false; 
 
-  HT htak8(p4_goodAK8Jets) ; 
+  HT htak8(goodAK8Jets) ; 
 
+  //// Make W and H jets 
+  JetCollection wjets, hjets ; 
+  JetSelector wjetsel(WJetSelParams_) ;
+  JetSelector hjetsel(HJetSelParams_) ;
+  pat::strbitset retwjetsel = wjetsel.getBitTemplate() ;
+  pat::strbitset rethjetsel = hjetsel.getBitTemplate() ;
+  for ( unsigned ijet = 0; ijet < (h_jetAK8Pt.product())->size(); ++ijet) {
+    TLorentzVector jetP4 ;
+    jetP4.SetPtEtaPhiM( (h_jetAK4Pt.product())->at(ijet), 
+        (h_jetAK4Eta.product())->at(ijet), 
+        (h_jetAK4Phi.product())->at(ijet), 
+        (h_jetAK4Mass.product())->at(ijet) ) ;
+    Jet jet(jetP4) ;
+    retwjetsel.set(false) ;
+    if (wjetsel(evt, ijet,retwjetsel) == true ) wjets.push_back(jet) ; 
+    rethjetsel.set(false) ;
+    if (hjetsel(evt, ijet,rethjetsel) == true ) hjets.push_back(jet) ; 
+  }
+
+  //// Pick forwardmost AK4 jet
+  double maxeta(0) ;
+  for ( auto& jet : goodAK4Jets ) {
+    if ( abs(jet.p4().Eta()) > abs(maxeta) ) maxeta = jet.p4().Eta() ; 
+  }
+
+  double ptak8_1 = goodAK8Jets.at(0).p4().Pt() ;
+  double ptak8_2(0) ; 
+  goodAK8Jets.size() > 1 ?  ptak8_2 = goodAK8Jets.at(1).p4().Pt() : 0 ; 
+  double mak8_1 = goodAK8Jets.at(0).p4().Mag() ;
+  double mak8_2(0) ; 
+  goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).p4().Mag() : 0 ; 
+  double mak8_12(0) ; 
+  double detaLeading2AK8(-1) ; 
+  if (goodAK8Jets.size() > 1) {
+    TLorentzVector p4_ak8_12(goodAK8Jets.at(0).p4() + goodAK8Jets.at(1).p4()) ;
+    mak8_12 = p4_ak8_12.Mag() ; 
+    detaLeading2AK8 = abs(goodAK8Jets.at(0).p4().Eta() - goodAK8Jets.at(1).p4().Eta() ) ;
+  }
+
+  std::auto_ptr<int> ngoodAK4Jets ( new int(goodAK4Jets.size()) );
+  std::auto_ptr<int> ngoodAK8Jets ( new int(goodAK8Jets.size()) );
+  std::auto_ptr<int> nWJets ( new int(wjets.size()) );
+  std::auto_ptr<int> nHJets ( new int(hjets.size()) );
+  std::auto_ptr<int> ngoodBTaggedAK4Jets ( new int(goodBTaggedAK4Jets.size()) );
   std::auto_ptr<double> htak4jets ( new double(htak4.getHT()) );
   std::auto_ptr<double> htak8jets ( new double(htak8.getHT()) );
+  std::auto_ptr<double> maxetaak4 ( new double(maxeta) );
+  std::auto_ptr<double> MassLeading2AK8 ( new double(mak8_12) );
+  std::auto_ptr<double> DeltaEtaLeading2AK8 ( new double(detaLeading2AK8) );
+  std::auto_ptr<double> pt1stAK8   ( new double(ptak8_1) );
+  std::auto_ptr<double> pt2ndAK8   ( new double(ptak8_2) );
+  std::auto_ptr<double> mass1stAK8 ( new double(mak8_1) );
+  std::auto_ptr<double> mass2ndAK8 ( new double(mak8_2) );
 
+  evt.put(ngoodAK4Jets, "ngoodAK4Jets") ; 
+  evt.put(ngoodAK8Jets, "ngoodAK8Jets") ; 
+  evt.put(nWJets, "nWJets") ; 
+  evt.put(nHJets, "nHJets") ; 
+  evt.put(ngoodBTaggedAK4Jets, "ngoodBTaggedAK4Jets") ; 
   evt.put(htak4jets, "htak4jets") ; 
   evt.put(htak8jets, "htak8jets") ; 
+  evt.put(maxetaak4, "maxetaak4") ; 
+  evt.put(MassLeading2AK8, "MassLeading2AK8") ; 
+  evt.put(DeltaEtaLeading2AK8, "DeltaEtaLeading2AK8") ; 
+  evt.put(pt1stAK8  , "pt1stAK8") ; 
+  evt.put(pt2ndAK8  , "pt2ndAK8") ; 
+  evt.put(mass1stAK8, "mass1stAK8") ; 
+  evt.put(mass2ndAK8, "mass2ndAK8") ; 
 
   return true ; 
 
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   evt.getByLabel("example",pIn);
+  /* This is an event example
+  //Read 'ExampleData' from the Event
+  Handle<ExampleData> pIn;
+  evt.getByLabel("example",pIn);
 
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   evt.put(std::move(pOut));
-*/
+  //Use the ExampleData to create an ExampleData2 which 
+  // is put into the Event
+  std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+  evt.put(std::move(pOut));
+  */
 
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
- 
+  /* this is an EventSetup example
+  //Read SetupData from the SetupRecord in the EventSetup
+  ESHandle<SetupData> pSetup;
+  iSetup.get<SetupRecord>().get(pSetup);
+  */
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+  void 
 VLQAna::beginJob()
 {
 }
@@ -395,36 +488,36 @@ VLQAna::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 /*
-void
-VLQAna::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
+   void
+   VLQAna::beginRun(edm::Run const&, edm::EventSetup const&)
+   {
+   }
+   */
+
 // ------------ method called when ending the processing of a run  ------------
 /*
-void
-VLQAna::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
+   void
+   VLQAna::endRun(edm::Run const&, edm::EventSetup const&)
+   {
+   }
+   */
+
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
-void
-VLQAna::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
+   void
+   VLQAna::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+   {
+   }
+   */
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
-void
-VLQAna::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
+   void
+   VLQAna::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+   {
+   }
+   */
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 VLQAna::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

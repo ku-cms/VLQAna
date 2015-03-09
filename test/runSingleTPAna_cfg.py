@@ -6,6 +6,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
     '/store/user/eschmitz/b2g/PHYS14/TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/TprimeTH_allHdecays_M1200GeV_edmntuple_B2GAnaFWvFeb11/150213_071948/0000/B2GEDMNtuple_1.root', 
+    #'/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
+    #'/store/user/eschmitz/b2g/PHYS14/QCD_HT_1000ToInf_13TeV-madgraph/ext1_v1_edmntuple_B2GAnaFW/150218_154901/0000/B2GEDMNtuple_1.root'
     )
     )
 
@@ -70,7 +72,11 @@ process.ana = cms.EDFilter("VLQAna",
     jetAK4YLabel               = cms.InputTag("jetsAK4", "jetAK4Y"),
     jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
     hltPaths                   = cms.vstring ("HLT_AK8PFJet360TrimMod_Mass30_v1", "HLT_PFHT900_v1"), 
-    JetSelParams               = defaultJetSelectionParameters.clone(), 
+    AK4JetSelParams            = defaultAK4JetSelectionParameters.clone(), 
+    BTaggedAK4JetSelParams     = defaultBTaggedAK4JetSelectionParameters.clone(), 
+    AK8JetSelParams            = defaultAK8JetSelectionParameters.clone(), 
+    HJetSelParams              = defaultHJetSelectionParameters.clone(), 
+    WJetSelParams              = defaultWJetSelectionParameters.clone(), 
     ak8jetsPtMin               = cms.double  (300),
     ak8jetsEtaMax              = cms.double  (2.4),
     ak4jetsPtMin               = cms.double  (30),
@@ -89,10 +95,10 @@ process.out = cms.OutputModule("PoolOutputModule",
       ),
     outputCommands = cms.untracked.vstring(
       "drop *",
-      "keep *_jetsAK4_*_*",
-      "keep *_jetsAK8_*_*",
-      "keep *_subjetsAK8_*_*",
-      "keep *_subjetsCmsTopTag*_*_*",
+      #"keep *_jetsAK4_*_*",
+      #"keep *_jetsAK8_*_*",
+      #"keep *_subjetsAK8_*_*",
+      #"keep *_subjetsCmsTopTag*_*_*",
       "keep *_ana_*_*",
       )
     )

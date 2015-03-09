@@ -1,9 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from Analysis.VLQAna.Jet_cfi import defaultJetAK4Parameters
+from Analysis.VLQAna.Jet_cfi import * 
 
-defaultJetIDParameters = cms.PSet(
-    defaultJetAK4Parameters, 
+defaultAK4JetIDParameters = cms.PSet(
+    defaultAK4JetParameters, 
     version                    = cms.string  ("FIRSTDATA"),
     quality                    = cms.string  ("LOOSE"),
+    )
+
+defaultAK8JetIDParameters = cms.PSet(
+    defaultAK8JetParameters, 
+    version                    = cms.string  ("FIRSTDATA"),
+    quality                    = cms.string  ("TIGHT"),
     )
