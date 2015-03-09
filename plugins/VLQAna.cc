@@ -225,6 +225,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   produces<double>("pt2ndAK8");
   produces<double>("mass1stAK8");
   produces<double>("mass2ndAK8");
+  produces<vector<unsigned> >("ak4goodjets");
+  produces<vector<unsigned> >("ak8goodjets");
 
   edm::Service<TFileService> fs; 
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -331,6 +333,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   if (hltdecisions == 0) return false ; 
 
   JetCollection goodAK8Jets, goodAK4Jets, goodBTaggedAK4Jets ;
+  vector<unsigned> ak4seljets, ak8seljets;
 
   //// Store good AK8 jets
   JetSelector ak8jetsel(AK8JetSelParams_) ;
@@ -348,6 +351,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK8Mass.product())->at(ijet) ) ;
     Jet jet(jetP4) ;
     goodAK8Jets.push_back(jet) ;
+    ak8seljets.push_back(ijet);
   }
 
   //// Pre-selection ak8 jets 
@@ -372,6 +376,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK4Mass.product())->at(ijet) ) ;
     Jet jet(jetP4) ;
     goodAK4Jets.push_back(jet) ;
+    ak4seljets.push_back(ijet);
     if ( btaggedak4jetsel(evt, ijet,retbtaggedak4jetsel) != 0 ) goodBTaggedAK4Jets.push_back(jet) ; 
   }
 
@@ -431,13 +436,15 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   std::auto_ptr<int> ngoodBTaggedAK4Jets ( new int(goodBTaggedAK4Jets.size()) );
   std::auto_ptr<double> htak4jets ( new double(htak4.getHT()) );
   std::auto_ptr<double> htak8jets ( new double(htak8.getHT()) );
-  std::auto_ptr<double> maxetaak4 ( new double(maxeta) );
+    std::auto_ptr<double> maxetaak4 ( new double(maxeta) );
   std::auto_ptr<double> MassLeading2AK8 ( new double(mak8_12) );
   std::auto_ptr<double> DeltaEtaLeading2AK8 ( new double(detaLeading2AK8) );
   std::auto_ptr<double> pt1stAK8   ( new double(ptak8_1) );
   std::auto_ptr<double> pt2ndAK8   ( new double(ptak8_2) );
   std::auto_ptr<double> mass1stAK8 ( new double(mak8_1) );
   std::auto_ptr<double> mass2ndAK8 ( new double(mak8_2) );
+  std::auto_ptr<vector<unsigned> > ak4goodjets ( new vector<unsigned>(ak4seljets));
+  std::auto_ptr<vector<unsigned> > ak8goodjets ( new vector<unsigned>(ak8seljets));
 
   evt.put(ngoodAK4Jets, "ngoodAK4Jets") ; 
   evt.put(ngoodAK8Jets, "ngoodAK8Jets") ; 
@@ -453,6 +460,10 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   evt.put(pt2ndAK8  , "pt2ndAK8") ; 
   evt.put(mass1stAK8, "mass1stAK8") ; 
   evt.put(mass2ndAK8, "mass2ndAK8") ; 
+  evt.put(htak4jets, "htak4jets") ; 
+  evt.put(htak8jets, "htak8jets") ; 
+  evt.put(ak4goodjets, "ak4goodjets");
+  evt.put(ak8goodjets, "ak8goodjets");
 
   return true ; 
 
