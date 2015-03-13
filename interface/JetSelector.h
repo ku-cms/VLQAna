@@ -22,7 +22,8 @@ class JetSelector : public Selector<int> {
 
     JetSelector (edm::ParameterSet const& pars) :
       JetIDParams_ (pars.getParameter<edm::ParameterSet> ("JetIDParams")), 
-      JetSubstrParams_ (pars.getParameter<edm::ParameterSet> ("JetSubstrParams")) 
+      JetSubstrParams_ (pars.getParameter<edm::ParameterSet> ("JetSubstrParams")), 
+      SubjetParams_ (pars.getParameter<edm::ParameterSet> ("SubjetParams")) 
     {
 
       std::string jettypeStr = pars.getParameter<std::string>("jettype") ;
@@ -62,10 +63,17 @@ class JetSelector : public Selector<int> {
         l_jettopMass         = JetSubstrParams_.getParameter<edm::InputTag> ("jettopMassLabel") ;
         l_jetminMass         = JetSubstrParams_.getParameter<edm::InputTag> ("jetminMassLabel") ;
         l_jetnSubJets        = JetSubstrParams_.getParameter<edm::InputTag> ("jetnSubJetsLabel") ; 
-        l_jetsubjetIndex0    = JetSubstrParams_.getParameter<edm::InputTag> ("jetsubjetIndex0Label") ; 
-        l_jetsubjetIndex1    = JetSubstrParams_.getParameter<edm::InputTag> ("jetsubjetIndex1Label") ; 
-        l_jetsubjetIndex2    = JetSubstrParams_.getParameter<edm::InputTag> ("jetsubjetIndex2Label") ; 
-        l_jetsubjetIndex3    = JetSubstrParams_.getParameter<edm::InputTag> ("jetsubjetIndex3Label") ; 
+        l_vjetsjIdx0         = JetSubstrParams_.getParameter<edm::InputTag> ("vjetsjIdx0Label") ; 
+        l_vjetsjIdx1         = JetSubstrParams_.getParameter<edm::InputTag> ("vjetsjIdx1Label") ; 
+        l_tjetsjIdx0         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx2Label") ; 
+        l_tjetsjIdx1         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx3Label") ; 
+        l_tjetsjIdx2         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx2Label") ; 
+        l_tjetsjIdx3         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx3Label") ; 
+        l_ak8sjPt            = SubjetParams_.getParameter<edm::InputTag> ("jetPtLabel") ; 
+        l_ak8sjEta           = SubjetParams_.getParameter<edm::InputTag> ("jetEtaLabel") ; 
+        l_ak8sjPhi           = SubjetParams_.getParameter<edm::InputTag> ("jetEtaLabel") ; 
+        l_ak8sjMass          = SubjetParams_.getParameter<edm::InputTag> ("jetMassLabel") ; 
+        l_ak8sjCSV           = SubjetParams_.getParameter<edm::InputTag> ("jetCSVLabel") ; 
       }
 
       push_back("jetPtMin") ;
@@ -92,6 +100,8 @@ class JetSelector : public Selector<int> {
         push_back("jetMinMassMax") ;
         push_back("jetnSubJetsMin") ;
         push_back("jetnSubJetsMax") ;
+        push_back("subjetMassMin") ;
+        push_back("subjetCSVMin") ;
       }
 
       set("jetPtMin"         ,pars.getParameter<double>("jetPtMin") ) ;
@@ -118,6 +128,8 @@ class JetSelector : public Selector<int> {
         set("jetMinMassMax"    ,pars.getParameter<double>("jetMinMassMax"), (type_ == CMSTOPTAGGEDAK8JET)) ;
         set("jetnSubJetsMin"   ,pars.getParameter<double>("jetnSubJetsMin"), (type_ == AK8JET || type_ == BTAGGEDAK8JET || type_ == HTAGGEDAK8JET)) ;
         set("jetnSubJetsMax"   ,pars.getParameter<double>("jetnSubJetsMax"), (type_ == AK8JET || type_ == BTAGGEDAK8JET || type_ == HTAGGEDAK8JET)) ;
+        set("subjetMassMin"    ,pars.getParameter<double>("subjetMassMin"),  (type_ == AK8JET || type_ == BTAGGEDAK8JET || type_ == HTAGGEDAK8JET)) ;
+        set("subjetCSVMin"     ,pars.getParameter<double>("subjetCSVMin"),   (type_ == AK8JET || type_ == BTAGGEDAK8JET || type_ == HTAGGEDAK8JET)) ;
       }
 
       idxjetPtMin_          = index_type(&bits_ ,"jetPtMin") ;
@@ -144,6 +156,8 @@ class JetSelector : public Selector<int> {
         idxjetMinMassMax_     = index_type(&bits_ ,"jetMinMassMax") ;
         idxjetnSubJetsMin_    = index_type(&bits_ ,"jetnSubJetsMin") ;
         idxjetnSubJetsMax_    = index_type(&bits_ ,"jetnSubJetsMax") ;
+        idxsjMassMin_         = index_type(&bits_ ,"subjetMassMin") ;
+        idxsjCSVMin_          = index_type(&bits_ ,"subjetCSVMin") ;
       }
 
       retInternal_ = getBitTemplate();   
@@ -206,19 +220,20 @@ class JetSelector : public Selector<int> {
       }
       else if ( type_ == AK8JET || type_ == BTAGGEDAK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
 
-        Handle <vector<float>>  h_jettau1           ; evt.getByLabel (l_jettau1             , h_jettau1           );
-        Handle <vector<float>>  h_jettau2           ; evt.getByLabel (l_jettau2             , h_jettau2           );
-        Handle <vector<float>>  h_jettau3           ; evt.getByLabel (l_jettau3             , h_jettau3           );
-        Handle <vector<float>>  h_jetprunedMass     ; evt.getByLabel (l_jetprunedMass       , h_jetprunedMass     );
-        Handle <vector<float>>  h_jettrimmedMass    ; evt.getByLabel (l_jettrimmedMass      , h_jettrimmedMass    );
-        Handle <vector<float>>  h_jetwMass          ; evt.getByLabel (l_jetwMass            , h_jetwMass          );
-        Handle <vector<float>>  h_jettopMass        ; evt.getByLabel (l_jettopMass          , h_jettopMass        );
-        Handle <vector<float>>  h_jetminMass        ; evt.getByLabel (l_jetminMass          , h_jetminMass        );
-        Handle <vector<float>>  h_jetnSubJets       ; evt.getByLabel (l_jetnSubJets         , h_jetnSubJets       );
-        Handle <vector<float>>  h_jetsubjetIndex0   ; evt.getByLabel (l_jetsubjetIndex0     , h_jetsubjetIndex0   );
-        Handle <vector<float>>  h_jetsubjetIndex1   ; evt.getByLabel (l_jetsubjetIndex1     , h_jetsubjetIndex1   );
-        Handle <vector<float>>  h_jetsubjetIndex2   ; evt.getByLabel (l_jetsubjetIndex2     , h_jetsubjetIndex2   );
-        Handle <vector<float>>  h_jetsubjetIndex3   ; evt.getByLabel (l_jetsubjetIndex3     , h_jetsubjetIndex3   );
+        Handle <vector<float>>  h_jettau1           ; evt.getByLabel (l_jettau1             , h_jettau1        );
+        Handle <vector<float>>  h_jettau2           ; evt.getByLabel (l_jettau2             , h_jettau2        );
+        Handle <vector<float>>  h_jettau3           ; evt.getByLabel (l_jettau3             , h_jettau3        );
+        Handle <vector<float>>  h_jetprunedMass     ; evt.getByLabel (l_jetprunedMass       , h_jetprunedMass  );
+        Handle <vector<float>>  h_jettrimmedMass    ; evt.getByLabel (l_jettrimmedMass      , h_jettrimmedMass );
+        Handle <vector<float>>  h_jetwMass          ; evt.getByLabel (l_jetwMass            , h_jetwMass       );
+        Handle <vector<float>>  h_jettopMass        ; evt.getByLabel (l_jettopMass          , h_jettopMass     );
+        Handle <vector<float>>  h_jetminMass        ; evt.getByLabel (l_jetminMass          , h_jetminMass     );
+        Handle <vector<float>>  h_jetnSubJets       ; evt.getByLabel (l_jetnSubJets         , h_jetnSubJets    );
+        Handle <vector<float>>  h_ak8sjPt           ; evt.getByLabel (l_ak8sjPt             , h_ak8sjPt        );
+        Handle <vector<float>>  h_ak8sjEta          ; evt.getByLabel (l_ak8sjEta            , h_ak8sjEta       );
+        Handle <vector<float>>  h_ak8sjPhi          ; evt.getByLabel (l_ak8sjPhi            , h_ak8sjPhi       );
+        Handle <vector<float>>  h_ak8sjMass         ; evt.getByLabel (l_ak8sjMass           , h_ak8sjMass      );
+        Handle <vector<float>>  h_ak8sjCSV          ; evt.getByLabel (l_ak8sjCSV            , h_ak8sjCSV       );
 
         double jettau1         = (h_jettau1.product())->at(jet) ; 
         double jettau2         = (h_jettau2.product())->at(jet) ; 
@@ -226,10 +241,7 @@ class JetSelector : public Selector<int> {
         double jetMass         = (h_jetMass.product())->at(jet) ;
         double jetPrunedMass   = (h_jetprunedMass.product())->at(jet) ;
         double jetTrimmedMass  = (h_jettrimmedMass.product())->at(jet) ;
-        //double jetWMass        = (h_jetwMass.product())->at(jet) ;
-        //double jetTopMass      = (h_jettopMass.product())->at(jet) ;
-        //double jetMinMass      = (h_jetnSubJets.product())->at(jet) ;
-        //int    jetnSubJets     = int((h_jetminMass.product())->at(jet)) ;
+        int    jetnSubJets     = int((h_jetnSubJets.product())->at(jet)) ;
 
         if ( jetPt          < cut(idxjetPtMin_         , double() ) ) { 
           LogDebug("JetSelector") << " ak8 jet fails pt = " << jetPt << " < cutmin\n" ; 
@@ -291,30 +303,62 @@ class JetSelector : public Selector<int> {
           LogDebug("JetSelector") << " ak8 jet fails jetTrimmedMass = " << jetTrimmedMass << " > cutmax\n" ; 
           return false ; 
         }   
-        //if ( jetWMass       < cut(idxjetWMassMin_      , double() ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetWMass       > cut(idxjetWMassMax_      , double() ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetTopMass     < cut(idxjetTopMassMin_    , double() ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetTopMass     > cut(idxjetTopMassMax_    , double() ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetMinMass     < cut(idxjetMinMassMin_    , double() ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetMinMass     > cut(idxjetMinMassMax_    , double() ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetnSubJets    < cut(idxjetnSubJetsMin_   , int()    ) ) { 
-        //  return false ; 
-        //}   
-        //if ( jetnSubJets    > cut(idxjetnSubJetsMax_   , int()    ) ) { 
-        //  return false ; 
-        //}  
+        if (type_ == HTAGGEDAK8JET) {
+          Handle <vector<float>>  h_vjetsjIdx0        ; evt.getByLabel (l_vjetsjIdx0          , h_vjetsjIdx0     );
+          Handle <vector<float>>  h_vjetsjIdx1        ; evt.getByLabel (l_vjetsjIdx1          , h_vjetsjIdx1     );
+          int    vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(jet)) ;
+          int    vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(jet)) ;
+          double vjetssj0Pt      = (h_ak8sjPt.product())->at(vjetsjIdx0) ; 
+          double vjetssj1Pt      = (h_ak8sjPt.product())->at(vjetsjIdx1) ; 
+          double vjetssj0Eta     = (h_ak8sjEta.product())->at(vjetsjIdx0) ; 
+          double vjetssj1Eta     = (h_ak8sjEta.product())->at(vjetsjIdx1) ; 
+          double vjetssj0Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx0) ; 
+          double vjetssj1Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx1) ; 
+          double vjetssj0Mass    = (h_ak8sjMass.product())->at(vjetsjIdx0) ; 
+          double vjetssj1Mass    = (h_ak8sjMass.product())->at(vjetsjIdx1) ; 
+          double vjetssj0CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx0) ; 
+          double vjetssj1CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx1) ; 
+          TLorentzVector p4sj0, p4sj1; 
+          p4sj0.SetPtEtaPhiM(vjetssj0Pt, vjetssj0Eta, vjetssj0Phi, vjetssj0Mass) ; 
+          p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
+          if (jetnSubJets >= cut(idxjetnSubJetsMin_, int()) && jetnSubJets <= cut(idxjetnSubJetsMax_, int())
+              && p4sj0.Mag() > cut(idxsjMassMin_, double()) && p4sj1.Mag() > cut(idxsjMassMin_, double())
+              && vjetssj0CSV > cut(idxsjCSVMin_, double()) && vjetssj1CSV > cut(idxsjCSVMin_, double())) return true ; 
+          else return false ; 
+        }
+        else if (type_ == CMSTOPTAGGEDAK8JET) {
+          Handle <vector<float>>  h_tjetsjIdx0        ; evt.getByLabel (l_tjetsjIdx0          , h_tjetsjIdx0     );
+          Handle <vector<float>>  h_tjetsjIdx1        ; evt.getByLabel (l_tjetsjIdx1          , h_tjetsjIdx1     );
+          Handle <vector<float>>  h_tjetsjIdx2        ; evt.getByLabel (l_tjetsjIdx2          , h_tjetsjIdx2     );
+          Handle <vector<float>>  h_tjetsjIdx3        ; evt.getByLabel (l_tjetsjIdx3          , h_tjetsjIdx3     );
+          //int    tjetsjIdx0      = int((h_tjetsjIdx0.product())->at(jet)) ;
+          //int    tjetsjIdx1      = int((h_tjetsjIdx1.product())->at(jet)) ;
+          //int    tjetsjIdx2      = int((h_tjetsjIdx2.product())->at(jet)) ;
+          //int    tjetsjIdx3      = int((h_tjetsjIdx3.product())->at(jet)) ;
+          //double tjetssj0Pt      = (h_ak8sjPt.product())->at(tjetsjIdx0) ; 
+          //double tjetssj1Pt      = (h_ak8sjPt.product())->at(tjetsjIdx2) ; 
+          //double tjetssj2Pt      = (h_ak8sjPt.product())->at(tjetsjIdx2) ; 
+          //double tjetssj3Pt      = (h_ak8sjPt.product())->at(tjetsjIdx3) ; 
+          //double tjetssj0Eta     = (h_ak8sjEta.product())->at(tjetsjIdx0) ; 
+          //double tjetssj1Eta     = (h_ak8sjEta.product())->at(tjetsjIdx1) ; 
+          //double tjetssj2Eta     = (h_ak8sjEta.product())->at(tjetsjIdx2) ; 
+          //double tjetssj3Eta     = (h_ak8sjEta.product())->at(tjetsjIdx3) ; 
+          //double tjetssj0Phi     = (h_ak8sjPhi.product())->at(tjetsjIdx0) ; 
+          //double tjetssj1Phi     = (h_ak8sjPhi.product())->at(tjetsjIdx1) ; 
+          //double tjetssj2Phi     = (h_ak8sjPhi.product())->at(tjetsjIdx2) ; 
+          //double tjetssj3Phi     = (h_ak8sjPhi.product())->at(tjetsjIdx3) ; 
+          //double tjetssj0Mass    = (h_ak8sjMass.product())->at(tjetsjIdx0) ; 
+          //double tjetssj1Mass    = (h_ak8sjMass.product())->at(tjetsjIdx1) ; 
+          //double tjetssj2Mass    = (h_ak8sjMass.product())->at(tjetsjIdx2) ; 
+          //double tjetssj3Mass    = (h_ak8sjMass.product())->at(tjetsjIdx3) ; 
+          //double jetWMass        = (h_jetwMass.product())->at(jet) ;
+          double jetTopMass      = (h_jettopMass.product())->at(jet) ;
+          double jetMinMass      = (h_jetnSubJets.product())->at(jet) ;
+          if (jetnSubJets > cut(idxjetnSubJetsMin_, int()) && jetnSubJets < cut(idxjetnSubJetsMax_, int())
+              && jetTopMass > cut(idxjetTopMassMin_, double()) && jetTopMass < cut(idxjetTopMassMax_, double())
+              && jetMinMass > cut(idxjetMinMassMin_, double()) && jetMinMass < cut(idxjetMinMassMax_, double())) return true ; 
+          else return false ; 
+        }
         else {
           return true ;
         }
@@ -325,88 +369,9 @@ class JetSelector : public Selector<int> {
         return false ; 
       }
 
-      /*
-         if ( ignoreCut(idxjetPtMin_         ) || jetPt          > cut(idxjetPtMin_         , double() ) ) passCut( ret ,idxjetPtMin_         ) ; 
-         if ( ignoreCut(idxjetPtMax_         ) || jetPt          < cut(idxjetPtMax_         , double() ) ) passCut( ret ,idxjetPtMax_         ) ; 
-         if ( ignoreCut(idxjetAbsEtaMax_     ) || jetAbsEta      < cut(idxjetAbsEtaMax_     , double() ) ) passCut( ret ,idxjetAbsEtaMax_     ) ; 
-         if ( ignoreCut(idxjetCSVDiscMin_    ) || jetCSVDisc     > cut(idxjetCSVDiscMin_    , double() ) ) passCut( ret ,idxjetCSVDiscMin_    ) ;
-         if ( ignoreCut(idxjetCSVDiscMax_    ) || jetCSVDisc     < cut(idxjetCSVDiscMax_    , double() ) ) passCut( ret ,idxjetCSVDiscMax_    ) ;
-         if ( type_ == AK8JET || type_ == BTAGGEDAK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
-         Handle <vector<float>>  h_jettau1           ; evt.getByLabel (l_jettau1             , h_jettau1           );
-         Handle <vector<float>>  h_jettau2           ; evt.getByLabel (l_jettau2             , h_jettau2           );
-         Handle <vector<float>>  h_jettau3           ; evt.getByLabel (l_jettau3             , h_jettau3           );
-         Handle <vector<float>>  h_jetprunedMass     ; evt.getByLabel (l_jetprunedMass       , h_jetprunedMass     );
-         Handle <vector<float>>  h_jettrimmedMass    ; evt.getByLabel (l_jettrimmedMass      , h_jettrimmedMass    );
-         Handle <vector<float>>  h_jetwMass          ; evt.getByLabel (l_jetwMass            , h_jetwMass          );
-         Handle <vector<float>>  h_jettopMass        ; evt.getByLabel (l_jettopMass          , h_jettopMass        );
-         Handle <vector<float>>  h_jetminMass        ; evt.getByLabel (l_jetminMass          , h_jetminMass        );
-         Handle <vector<float>>  h_jetnSubJets       ; evt.getByLabel (l_jetnSubJets         , h_jetnSubJets       );
-         Handle <vector<float>>  h_jetsubjetIndex0   ; evt.getByLabel (l_jetsubjetIndex0     , h_jetsubjetIndex0   );
-         Handle <vector<float>>  h_jetsubjetIndex1   ; evt.getByLabel (l_jetsubjetIndex1     , h_jetsubjetIndex1   );
-         Handle <vector<float>>  h_jetsubjetIndex2   ; evt.getByLabel (l_jetsubjetIndex2     , h_jetsubjetIndex2   );
-         Handle <vector<float>>  h_jetsubjetIndex3   ; evt.getByLabel (l_jetsubjetIndex3     , h_jetsubjetIndex3   );
-
-         double jettau1         = (h_jettau1.product())->at(jet) ; 
-         double jettau2         = (h_jettau2.product())->at(jet) ; 
-         double jettau3         = (h_jettau3.product())->at(jet) ; 
-         double jetMass         = (h_jetMass.product())->at(jet) ;
-         double jetPrunedMass   = (h_jetprunedMass.product())->at(jet) ;
-         double jetTrimmedMass  = (h_jettrimmedMass.product())->at(jet) ;
-         double jetWMass        = (h_jetwMass.product())->at(jet) ;
-         double jetTopMass      = (h_jettopMass.product())->at(jet) ;
-         double jetMinMass      = (h_jetnSubJets.product())->at(jet) ;
-         int    jetnSubJets     = int((h_jetminMass.product())->at(jet)) ;
-
-         if ( ignoreCut(idxjettau2Bytau1Min_ ) || jettau2/jettau1< cut(idxjettau2Bytau1Min_ , double() ) ) passCut( ret ,idxjettau2Bytau1Min_ ) ;
-         if ( ignoreCut(idxjettau2Bytau1Max_ ) || jettau2/jettau1> cut(idxjettau2Bytau1Max_ , double() ) ) passCut( ret ,idxjettau2Bytau1Max_ ) ;
-         if ( ignoreCut(idxjettau3Bytau2Min_ ) || jettau3/jettau2< cut(idxjettau3Bytau2Min_ , double() ) ) passCut( ret ,idxjettau3Bytau2Min_ ) ;
-         if ( ignoreCut(idxjettau3Bytau2Max_ ) || jettau3/jettau2> cut(idxjettau3Bytau2Max_ , double() ) ) passCut( ret ,idxjettau3Bytau2Max_ ) ;
-         if ( ignoreCut(idxjetMassMin_       ) || jetMass        < cut(idxjetMassMin_       , double() ) ) passCut( ret ,idxjetMassMin_       ) ;
-         if ( ignoreCut(idxjetMassMax_       ) || jetMass        > cut(idxjetMassMax_       , double() ) ) passCut( ret ,idxjetMassMax_       ) ;
-         if ( ignoreCut(idxjetPrunedMassMin_ ) || jetPrunedMass  < cut(idxjetPrunedMassMin_ , double() ) ) passCut( ret ,idxjetPrunedMassMin_ ) ;
-         if ( ignoreCut(idxjetPrunedMassMax_ ) || jetPrunedMass  > cut(idxjetPrunedMassMax_ , double() ) ) passCut( ret ,idxjetPrunedMassMax_ ) ;
-         if ( ignoreCut(idxjetTrimmedMassMin_) || jetTrimmedMass < cut(idxjetTrimmedMassMin_, double() ) ) passCut( ret ,idxjetTrimmedMassMin_) ;
-         if ( ignoreCut(idxjetTrimmedMassMax_) || jetTrimmedMass > cut(idxjetTrimmedMassMax_, double() ) ) passCut( ret ,idxjetTrimmedMassMax_) ;
-         if ( ignoreCut(idxjetWMassMin_      ) || jetWMass       < cut(idxjetWMassMin_      , double() ) ) passCut( ret ,idxjetWMassMin_      ) ;
-         if ( ignoreCut(idxjetWMassMax_      ) || jetWMass       > cut(idxjetWMassMax_      , double() ) ) passCut( ret ,idxjetWMassMax_      ) ;
-         if ( ignoreCut(idxjetTopMassMin_    ) || jetTopMass     < cut(idxjetTopMassMin_    , double() ) ) passCut( ret ,idxjetTopMassMin_    ) ;
-         if ( ignoreCut(idxjetTopMassMax_    ) || jetTopMass     > cut(idxjetTopMassMax_    , double() ) ) passCut( ret ,idxjetTopMassMax_    ) ;
-         if ( ignoreCut(idxjetMinMassMin_    ) || jetMinMass     < cut(idxjetMinMassMin_    , double() ) ) passCut( ret ,idxjetMinMassMin_    ) ;
-         if ( ignoreCut(idxjetMinMassMax_    ) || jetMinMass     > cut(idxjetMinMassMax_    , double() ) ) passCut( ret ,idxjetMinMassMax_    ) ;
-         if ( ignoreCut(idxjetnSubJetsMin_   ) || jetnSubJets    < cut(idxjetnSubJetsMin_   , int()    ) ) passCut( ret ,idxjetnSubJetsMin_   ) ;
-         if ( ignoreCut(idxjetnSubJetsMax_   ) || jetnSubJets    > cut(idxjetnSubJetsMax_   , int()    ) ) passCut( ret ,idxjetnSubJetsMax_   ) ;
-         }
-
-         if ( type_ != HTAGGEDAK8JET ) {
-         setIgnored( ret ) ; 
-         return (bool)ret ; 
-         }
-
-      //int jetsubjetIndex0 = int((h_jetsubjetIndex0.product())->at(jet)) ; 
-      //int jetsubjetIndex1 = int((h_jetsubjetIndex1.product())->at(jet)) ; 
-      //int jetsubjetIndex2 = int((h_jetsubjetIndex2.product())->at(jet)) ; 
-      //int jetsubjetIndex3 = int((h_jetsubjetIndex3.product())->at(jet)) ; 
-
-      setIgnored( ret ) ; 
-      return (bool)ret ; 
-      */
-
     }
 
   private:
-
-    //bool noJetFatJetOverlap (JetInfoBranches& jetInfo, int jet, JetCollection& fatjets) { 
-    //  bool noJetOverlap(true) ; 
-    //  TLorentzVector jet_p4;
-    //  jet_p4.SetPtEtaPhiM(jetInfo.Pt[jet], jetInfo.Eta[jet], jetInfo.Phi[jet], jetInfo.Mass[jet]); 
-    //  for (JetCollection::const_iterator ifatjet = fatjets.begin(); ifatjet != fatjets.end(); ++ifatjet) {
-    //    TLorentzVector fatjet_p4 ; 
-    //    fatjet_p4.SetPtEtaPhiM(ifatjet->Pt(), ifatjet->Eta(), ifatjet->Phi(), ifatjet->Mass());  
-    //    if (jet_p4.DeltaR(fatjet_p4) < 1.2) noJetOverlap = false ; 
-    //    break ; 
-    //  }
-    //  return noJetOverlap ; 
-    //}
 
     JETTYPES_t type_ ; 
 
@@ -415,6 +380,7 @@ class JetSelector : public Selector<int> {
     JetID::Quality_t quality_; 
     edm::ParameterSet JetIDParams_ ; 
     edm::ParameterSet JetSubstrParams_ ; 
+    edm::ParameterSet SubjetParams_ ; 
 
     index_type idxjetPtMin_          ;
     index_type idxjetPtMax_          ;
@@ -439,6 +405,8 @@ class JetSelector : public Selector<int> {
     index_type idxjetMinMassMax_     ; 
     index_type idxjetnSubJetsMin_    ; 
     index_type idxjetnSubJetsMax_    ; 
+    index_type idxsjMassMin_         ; 
+    index_type idxsjCSVMin_          ; 
 
     edm::InputTag l_jetPt              ; 
     edm::InputTag l_jetEta             ; 
@@ -466,10 +434,17 @@ class JetSelector : public Selector<int> {
     edm::InputTag l_jettopMass         ; 
     edm::InputTag l_jetminMass         ; 
     edm::InputTag l_jetnSubJets        ; 
-    edm::InputTag l_jetsubjetIndex0    ; 
-    edm::InputTag l_jetsubjetIndex1    ; 
-    edm::InputTag l_jetsubjetIndex2    ; 
-    edm::InputTag l_jetsubjetIndex3    ; 
+    edm::InputTag l_vjetsjIdx0         ; 
+    edm::InputTag l_vjetsjIdx1         ; 
+    edm::InputTag l_tjetsjIdx0         ; 
+    edm::InputTag l_tjetsjIdx1         ; 
+    edm::InputTag l_tjetsjIdx2         ; 
+    edm::InputTag l_tjetsjIdx3         ; 
+    edm::InputTag l_ak8sjPt            ; 
+    edm::InputTag l_ak8sjEta           ; 
+    edm::InputTag l_ak8sjPhi           ; 
+    edm::InputTag l_ak8sjMass          ; 
+    edm::InputTag l_ak8sjCSV           ; 
 
 };
 

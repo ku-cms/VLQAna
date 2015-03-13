@@ -52,17 +52,13 @@ defaultJetSubstructureParameters = cms.PSet(
     jetWMassLabel           = cms.InputTag("jetsAK8", "jetAK8wMass"),
     jetminMassLabel         = cms.InputTag("jetsAK8", "jetAK8minmass"),  
     jetnSubJetsLabel        = cms.InputTag("jetsAK8", "jetAK8nSubJets"),  
-    jetsubjetIndex0Label    = cms.InputTag("jetsAK8", "jetAK8subjetIndex0"),  
-    jetsubjetIndex1Label    = cms.InputTag("jetsAK8", "jetAK8subjetIndex1"),  
-    jetsubjetIndex2Label    = cms.InputTag("jetsAK8", "jetAK8subjetIndex2"),  
-    jetsubjetIndex3Label    = cms.InputTag("jetsAK8", "jetAK8subjetIndex3"),  
-    #jetTopSubjetIndex0Label = cms.InputTag("jetsCmsTopTag", "jetsCmsTopTagsubjetIndex0"),
-    #jetTopSubjetIndex1Label = cms.InputTag("jetsCmsTopTag", "jetsCmsTopTagsubjetIndex1"),
-    #jetTopSubjetIndex2Label = cms.InputTag("jetsCmsTopTag", "jetsCmsTopTagsubjetIndex2"),
-    #jetTopSubjetIndex3Label = cms.InputTag("jetsCmsTopTag", "jetsCmsTopTagsubjetIndex3"),
+    vjetsjIdx0Label         = cms.InputTag("jetsAK8", "jetAK8vSubjetIndex0"),  
+    vjetsjIdx1Label         = cms.InputTag("jetsAK8", "jetAK8vSubjetIndex1"),  
+    tjetsjIdx0Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex0"),  
+    tjetsjIdx1Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex1"),  
+    tjetsjIdx2Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex2"),  
+    tjetsjIdx3Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex3"),  
     )
-
-#defaultHJetParameters = defaultAK8JetParameters.clone().extend(defaultJetSubstructureParameters)
 
 defaultSubjetParameters = cms.PSet(
     jetPtLabel         = cms.InputTag("subjetsAK8", "subjetAK8Pt"),

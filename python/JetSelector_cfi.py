@@ -5,6 +5,7 @@ from Analysis.VLQAna.JetID_cfi import *
 defaultAK4JetSelectionParameters = cms.PSet(
     JetIDParams         = defaultAK4JetIDParameters.clone(), 
     JetSubstrParams     = cms.PSet(), 
+    SubjetParams        = cms.PSet(),
     jettype             = cms.string('AK4JET'),
     jetPtMin            = cms.double(30),
     jetPtMax            = cms.double(1000000),
@@ -24,6 +25,7 @@ defaultBTaggedAK4JetSelectionParameters = defaultAK4JetSelectionParameters.clone
 defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone( 
     JetIDParams         = defaultAK8JetIDParameters.clone(), 
     JetSubstrParams     = defaultJetSubstructureParameters.clone(),
+    SubjetParams        = defaultSubjetParameters.clone(), 
     jettype             = cms.string('AK8JET'),
     jetPtMin            = cms.double(300),
     jetPtMax            = cms.double(1000000),
@@ -31,7 +33,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jettau2Bytau1Max    = cms.double(1.0) ,
     jettau3Bytau2Min    = cms.double(0.0) ,
     jettau3Bytau2Max    = cms.double(1.0) ,
-    jetMassMin          = cms.double(50.0) ,
+    jetMassMin          = cms.double(30) ,
     jetMassMax          = cms.double(1000000) ,
     jetPrunedMassMin    = cms.double(0.0) ,
     jetPrunedMassMax    = cms.double(1000000) ,
@@ -45,15 +47,20 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jetMinMassMax       = cms.double(1000000) ,
     jetnSubJetsMin      = cms.double(-10) ,
     jetnSubJetsMax      = cms.double(1000000) ,
+    subjetMassMin       = cms.double(0.0) ,
+    subjetCSVMin        = cms.double(-1000000) ,
     )
 
-defaultWJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
-    jettau2Bytau1Min    = cms.double(0.5) ,
+defaultTJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
+    jettau2Bytau1Min    = cms.double(0.1) ,
     jettau2Bytau1Max    = cms.double(1.0) ,
-    jetPrunedMassMin    = cms.double(50) ,
-    jetPrunedMassMax    = cms.double(100) ,
-    jetMassMin          = cms.double(60.) ,
-    jetMassMax          = cms.double(100) ,
+    jettau3Bytau2Min    = cms.double(0.55) ,
+    jettau3Bytau2Max    = cms.double(1.0) ,
+    jetMinMassMin       = cms.double(50.) ,
+    jetMassMin          = cms.double(140) ,
+    jetMassMax          = cms.double(250) ,
+    jetnSubJetsMin      = cms.double(3) ,
+    jetnSubJetsMax      = cms.double(3) ,
     )
 
 defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
@@ -63,6 +70,16 @@ defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jetPrunedMassMax    = cms.double(140) ,
     jetMassMin          = cms.double(110.) ,
     jetMassMax          = cms.double(140) ,
+    subjetCSVMin        = cms.double(0.814) ,
+    )
+
+defaultWJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
+    jettau2Bytau1Min    = cms.double(0.5) ,
+    jettau2Bytau1Max    = cms.double(1.0) ,
+    jetPrunedMassMin    = cms.double(50) ,
+    jetPrunedMassMax    = cms.double(100) ,
+    jetMassMin          = cms.double(60.) ,
+    jetMassMax          = cms.double(100) ,
     )
 
 defaultBTaggedAK8JetSelectionParameters = defaultAK8JetSelectionParameters.clone(
