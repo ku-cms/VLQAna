@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    Analysis/VLQAna
-// Class:      ResolvedWjjCandidateProducer
+// Class:      ResolvedVjjCandidateFilter
 // 
-/**\class ResolvedWjjCandidateProducer ResolvedWjjCandidateProducer.cc Analysis/VLQAna/plugins/ResolvedWjjCandidateProducer.cc
+/**\class ResolvedVjjCandidateFilter ResolvedVjjCandidateFilter.cc Analysis/VLQAna/plugins/ResolvedVjjCandidateFilter.cc
 
 Description: [one line class summary]
 
@@ -23,7 +23,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,22 +39,22 @@ Implementation:
 // class declaration
 //
 
-class ResolvedWjjCandidateProducer : public edm::EDProducer {
+class ResolvedVjjCandidateFilter : public edm::EDFilter {
   public:
-    explicit ResolvedWjjCandidateProducer(const edm::ParameterSet&);
-    ~ResolvedWjjCandidateProducer();
+    explicit ResolvedVjjCandidateFilter(const edm::ParameterSet&);
+    ~ResolvedVjjCandidateFilter();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     virtual void beginJob() override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
     // ----------member data ---------------------------
     //
-    struct wjj {
-      int widx ;
+    struct vjj {
+      int vidx ;
       int j1idx ;
       int j2idx ; 
     };
@@ -67,7 +67,6 @@ class ResolvedWjjCandidateProducer : public edm::EDProducer {
     edm::InputTag l_genPartID                 ; 
     edm::InputTag l_genPartStatus             ; 
     edm::InputTag l_genPartMomID              ; 
-
     edm::InputTag l_jetAK4Pt                  ; 
     edm::InputTag l_jetAK4Eta                 ; 
     edm::InputTag l_jetAK4Phi                 ; 
@@ -77,8 +76,9 @@ class ResolvedWjjCandidateProducer : public edm::EDProducer {
     edm::InputTag l_ak4goodjets               ;
     bool   isMC_                              ;
     bool   isSignal_                          ;  
-    double wmassmin_                          ;
-    double wmassmax_                          ;
+    int    vpdgid_                            ;
+    double vmassmin_                          ;
+    double vmassmax_                          ;
     double scaledmassdropmin_                 ;
     double scaledmassdropmax_                 ;
 
@@ -98,7 +98,7 @@ using namespace std;
 //
 // constructors and destructor
 //
-ResolvedWjjCandidateProducer::ResolvedWjjCandidateProducer(const edm::ParameterSet& iConfig) :
+ResolvedVjjCandidateFilter::ResolvedVjjCandidateFilter(const edm::ParameterSet& iConfig) :
   l_genPartPt             (iConfig.getParameter<edm::InputTag> ("genPartPt")),
   l_genPartEta            (iConfig.getParameter<edm::InputTag> ("genPartEta")),
   l_genPartPhi            (iConfig.getParameter<edm::InputTag> ("genPartPhi")),
@@ -116,19 +116,20 @@ ResolvedWjjCandidateProducer::ResolvedWjjCandidateProducer(const edm::ParameterS
   l_ak4goodjets           (iConfig.getParameter<edm::InputTag> ("ak4goodjets")),
   isMC_                   (iConfig.getParameter<bool>          ("isMC")),
   isSignal_               (iConfig.getParameter<bool>          ("isSignal")),
-  wmassmin_               (iConfig.getParameter<double>        ("wmassmin")), 
-  wmassmax_               (iConfig.getParameter<double>        ("wmassmax")), 
+  vpdgid_                 (iConfig.getParameter<int>           ("vpdgid")),
+  vmassmin_               (iConfig.getParameter<double>        ("vmassmin")), 
+  vmassmax_               (iConfig.getParameter<double>        ("vmassmax")), 
   scaledmassdropmin_      (iConfig.getParameter<double>        ("scaledmassdropmin")), 
   scaledmassdropmax_      (iConfig.getParameter<double>        ("scaledmassdropmax"))
 {
 
   produces<vector<vlq::Jet>>("JetCollection") ; 
-  produces<vector<vlq::ResolvedVjj>>("ResolvedWjjCollection") ; 
+  produces<vector<vlq::ResolvedVjj>>("ResolvedVjjCollection") ; 
 
 }
 
 
-ResolvedWjjCandidateProducer::~ResolvedWjjCandidateProducer()
+ResolvedVjjCandidateFilter::~ResolvedVjjCandidateFilter()
 {
 
   // do anything here that needs to be done at desctruction time
@@ -142,8 +143,8 @@ ResolvedWjjCandidateProducer::~ResolvedWjjCandidateProducer()
 //
 
 // ------------ method called to produce the data  ------------
-void
-ResolvedWjjCandidateProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup)
+bool
+ResolvedVjjCandidateFilter::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
@@ -164,26 +165,26 @@ ResolvedWjjCandidateProducer::produce(edm::Event& evt, const edm::EventSetup& iS
   hfloat  h_jetAK4Mass           ; evt.getByLabel (l_jetAK4Mass    , h_jetAK4Mass   );
   hfloat  h_jetAK4Flavour        ; evt.getByLabel (l_jetAK4Flavour , h_jetAK4Flavour);
   hfloat  h_jetAK4CSV            ; evt.getByLabel (l_jetAK4CSV     , h_jetAK4CSV    );
-  hunsigned h_ak4goodjets        ; evt.getByLabel (l_ak4goodjets , h_ak4goodjets) ;
+  hunsigned h_ak4goodjets        ; evt.getByLabel (l_ak4goodjets   , h_ak4goodjets  ) ;
 
-  vector<vlq::Jet> v_jetsfromw; ; 
-  vector<vlq::ResolvedVjj> v_wjj ; 
+  std::vector<vlq::Jet> v_v_jetsfromv(0) ; 
+  std::vector<vlq::ResolvedVjj> v_vjj(0) ; 
   if ( isMC_ && isSignal_ ) { 
-    vector<int> widx ;
+    vector<int> vidx ;
     vector<int> qidx ;
     for ( unsigned igen = 0; igen < (h_genPartPt.product())->size(); ++igen ) {
-      if ( abs(h_genPartID.product()->at(igen)) == 24  ) widx.push_back(igen) ; 
-      if ( abs(h_genPartID.product()->at(igen)) < 6 && abs(h_genPartMomID.product()->at(igen)) == 24  ) qidx.push_back(igen) ; 
+      if ( abs(h_genPartID.product()->at(igen)) == vpdgid_  ) vidx.push_back(igen) ; 
+      if ( abs(h_genPartID.product()->at(igen)) < 6 && abs(h_genPartMomID.product()->at(igen)) == vpdgid_  ) qidx.push_back(igen) ; 
     }
 
-    if ( widx.size()  == 0 || qidx.size() == 0 ) return ; 
+    if ( vidx.size()  == 0 || qidx.size() == 0 ) return 0; 
 
-    for (int& iw : widx ) {
-      TLorentzVector p4w ;
-      p4w.SetPtEtaPhiM( (h_genPartPt.product())->at(iw), 
-          (h_genPartEta.product())->at(iw), 
-          (h_genPartPhi.product())->at(iw), 
-          (h_genPartMass.product())->at(iw)  ) ; 
+    for (int& iv : vidx ) {
+      TLorentzVector p4v ;
+      p4v.SetPtEtaPhiM( (h_genPartPt.product())->at(iv), 
+          (h_genPartEta.product())->at(iv), 
+          (h_genPartPhi.product())->at(iv), 
+          (h_genPartMass.product())->at(iv)  ) ; 
 
       for ( int iq1 : qidx ) {
         TLorentzVector p4q1 ;
@@ -212,28 +213,28 @@ ResolvedWjjCandidateProducer::produce(edm::Event& evt, const edm::EventSetup& iS
                     h_jetAK4Phi.product()->at(ij2), 
                     h_jetAK4Mass.product()->at(ij2)) ; 
                 if ( p4j2.DeltaR(p4q2) < 0.4 ) {
-                  TLorentzVector p4w = p4j1 + p4j2 ; 
+                  TLorentzVector p4v = p4j1 + p4j2 ; 
                   float drjj = p4j1.DeltaR(p4j2) ; 
-                  float mass = p4w.Mag() ; 
-                  float massdrop =  max(p4j1.Mag(), p4j2.Mag())/p4w.Mag() ; 
+                  float mass = p4v.Mag() ; 
+                  float massdrop =  max(p4j1.Mag(), p4j2.Mag())/p4v.Mag() ; 
                   float scaledmassdrop = massdrop*drjj ;
                   std::pair <int, int> jetIndices(ij1, ij2) ; 
-                  vlq::ResolvedVjj wjj ;
-                  wjj.setP4( p4w ) ; 
-                  wjj.setDrjj( drjj ) ; 
-                  wjj.setMass( mass ) ; 
-                  wjj.setMassDrop( massdrop ) ;
-                  wjj.setScaledMassDrop( scaledmassdrop ) ;
-                  wjj.setJetIndices( jetIndices ) ; 
-                  v_wjj.push_back(wjj) ; 
+                  vlq::ResolvedVjj vjj ;
+                  vjj.setP4( p4v ) ; 
+                  vjj.setDrjj( drjj ) ; 
+                  vjj.setMass( mass ) ; 
+                  vjj.setMassDrop( massdrop ) ;
+                  vjj.setScaledMassDrop( scaledmassdrop ) ;
+                  vjj.setJetIndices( jetIndices ) ; 
+                  v_vjj.push_back(vjj) ; 
                   vlq::Jet j1 ; 
                   vlq::Jet j2;
                   j1.setP4(p4j1) ;
                   j2.setP4(p4j2) ; 
                   j1.setIndex(ij1) ;
                   j2.setIndex(ij2) ;
-                  v_jetsfromw.push_back(j1) ;
-                  v_jetsfromw.push_back(j2) ;
+                  v_v_jetsfromv.push_back(j1) ;
+                  v_v_jetsfromv.push_back(j2) ;
                 }
               }
             }
@@ -251,56 +252,59 @@ ResolvedWjjCandidateProducer::produce(edm::Event& evt, const edm::EventSetup& iS
         p4j2.SetPtEtaPhiM(h_jetAK4Pt.product()->at(jj), h_jetAK4Eta.product()->at(jj), h_jetAK4Phi.product()->at(jj), h_jetAK4Mass.product()->at(jj)) ; 
 
         //// Make W candidates 
-        TLorentzVector p4w = p4j1 + p4j2 ; 
+        TLorentzVector p4v = p4j1 + p4j2 ; 
           float drjj = p4j1.DeltaR(p4j2) ; 
-          float mass = p4w.Mag() ; 
-          float massdrop =  max(p4j1.Mag(), p4j2.Mag())/p4w.Mag() ; 
+          float mass = p4v.Mag() ; 
+          float massdrop =  max(p4j1.Mag(), p4j2.Mag())/p4v.Mag() ; 
           float scaledmassdrop = massdrop*drjj ;
           std::pair <int, int> jetIndices(ij, jj) ; 
-          vlq::ResolvedVjj wjj ;
-          wjj.setP4( p4w ) ; 
-          wjj.setDrjj( drjj ) ; 
-          wjj.setMass( mass ) ; 
-          wjj.setMassDrop( massdrop ) ;
-          wjj.setScaledMassDrop( scaledmassdrop ) ;
-          wjj.setJetIndices( jetIndices ) ; 
-          v_wjj.push_back(wjj) ; 
+          vlq::ResolvedVjj vjj ;
+          vjj.setP4( p4v ) ; 
+          vjj.setDrjj( drjj ) ; 
+          vjj.setMass( mass ) ; 
+          vjj.setMassDrop( massdrop ) ;
+          vjj.setScaledMassDrop( scaledmassdrop ) ;
+          vjj.setJetIndices( jetIndices ) ; 
+          v_vjj.push_back(vjj) ; 
           vlq::Jet j1 ; 
           vlq::Jet j2;
           j1.setP4(p4j1) ;
           j2.setP4(p4j2) ; 
           j1.setIndex(ij) ;
           j2.setIndex(jj) ;
-          v_jetsfromw.push_back(j1) ;
-          v_jetsfromw.push_back(j2) ;
+          v_v_jetsfromv.push_back(j1) ;
+          v_v_jetsfromv.push_back(j2) ;
       }
     }
   }
 
-  auto_ptr<vector<vlq::ResolvedVjj> > wjjcoll( new vector<vlq::ResolvedVjj> (v_wjj) );
-  auto_ptr<vector<vlq::Jet> > jetcoll( new vector<vlq::Jet> (v_jetsfromw) );
-  evt.put(jetcoll, "JetCollection") ; 
-  evt.put(wjjcoll, "ResolvedWjjCollection") ; 
+  if ( v_v_jetsfromv.size() == 0 ||  v_vjj.size() == 0 ) return 0 ; 
 
-  return ; 
+  auto_ptr<vector<vlq::ResolvedVjj> > vjjcoll( new std::vector<vlq::ResolvedVjj> (v_vjj) );
+  auto_ptr<vector<vlq::Jet> > jetcoll( new std::vector<vlq::Jet> (v_v_jetsfromv) );
+
+  evt.put(jetcoll, "JetCollection") ; 
+  evt.put(vjjcoll, "ResolvedVjjCollection") ; 
+
+  return 1; 
 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
   void 
-ResolvedWjjCandidateProducer::beginJob()
+ResolvedVjjCandidateFilter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-ResolvedWjjCandidateProducer::endJob() {
+ResolvedVjjCandidateFilter::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
    void
-   ResolvedWjjCandidateProducer::beginRun(edm::Run const&, edm::EventSetup const&)
+   ResolvedVjjCandidateFilter::beginRun(edm::Run const&, edm::EventSetup const&)
    {
    }
    */
@@ -308,7 +312,7 @@ ResolvedWjjCandidateProducer::endJob() {
 // ------------ method called when ending the processing of a run  ------------
 /*
    void
-   ResolvedWjjCandidateProducer::endRun(edm::Run const&, edm::EventSetup const&)
+   ResolvedVjjCandidateFilter::endRun(edm::Run const&, edm::EventSetup const&)
    {
    }
    */
@@ -316,7 +320,7 @@ ResolvedWjjCandidateProducer::endJob() {
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
    void
-   ResolvedWjjCandidateProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+   ResolvedVjjCandidateFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
    {
    }
    */
@@ -324,14 +328,14 @@ ResolvedWjjCandidateProducer::endJob() {
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
    void
-   ResolvedWjjCandidateProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+   ResolvedVjjCandidateFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
    {
    }
    */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-ResolvedWjjCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+ResolvedVjjCandidateFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -340,4 +344,4 @@ ResolvedWjjCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ResolvedWjjCandidateProducer);
+DEFINE_FWK_MODULE(ResolvedVjjCandidateFilter);

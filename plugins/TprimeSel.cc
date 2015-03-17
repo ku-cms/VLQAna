@@ -42,7 +42,6 @@ Implementation:
 #include <TTree.h>
 #include <TLorentzVector.h>
 
-
 //
 // class declaration
 //
@@ -65,6 +64,8 @@ class TprimeSel : public edm::EDFilter {
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     // ----------member data ---------------------------
+    edm::InputTag l_jetcoll;
+    edm::InputTag l_resolvedvjjcoll; 
     edm::InputTag l_ngoodAK4Jets;
     edm::InputTag l_ngoodAK8Jets;
     edm::InputTag l_ngoodBTaggedAK4Jets;
@@ -172,6 +173,8 @@ using namespace std;
 // constructors and destructor
 //
 TprimeSel::TprimeSel(const edm::ParameterSet& iConfig) :
+  l_jetcoll               (iConfig.getParameter<edm::InputTag>     ("jetcoll")),
+  l_resolvedvjjcoll       (iConfig.getParameter<edm::InputTag>     ("resolvedvjjcoll")),
   l_ngoodAK4Jets          (iConfig.getParameter<edm::InputTag>     ("ngoodAK4Jets")),
   l_ngoodAK8Jets          (iConfig.getParameter<edm::InputTag>     ("ngoodAK8Jets")),
   l_ngoodBTaggedAK4Jets   (iConfig.getParameter<edm::InputTag>     ("ngoodBTaggedAK4Jets")),
@@ -260,9 +263,9 @@ TprimeSel::TprimeSel(const edm::ParameterSet& iConfig) :
 {
 
   produces<string>("evttype") ; 
-  produces<map<int, int>>("resolvedws") ; 
+  produces<map<int, int>>("resolvedvs") ; 
   produces<vector<vlq::Jet>>("JetCollection") ; 
-  produces<vector<vlq::ResolvedVjj>>("ResolvedWjjCollection") ; 
+  produces<vector<vlq::ResolvedVjj>>("ResolvedVjjCollection") ; 
 
   edm::Service<TFileService> fs; 
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -294,6 +297,9 @@ TprimeSel::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   typedef Handle <vector<string>> hstring ; 
   typedef Handle <vector<float>> hfloat ; 
   typedef Handle <vector<unsigned>> hunsigned ; 
+
+  Handle<vector<vlq::Jet>> h_jetcoll  ; evt.getByLabel (l_jetcoll      , h_jetcoll) ;
+  Handle<vector<vlq::ResolvedVjj>> h_resolvedvjjcoll ; evt.getByLabel(l_resolvedvjjcoll, h_resolvedvjjcoll) ; 
 
   hint      h_ngoodAK4Jets       ; evt.getByLabel (l_ngoodAK4Jets , h_ngoodAK4Jets) ;
   hint      h_ngoodAK8Jets       ; evt.getByLabel (l_ngoodAK8Jets , h_ngoodAK8Jets) ;
@@ -367,14 +373,17 @@ TprimeSel::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   hfloat  h_jetAK4Y              ; evt.getByLabel (l_jetAK4Y                , h_jetAK4Y              );
   hfloat  h_jetAK4Area           ; evt.getByLabel (l_jetAK4Area             , h_jetAK4Area           );
 
+  cout << " jetcoll size = " << h_jetcoll.product()->size() 
+    << " resolved vjj size = " << h_resolvedvjjcoll.product()->size() 
+    << endl ; 
   int nbjets = *h_ngoodBTaggedAK4Jets.product() ; 
   int ntjets = *h_nTJets.product() ; 
   int nhjets = *h_nHJets.product() ; 
   int nwjets = *h_nWJets.product() ; 
 
-  map<int, int>resolvedws ; 
-  vector<vlq::Jet> v_jetsfromw; ; 
-  vector<vlq::ResolvedVjj> v_wjj ; 
+  map<int, int>resolvedvs ; 
+  vector<vlq::Jet> v_jetsfromv; ; 
+  vector<vlq::ResolvedVjj> v_vjj ; 
   vector<unsigned>ak4idx = *h_ak4goodjets.product() ; 
   for ( unsigned ij = 0; ij < ak4idx.size(); ++ij ) {
     for ( unsigned jj = ij+1; jj < ak4idx.size(); ++jj) {
@@ -382,28 +391,28 @@ TprimeSel::filter(edm::Event& evt, const edm::EventSetup& iSetup)
       p4j1.SetPtEtaPhiM(h_jetAK4Pt.product()->at(ij), h_jetAK4Eta.product()->at(ij), h_jetAK4Phi.product()->at(ij), h_jetAK4Mass.product()->at(ij)) ; 
       p4j2.SetPtEtaPhiM(h_jetAK4Pt.product()->at(jj), h_jetAK4Eta.product()->at(jj), h_jetAK4Phi.product()->at(jj), h_jetAK4Mass.product()->at(jj)) ; 
 
-      //// Make W candidates 
+      //// Make V candidates 
       std::pair <int, int> jetIndices(ij, jj) ;
-      TLorentzVector p4w = p4j1 + p4j2 ; 
-      double scaledmassdrop = (max(p4j1.Mag(), p4j2.Mag())/p4w.Mag()) * p4j1.DeltaR(p4j2) ; 
-      if ( (p4w).Mag() > wmassmin_ && (p4w).Mag() < wmassmax_ 
+      TLorentzVector p4v = p4j1 + p4j2 ; 
+      double scaledmassdrop = (max(p4j1.Mag(), p4j2.Mag())/p4v.Mag()) * p4j1.DeltaR(p4j2) ; 
+      if ( (p4v).Mag() > wmassmin_ && (p4v).Mag() < wmassmax_ 
           && scaledmassdrop > scaledmassdropmin_ && scaledmassdrop < scaledmassdropmax_ 
           && p4j1.DeltaR(p4j2) < 1.2 ) { 
-        resolvedws.insert( jetIndices ) ; 
-        vlq::ResolvedVjj wjj ;
-        wjj.setP4( p4w ) ; 
-        wjj.setScaledMassDrop( scaledmassdrop ) ;
-        wjj.setDrjj( p4j1.DeltaR(p4j2) ) ; 
-        wjj.setJetIndices( jetIndices ) ; 
-        v_wjj.push_back(wjj) ; 
+        resolvedvs.insert( jetIndices ) ; 
+        vlq::ResolvedVjj vjj ;
+        vjj.setP4( p4v ) ; 
+        vjj.setScaledMassDrop( scaledmassdrop ) ;
+        vjj.setDrjj( p4j1.DeltaR(p4j2) ) ; 
+        vjj.setJetIndices( jetIndices ) ; 
+        v_vjj.push_back(vjj) ; 
         vlq::Jet j1 ; 
         vlq::Jet j2;
         j1.setP4(p4j1) ;
         j2.setP4(p4j2) ; 
         j1.setIndex(ij) ;
         j2.setIndex(jj) ;
-        v_jetsfromw.push_back(j1) ;
-        v_jetsfromw.push_back(j2) ;
+        v_jetsfromv.push_back(j1) ;
+        v_jetsfromv.push_back(j2) ;
       }
 
     }
@@ -429,13 +438,13 @@ TprimeSel::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   }
 
   std::auto_ptr<string> evttypeptr( new string(evttype) ) ;
-  std::auto_ptr<map<int,int>> resolvedwsptr ( new map<int,int>(resolvedws) ) ;
-  auto_ptr<vector<vlq::ResolvedVjj> > wjjcoll( new vector<vlq::ResolvedVjj> (v_wjj) );
-  auto_ptr<vector<vlq::Jet> > jetcoll( new vector<vlq::Jet> (v_jetsfromw) );
+  std::auto_ptr<map<int,int>> resolvedvsptr ( new map<int,int>(resolvedvs) ) ;
+  auto_ptr<vector<vlq::ResolvedVjj> > vjjcoll( new vector<vlq::ResolvedVjj> (v_vjj) );
+  auto_ptr<vector<vlq::Jet> > jetcoll( new vector<vlq::Jet> (v_jetsfromv) );
   evt.put(evttypeptr, "evttype") ; 
-  evt.put(resolvedwsptr, "resolvedws") ; 
+  evt.put(resolvedvsptr, "resolvedvs") ; 
   evt.put(jetcoll, "JetCollection") ; 
-  evt.put(wjjcoll, "ResolvedWjjCollection") ; 
+  evt.put(vjjcoll, "ResolvedVjjCollection") ; 
 
   return true ; 
 

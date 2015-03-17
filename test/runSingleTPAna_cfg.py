@@ -7,19 +7,16 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
       #'/store/user/devdatta/TprimeJetToTH_allHdecays_M800GeV_Tune4C_13TeV-madgraph-tauola/B2GAnaFW_PHYS14/150310_153716/0000/B2GEDMNtuple_1.root'
       #'/store/user/devdatta/TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/B2GAnaFW_PHYS14/150310_151926/0000/B2GEDMNtuple_1.root'
-      #'/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
-      '/store/user/eschmitz/b2g/PHYS14/QCD_HT_1000ToInf_13TeV-madgraph/ext1_v1_edmntuple_B2GAnaFW/150218_154901/0000/B2GEDMNtuple_1.root'
+      '/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
+      #'/store/user/eschmitz/b2g/PHYS14/QCD_HT_1000ToInf_13TeV-madgraph/ext1_v1_edmntuple_B2GAnaFW/150218_154901/0000/B2GEDMNtuple_1.root'
       )
       )
 
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(-5000) 
+    input = cms.untracked.int32(1000) 
     )
 
 from Analysis.VLQAna.JetSelector_cfi import *
-process.load("Analysis.VLQAna.ResolvedWjjProducer_cff")
-process.wjj.isMC = cms.bool(True)
-process.wjj.isSignal = cms.bool(True)
 
 process.ana = cms.EDFilter("VLQAna",
     processName                = cms.string  ('@'), 
@@ -92,7 +89,13 @@ process.ana = cms.EDFilter("VLQAna",
     HTMin                      = cms.double  (700.), 
     )
 
+process.load("Analysis.VLQAna.ResolvedVjjFilter_cfi")
+process.vjj.isMC = cms.bool(True)
+process.vjj.isSignal = cms.bool(True)
+
 process.sel = cms.EDFilter("TprimeSel",
+    jetcoll                    = cms.InputTag("vjj",    "JetCollection"),
+    resolvedvjjcoll            = cms.InputTag("vjj",    "ResolvedVjjCollection"),
     ngoodAK4Jets               = cms.InputTag("ana",    "ngoodAK4Jets"),
     ngoodAK8Jets               = cms.InputTag("ana",    "ngoodAK8Jets"),
     ngoodBTaggedAK4Jets        = cms.InputTag("ana",    "ngoodBTaggedAK4Jets"),
@@ -192,18 +195,17 @@ process.out = cms.OutputModule("PoolOutputModule",
       ),
     outputCommands = cms.untracked.vstring(
       "drop *",
-      #"keep *_jetsAK4_*_*",
-      #"keep *_jetsAK8_*_*",
-      #"keep *_subjetsAK8_*_*",
-      #"keep *_subjetsCmsTopTag*_*_*",
-      #"keep *_ana_*_*",
-      "keep *_wjj_*_*",
-      #"keep *_sel_*_*",
+      "keep *_genPart_*_*", 
+      "keep *_jetsAK4_*_*", 
+      "keep *_*_npv_*", 
+      "keep *_ana_*_*",
+      "keep *_vjj_*_*",
       )
     )
 
 process.p = cms.Path(process.ana 
-    *process.wjj
-    #* process.sel
+    *process.vjj
+    *process.sel 
     )
+
 process.outpath = cms.EndPath(process.out)
