@@ -321,12 +321,18 @@ class JetSelector : public Selector<int> {
           TLorentzVector p4sj0, p4sj1; 
           p4sj0.SetPtEtaPhiM(vjetssj0Pt, vjetssj0Eta, vjetssj0Phi, vjetssj0Mass) ; 
           p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
-          if (jetnSubJets >= cut(idxjetnSubJetsMin_, int()) && jetnSubJets <= cut(idxjetnSubJetsMax_, int())
-              && p4sj0.Mag() > cut(idxsjMassMin_, double()) && p4sj1.Mag() > cut(idxsjMassMin_, double())
-              && vjetssj0CSV > cut(idxsjCSVMin_, double()) && vjetssj1CSV > cut(idxsjCSVMin_, double())) return true ; 
+          if (jetnSubJets >= cut(idxjetnSubJetsMin_, int()) 
+              //&& jetnSubJets <= cut(idxjetnSubJetsMax_, int())
+              && jetnSubJets <= 3
+              && p4sj0.Mag() > cut(idxsjMassMin_, double()) 
+              && p4sj1.Mag() > cut(idxsjMassMin_, double())
+              && vjetssj0CSV > cut(idxsjCSVMin_, double()) 
+              && vjetssj1CSV > cut(idxsjCSVMin_, double())
+              ) return true ; 
           else return false ; 
         }
         else if (type_ == CMSTOPTAGGEDAK8JET) {
+          return true; 
           Handle <vector<float>>  h_tjetsjIdx0        ; evt.getByLabel (l_tjetsjIdx0          , h_tjetsjIdx0     );
           Handle <vector<float>>  h_tjetsjIdx1        ; evt.getByLabel (l_tjetsjIdx1          , h_tjetsjIdx1     );
           Handle <vector<float>>  h_tjetsjIdx2        ; evt.getByLabel (l_tjetsjIdx2          , h_tjetsjIdx2     );
@@ -354,9 +360,13 @@ class JetSelector : public Selector<int> {
           //double jetWMass        = (h_jetwMass.product())->at(jet) ;
           double jetTopMass      = (h_jettopMass.product())->at(jet) ;
           double jetMinMass      = (h_jetnSubJets.product())->at(jet) ;
-          if (jetnSubJets > cut(idxjetnSubJetsMin_, int()) && jetnSubJets < cut(idxjetnSubJetsMax_, int())
-              && jetTopMass > cut(idxjetTopMassMin_, double()) && jetTopMass < cut(idxjetTopMassMax_, double())
-              && jetMinMass > cut(idxjetMinMassMin_, double()) && jetMinMass < cut(idxjetMinMassMax_, double())) return true ; 
+          if (jetnSubJets >= cut(idxjetnSubJetsMin_, int()) 
+              && jetnSubJets <= 3 
+              && jetTopMass > cut(idxjetTopMassMin_, double()) 
+              && jetTopMass < cut(idxjetTopMassMax_, double())
+              && jetMinMass > cut(idxjetMinMassMin_, double()) 
+              && jetMinMass < cut(idxjetMinMassMax_, double())
+              ) return true ; 
           else return false ; 
         }
         else {

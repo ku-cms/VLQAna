@@ -5,4 +5,5 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="AnalysisDataFormats/BoostedObjects"/>
 <use name="root"/>
+<use name="roottmva"/>
 <flags EDM_PLUGIN="1"/>

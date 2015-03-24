@@ -1,4 +1,4 @@
-<bin name="TMVATrainer" file="trainMVA.cc">
+<bin name="TMVATrainer" file="trainBDT.cc">
 <use name="root"/>
 <use name="roottmva"/>
 </bin>

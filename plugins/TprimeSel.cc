@@ -83,6 +83,7 @@ class TprimeSel : public edm::EDFilter {
     edm::InputTag l_mass2ndAK8;
     edm::InputTag l_ak4goodjets;
     edm::InputTag l_ak8goodjets;
+    edm::InputTag l_bjetIdxs;
     edm::InputTag l_tjetIdxs;
     edm::InputTag l_hjetIdxs;
     edm::InputTag l_wjetIdxs;
@@ -192,6 +193,7 @@ TprimeSel::TprimeSel(const edm::ParameterSet& iConfig) :
   l_mass2ndAK8            (iConfig.getParameter<edm::InputTag>     ("mass2ndAK8")),
   l_ak4goodjets           (iConfig.getParameter<edm::InputTag>     ("ak4goodjets")),
   l_ak8goodjets           (iConfig.getParameter<edm::InputTag>     ("ak8goodjets")),
+  l_bjetIdxs              (iConfig.getParameter<edm::InputTag>     ("bjetIdxs")),
   l_tjetIdxs              (iConfig.getParameter<edm::InputTag>     ("tjetIdxs")),
   l_hjetIdxs              (iConfig.getParameter<edm::InputTag>     ("hjetIdxs")),
   l_wjetIdxs              (iConfig.getParameter<edm::InputTag>     ("wjetIdxs")),
@@ -262,10 +264,26 @@ TprimeSel::TprimeSel(const edm::ParameterSet& iConfig) :
   scaledmassdropmax_      (iConfig.getParameter<double>            ("scaledmassdropmax"))
 {
 
-  produces<string>("evttype") ; 
-  produces<map<int, int>>("resolvedvs") ; 
-  produces<vector<vlq::Jet>>("JetCollection") ; 
-  produces<vector<vlq::ResolvedVjj>>("ResolvedVjjCollection") ; 
+  produces<int>("evttype") ; 
+  produces<double>("pttjet") ; 
+  produces<double>("mtjet") ;
+  produces<double>("ptwjet") ;
+  produces<double>("mwjet") ;
+  produces<double>("pthjet") ;
+  produces<double>("mhjet") ;
+  produces<double>("ptth") ;
+  produces<double>("mth") ;
+  produces<double>("ptbleading") ;
+  produces<double>("etableading") ;
+  produces<double>("ptjforward") ;
+  produces<double>("etajforward") ;
+  produces<double>("nak4") ;
+  produces<double>("nak8") ; 
+  produces<double>("nbj") ; 
+  produces<double>("detath") ; 
+  produces<double>("detawh") ; 
+  produces<double>("drwb") ; 
+  produces<double>("mwhb") ; 
 
   edm::Service<TFileService> fs; 
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -293,158 +311,226 @@ TprimeSel::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  typedef Handle<int> hint ; 
-  typedef Handle <vector<string>> hstring ; 
-  typedef Handle <vector<float>> hfloat ; 
-  typedef Handle <vector<unsigned>> hunsigned ; 
+  typedef Handle<unsigned> hunsigned ; 
+  typedef Handle <vector<string>> hvstring ; 
+  typedef Handle <vector<float>> hvfloat ; 
+  typedef Handle <vector<unsigned>> hvunsigned ; 
 
   Handle<vector<vlq::Jet>> h_jetcoll  ; evt.getByLabel (l_jetcoll      , h_jetcoll) ;
   Handle<vector<vlq::ResolvedVjj>> h_resolvedvjjcoll ; evt.getByLabel(l_resolvedvjjcoll, h_resolvedvjjcoll) ; 
 
-  hint      h_ngoodAK4Jets       ; evt.getByLabel (l_ngoodAK4Jets , h_ngoodAK4Jets) ;
-  hint      h_ngoodAK8Jets       ; evt.getByLabel (l_ngoodAK8Jets , h_ngoodAK8Jets) ;
-  hint      h_ngoodBTaggedAK4Jets; evt.getByLabel (l_ngoodBTaggedAK4Jets , h_ngoodBTaggedAK4Jets) ;
-  hint      h_nTJets             ; evt.getByLabel (l_nTJets , h_nTJets) ;
-  hint      h_nHJets             ; evt.getByLabel (l_nHJets , h_nHJets) ;
-  hint      h_nWJets             ; evt.getByLabel (l_nWJets , h_nWJets) ;
-  hfloat    h_htak4jets          ; evt.getByLabel (l_htak4jets , h_htak4jets) ;
-  hfloat    h_htak8jets          ; evt.getByLabel (l_htak8jets , h_htak8jets) ;
-  hfloat    h_maxetaak4          ; evt.getByLabel (l_maxetaak4 , h_maxetaak4) ;
-  hfloat    h_MassLeading2AK8    ; evt.getByLabel (l_MassLeading2AK8 , h_MassLeading2AK8) ;
-  hfloat    h_DeltaEtaLeading2AK8; evt.getByLabel (l_DeltaEtaLeading2AK8 , h_DeltaEtaLeading2AK8) ;
-  hfloat    h_pt1stAK8           ; evt.getByLabel (l_pt1stAK8 , h_pt1stAK8) ;
-  hfloat    h_pt2ndAK8           ; evt.getByLabel (l_pt2ndAK8 , h_pt2ndAK8) ;
-  hfloat    h_mass1stAK8         ; evt.getByLabel (l_mass1stAK8 , h_mass1stAK8) ;
-  hfloat    h_mass2ndAK8         ; evt.getByLabel (l_mass2ndAK8 , h_mass2ndAK8) ;
-  hunsigned h_ak4goodjets        ; evt.getByLabel (l_ak4goodjets , h_ak4goodjets) ;
-  hunsigned h_ak8goodjets        ; evt.getByLabel (l_ak8goodjets , h_ak8goodjets) ;
-  hunsigned h_tjetIdxs           ; evt.getByLabel (l_tjetIdxs , h_tjetIdxs) ;
-  hunsigned h_hjetIdxs           ; evt.getByLabel (l_hjetIdxs , h_hjetIdxs) ;
-  hunsigned h_wjetIdxs           ; evt.getByLabel (l_wjetIdxs , h_wjetIdxs) ;
+  hunsigned  h_ngoodAK4Jets       ; evt.getByLabel (l_ngoodAK4Jets , h_ngoodAK4Jets) ;
+  hunsigned  h_ngoodAK8Jets       ; evt.getByLabel (l_ngoodAK8Jets , h_ngoodAK8Jets) ;
+  hunsigned  h_ngoodBTaggedAK4Jets; evt.getByLabel (l_ngoodBTaggedAK4Jets , h_ngoodBTaggedAK4Jets) ;
+  hunsigned  h_nTJets             ; evt.getByLabel (l_nTJets , h_nTJets) ;
+  hunsigned  h_nHJets             ; evt.getByLabel (l_nHJets , h_nHJets) ;
+  hunsigned  h_nWJets             ; evt.getByLabel (l_nWJets , h_nWJets) ;
+  hvfloat    h_htak4jets          ; evt.getByLabel (l_htak4jets , h_htak4jets) ;
+  hvfloat    h_htak8jets          ; evt.getByLabel (l_htak8jets , h_htak8jets) ;
+  hvfloat    h_maxetaak4          ; evt.getByLabel (l_maxetaak4 , h_maxetaak4) ;
+  hvfloat    h_MassLeading2AK8    ; evt.getByLabel (l_MassLeading2AK8 , h_MassLeading2AK8) ;
+  hvfloat    h_DeltaEtaLeading2AK8; evt.getByLabel (l_DeltaEtaLeading2AK8 , h_DeltaEtaLeading2AK8) ;
+  hvfloat    h_pt1stAK8           ; evt.getByLabel (l_pt1stAK8 , h_pt1stAK8) ;
+  hvfloat    h_pt2ndAK8           ; evt.getByLabel (l_pt2ndAK8 , h_pt2ndAK8) ;
+  hvfloat    h_mass1stAK8         ; evt.getByLabel (l_mass1stAK8 , h_mass1stAK8) ;
+  hvfloat    h_mass2ndAK8         ; evt.getByLabel (l_mass2ndAK8 , h_mass2ndAK8) ;
+  hvunsigned h_ak4goodjets        ; evt.getByLabel (l_ak4goodjets , h_ak4goodjets) ;
+  hvunsigned h_ak8goodjets        ; evt.getByLabel (l_ak8goodjets , h_ak8goodjets) ;
+  hvunsigned h_bjetIdxs           ; evt.getByLabel (l_bjetIdxs , h_bjetIdxs) ;
+  hvunsigned h_tjetIdxs           ; evt.getByLabel (l_tjetIdxs , h_tjetIdxs) ;
+  hvunsigned h_hjetIdxs           ; evt.getByLabel (l_hjetIdxs , h_hjetIdxs) ;
+  hvunsigned h_wjetIdxs           ; evt.getByLabel (l_wjetIdxs , h_wjetIdxs) ;
 
-  hfloat  h_jetAK8Pt             ; evt.getByLabel (l_jetAK8Pt               , h_jetAK8Pt             );
-  hfloat  h_jetAK8Eta            ; evt.getByLabel (l_jetAK8Eta              , h_jetAK8Eta            );
-  hfloat  h_jetAK8Phi            ; evt.getByLabel (l_jetAK8Phi              , h_jetAK8Phi            );
-  hfloat  h_jetAK8Mass           ; evt.getByLabel (l_jetAK8Mass             , h_jetAK8Mass           );
-  hfloat  h_jetAK8FilteredMass   ; evt.getByLabel (l_jetAK8FilteredMass     , h_jetAK8FilteredMass   );
-  hfloat  h_jetAK8PrunedMass     ; evt.getByLabel (l_jetAK8PrunedMass       , h_jetAK8PrunedMass     );
-  hfloat  h_jetAK8TrimmedMass    ; evt.getByLabel (l_jetAK8TrimmedMass      , h_jetAK8TrimmedMass    );
-  hfloat  h_jetAK8Energy         ; evt.getByLabel (l_jetAK8Energy           , h_jetAK8Energy         );
-  hfloat  h_jetAK8Flavour        ; evt.getByLabel (l_jetAK8Flavour          , h_jetAK8Flavour        );
-  hfloat  h_jetAK8CSV            ; evt.getByLabel (l_jetAK8CSV              , h_jetAK8CSV            );
-  hfloat  h_jetAK8JEC            ; evt.getByLabel (l_jetAK8JEC              , h_jetAK8JEC            );
-  hfloat  h_jetAK8Area           ; evt.getByLabel (l_jetAK8Area             , h_jetAK8Area           );
-  hfloat  h_jetAK8Tau1           ; evt.getByLabel (l_jetAK8Tau1             , h_jetAK8Tau1           ); 
-  hfloat  h_jetAK8Tau2           ; evt.getByLabel (l_jetAK8Tau2             , h_jetAK8Tau2           ); 
-  hfloat  h_jetAK8Tau3           ; evt.getByLabel (l_jetAK8Tau3             , h_jetAK8Tau3           ); 
-  hfloat  h_jetAK8nSubJets       ; evt.getByLabel (l_jetAK8nSubJets         , h_jetAK8nSubJets       ); 
-  hfloat  h_jetAK8minmass        ; evt.getByLabel (l_jetAK8minmass          , h_jetAK8minmass        ); 
-  hfloat  h_jetAK8VSubjetIndex0  ; evt.getByLabel (l_jetAK8VSubjetIndex0    , h_jetAK8VSubjetIndex0  );  
-  hfloat  h_jetAK8VSubjetIndex1  ; evt.getByLabel (l_jetAK8VSubjetIndex1    , h_jetAK8VSubjetIndex1  );  
-  hfloat  h_jetAK8TopSubjetIndex0; evt.getByLabel (l_jetAK8TopSubjetIndex0  , h_jetAK8TopSubjetIndex0); 
-  hfloat  h_jetAK8TopSubjetIndex1; evt.getByLabel (l_jetAK8TopSubjetIndex1  , h_jetAK8TopSubjetIndex1); 
-  hfloat  h_jetAK8TopSubjetIndex2; evt.getByLabel (l_jetAK8TopSubjetIndex2  , h_jetAK8TopSubjetIndex2); 
-  hfloat  h_jetAK8TopSubjetIndex3; evt.getByLabel (l_jetAK8TopSubjetIndex3  , h_jetAK8TopSubjetIndex3); 
-  hfloat  h_subjetAK8BDisc       ; evt.getByLabel (l_subjetAK8BDisc         , h_subjetAK8BDisc       ); 
-  hfloat  h_subjetAK8Pt          ; evt.getByLabel (l_subjetAK8Pt            , h_subjetAK8Pt          ); 
-  hfloat  h_subjetAK8Eta         ; evt.getByLabel (l_subjetAK8Eta           , h_subjetAK8Eta         ); 
-  hfloat  h_subjetAK8Phi         ; evt.getByLabel (l_subjetAK8Phi           , h_subjetAK8Phi         ); 
-  hfloat  h_subjetAK8Mass        ; evt.getByLabel (l_subjetAK8Mass          , h_subjetAK8Mass        ); 
-  hfloat  h_subjetCmsTopTagBDisc ; evt.getByLabel (l_subjetCmsTopTagBDisc   , h_subjetCmsTopTagBDisc ); 
-  hfloat  h_subjetCmsTopTagPt    ; evt.getByLabel (l_subjetCmsTopTagPt      , h_subjetCmsTopTagPt    ); 
-  hfloat  h_subjetCmsTopTagEta   ; evt.getByLabel (l_subjetCmsTopTagEta     , h_subjetCmsTopTagEta   ); 
-  hfloat  h_subjetCmsTopTagPhi   ; evt.getByLabel (l_subjetCmsTopTagPhi     , h_subjetCmsTopTagPhi   ); 
-  hfloat  h_subjetCmsTopTagMass  ; evt.getByLabel (l_subjetCmsTopTagMass    , h_subjetCmsTopTagMass  ); 
-  hfloat  h_jetAK4Pt             ; evt.getByLabel (l_jetAK4Pt               , h_jetAK4Pt             );
-  hfloat  h_jetAK4Eta            ; evt.getByLabel (l_jetAK4Eta              , h_jetAK4Eta            );
-  hfloat  h_jetAK4Phi            ; evt.getByLabel (l_jetAK4Phi              , h_jetAK4Phi            );
-  hfloat  h_jetAK4Mass           ; evt.getByLabel (l_jetAK4Mass             , h_jetAK4Mass           );
-  hfloat  h_jetAK4Energy         ; evt.getByLabel (l_jetAK4Energy           , h_jetAK4Energy         );
-  hfloat  h_jetAK4Flavour        ; evt.getByLabel (l_jetAK4Flavour          , h_jetAK4Flavour        );
-  hfloat  h_jetAK4CSV            ; evt.getByLabel (l_jetAK4CSV              , h_jetAK4CSV            );
-  hfloat  h_jetAK4JEC            ; evt.getByLabel (l_jetAK4JEC              , h_jetAK4JEC            );
-  hfloat  h_jetAK4nHadEnergy     ; evt.getByLabel (l_jetAK4nHadEnergy       , h_jetAK4nHadEnergy     );
-  hfloat  h_jetAK4nEMEnergy      ; evt.getByLabel (l_jetAK4nEMEnergy        , h_jetAK4nEMEnergy      );
-  hfloat  h_jetAK4HFHadronEnergy ; evt.getByLabel (l_jetAK4HFHadronEnergy   , h_jetAK4HFHadronEnergy );
-  hfloat  h_jetAK4cHadEnergy     ; evt.getByLabel (l_jetAK4cHadEnergy       , h_jetAK4cHadEnergy     );
-  hfloat  h_jetAK4cEMEnergy      ; evt.getByLabel (l_jetAK4cEMEnergy        , h_jetAK4cEMEnergy      );
-  hfloat  h_jetAK4numDaughters   ; evt.getByLabel (l_jetAK4numDaughters     , h_jetAK4numDaughters   );
-  hfloat  h_jetAK4cMultip        ; evt.getByLabel (l_jetAK4cMultip          , h_jetAK4cMultip        );
-  hfloat  h_jetAK4Y              ; evt.getByLabel (l_jetAK4Y                , h_jetAK4Y              );
-  hfloat  h_jetAK4Area           ; evt.getByLabel (l_jetAK4Area             , h_jetAK4Area           );
+  hvfloat  h_jetAK8Pt             ; evt.getByLabel (l_jetAK8Pt               , h_jetAK8Pt             );
+  hvfloat  h_jetAK8Eta            ; evt.getByLabel (l_jetAK8Eta              , h_jetAK8Eta            );
+  hvfloat  h_jetAK8Phi            ; evt.getByLabel (l_jetAK8Phi              , h_jetAK8Phi            );
+  hvfloat  h_jetAK8Mass           ; evt.getByLabel (l_jetAK8Mass             , h_jetAK8Mass           );
+  hvfloat  h_jetAK8FilteredMass   ; evt.getByLabel (l_jetAK8FilteredMass     , h_jetAK8FilteredMass   );
+  hvfloat  h_jetAK8PrunedMass     ; evt.getByLabel (l_jetAK8PrunedMass       , h_jetAK8PrunedMass     );
+  hvfloat  h_jetAK8TrimmedMass    ; evt.getByLabel (l_jetAK8TrimmedMass      , h_jetAK8TrimmedMass    );
+  hvfloat  h_jetAK8Energy         ; evt.getByLabel (l_jetAK8Energy           , h_jetAK8Energy         );
+  hvfloat  h_jetAK8Flavour        ; evt.getByLabel (l_jetAK8Flavour          , h_jetAK8Flavour        );
+  hvfloat  h_jetAK8CSV            ; evt.getByLabel (l_jetAK8CSV              , h_jetAK8CSV            );
+  hvfloat  h_jetAK8JEC            ; evt.getByLabel (l_jetAK8JEC              , h_jetAK8JEC            );
+  hvfloat  h_jetAK8Area           ; evt.getByLabel (l_jetAK8Area             , h_jetAK8Area           );
+  hvfloat  h_jetAK8Tau1           ; evt.getByLabel (l_jetAK8Tau1             , h_jetAK8Tau1           ); 
+  hvfloat  h_jetAK8Tau2           ; evt.getByLabel (l_jetAK8Tau2             , h_jetAK8Tau2           ); 
+  hvfloat  h_jetAK8Tau3           ; evt.getByLabel (l_jetAK8Tau3             , h_jetAK8Tau3           ); 
+  hvfloat  h_jetAK8nSubJets       ; evt.getByLabel (l_jetAK8nSubJets         , h_jetAK8nSubJets       ); 
+  hvfloat  h_jetAK8minmass        ; evt.getByLabel (l_jetAK8minmass          , h_jetAK8minmass        ); 
+  hvfloat  h_jetAK8VSubjetIndex0  ; evt.getByLabel (l_jetAK8VSubjetIndex0    , h_jetAK8VSubjetIndex0  );  
+  hvfloat  h_jetAK8VSubjetIndex1  ; evt.getByLabel (l_jetAK8VSubjetIndex1    , h_jetAK8VSubjetIndex1  );  
+  hvfloat  h_jetAK8TopSubjetIndex0; evt.getByLabel (l_jetAK8TopSubjetIndex0  , h_jetAK8TopSubjetIndex0); 
+  hvfloat  h_jetAK8TopSubjetIndex1; evt.getByLabel (l_jetAK8TopSubjetIndex1  , h_jetAK8TopSubjetIndex1); 
+  hvfloat  h_jetAK8TopSubjetIndex2; evt.getByLabel (l_jetAK8TopSubjetIndex2  , h_jetAK8TopSubjetIndex2); 
+  hvfloat  h_jetAK8TopSubjetIndex3; evt.getByLabel (l_jetAK8TopSubjetIndex3  , h_jetAK8TopSubjetIndex3); 
+  hvfloat  h_subjetAK8BDisc       ; evt.getByLabel (l_subjetAK8BDisc         , h_subjetAK8BDisc       ); 
+  hvfloat  h_subjetAK8Pt          ; evt.getByLabel (l_subjetAK8Pt            , h_subjetAK8Pt          ); 
+  hvfloat  h_subjetAK8Eta         ; evt.getByLabel (l_subjetAK8Eta           , h_subjetAK8Eta         ); 
+  hvfloat  h_subjetAK8Phi         ; evt.getByLabel (l_subjetAK8Phi           , h_subjetAK8Phi         ); 
+  hvfloat  h_subjetAK8Mass        ; evt.getByLabel (l_subjetAK8Mass          , h_subjetAK8Mass        ); 
+  hvfloat  h_subjetCmsTopTagBDisc ; evt.getByLabel (l_subjetCmsTopTagBDisc   , h_subjetCmsTopTagBDisc ); 
+  hvfloat  h_subjetCmsTopTagPt    ; evt.getByLabel (l_subjetCmsTopTagPt      , h_subjetCmsTopTagPt    ); 
+  hvfloat  h_subjetCmsTopTagEta   ; evt.getByLabel (l_subjetCmsTopTagEta     , h_subjetCmsTopTagEta   ); 
+  hvfloat  h_subjetCmsTopTagPhi   ; evt.getByLabel (l_subjetCmsTopTagPhi     , h_subjetCmsTopTagPhi   ); 
+  hvfloat  h_subjetCmsTopTagMass  ; evt.getByLabel (l_subjetCmsTopTagMass    , h_subjetCmsTopTagMass  ); 
+  hvfloat  h_jetAK4Pt             ; evt.getByLabel (l_jetAK4Pt               , h_jetAK4Pt             );
+  hvfloat  h_jetAK4Eta            ; evt.getByLabel (l_jetAK4Eta              , h_jetAK4Eta            );
+  hvfloat  h_jetAK4Phi            ; evt.getByLabel (l_jetAK4Phi              , h_jetAK4Phi            );
+  hvfloat  h_jetAK4Mass           ; evt.getByLabel (l_jetAK4Mass             , h_jetAK4Mass           );
+  hvfloat  h_jetAK4Energy         ; evt.getByLabel (l_jetAK4Energy           , h_jetAK4Energy         );
+  hvfloat  h_jetAK4Flavour        ; evt.getByLabel (l_jetAK4Flavour          , h_jetAK4Flavour        );
+  hvfloat  h_jetAK4CSV            ; evt.getByLabel (l_jetAK4CSV              , h_jetAK4CSV            );
+  hvfloat  h_jetAK4JEC            ; evt.getByLabel (l_jetAK4JEC              , h_jetAK4JEC            );
+  hvfloat  h_jetAK4nHadEnergy     ; evt.getByLabel (l_jetAK4nHadEnergy       , h_jetAK4nHadEnergy     );
+  hvfloat  h_jetAK4nEMEnergy      ; evt.getByLabel (l_jetAK4nEMEnergy        , h_jetAK4nEMEnergy      );
+  hvfloat  h_jetAK4HFHadronEnergy ; evt.getByLabel (l_jetAK4HFHadronEnergy   , h_jetAK4HFHadronEnergy );
+  hvfloat  h_jetAK4cHadEnergy     ; evt.getByLabel (l_jetAK4cHadEnergy       , h_jetAK4cHadEnergy     );
+  hvfloat  h_jetAK4cEMEnergy      ; evt.getByLabel (l_jetAK4cEMEnergy        , h_jetAK4cEMEnergy      );
+  hvfloat  h_jetAK4numDaughters   ; evt.getByLabel (l_jetAK4numDaughters     , h_jetAK4numDaughters   );
+  hvfloat  h_jetAK4cMultip        ; evt.getByLabel (l_jetAK4cMultip          , h_jetAK4cMultip        );
+  hvfloat  h_jetAK4Y              ; evt.getByLabel (l_jetAK4Y                , h_jetAK4Y              );
+  hvfloat  h_jetAK4Area           ; evt.getByLabel (l_jetAK4Area             , h_jetAK4Area           );
 
-  cout << " jetcoll size = " << h_jetcoll.product()->size() 
-    << " resolved vjj size = " << h_resolvedvjjcoll.product()->size() 
-    << endl ; 
-  int nbjets = *h_ngoodBTaggedAK4Jets.product() ; 
-  int ntjets = *h_nTJets.product() ; 
-  int nhjets = *h_nHJets.product() ; 
-  int nwjets = *h_nWJets.product() ; 
+  unsigned nbjets = *h_ngoodBTaggedAK4Jets.product() ; 
+  unsigned ntjets = *h_nTJets.product() ; 
+  unsigned nhjets = *h_nHJets.product() ; 
+  unsigned nwjets = *h_nWJets.product() ; 
 
-  map<int, int>resolvedvs ; 
-  vector<vlq::Jet> v_jetsfromv; ; 
-  vector<vlq::ResolvedVjj> v_vjj ; 
+  int     evttype(-1) ; 
+  double pttjet(-1) ;
+  double mtjet(-1) ;
+  double ptwjet(-1) ;
+  double mwjet(-1) ;
+  double pthjet(-1) ;
+  double mhjet(-1) ;
+  double ptth(-1) ;
+  double mth(-1) ;
+  double ptbleading(-1) ;
+  double etableading(0) ;
+  double ptjforward(-1) ;
+  double etajforward(-1) ;
+  double detath(-1) ; 
+  double detawh(-1) ; 
+  double drwb(-1) ;
+  double mwhb(-1) ; 
+
   vector<unsigned>ak4idx = *h_ak4goodjets.product() ; 
   for ( unsigned ij = 0; ij < ak4idx.size(); ++ij ) {
-    for ( unsigned jj = ij+1; jj < ak4idx.size(); ++jj) {
-      TLorentzVector p4j1, p4j2 ; 
-      p4j1.SetPtEtaPhiM(h_jetAK4Pt.product()->at(ij), h_jetAK4Eta.product()->at(ij), h_jetAK4Phi.product()->at(ij), h_jetAK4Mass.product()->at(ij)) ; 
-      p4j2.SetPtEtaPhiM(h_jetAK4Pt.product()->at(jj), h_jetAK4Eta.product()->at(jj), h_jetAK4Phi.product()->at(jj), h_jetAK4Mass.product()->at(jj)) ; 
-
-      //// Make V candidates 
-      std::pair <int, int> jetIndices(ij, jj) ;
-      TLorentzVector p4v = p4j1 + p4j2 ; 
-      double scaledmassdrop = (max(p4j1.Mag(), p4j2.Mag())/p4v.Mag()) * p4j1.DeltaR(p4j2) ; 
-      if ( (p4v).Mag() > wmassmin_ && (p4v).Mag() < wmassmax_ 
-          && scaledmassdrop > scaledmassdropmin_ && scaledmassdrop < scaledmassdropmax_ 
-          && p4j1.DeltaR(p4j2) < 1.2 ) { 
-        resolvedvs.insert( jetIndices ) ; 
-        vlq::ResolvedVjj vjj ;
-        vjj.setP4( p4v ) ; 
-        vjj.setScaledMassDrop( scaledmassdrop ) ;
-        vjj.setDrjj( p4j1.DeltaR(p4j2) ) ; 
-        vjj.setJetIndices( jetIndices ) ; 
-        v_vjj.push_back(vjj) ; 
-        vlq::Jet j1 ; 
-        vlq::Jet j2;
-        j1.setP4(p4j1) ;
-        j2.setP4(p4j2) ; 
-        j1.setIndex(ij) ;
-        j2.setIndex(jj) ;
-        v_jetsfromv.push_back(j1) ;
-        v_jetsfromv.push_back(j2) ;
-      }
-
+    if ( abs(h_jetAK4Eta.product()->at(ij)) > etajforward ) {
+      etajforward = abs(h_jetAK4Eta.product()->at(ij)) ; 
+      ptjforward = h_jetAK4Pt.product()->at(ij) ; 
     }
   }
 
-  string evttype = "" ; 
-
   if ( nbjets > 0 ) { 
+    ptbleading = h_jetAK4Pt.product()->at( (h_bjetIdxs.product()->at(0)) ) ;
+    etableading = h_jetAK4Eta.product()->at( (h_bjetIdxs.product()->at(0)) ) ;
+    if ( ntjets > 0  && nhjets == 0 ) { //// --> type 0
+      evttype = 0 ; 
+      pttjet = h_jetAK8Pt.product()->at( (h_tjetIdxs.product()->at(0)) ) ; 
+      mtjet = h_jetAK8Mass.product()->at( (h_tjetIdxs.product()->at(0)) ) ; 
+    }
     if ( ntjets > 0  && nhjets > 0 ) { //// --> type 1 
-      evttype = "TYPE1" ; 
+      evttype = 1 ; 
+      pttjet = h_jetAK8Pt.product()->at( (h_tjetIdxs.product()->at(0)) ) ; 
+      mtjet = h_jetAK8Mass.product()->at( (h_tjetIdxs.product()->at(0)) ) ; 
+      pthjet = h_jetAK8Pt.product()->at( (h_hjetIdxs.product()->at(0)) ) ; 
+      mhjet = h_jetAK8Mass.product()->at( (h_hjetIdxs.product()->at(0)) ) ; 
+      TLorentzVector p4t, p4h;
+      p4t.SetPtEtaPhiM( 
+          h_jetAK8Pt.product()->at( (h_tjetIdxs.product()->at(0)) ), 
+          h_jetAK8Eta.product()->at( (h_tjetIdxs.product()->at(0)) ),
+          h_jetAK8Phi.product()->at( (h_tjetIdxs.product()->at(0)) ),
+          h_jetAK8Mass.product()->at( (h_tjetIdxs.product()->at(0)) ) 
+          ) ; 
+      p4h.SetPtEtaPhiM( 
+          h_jetAK8Pt.product()->at( (h_hjetIdxs.product()->at(0)) ), 
+          h_jetAK8Eta.product()->at( (h_hjetIdxs.product()->at(0)) ),
+          h_jetAK8Phi.product()->at( (h_hjetIdxs.product()->at(0)) ),
+          h_jetAK8Mass.product()->at( (h_hjetIdxs.product()->at(0)) ) 
+          ) ; 
+      ptth = (p4t+p4h).Pt() ; 
+      mth = (p4t+p4h).Mag() ; 
+      detath = abs(p4t.Eta() - p4h.Eta()) ; 
     } 
     else if ( ntjets == 0 && nhjets > 0 && nwjets > 0 ) { //// --> type 2
-      evttype = "TYPE2" ; 
+      evttype = 2 ; 
+      ptwjet = h_jetAK8Pt.product()->at( (h_wjetIdxs.product()->at(0)) ) ; 
+      mwjet = h_jetAK8Mass.product()->at( (h_wjetIdxs.product()->at(0)) ) ; 
+      pthjet = h_jetAK8Pt.product()->at( (h_hjetIdxs.product()->at(0)) ) ; 
+      mhjet = h_jetAK8Mass.product()->at( (h_hjetIdxs.product()->at(0)) ) ; 
+      TLorentzVector p4w, p4h, p4b;
+      p4w.SetPtEtaPhiM( 
+          h_jetAK8Pt.product()->at( (h_wjetIdxs.product()->at(0)) ), 
+          h_jetAK8Eta.product()->at( (h_wjetIdxs.product()->at(0)) ),
+          h_jetAK8Phi.product()->at( (h_wjetIdxs.product()->at(0)) ),
+          h_jetAK8Mass.product()->at( (h_wjetIdxs.product()->at(0)) ) 
+          ) ; 
+      p4h.SetPtEtaPhiM( 
+          h_jetAK8Pt.product()->at( (h_hjetIdxs.product()->at(0)) ), 
+          h_jetAK8Eta.product()->at( (h_hjetIdxs.product()->at(0)) ),
+          h_jetAK8Phi.product()->at( (h_hjetIdxs.product()->at(0)) ),
+          h_jetAK8Mass.product()->at( (h_hjetIdxs.product()->at(0)) ) 
+          ) ; 
+      p4b.SetPtEtaPhiM( 
+          h_jetAK4Pt.product()->at( (h_bjetIdxs.product()->at(0)) ), 
+          h_jetAK4Eta.product()->at( (h_bjetIdxs.product()->at(0)) ),
+          h_jetAK4Phi.product()->at( (h_bjetIdxs.product()->at(0)) ),
+          h_jetAK4Mass.product()->at( (h_bjetIdxs.product()->at(0)) ) 
+          ) ; 
+      detawh = abs(p4w.Eta() - p4h.Eta()) ; 
+      drwb = p4w.DeltaR(p4b) ;
+      mwhb = (p4w + p4h + p4b).Mag() ; 
     } 
-    else if ( ntjets == 0 && nhjets > 0 && nwjets == 0 ) { //// --> type 3
-      evttype = "TYPE3" ; 
+    else if ( ntjets == 0 && nwjets == 0 && nhjets > 0 ) { //// --> type 3 
+      evttype = 3 ; 
+      pthjet = h_jetAK8Pt.product()->at( (h_hjetIdxs.product()->at(0)) ) ; 
+      mhjet = h_jetAK8Mass.product()->at( (h_hjetIdxs.product()->at(0)) ) ; 
     }
-    else if ( nhjets == 0 && nwjets > 0 && nbjets > 1 ) { //// --> type 4 
-      evttype = "TYPE4" ; 
+    else if ( ntjets == 0 && nhjets == 0 && nwjets > 0 && nbjets > 1 ) { //// --> type 4
+      evttype = 4 ; 
+      ptwjet = h_jetAK8Pt.product()->at( (h_wjetIdxs.product()->at(0)) ) ; 
+      mwjet = h_jetAK8Mass.product()->at( (h_wjetIdxs.product()->at(0)) ) ; 
     }
   }
   else { //// Define control
   }
 
-  std::auto_ptr<string> evttypeptr( new string(evttype) ) ;
-  std::auto_ptr<map<int,int>> resolvedvsptr ( new map<int,int>(resolvedvs) ) ;
-  auto_ptr<vector<vlq::ResolvedVjj> > vjjcoll( new vector<vlq::ResolvedVjj> (v_vjj) );
-  auto_ptr<vector<vlq::Jet> > jetcoll( new vector<vlq::Jet> (v_jetsfromv) );
+  auto_ptr<int> evttypeptr( new int(evttype) ) ;
   evt.put(evttypeptr, "evttype") ; 
-  evt.put(resolvedvsptr, "resolvedvs") ; 
-  evt.put(jetcoll, "JetCollection") ; 
-  evt.put(vjjcoll, "ResolvedVjjCollection") ; 
+  auto_ptr<double> pttjetptr( new double(pttjet) ) ; 
+  evt.put(pttjetptr, "pttjet") ; 
+  auto_ptr<double> mtjetptr( new double(mtjet) ) ; 
+  evt.put(mtjetptr, "mtjet") ; 
+  auto_ptr<double> ptwjetptr( new double(ptwjet) ) ; 
+  evt.put(ptwjetptr, "ptwjet") ; 
+  auto_ptr<double> mwjetptr( new double(mwjet) ) ; 
+  evt.put(mwjetptr, "mwjet") ; 
+  auto_ptr<double> pthjetptr( new double(pthjet) ) ; 
+  evt.put(pthjetptr, "pthjet") ; 
+  auto_ptr<double> mhjetptr( new double(mhjet) ) ; 
+  evt.put(mhjetptr, "mhjet") ; 
+  auto_ptr<double> ptthptr( new double(ptth) ) ; 
+  evt.put(ptthptr, "ptth") ; 
+  auto_ptr<double> mthptr( new double(mth) ) ; 
+  evt.put(mthptr, "mth") ; 
+  auto_ptr<double> ptjforwardptr( new double(ptjforward) ) ; 
+  evt.put(ptjforwardptr, "ptjforward") ; 
+  auto_ptr<double> etajforwardptr( new double(etajforward) ) ; 
+  evt.put(etajforwardptr, "etajforward") ; 
+  auto_ptr<double> ptbleadingptr( new double(ptbleading) ) ; 
+  evt.put(ptbleadingptr, "ptbleading") ; 
+  auto_ptr<double> etableadingptr( new double(etableading) ) ; 
+  evt.put(etableadingptr, "etableading") ; 
+  auto_ptr<double> detathptr( new double(detath) ) ; 
+  evt.put(detathptr, "detath") ; 
+  auto_ptr<double> detawhptr( new double(detawh) ) ; 
+  evt.put(detawhptr, "detawh") ; 
+  auto_ptr<double> drwbptr( new double(drwb) ) ; 
+  evt.put(drwbptr, "drwb") ; 
+  auto_ptr<double> mwhbptr( new double(mwhb) ) ; 
+  evt.put(mwhbptr, "mwhb") ; 
 
   return true ; 
 
