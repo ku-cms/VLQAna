@@ -37,8 +37,11 @@
 #include "Analysis/VLQAna/interface/JetSelector.h"
 #include "Analysis/VLQAna/interface/HT.h"
 
+#include "Analysis/VLQAna/interface/PickGenPart.h"
+
 #include <TTree.h>
 #include <TLorentzVector.h>
+#include <TGraphAsymmErrors.h>
 
 
 //
@@ -117,6 +120,7 @@ class VLQAna : public edm::EDFilter {
     edm::InputTag l_jetAK4Y                   ;
     edm::InputTag l_jetAK4Area                ; 
     std::vector<std::string> hltPaths_        ; 
+    edm::ParameterSet GenHSelParams_          ; 
     edm::ParameterSet AK4JetSelParams_        ; 
     edm::ParameterSet BTaggedAK4JetSelParams_ ; 
     edm::ParameterSet AK8JetSelParams_        ; 
@@ -128,6 +132,9 @@ class VLQAna : public edm::EDFilter {
     double ak4jetsPtMin_                      ;
     double ak4jetsEtaMax_                     ; 
     double HTMin_                             ; 
+
+    edm::Service<TFileService> fs             ; 
+    std::map<std::string, TH1D*> h1_          ; 
 
 };
 
@@ -200,6 +207,7 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   l_jetAK4Y               (iConfig.getParameter<edm::InputTag>     ("jetAK4YLabel")),
   l_jetAK4Area            (iConfig.getParameter<edm::InputTag>     ("jetAK4AreaLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
+  GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   AK4JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK4JetSelParams")),
   BTaggedAK4JetSelParams_ (iConfig.getParameter<edm::ParameterSet> ("BTaggedAK4JetSelParams")),
   AK8JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK8JetSelParams")),
@@ -343,9 +351,8 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   //// Store good AK8 jets
   JetSelector ak8jetsel(AK8JetSelParams_) ;
-  pat::strbitset retak8jetsel = ak8jetsel.getBitTemplate() ;
   for ( unsigned ijet = 0; ijet < (h_jetAK8Pt.product())->size(); ++ijet) {
-    retak8jetsel.set(false) ;
+    bool retak8jetsel = false ; 
     if (ak8jetsel(evt, ijet,retak8jetsel) == 0) { 
       LogDebug("VLQAna") << " ak8 jet with pt = " << (h_jetAK8Pt.product())->at(ijet) << " fail jet sel\n" ; 
       continue ;
@@ -366,11 +373,11 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   //// Store good AK4 jets 
   JetSelector ak4jetsel(AK4JetSelParams_) ;
   JetSelector btaggedak4jetsel(BTaggedAK4JetSelParams_) ;
-  pat::strbitset retak4jetsel = ak4jetsel.getBitTemplate() ;
-  pat::strbitset retbtaggedak4jetsel = btaggedak4jetsel.getBitTemplate() ;
+  bool retak4jetsel = false ; 
+  bool retbtaggedak4jetsel = false ; 
   for ( unsigned ijet = 0; ijet < (h_jetAK4Pt.product())->size(); ++ijet) {
-    retak4jetsel.set(false) ;
-    retbtaggedak4jetsel.set(false) ;
+    retak4jetsel = false ;
+    retbtaggedak4jetsel = false ;
     if (ak4jetsel(evt, ijet,retak4jetsel) == 0) { 
       LogDebug("VLQAna") << " ak4 jet with pt = " << (h_jetAK4Pt.product())->at(ijet) << " fail jet sel\n" ; 
       continue ;
@@ -399,27 +406,36 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   HT htak8(goodAK8Jets) ; 
 
+  PickGenPart genh(GenHSelParams_) ; 
+  GenParticleCollection higgses = genh(evt) ;  
+
   //// Make W, top and H jets 
   vector<unsigned> seltjets, selhjets, selwjets;
   JetCollection tjets, hjets, wjets ; 
   JetSelector tjetsel(TJetSelParams_) ;
   JetSelector hjetsel(HJetSelParams_) ;
   JetSelector wjetsel(WJetSelParams_) ;
-  pat::strbitset rettjetsel = tjetsel.getBitTemplate() ;
-  pat::strbitset rethjetsel = hjetsel.getBitTemplate() ;
-  pat::strbitset retwjetsel = wjetsel.getBitTemplate() ;
-  for ( unsigned ijet = 0; ijet < (h_jetAK8Pt.product())->size(); ++ijet) {
+  bool rettjetsel = false ;
+  bool rethjetsel = false ;
+  bool retwjetsel = false ;
+  for ( unsigned  &ijet :  ak8seljets) {
     TLorentzVector jetP4 ;
     jetP4.SetPtEtaPhiM( (h_jetAK8Pt.product())->at(ijet), 
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
+    h1_["ptak8"]->Fill(jetP4.Pt()) ; 
     Jet jet(jetP4) ;
-    rettjetsel.set(false) ;
+    rettjetsel = false ;
     if (tjetsel(evt, ijet,rettjetsel) == true ) { tjets.push_back(jet) ; seltjets.push_back(ijet) ; }
-    rethjetsel.set(false) ;
-    if (hjetsel(evt, ijet,rethjetsel) == true ) { hjets.push_back(jet) ; selhjets.push_back(ijet) ; } 
-    retwjetsel.set(false) ;
+    rethjetsel = false ;
+    if (hjetsel(evt, ijet,rethjetsel) == true ) { 
+      for ( vlq::GenParticle& higgs : higgses ) {
+        TLorentzVector hp4 = higgs.getP4() ; 
+      }
+      hjets.push_back(jet) ; selhjets.push_back(ijet) ; h1_["pthjet"]->Fill(jetP4.Pt()) ;
+    } 
+    retwjetsel = false ;
     if (wjetsel(evt, ijet,retwjetsel) == true ) { wjets.push_back(jet) ; selwjets.push_back(ijet) ; } 
   }
 
@@ -512,11 +528,18 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   void 
 VLQAna::beginJob()
 {
+  TFileDirectory results = TFileDirectory( fs->mkdir("results") );
+  h1_["ptak8"]  = fs->make<TH1D>("ptak8"  ,";p_T{AK8} [GeV]"         , 100, 0., 2000.) ; 
+  h1_["pthjet"] = fs->make<TH1D>("pthjet" ,";p_T{H-tagged jet} [GeV]", 100, 0., 2000.) ; 
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 VLQAna::endJob() {
+  TGraphAsymmErrors* greff = fs->make<TGraphAsymmErrors>(h1_["pthjet"], h1_["ptak8"], "cp") ; 
+  greff->SetName("effhtag") ;
+  greff->Write() ;
 }
 
 // ------------ method called when starting to processes a run  ------------

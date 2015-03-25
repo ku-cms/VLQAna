@@ -5,6 +5,7 @@
     <use name="FWCore/ServiceRegistry"/>
     <use name="CommonTools/UtilAlgos"/>
     <use name="AnalysisDataFormats/BoostedObjects"/>
+    <use name="Analysis/VLQAna"/>
     <use name="root"/>
     <use name="roottmva"/>
     <flags EDM_PLUGIN="1"/>

@@ -21,33 +21,33 @@ int main()
   TMVA::Factory factory1(jobName, &infoFile1, "Color=True"); //// hjets
 
   //// Specifiy signal and background trees and event weights
-  string const filePrefix("/afs/cern.ch/work/d/devdatta/CMSREL/CMSSW_7_3_2_patch4/src/Analysis/VLQAna/test/");
+  string const filePrefix("/afs/cern.ch/user/d/devdatta/eos/cms/store/user/devdatta/B2GEDMNtupleSkim25Mar2015/");
 
-  TFile sgnTrainFile((filePrefix + "SingleTprimeAnaEvts_Tprime1200.root").c_str());
+  TFile sgnTrainFile((filePrefix + "TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/SingleTprimeAnaEvts.root").c_str());
   unique_ptr<TTree> sgnTrainTree(dynamic_cast<TTree *>(sgnTrainFile.Get("Events")));
 
-  TFile sgnExamFile((filePrefix + "SingleTprimeAnaEvts_Tprime1200.root").c_str());
+  TFile sgnExamFile((filePrefix + "TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/SingleTprimeAnaEvts.root").c_str());
   unique_ptr<TTree> sgnExamTree(dynamic_cast<TTree *>(sgnExamFile.Get("Events")));
 
-  TFile bkg0TrainFile((filePrefix + "SingleTprimeAnaEvts_TTJets.root").c_str());
+  TFile bkg0TrainFile((filePrefix + "QCD_HT_1000ToInf_13TeV-madgraph/SingleTprimeAnaEvts.root").c_str());
   unique_ptr<TTree> bkg0TrainTree(dynamic_cast<TTree *>(bkg0TrainFile.Get("Events")));
 
-  TFile bkg0ExamFile((filePrefix + "SingleTprimeAnaEvts_TTJets.root").c_str());
+  TFile bkg0ExamFile((filePrefix + "QCD_HT_1000ToInf_13TeV-madgraph/SingleTprimeAnaEvts.root").c_str());
   unique_ptr<TTree> bkg0ExamTree(dynamic_cast<TTree *>(bkg0ExamFile.Get("Events")));
 
-  TFile bkg1TrainFile((filePrefix + "SingleTprimeAnaEvts_QCD_HT_1000ToInf.root").c_str());
+  TFile bkg1TrainFile((filePrefix + "TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/SingleTprimeAnaEvts.root").c_str());
   unique_ptr<TTree> bkg1TrainTree(dynamic_cast<TTree *>(bkg1TrainFile.Get("Events")));
 
-  TFile bkg1ExamFile((filePrefix + "SingleTprimeAnaEvts_QCD_HT_1000ToInf.root").c_str());
+  TFile bkg1ExamFile((filePrefix + "TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/SingleTprimeAnaEvts.root").c_str());
   unique_ptr<TTree> bkg1ExamTree(dynamic_cast<TTree *>(bkg1ExamFile.Get("Events")));
 
   factory0.AddSignalTree(sgnTrainTree.get());
   factory0.AddBackgroundTree(bkg0TrainTree.get());
-  factory0.AddBackgroundTree(bkg1TrainTree.get());
+  //factory0.AddBackgroundTree(bkg1TrainTree.get());
   
   factory1.AddSignalTree(sgnTrainTree.get());
   factory1.AddBackgroundTree(bkg0TrainTree.get());
-  factory1.AddBackgroundTree(bkg1TrainTree.get());
+  //factory1.AddBackgroundTree(bkg1TrainTree.get());
   
   //// Specify the input variables 
   factory0.AddVariable("double_ana_htak4jets_SingleTpAna.obj", 'D');
@@ -86,7 +86,7 @@ int main()
   factory1.AddVariable("double_sel_mwhb_SingleTpAna.obj", 'D');
   factory1.AddVariable("double_sel_drwb_SingleTpAna.obj", 'D');
 
-  factory0.PrepareTrainingAndTestTree("int_sel_evttype_SingleTpAna.obj==0 || int_sel_evttype_SingleTpAna.obj==1","nTrain_Signal=200:nTrain_Background=200:nTest_Signal=200:nTest_Background=200:SplitMode=Random:NormMode=NumEvents:!V");
+  factory0.PrepareTrainingAndTestTree("int_sel_evttype_SingleTpAna.obj==0 || int_sel_evttype_SingleTpAna.obj==1","nTrain_Signal=4000:nTrain_Background=4000:nTest_Signal=4000:nTest_Background=4000:SplitMode=Random:NormMode=NumEvents:!V");
   factory0.BookMethod( TMVA::Types::kBDT, jobName + "BDTG0",
       "!H:!V:NTrees=1000:MinNodeSize=1.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:MaxDepth=2" );
 
@@ -96,7 +96,7 @@ int main()
 
   infoFile0.Close() ; 
 
-  factory1.PrepareTrainingAndTestTree("int_sel_evttype_SingleTpAna.obj>=2","nTrain_Signal=200:nTrain_Background=200:nTest_Signal=200:nTest_Background=200:SplitMode=Random:NormMode=NumEvents:!V");
+  factory1.PrepareTrainingAndTestTree("int_sel_evttype_SingleTpAna.obj>=2","nTrain_Signal=4000:nTrain_Background=4000:nTest_Signal=4000:nTest_Background=4000:SplitMode=Random:NormMode=NumEvents:!V");
   factory1.BookMethod( TMVA::Types::kBDT, jobName + "BDTG1",
       "!H:!V:NTrees=1000:MinNodeSize=1.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:MaxDepth=2" );
       

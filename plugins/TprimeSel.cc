@@ -64,29 +64,29 @@ class TprimeSel : public edm::EDFilter {
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     // ----------member data ---------------------------
-    edm::InputTag l_jetcoll;
-    edm::InputTag l_resolvedvjjcoll; 
-    edm::InputTag l_ngoodAK4Jets;
-    edm::InputTag l_ngoodAK8Jets;
-    edm::InputTag l_ngoodBTaggedAK4Jets;
-    edm::InputTag l_nTJets;
-    edm::InputTag l_nHJets;
-    edm::InputTag l_nWJets;
-    edm::InputTag l_htak4jets;
-    edm::InputTag l_htak8jets;
-    edm::InputTag l_maxetaak4;
-    edm::InputTag l_MassLeading2AK8;
-    edm::InputTag l_DeltaEtaLeading2AK8;
-    edm::InputTag l_pt1stAK8;
-    edm::InputTag l_pt2ndAK8;
-    edm::InputTag l_mass1stAK8;
-    edm::InputTag l_mass2ndAK8;
-    edm::InputTag l_ak4goodjets;
-    edm::InputTag l_ak8goodjets;
-    edm::InputTag l_bjetIdxs;
-    edm::InputTag l_tjetIdxs;
-    edm::InputTag l_hjetIdxs;
-    edm::InputTag l_wjetIdxs;
+    edm::InputTag l_jetcoll                   ;
+    edm::InputTag l_resolvedvjjcoll           ; 
+    edm::InputTag l_ngoodAK4Jets              ;
+    edm::InputTag l_ngoodAK8Jets              ;
+    edm::InputTag l_ngoodBTaggedAK4Jets       ;
+    edm::InputTag l_nTJets                    ;
+    edm::InputTag l_nHJets                    ;
+    edm::InputTag l_nWJets                    ;
+    edm::InputTag l_htak4jets                 ;
+    edm::InputTag l_htak8jets                 ;
+    edm::InputTag l_maxetaak4                 ;
+    edm::InputTag l_MassLeading2AK8           ;
+    edm::InputTag l_DeltaEtaLeading2AK8       ;
+    edm::InputTag l_pt1stAK8                  ;
+    edm::InputTag l_pt2ndAK8                  ;
+    edm::InputTag l_mass1stAK8                ;
+    edm::InputTag l_mass2ndAK8                ;
+    edm::InputTag l_ak4goodjets               ;
+    edm::InputTag l_ak8goodjets               ;
+    edm::InputTag l_bjetIdxs                  ;
+    edm::InputTag l_tjetIdxs                  ;
+    edm::InputTag l_hjetIdxs                  ;
+    edm::InputTag l_wjetIdxs                  ;
     edm::InputTag l_trigName                  ; 
     edm::InputTag l_trigBit                   ; 
     edm::InputTag l_jetAK8Pt                  ; 
@@ -154,8 +154,6 @@ class TprimeSel : public edm::EDFilter {
     double wmassmax_                          ;
     double scaledmassdropmin_                 ;
     double scaledmassdropmax_                 ;
-
-    TTree *tree_;
 
 };
 
@@ -285,10 +283,6 @@ TprimeSel::TprimeSel(const edm::ParameterSet& iConfig) :
   produces<double>("drwb") ; 
   produces<double>("mwhb") ; 
 
-  edm::Service<TFileService> fs; 
-  TFileDirectory results = TFileDirectory( fs->mkdir("results") );
-  tree_ = new TTree ("tree", "SingleTpAna");
-
 }
 
 
@@ -397,7 +391,7 @@ TprimeSel::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   unsigned nhjets = *h_nHJets.product() ; 
   unsigned nwjets = *h_nWJets.product() ; 
 
-  int     evttype(-1) ; 
+  int    evttype(-1) ; 
   double pttjet(-1) ;
   double mtjet(-1) ;
   double ptwjet(-1) ;
