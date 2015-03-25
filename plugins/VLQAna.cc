@@ -420,20 +420,23 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   bool retwjetsel = false ;
   for ( unsigned  &ijet :  ak8seljets) {
     TLorentzVector jetP4 ;
+    vector<float>drhjet_hpart ; 
     jetP4.SetPtEtaPhiM( (h_jetAK8Pt.product())->at(ijet), 
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
-    h1_["ptak8"]->Fill(jetP4.Pt()) ; 
+    for ( vlq::GenParticle& higgs : higgses ) {
+      TLorentzVector hp4 = higgs.getP4() ; 
+      drhjet_hpart.push_back(hp4.DeltaR(jetP4)) ; 
+    }
+    std::vector<float>::iterator imin = std::min_element(drhjet_hpart.begin(), drhjet_hpart.end());
+    if ( *imin < 0.8 ) h1_["ptak8"]->Fill(jetP4.Pt()) ; 
     Jet jet(jetP4) ;
     rettjetsel = false ;
     if (tjetsel(evt, ijet,rettjetsel) == true ) { tjets.push_back(jet) ; seltjets.push_back(ijet) ; }
     rethjetsel = false ;
     if (hjetsel(evt, ijet,rethjetsel) == true ) { 
-      for ( vlq::GenParticle& higgs : higgses ) {
-        TLorentzVector hp4 = higgs.getP4() ; 
-      }
-      hjets.push_back(jet) ; selhjets.push_back(ijet) ; h1_["pthjet"]->Fill(jetP4.Pt()) ;
+       hjets.push_back(jet) ; selhjets.push_back(ijet) ; if ( *imin < 0.8 ) h1_["pthjet"]->Fill(jetP4.Pt()) ;
     } 
     retwjetsel = false ;
     if (wjetsel(evt, ijet,retwjetsel) == true ) { wjets.push_back(jet) ; selwjets.push_back(ijet) ; } 
