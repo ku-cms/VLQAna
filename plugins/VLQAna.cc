@@ -5,10 +5,10 @@
 // 
 /**\class VLQAna VLQAna.cc Analysis/VLQAna/plugins/VLQAna.cc
 
- Description: [one line class summary]
+Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
+Implementation:
+[Notes on implementation]
 */
 //
 // Original Author:  Devdatta Majumder
@@ -33,11 +33,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 #include "Analysis/VLQAna/interface/JetSelector.h"
 #include "Analysis/VLQAna/interface/HT.h"
-
-#include "Analysis/VLQAna/interface/PickGenPart.h"
 
 #include <TTree.h>
 #include <TLorentzVector.h>
@@ -49,23 +48,23 @@
 //
 
 class VLQAna : public edm::EDFilter {
-   public:
-      explicit VLQAna(const edm::ParameterSet&);
-      ~VLQAna();
+  public:
+    explicit VLQAna(const edm::ParameterSet&);
+    ~VLQAna();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-      
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  private:
+    virtual void beginJob() override;
+    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
 
-      // ----------member data ---------------------------
+    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+    // ----------member data ---------------------------
     std::string pn_;
     edm::InputTag l_trigName                  ; 
     edm::InputTag l_trigBit                   ; 
@@ -119,6 +118,7 @@ class VLQAna : public edm::EDFilter {
     edm::InputTag l_jetAK4cMultip             ;
     edm::InputTag l_jetAK4Y                   ;
     edm::InputTag l_jetAK4Area                ; 
+    edm::InputTag l_HbbCands                  ; 
     std::vector<std::string> hltPaths_        ; 
     edm::ParameterSet GenHSelParams_          ; 
     edm::ParameterSet AK4JetSelParams_        ; 
@@ -206,6 +206,7 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   l_jetAK4cMultip         (iConfig.getParameter<edm::InputTag>     ("jetAK4cMultipLabel")),
   l_jetAK4Y               (iConfig.getParameter<edm::InputTag>     ("jetAK4YLabel")),
   l_jetAK4Area            (iConfig.getParameter<edm::InputTag>     ("jetAK4AreaLabel")),
+  l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   AK4JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK4JetSelParams")),
@@ -242,26 +243,26 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   produces<vector<unsigned>>("hjetIdxs");
   produces<vector<unsigned>>("wjetIdxs");
 
-   //register your products
-/* Examples
-   produces<ExampleData2>();
+  //register your products
+  /* Examples
+     produces<ExampleData2>();
 
-   //if do put with a label
-   produces<ExampleData2>("label");
- 
-   //if you want to put into the Run
-   produces<ExampleData2,InRun>();
-*/
-   //now do what ever other initialization is needed
-  
+  //if do put with a label
+  produces<ExampleData2>("label");
+
+  //if you want to put into the Run
+  produces<ExampleData2,InRun>();
+  */
+  //now do what ever other initialization is needed
+
 }
 
 
 VLQAna::~VLQAna()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -271,7 +272,7 @@ VLQAna::~VLQAna()
 //
 
 // ------------ method called to produce the data  ------------
-bool
+  bool
 VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 {
   using namespace edm;
@@ -332,6 +333,9 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   hfloat  h_jetAK4Y              ; evt.getByLabel (l_jetAK4Y                , h_jetAK4Y              );
   hfloat  h_jetAK4Area           ; evt.getByLabel (l_jetAK4Area             , h_jetAK4Area           );
 
+  Handle<vlq::GenParticleWithDaughtersCollection> h_HbbCands ; evt.getByLabel (l_HbbCands , h_HbbCands );
+  vlq::GenParticleWithDaughtersCollection::const_iterator ihbb ;
+
   //// Pre-selection HLT
   // Get all trig names
   //for ( vector<string>::const_iterator it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it) {
@@ -346,7 +350,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   }
   //DMif (hltdecisions == 0) return false ; 
 
-  JetCollection goodAK8Jets, goodAK4Jets, goodBTaggedAK4Jets ;
+  vlq::JetCollection goodAK8Jets, goodAK4Jets, goodBTaggedAK4Jets ;
   vector<unsigned> ak4seljets, ak8seljets, bjetIdxs;
 
   //// Store good AK8 jets
@@ -362,7 +366,8 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
-    Jet jet(jetP4) ;
+    vlq::Jet jet;
+    jet.setP4(jetP4) ; 
     goodAK8Jets.push_back(jet) ;
     ak8seljets.push_back(ijet);
   }
@@ -387,7 +392,8 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK4Eta.product())->at(ijet), 
         (h_jetAK4Phi.product())->at(ijet), 
         (h_jetAK4Mass.product())->at(ijet) ) ;
-    Jet jet(jetP4) ;
+    vlq::Jet jet;  
+    jet.setP4(jetP4) ;
     goodAK4Jets.push_back(jet) ;
     ak4seljets.push_back(ijet);
     if ( btaggedak4jetsel(evt, ijet,retbtaggedak4jetsel) != 0 ) {
@@ -406,12 +412,9 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   HT htak8(goodAK8Jets) ; 
 
-  PickGenPart genh(GenHSelParams_) ; 
-  GenParticleCollection higgses = genh(evt) ;  
-
   //// Make W, top and H jets 
   vector<unsigned> seltjets, selhjets, selwjets;
-  JetCollection tjets, hjets, wjets ; 
+  vlq::JetCollection tjets, hjets, wjets ; 
   JetSelector tjetsel(TJetSelParams_) ;
   JetSelector hjetsel(HJetSelParams_) ;
   JetSelector wjetsel(WJetSelParams_) ;
@@ -420,23 +423,42 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   bool retwjetsel = false ;
   for ( unsigned  &ijet :  ak8seljets) {
     TLorentzVector jetP4 ;
-    vector<float>drhjet_hpart ; 
+    vector<float>drhjet_hpart, drhjet_bpart, drhjet_bbarpart ; 
     jetP4.SetPtEtaPhiM( (h_jetAK8Pt.product())->at(ijet), 
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
-    for ( vlq::GenParticle& higgs : higgses ) {
-      TLorentzVector hp4 = higgs.getP4() ; 
+    for ( ihbb = h_HbbCands.product()->begin(); ihbb != h_HbbCands.product()->end(); ++ihbb ) {
+      TLorentzVector hp4 = (ihbb->getMom()).getP4() ; 
       drhjet_hpart.push_back(hp4.DeltaR(jetP4)) ; 
+      vlq::GenParticleCollection bs =  ( ihbb->getDaughters() ) ; 
+      for ( vlq::GenParticle& b : bs ) {
+        TLorentzVector bp4 = b.getP4() ; 
+        if ( b.getPdgID() == 5 ) {
+          drhjet_bpart.push_back(bp4.DeltaR(jetP4)) ; 
+        }
+        if ( b.getPdgID() == -5 ) {
+          drhjet_bbarpart.push_back(bp4.DeltaR(jetP4)) ; 
+        }
+      }
     }
-    std::vector<float>::iterator imin = std::min_element(drhjet_hpart.begin(), drhjet_hpart.end());
-    if ( *imin < 0.8 ) h1_["ptak8"]->Fill(jetP4.Pt()) ; 
-    Jet jet(jetP4) ;
+    std::vector<float>::iterator iminh    = std::min_element(drhjet_hpart.begin(), drhjet_hpart.end());
+    std::vector<float>::iterator iminb    = std::min_element(drhjet_bpart.begin(), drhjet_bpart.end());
+    std::vector<float>::iterator iminbbar = std::min_element(drhjet_bbarpart.begin(), drhjet_bbarpart.end());
+    if ( iminh != drhjet_hpart.end() && iminb != drhjet_bpart.end() && iminbbar != drhjet_bbarpart.end() )
+      if ( *iminh < 0.8 && *iminb < 0.8 && *iminbbar < 0.8 ) 
+    h1_["ptak8"]->Fill(jetP4.Pt()) ; 
+    vlq::Jet jet; 
+    jet.setP4(jetP4) ;
     rettjetsel = false ;
     if (tjetsel(evt, ijet,rettjetsel) == true ) { tjets.push_back(jet) ; seltjets.push_back(ijet) ; }
     rethjetsel = false ;
     if (hjetsel(evt, ijet,rethjetsel) == true ) { 
-       hjets.push_back(jet) ; selhjets.push_back(ijet) ; if ( *imin < 0.8 ) h1_["pthjet"]->Fill(jetP4.Pt()) ;
+      hjets.push_back(jet) ; 
+      selhjets.push_back(ijet) ; 
+      if ( iminh != drhjet_hpart.end() && iminb != drhjet_bpart.end() && iminbbar != drhjet_bbarpart.end() )
+        if ( *iminh < 0.8  && *iminb < 0.8 && *iminbbar < 0.8 ) 
+      h1_["pthjet"]->Fill(jetP4.Pt()) ;
     } 
     retwjetsel = false ;
     if (wjetsel(evt, ijet,retwjetsel) == true ) { wjets.push_back(jet) ; selwjets.push_back(ijet) ; } 
@@ -445,21 +467,21 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   //// Pick forwardmost AK4 jet
   double maxeta(0) ;
   for ( auto& jet : goodAK4Jets ) {
-    if ( abs(jet.p4().Eta()) > abs(maxeta) ) maxeta = jet.p4().Eta() ; 
+    if ( abs(jet.getP4().Eta()) > abs(maxeta) ) maxeta = jet.getP4().Eta() ; 
   }
 
-  double ptak8_1 = goodAK8Jets.at(0).p4().Pt() ;
+  double ptak8_1 = goodAK8Jets.at(0).getP4().Pt() ;
   double ptak8_2(0) ; 
-  goodAK8Jets.size() > 1 ?  ptak8_2 = goodAK8Jets.at(1).p4().Pt() : 0 ; 
-  double mak8_1 = goodAK8Jets.at(0).p4().Mag() ;
+  goodAK8Jets.size() > 1 ?  ptak8_2 = goodAK8Jets.at(1).getP4().Pt() : 0 ; 
+  double mak8_1 = goodAK8Jets.at(0).getP4().Mag() ;
   double mak8_2(0) ; 
-  goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).p4().Mag() : 0 ; 
+  goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).getP4().Mag() : 0 ; 
   double mak8_12(0) ; 
   double detaLeading2AK8(-1) ; 
   if (goodAK8Jets.size() > 1) {
-    TLorentzVector p4_ak8_12(goodAK8Jets.at(0).p4() + goodAK8Jets.at(1).p4()) ;
+    TLorentzVector p4_ak8_12(goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()) ;
     mak8_12 = p4_ak8_12.Mag() ; 
-    detaLeading2AK8 = abs(goodAK8Jets.at(0).p4().Eta() - goodAK8Jets.at(1).p4().Eta() ) ;
+    detaLeading2AK8 = abs(goodAK8Jets.at(0).getP4().Eta() - goodAK8Jets.at(1).getP4().Eta() ) ;
   }
 
   std::auto_ptr<unsigned> ngoodAK4Jets ( new unsigned(goodAK4Jets.size()) );
@@ -507,23 +529,6 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   evt.put(wjetIdxs, "wjetIdxs");
 
   return true ; 
-
-  /* This is an event example
-  //Read 'ExampleData' from the Event
-  Handle<ExampleData> pIn;
-  evt.getByLabel("example",pIn);
-
-  //Use the ExampleData to create an ExampleData2 which 
-  // is put into the Event
-  std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-  evt.put(std::move(pOut));
-  */
-
-  /* this is an EventSetup example
-  //Read SetupData from the SetupRecord in the EventSetup
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-  */
 
 }
 

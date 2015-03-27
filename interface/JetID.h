@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
-#include "Analysis/VLQAna/interface/Jet.h"
+#include <TLorentzVector.h>
 #include <TMath.h>
 
 using namespace std; 

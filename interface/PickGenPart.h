@@ -26,8 +26,11 @@ class PickGenPart {
     edm::InputTag l_genPartPt     ; 
     edm::InputTag l_genPartStatus ; 
 
-    int id_ ; 
-    int status_ ; 
+    std::vector<int> ids_ ; 
+    std::vector<int> statuses_ ; 
+    bool checkstatus_ ; 
+    std::vector<int> momids_ ; 
+    bool checkmomid_ ; 
     GenParticleCollection genParts_ ; 
 
 };

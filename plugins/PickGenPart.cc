@@ -10,8 +10,11 @@ PickGenPart::PickGenPart (const edm::ParameterSet& iConfig) :
   l_genPartPhi    (iConfig.getParameter<edm::InputTag>("genPartPhi")), 
   l_genPartPt     (iConfig.getParameter<edm::InputTag>("genPartPt")), 
   l_genPartStatus (iConfig.getParameter<edm::InputTag>("genPartStatus")),
-  id_             (iConfig.getParameter<int>("id")), 
-  status_         (iConfig.getParameter<int>("status"))
+  ids_            (iConfig.getParameter<std::vector<int>>("ids")), 
+  statuses_       (iConfig.getParameter<std::vector<int>>("statuses")), 
+  checkstatus_    (iConfig.getParameter<bool>("checkstatus")), 
+  momids_         (iConfig.getParameter<std::vector<int>>("momids")), 
+  checkmomid_     (iConfig.getParameter<bool>("checkmomid"))  
 { }
 
 PickGenPart::~PickGenPart () {}
@@ -31,7 +34,10 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
   hfloat h_genPartStatus ; evt.getByLabel(l_genPartStatus , h_genPartStatus) ;  
 
   for ( unsigned igen = 0; igen < (h_genPartID.product())->size(); ++igen ) {
-    if ( abs((h_genPartID.product())->at(igen)) != id_  /*|| abs((h_genPartStatus.product())->at(igen)) != status_*/ ) continue ; 
+    if ( std::find(ids_.begin(), ids_.end(), (h_genPartID.product())->at(igen)) == ids_.end()  
+        || ( checkmomid_ && std::find(momids_.begin(), momids_.end(), (h_genPartMomID.product())->at(igen)) == momids_.end() ) 
+        || ( checkstatus_ && std::find(statuses_.begin(), statuses_.end(), (h_genPartStatus.product())->at(igen)) == statuses_.end() ) 
+        ) continue ; 
     TLorentzVector p4genpart ; 
     p4genpart.SetPtEtaPhiM( (h_genPartPt.product())->at(igen), (h_genPartEta.product())->at(igen), 
         (h_genPartPhi.product())->at(igen), (h_genPartMass.product())->at(igen) ) ; 

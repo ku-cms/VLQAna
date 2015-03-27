@@ -7,7 +7,7 @@
 <use name="AnalysisDataFormats/BoostedObjects"/>
 <use name="root"/>
 <use name="roottmva"/>
-<export>
-<lib   name="1"/>
-</export>
 <flags EDM_PLUGIN="1"/>
+<export>
+ <lib   name="1"/>
+</export>
