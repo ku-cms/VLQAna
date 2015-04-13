@@ -7,7 +7,8 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
       #'/store/user/devdatta/TprimeJetToTH_allHdecays_M800GeV_Tune4C_13TeV-madgraph-tauola/B2GAnaFW_PHYS14/150310_153716/0000/B2GEDMNtuple_1.root'
       #'/store/user/devdatta/TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/B2GAnaFW_PHYS14/150310_151926/0000/B2GEDMNtuple_1.root'
-      '/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
+      #'/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
+      'file:/afs/cern.ch/work/d/devdatta/CMSREL/CMSSW_7_3_2_patch4/src/Analysis/B2GAnaFW/test/B2GEDMNtuple_74X.root'
       #'/store/user/eschmitz/b2g/PHYS14/QCD_HT_1000ToInf_13TeV-madgraph/ext1_v1_edmntuple_B2GAnaFW/150218_154901/0000/B2GEDMNtuple_1.root'
       )
       )
