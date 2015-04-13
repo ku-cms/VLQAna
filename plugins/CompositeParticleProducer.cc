@@ -6,6 +6,8 @@
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
 #include "Analysis/VLQAna/interface/PickGenPart.h"
 
+#include <iostream>
+
 class CompositeParticleProducer : public edm::EDProducer {
   public:
     explicit CompositeParticleProducer(const edm::ParameterSet&);
