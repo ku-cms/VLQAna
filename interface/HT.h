@@ -1,7 +1,7 @@
 #ifndef HT_H
 #define HT_H
 
-#include "Analysis/VLQAna/interface/Jet.h"
+#include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 
 class HT {
 
@@ -14,9 +14,9 @@ class HT {
         HT_ += jp4.Pt() ; 
       }
     } 
-    HT (const JetCollection& jets) : HT_(0) {
+    HT (const vlq::JetCollection& jets) : HT_(0) {
       for ( auto& jet : jets ) {
-        HT_ += (jet.p4()).Pt() ; 
+        HT_ += (jet.getP4()).Pt() ; 
       }
     }
     ~HT() { } 
@@ -26,24 +26,6 @@ class HT {
   private: 
 
     double HT_ ; 
-
-    //void setJetCollection (JetCollection& JetColl) { vJets_.push_back(JetColl) ; } 
-
-    //void clearJetCollections() {vJets_.clear() ; HT_ = 0;} 
-
-    //void buildHT() { 
-
-    //  if ( vJets_.size() == 0 ) HT_ = 0; 
-
-    //  for (std::vector<JetCollection>::const_iterator itjetcolls =  vJets_.begin(); itjetcolls != vJets_.end(); ++itjetcolls) { 
-    //    for (JetCollection::const_iterator itjet = itjetcolls->begin(); itjet != itjetcolls->end(); ++itjet) { 
-    //      HT_ += itjet->Pt() ; 
-    //    }
-    //  }
-
-    //} 
-
-    //std::vector<JetCollection> vJets_ ; 
 
 };
 

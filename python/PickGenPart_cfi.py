@@ -10,6 +10,9 @@ genPartParams = cms.PSet(
     genPartPhi     = cms.InputTag("genPart", "genPartPhi"), 
     genPartPt      = cms.InputTag("genPart", "genPartPt"), 
     genPartStatus  = cms.InputTag("genPart", "genPartStatus"),
-    id             = cms.int32(25), 
-    status         = cms.int32(22), 
+    ids            = cms.vint32(25), 
+    statuses       = cms.vint32(22), 
+    checkstatus    = cms.bool(True),
+    momids         = cms.vint32(600001), 
+    checkmomid     = cms.bool(False),
     )
