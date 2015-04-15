@@ -18,6 +18,7 @@ Implementation:
 
 
 // system include files
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -346,6 +347,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
     vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
     if ( it != (h_trigName.product())->end() ) {
       hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ; 
+      //cout << " HLT path " << *it << " decision = " << int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << endl ;
     }
   }
   //DMif (hltdecisions == 0) return false ; 
@@ -373,6 +375,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   }
 
   //// Pre-selection ak8 jets 
+  //cout << " nak8 =  " << goodAK8Jets.size() << endl ; 
   if (goodAK8Jets.size() < 1) return false; 
 
   //// Store good AK4 jets 
@@ -402,6 +405,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
     }
   }
 
+  //cout << " nak4 =  " << goodAK4Jets.size() << endl ; 
   //// Pre-selection ak4 jets 
   if (goodAK4Jets.size() < 1 ) return false; 
 
@@ -411,6 +415,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   //DMif ( htak4.getHT() < HTMin_ ) return false; 
 
   HT htak8(goodAK8Jets) ; 
+  //cout << " HTak8 =  " << htak8.getHT() << endl ; 
 
   //// Make W, top and H jets 
   vector<unsigned> seltjets, selhjets, selwjets;
@@ -428,6 +433,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
+    cout << " NHbb = " << h_HbbCands.product()->size() << endl ; 
     for ( ihbb = h_HbbCands.product()->begin(); ihbb != h_HbbCands.product()->end(); ++ihbb ) {
       TLorentzVector hp4 = (ihbb->getMom()).getP4() ; 
       drhjet_hpart.push_back(hp4.DeltaR(jetP4)) ; 

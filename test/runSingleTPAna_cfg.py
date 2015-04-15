@@ -15,7 +15,7 @@ process.source = cms.Source(
       )
 
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(20) 
+    input = cms.untracked.int32(200) 
     )
 
 process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
@@ -24,31 +24,31 @@ process.load("Analysis.VLQAna.HbbCandidateProducer_cfi")
 from Analysis.VLQAna.VLQAna_cfi import *
 process.ana1 = ana.clone(
     HJetSelParams = defaultHJetSelectionParameters.clone(
-    jettype             = cms.string('HTAGGEDAK8JET'),
-    jettau2Bytau1Min    = cms.double(0.0) ,
-    jettau2Bytau1Max    = cms.double(0.5) ,
-    jetPrunedMassMin    = cms.double(0) ,
-    jetPrunedMassMax    = cms.double(1000000) ,
-    jetMassMin          = cms.double(100.) ,
-    jetMassMax          = cms.double(150.) ,
-    subjetCSVMin        = cms.double(0.0) ,
-    jetnSubJetsMin      = cms.double(2) ,
-    jetnSubJetsMax      = cms.double(2) ,
-    )
+      jettype             = cms.string('HTAGGEDAK8JET'),
+      jettau2Bytau1Min    = cms.double(0.0) ,
+      jettau2Bytau1Max    = cms.double(0.5) ,
+      jetPrunedMassMin    = cms.double(0) ,
+      jetPrunedMassMax    = cms.double(1000000) ,
+      jetMassMin          = cms.double(100.) ,
+      jetMassMax          = cms.double(150.) ,
+      subjetCSVMin        = cms.double(0.0) ,
+      jetnSubJetsMin      = cms.double(2) ,
+      jetnSubJetsMax      = cms.double(2) ,
+      )
     ) 
 process.ana2 = ana.clone(
     HJetSelParams = defaultHJetSelectionParameters.clone(
-    jettype             = cms.string('HTAGGEDAK8JET'),
-    jettau2Bytau1Min    = cms.double(0.0) ,
-    jettau2Bytau1Max    = cms.double(0.5) ,
-    jetPrunedMassMin    = cms.double(0) ,
-    jetPrunedMassMax    = cms.double(1000000) ,
-    jetMassMin          = cms.double(100.) ,
-    jetMassMax          = cms.double(150.) ,
-    subjetCSVMin        = cms.double(0.423) ,
-    jetnSubJetsMin      = cms.double(2) ,
-    jetnSubJetsMax      = cms.double(2) ,
-    )
+      jettype             = cms.string('HTAGGEDAK8JET'),
+      jettau2Bytau1Min    = cms.double(0.0) ,
+      jettau2Bytau1Max    = cms.double(0.5) ,
+      jetPrunedMassMin    = cms.double(0) ,
+      jetPrunedMassMax    = cms.double(1000000) ,
+      jetMassMin          = cms.double(100.) ,
+      jetMassMax          = cms.double(150.) ,
+      subjetCSVMin        = cms.double(0.423) ,
+      jetnSubJetsMin      = cms.double(2) ,
+      jetnSubJetsMax      = cms.double(2) ,
+      )
     ) 
 process.ana = ana.clone() 
 

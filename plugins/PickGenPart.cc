@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Analysis/VLQAna/interface/PickGenPart.h"
 
 PickGenPart::PickGenPart (const edm::ParameterSet& iConfig) :
@@ -21,6 +23,8 @@ PickGenPart::~PickGenPart () {}
 
 const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
 
+  using namespace std; 
+
   typedef edm::Handle <std::vector<float>> hfloat ; 
 
   hfloat h_genPartCharge ; evt.getByLabel(l_genPartCharge , h_genPartCharge) ;  
@@ -38,6 +42,7 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
         || ( checkmomid_ && std::find(momids_.begin(), momids_.end(), (h_genPartMomID.product())->at(igen)) == momids_.end() ) 
         || ( checkstatus_ && std::find(statuses_.begin(), statuses_.end(), (h_genPartStatus.product())->at(igen)) == statuses_.end() ) 
         ) continue ; 
+    //cout << " pdgid " << (h_genPartID.product())->at(igen) << " status " << (h_genPartStatus.product())->at(igen) << endl ;
     TLorentzVector p4genpart ; 
     p4genpart.SetPtEtaPhiM( (h_genPartPt.product())->at(igen), (h_genPartEta.product())->at(igen), 
         (h_genPartPhi.product())->at(igen), (h_genPartMass.product())->at(igen) ) ; 

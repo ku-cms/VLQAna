@@ -4,8 +4,9 @@ from Analysis.VLQAna.PickGenPart_cfi import *
 
 hbb = cms.EDProducer("HbbCandidateProducer",
     GenHSelParams    = genPartParams.clone(
-      statuses       = cms.vint32(52), 
-      checkstatus    = cms.bool(True),
+      ids            = cms.vint32(25), 
+      statuses       = cms.vint32(21,22,23,24,25,26,27,28,29,52), 
+      checkstatus    = cms.bool(False),
       ), 
     GenbSelParams    = genPartParams.clone(
       ids            = cms.vint32(5), 
