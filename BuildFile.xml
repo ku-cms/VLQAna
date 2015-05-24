@@ -3,5 +3,11 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/Common"/>
+<use name="AnalysisDataFormats/BoostedObjects"/>
 <use name="root"/>
+<use name="roottmva"/>
 <flags EDM_PLUGIN="1"/>
+<export>
+ <lib   name="1"/>
+</export>

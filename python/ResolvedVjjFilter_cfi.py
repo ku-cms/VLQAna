@@ -1,0 +1,27 @@
+import FWCore.ParameterSet.Config as cms
+
+vjj = cms.EDFilter("ResolvedVjjCandidateFilter",
+    genPartPt                  = cms.InputTag("genPart", "genPartPt"),         
+    genPartEta                 = cms.InputTag("genPart", "genPartEta"),         
+    genPartPhi                 = cms.InputTag("genPart", "genPartPhi"),            
+    genPartE                   = cms.InputTag("genPart", "genPartE"),         
+    genPartMass                = cms.InputTag("genPart", "genPartMass"),      
+    genPartID                  = cms.InputTag("genPart", "genPartID"),          
+    genPartStatus              = cms.InputTag("genPart", "genPartStatus"),   
+    genPartMomID               = cms.InputTag("genPart", "genPartMomID"),    
+    jetAK4PtLabel              = cms.InputTag("jetsAK4", "jetAK4Pt"),
+    jetAK4EtaLabel             = cms.InputTag("jetsAK4", "jetAK4Eta"),
+    jetAK4PhiLabel             = cms.InputTag("jetsAK4", "jetAK4Phi"),
+    jetAK4MassLabel            = cms.InputTag("jetsAK4", "jetAK4Mass"),
+    jetAK4FlavourLabel         = cms.InputTag("jetsAK4", "jetAK4Flavour"),
+    jetAK4CSVLabel             = cms.InputTag("jetsAK4", "jetAK4CSV"),
+    ak4goodjets                = cms.InputTag("ana", "ak4goodjets"),   
+    isMC                       = cms.bool    (True),
+    isSignal                   = cms.bool    (True),
+    vpdgid                     = cms.int32   (24), 
+    vmassmin                   = cms.double  (50.), 
+    vmassmax                   = cms.double  (100.), 
+    scaledmassdropmin          = cms.double  (0.), 
+    scaledmassdropmax          = cms.double  (0.5), 
+    )
+    

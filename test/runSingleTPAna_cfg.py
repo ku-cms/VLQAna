@@ -5,97 +5,97 @@ process = cms.Process("SingleTpAna")
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/user/eschmitz/b2g/PHYS14/TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/TprimeTH_allHdecays_M1200GeV_edmntuple_B2GAnaFWvFeb11/150213_071948/0000/B2GEDMNtuple_1.root', 
-    )
-    )
+      #'/store/user/devdatta/TprimeJetToTH_allHdecays_M800GeV_Tune4C_13TeV-madgraph-tauola/B2GAnaFW_PHYS14/150310_153716/0000/B2GEDMNtuple_1.root'
+      #'/store/user/devdatta/TprimeJetToTH_allHdecays_M1200GeV_Tune4C_13TeV-madgraph-tauola/B2GAnaFW_PHYS14/150310_151926/0000/B2GEDMNtuple_1.root'
+      #'/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
+      #'/store/user/devdatta/QCD_HT_1000ToInf_13TeV-madgraph/B2GAnaFW_PHYS14/150323_203541/0000/B2GEDMNtuple_1.root'
+      #/Rad_HHto4b_M1600_13TeV_PHYS14_25_V1/cvernier-miniAOD-b7ec9eab226684f647ba3bf663cdb8b0/USER
+      'file:/afs/cern.ch/work/d/devdatta/CMSREL/CMSSW_7_3_2_patch4/src/Analysis/B2GAnaFW/test/B2GEDMNtuple_74X.root'
+      )
+      )
 
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(1000) 
+    input = cms.untracked.int32(200) 
     )
 
-from Analysis.VLQAna.JetSelector_cfi import *
+process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
+#process.load("Analysis.VLQAna.CompositeParticleProducer_cfi") 
 
-process.ana = cms.EDFilter("VLQAna",
-    processName                = cms.string  ('@'), 
-    trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
-    trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
-    jetAK8PtLabel              = cms.InputTag("jetsAK8", "jetAK8Pt"),
-    jetAK8EtaLabel             = cms.InputTag("jetsAK8", "jetAK8Eta"),
-    jetAK8PhiLabel             = cms.InputTag("jetsAK8", "jetAK8Phi"),
-    jetAK8MassLabel            = cms.InputTag("jetsAK8", "jetAK8Mass"),
-    jetAK8FilteredMassLabel    = cms.InputTag("jetsAK8", "jetAK8filteredMass"),
-    jetAK8PrunedMassLabel      = cms.InputTag("jetsAK8", "jetAK8prunedMass"),
-    jetAK8TrimmedMassLabel     = cms.InputTag("jetsAK8", "jetAK8trimmedMass"),
-    jetAK8EnergyLabel          = cms.InputTag("jetsAK8", "jetAK8Energy"),
-    jetAK8FlavourLabel         = cms.InputTag("jetsAK8", "jetAK8Flavour"),
-    jetAK8CSVLabel             = cms.InputTag("jetsAK8", "jetAK8CSV"),
-    jetAK8JECLabel             = cms.InputTag("jetsAK8", "jetAK8jecFactor0"),
-    jetAK8AreaLabel            = cms.InputTag("jetsAK8", "jetAK8jetArea"),
-    jetAK8Tau1Label            = cms.InputTag("jetsAK8", "jetAK8tau1"), 
-    jetAK8Tau2Label            = cms.InputTag("jetsAK8", "jetAK8tau2"),  
-    jetAK8Tau3Label            = cms.InputTag("jetsAK8", "jetAK8tau3"),  
-    jetAK8nSubJetsLabel        = cms.InputTag("jetsAK8", "jetAK8nSubJets"),  
-    jetAK8minmassLabel         = cms.InputTag("jetsAK8", "jetAK8minmass"),  
-    jetAK8VSubjetIndex0Label   = cms.InputTag("jetsAK8", "jetAK8VSubjetIndex0"),  
-    jetAK8VSubjetIndex1Label   = cms.InputTag("jetsAK8", "jetAK8VSubjetIndex1"),  
-    jetAK8TopSubjetIndex0Label = cms.InputTag("jetsAK8", "jetAK8TopSubjetIndex0"),
-    jetAK8TopSubjetIndex1Label = cms.InputTag("jetsAK8", "jetAK8TopSubjetIndex1"),
-    jetAK8TopSubjetIndex2Label = cms.InputTag("jetsAK8", "jetAK8TopSubjetIndex2"),
-    jetAK8TopSubjetIndex3Label = cms.InputTag("jetsAK8", "jetAK8TopSubjetIndex3"),
-    subjetAK8BDiscLabel        = cms.InputTag("subjetsAK8", "subjetAK8subjetCSV"),
-    subjetAK8PtLabel           = cms.InputTag("subjetsAK8", "subjetAK8Pt"),
-    subjetAK8EtaLabel          = cms.InputTag("subjetsAK8", "subjetAK8Eta"),
-    subjetAK8PhiLabel          = cms.InputTag("subjetsAK8", "subjetAK8Phi"),
-    subjetAK8MassLabel         = cms.InputTag("subjetsAK8", "subjetAK8Mass"),
-    subjetCmsTopTagBDiscLabel  = cms.InputTag("subjetsCmsTopTag", "subjetsCmsTopTagCSV"),
-    subjetCmsTopTagPtLabel     = cms.InputTag("subjetsCmsTopTag", "subjetsCmsTopTagPt"),
-    subjetCmsTopTagEtaLabel    = cms.InputTag("subjetsCmsTopTag", "subjetsCmsTopTagEta"),
-    subjetCmsTopTagPhiLabel    = cms.InputTag("subjetsCmsTopTag", "subjetsCmsTopTagPhi"),
-    subjetCmsTopTagMassLabel   = cms.InputTag("subjetsCmsTopTag", "subjetsCmsTopTagMass"),
-    jetAK4PtLabel              = cms.InputTag("jetsAK4", "jetAK4Pt"),
-    jetAK4EtaLabel             = cms.InputTag("jetsAK4", "jetAK4Eta"),
-    jetAK4PhiLabel             = cms.InputTag("jetsAK4", "jetAK4Phi"),
-    jetAK4MassLabel            = cms.InputTag("jetsAK4", "jetAK4Mass"),
-    jetAK4EnergyLabel          = cms.InputTag("jetsAK4", "jetAK4Energy"),
-    jetAK4FlavourLabel         = cms.InputTag("jetsAK4", "jetAK4Flavour"),
-    jetAK4CSVLabel             = cms.InputTag("jetsAK4", "jetAK4CSV"),
-    jetAK4JECLabel             = cms.InputTag("jetsAK4", "jetAK4jecFactor0"),
-    jetAK4nHadEnergyLabel      = cms.InputTag("jetsAK4", "jetAK4neutralHadronEnergy"),
-    jetAK4nEMEnergyLabel       = cms.InputTag("jetsAK4", "jetAK4neutralEmEnergy"),
-    jetAK4HFHadronEnergyLabel  = cms.InputTag("jetsAK4", "jetAK4HFHadronEnergy"),
-    jetAK4cHadEnergyLabel      = cms.InputTag("jetsAK4", "jetAK4chargedHadronEnergy"),
-    jetAK4cEMEnergyLabel       = cms.InputTag("jetsAK4", "jetAK4chargedEmEnergy"),
-    jetAK4numDaughtersLabel    = cms.InputTag("jetsAK4", "jetAK4numberOfDaughters"),
-    jetAK4cMultipLabel         = cms.InputTag("jetsAK4", "jetAK4chargedMultiplicity"),
-    jetAK4YLabel               = cms.InputTag("jetsAK4", "jetAK4Y"),
-    jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
-    hltPaths                   = cms.vstring ("HLT_AK8PFJet360TrimMod_Mass30_v1", "HLT_PFHT900_v1"), 
-    JetSelParams               = defaultJetSelectionParameters.clone(), 
-    ak8jetsPtMin               = cms.double  (300),
-    ak8jetsEtaMax              = cms.double  (2.4),
-    ak4jetsPtMin               = cms.double  (30),
-    ak4jetsEtaMax              = cms.double  (2.4),
-    HTMin                      = cms.double  (700.), 
-    )
+from Analysis.VLQAna.VLQAna_cfi import *
+process.ana1 = ana.clone(
+    HJetSelParams = defaultHJetSelectionParameters.clone(
+      jettype             = cms.string('HTAGGEDAK8JET'),
+      jettau2Bytau1Min    = cms.double(0.0) ,
+      jettau2Bytau1Max    = cms.double(0.5) ,
+      jetPrunedMassMin    = cms.double(0) ,
+      jetPrunedMassMax    = cms.double(1000000) ,
+      jetMassMin          = cms.double(100.) ,
+      jetMassMax          = cms.double(150.) ,
+      subjetCSVMin        = cms.double(0.0) ,
+      jetnSubJetsMin      = cms.double(2) ,
+      jetnSubJetsMax      = cms.double(2) ,
+      )
+    ) 
+process.ana2 = ana.clone(
+    HJetSelParams = defaultHJetSelectionParameters.clone(
+      jettype             = cms.string('HTAGGEDAK8JET'),
+      jettau2Bytau1Min    = cms.double(0.0) ,
+      jettau2Bytau1Max    = cms.double(0.5) ,
+      jetPrunedMassMin    = cms.double(0) ,
+      jetPrunedMassMax    = cms.double(1000000) ,
+      jetMassMin          = cms.double(100.) ,
+      jetMassMax          = cms.double(150.) ,
+      subjetCSVMin        = cms.double(0.423) ,
+      jetnSubJetsMin      = cms.double(2) ,
+      jetnSubJetsMax      = cms.double(2) ,
+      )
+    ) 
+process.ana = ana.clone() 
+
+from Analysis.VLQAna.TprimeSel_cfi import *
+from Analysis.VLQAna.TprimeMVA_cfi import *
+process.sel = sel.clone() 
+process.mva = mva.clone() 
+
+#process.load("Analysis.VLQAna.ResolvedVjjFilter_cfi")
+#process.vjj.isMC = cms.bool(True)
+#process.vjj.isSignal = cms.bool(True)
 
 process.TFileService = cms.Service("TFileService",
-       fileName = cms.string("SingleTprimeAna.root")
+       fileName = cms.string("SingleTprimeAnaMVA.root")
        )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("SingleTprimeAnaEvts.root"),
+    fileName = cms.untracked.string("SingleTprimeAnaEvtsMVA.root"),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring('p')
       ),
     outputCommands = cms.untracked.vstring(
       "drop *",
-      "keep *_jetsAK4_*_*",
-      "keep *_jetsAK8_*_*",
-      "keep *_subjetsAK8_*_*",
-      "keep *_subjetsCmsTopTag*_*_*",
+      "keep *_eventShape*_*_*", 
+      "keep *_centrality_*_*", 
+      "keep *_genPart_*_*", 
+      "keep *_jetsAK4_*_*", 
+      "keep *_jetsAK8_*_*", 
+      "keep *_subjetsAK8_*_*", 
+      "keep *_subjetsCmsTopTag_*_*", 
+      #"keep *_*_npv_*", 
+      #"keep *_par_*_*",
+      #"keep *_hbb_*_*",
       "keep *_ana_*_*",
+      #"keep *_vjj_*_*",
+      "keep *_sel_*_*", 
+      "keep *_mva_*_*", 
       )
     )
 
-process.p = cms.Path(process.ana)
+process.p = cms.Path(
+    #process.par
+    process.hbb
+    *process.ana1 
+    *process.ana2 
+    *process.ana 
+    #*process.vjj
+    *process.mva 
+    )
 process.outpath = cms.EndPath(process.out)

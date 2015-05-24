@@ -1,0 +1,4 @@
+<bin name="TMVATrainer" file="trainBDT.cc">
+<use name="root"/>
+<use name="roottmva"/>
+</bin>
