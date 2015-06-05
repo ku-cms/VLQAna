@@ -43,6 +43,11 @@ Implementation:
 #include <TLorentzVector.h>
 #include <TGraphAsymmErrors.h>
 
+#include <sstream>
+
+bool sortByCSV (const vlq::Jet& jet1, const vlq::Jet& jet2) {
+  return jet1.getCSV() > jet2.getCSV() ;  
+}
 
 //
 // class declaration
@@ -342,18 +347,9 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   //for ( vector<string>::const_iterator it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it) {
   //  cout << *it << endl ; 
   //}
-  unsigned int hltdecisions(0) ; 
-  for ( const string& myhltpath : hltPaths_ ) {
-    vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
-    if ( it != (h_trigName.product())->end() ) {
-      hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ; 
-      //cout << " HLT path " << *it << " decision = " << int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << endl ;
-    }
-  }
-  //DMif (hltdecisions == 0) return false ; 
-
+  
   vlq::JetCollection goodAK8Jets, goodAK4Jets, goodBTaggedAK4Jets ;
-  vector<unsigned> ak4seljets, ak8seljets, bjetIdxs;
+  vector<unsigned> ak4selIdxs, ak8selIdxs, bjetIdxs;
 
   //// Store good AK8 jets
   JetSelector ak8jetsel(AK8JetSelParams_) ;
@@ -371,7 +367,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
     vlq::Jet jet;
     jet.setP4(jetP4) ; 
     goodAK8Jets.push_back(jet) ;
-    ak8seljets.push_back(ijet);
+    ak8selIdxs.push_back(ijet);
   }
 
   //// Pre-selection ak8 jets 
@@ -397,8 +393,9 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
         (h_jetAK4Mass.product())->at(ijet) ) ;
     vlq::Jet jet;  
     jet.setP4(jetP4) ;
+    jet.setCSV((h_jetAK4CSV.product())->at(ijet)) ;
     goodAK4Jets.push_back(jet) ;
-    ak4seljets.push_back(ijet);
+    ak4selIdxs.push_back(ijet);
     if ( btaggedak4jetsel(evt, ijet,retbtaggedak4jetsel) != 0 ) {
       bjetIdxs.push_back(ijet) ; 
       goodBTaggedAK4Jets.push_back(jet) ; 
@@ -416,7 +413,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   HT htak8(goodAK8Jets) ; 
   //cout << " HTak8 =  " << htak8.getHT() << endl ; 
-
+  
   //// Make W, top and H jets 
   vector<unsigned> seltjets, selhjets, selwjets;
   vlq::JetCollection tjets, hjets, wjets ; 
@@ -426,14 +423,14 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   bool rettjetsel = false ;
   bool rethjetsel = false ;
   bool retwjetsel = false ;
-  for ( unsigned  &ijet :  ak8seljets) {
+  for ( unsigned  &ijet :  ak8selIdxs) {
     TLorentzVector jetP4 ;
     vector<float>drhjet_hpart, drhjet_bpart, drhjet_bbarpart ; 
     jetP4.SetPtEtaPhiM( (h_jetAK8Pt.product())->at(ijet), 
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
-    cout << " NHbb = " << h_HbbCands.product()->size() << endl ; 
+    //cout << " NHbb = " << h_HbbCands.product()->size() << endl ; 
     for ( ihbb = h_HbbCands.product()->begin(); ihbb != h_HbbCands.product()->end(); ++ihbb ) {
       TLorentzVector hp4 = (ihbb->getMom()).getP4() ; 
       drhjet_hpart.push_back(hp4.DeltaR(jetP4)) ; 
@@ -453,7 +450,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
     std::vector<float>::iterator iminbbar = std::min_element(drhjet_bbarpart.begin(), drhjet_bbarpart.end());
     if ( iminh != drhjet_hpart.end() && iminb != drhjet_bpart.end() && iminbbar != drhjet_bbarpart.end() )
       if ( *iminh < 0.8 && *iminb < 0.8 && *iminbbar < 0.8 ) 
-    h1_["ptak8"]->Fill(jetP4.Pt()) ; 
+        h1_["ptak8"]->Fill(jetP4.Pt()) ; 
     vlq::Jet jet; 
     jet.setP4(jetP4) ;
     rettjetsel = false ;
@@ -464,7 +461,7 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
       selhjets.push_back(ijet) ; 
       if ( iminh != drhjet_hpart.end() && iminb != drhjet_bpart.end() && iminbbar != drhjet_bbarpart.end() )
         if ( *iminh < 0.8  && *iminb < 0.8 && *iminbbar < 0.8 ) 
-      h1_["pthjet"]->Fill(jetP4.Pt()) ;
+          h1_["pthjet"]->Fill(jetP4.Pt()) ;
     } 
     retwjetsel = false ;
     if (wjetsel(evt, ijet,retwjetsel) == true ) { wjets.push_back(jet) ; selwjets.push_back(ijet) ; } 
@@ -472,8 +469,12 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 
   //// Pick forwardmost AK4 jet
   double maxeta(0) ;
+  vlq::Jet forwardestjet ; 
   for ( auto& jet : goodAK4Jets ) {
-    if ( abs(jet.getP4().Eta()) > abs(maxeta) ) maxeta = jet.getP4().Eta() ; 
+    if ( abs(jet.getEta()) > abs(maxeta) ) { 
+      forwardestjet = jet ; 
+      maxeta = jet.getEta() ; 
+    }
   }
 
   double ptak8_1 = goodAK8Jets.at(0).getP4().Pt() ;
@@ -487,8 +488,67 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   if (goodAK8Jets.size() > 1) {
     TLorentzVector p4_ak8_12(goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()) ;
     mak8_12 = p4_ak8_12.Mag() ; 
-    detaLeading2AK8 = abs(goodAK8Jets.at(0).getP4().Eta() - goodAK8Jets.at(1).getP4().Eta() ) ;
+    detaLeading2AK8 = abs(goodAK8Jets.at(0).getEta() - goodAK8Jets.at(1).getEta() ) ;
   }
+
+  double ptak8leading ((h_jetAK8Pt.product())->at(ak8selIdxs.at(0))) ;   
+  h1_["ptak8leading"] -> Fill(ptak8leading) ; 
+  h1_["etaak8leading"] -> Fill((h_jetAK8Eta.product())->at(ak8selIdxs.at(0))) ;
+
+  double ptak4leading ((h_jetAK4Pt.product())->at(ak4selIdxs.at(0))) ;   
+  h1_["ptak4leading"] -> Fill(ptak4leading) ; 
+  h1_["etaak4leading"] -> Fill((h_jetAK4Eta.product())->at(ak4selIdxs.at(0))) ; 
+
+  double ptbjetleading (-1);
+  if ( bjetIdxs.size() > 0 ) {
+    ptbjetleading = (h_jetAK4Pt.product())->at(bjetIdxs.at(0)) ; 
+    h1_["ptbjetleading"] -> Fill(ptbjetleading) ; 
+    h1_["etabjetleading"] -> Fill((h_jetAK4Eta.product())->at(bjetIdxs.at(0))) ; 
+    h1_["csvbjetleading"] -> Fill((h_jetAK4CSV.product())->at(bjetIdxs.at(0))) ; 
+
+    std::sort(goodBTaggedAK4Jets.begin(), goodBTaggedAK4Jets.end(), sortByCSV) ; 
+    h1_["ptak4highestcsv"] -> Fill((goodBTaggedAK4Jets.at(0)).getPt()) ;
+    h1_["etaak4highestcsv"] -> Fill((goodBTaggedAK4Jets.at(0)).getEta()) ;
+  }
+
+  h1_["ptak4forwardmost"] -> Fill(forwardestjet.getPt()) ; 
+  h1_["etaak4forwardmost"] -> Fill(forwardestjet.getEta()) ; 
+
+  h1_["ht"] ->Fill(htak4.getHT()) ; 
+
+  unsigned int hltdecisions(0) ; 
+  for ( const string& myhltpath : hltPaths_ ) {
+    vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
+    if ( it != (h_trigName.product())->end() ) {
+      hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ; 
+
+      if ( int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) == 1 ) {
+        stringstream ss ;
+        ss << "ptak8leading_" << myhltpath ; 
+        h1_[ss.str()] -> Fill(ptak8leading) ; 
+
+        ss.clear() ; 
+        ss.str("") ; 
+        ss << "ptak4leading_" << myhltpath ; 
+        h1_[ss.str()] -> Fill (ptak4leading) ;  
+
+        if ( bjetIdxs.size() > 0 ) {
+          ss.clear() ; 
+          ss.str("") ; 
+          ss << "ptbjetleading_" << myhltpath ; 
+          h1_[ss.str()] -> Fill (ptbjetleading) ;  
+        }
+
+        ss.clear() ; 
+        ss.str("") ; 
+        ss << "ht_" << myhltpath ; 
+        h1_[ss.str()] -> Fill (htak4.getHT()) ;  
+      }
+
+      //cout << " HLT path " << *it << " decision = " << int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << endl ;
+    }
+  }
+  //DMif (hltdecisions == 0) return false ; 
 
   std::auto_ptr<unsigned> ngoodAK4Jets ( new unsigned(goodAK4Jets.size()) );
   std::auto_ptr<unsigned> ngoodAK8Jets ( new unsigned(goodAK8Jets.size()) );
@@ -505,8 +565,8 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
   std::auto_ptr<double> pt2ndAK8   ( new double(ptak8_2) );
   std::auto_ptr<double> mass1stAK8 ( new double(mak8_1) );
   std::auto_ptr<double> mass2ndAK8 ( new double(mak8_2) );
-  std::auto_ptr<vector<unsigned> > ak4goodjets ( new vector<unsigned>(ak4seljets));
-  std::auto_ptr<vector<unsigned> > ak8goodjets ( new vector<unsigned>(ak8seljets));
+  std::auto_ptr<vector<unsigned> > ak4goodjets ( new vector<unsigned>(ak4selIdxs));
+  std::auto_ptr<vector<unsigned> > ak8goodjets ( new vector<unsigned>(ak8selIdxs));
   std::auto_ptr<vector<unsigned> > bjetIdxsptr ( new vector<unsigned>(bjetIdxs));
   std::auto_ptr<vector<unsigned> > tjetIdxs ( new vector<unsigned>(seltjets));
   std::auto_ptr<vector<unsigned> > hjetIdxs ( new vector<unsigned>(selhjets));
@@ -539,21 +599,111 @@ VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-  void 
-VLQAna::beginJob()
-{
-  TFileDirectory results = TFileDirectory( fs->mkdir("results") );
-  h1_["ptak8"]  = fs->make<TH1D>("ptak8"  ,";p_T{AK8} [GeV]"         , 100, 0., 2000.) ; 
-  h1_["pthjet"] = fs->make<TH1D>("pthjet" ,";p_T{H-tagged jet} [GeV]", 100, 0., 2000.) ; 
+void VLQAna::beginJob() {
+  h1_["ptak8leading"]  = fs->make<TH1D>("ptak8leading"  ,";p_T(leading AK8 jet) [GeV];;"      , 100, 0., 2000.) ; 
+  h1_["ptak4leading"]  = fs->make<TH1D>("ptak4leading"  ,";p_T(leading AK4 jet) [GeV];;"      , 100, 0., 2000.) ; 
+  h1_["ptbjetleading"]  = fs->make<TH1D>("ptbjetleading"  ,";p_T(leading b jet) [GeV];;"      , 100, 0., 2000.) ; 
+
+  h1_["etaak8leading"] = fs->make<TH1D>("etaak8leading", ";#eta(leading AK8 jet);;" , 80 ,-4. ,4.) ; 
+  h1_["etaak4leading"] = fs->make<TH1D>("etaak4leading", ";#eta(leading AK4 jet);;" , 80 ,-4. ,4.) ; 
+  h1_["etabjetleading"] = fs->make<TH1D>("etabjetleading", ";#eta(leading b jet);;" , 80 ,-4. ,4.) ; 
+
+  h1_["csvbjetleading"] = fs->make<TH1D>("csvbjetleading", ";CSV (leading b jet);;" ,20 ,0. ,1.) ; 
+
+  h1_["ptak4highestcsv"] = fs->make<TH1D>("ptak4highestcsv", ";p_T(highest CSV AK4 jet);;" , 100, 0., 2000.) ; 
+  h1_["etaak4highestcsv"] = fs->make<TH1D>("etaak4highestcsv", ";p_T(highest CSV AK4 jet);;" , 80 ,-4. ,4.) ; 
+
+  h1_["ptak4forwardmost"] = fs->make<TH1D>("ptak4forwardmost", ";p_T(forwardmost AK4 jet);;" , 100, 0., 2000.) ; 
+  h1_["etaak4forwardmost"] = fs->make<TH1D>("etaak4forwardmost", ";p_T(forwardmost AK4 jet);;" , 80 ,-4. ,4.) ; 
+
+  h1_["mak8leading"] = fs->make<TH1D>("mak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+  h1_["mak8highestm"] = fs->make<TH1D>("mak8highestm", ";M(most mive AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+
+  h1_["trimmedmak8leading"] = fs->make<TH1D>("trimmedmak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+  h1_["trimmedmak8highesttrimmedm"] = fs->make<TH1D>("trimmedmak8highesttrimmedm", ";M(most trimmedmive AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+
+  h1_["softdropmak8leading"] = fs->make<TH1D>("softdropmak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+  h1_["softdropmak8highestsoftdropm"] = fs->make<TH1D>("softdropmak8highestsoftdropm", ";M(most softdropmive AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+
+  h1_["nak8"] = fs->make<TH1D>("nak8", ";AK8 jet multiplicity;;" , 10, -0.5,11.5) ; 
+  h1_["nak4"] = fs->make<TH1D>("nak4", ";AK4 jet multiplicity;;" , 10, -0.5,11.5) ; 
+  h1_["nbjet"] = fs->make<TH1D>("nbjet", ";b jet multiplicity;;" , 10, -0.5,11.5) ; 
+
+  h1_["ht"] = fs->make<TH1D>("ht" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
+
+  h1_["ptak8"]  = fs->make<TH1D>("ptak8"  ,";p_T(AK8 jet) [GeV]"         , 100, 0., 2000.) ; 
+  h1_["pthjet"] = fs->make<TH1D>("pthjet" ,";p_T (H-tagged jet) [GeV]", 100, 0., 2000.) ; 
+
+  for ( const string& myhltpath : hltPaths_ ) {
+    stringstream ss ;
+    ss << "ptak8leading_" << myhltpath ; 
+    h1_[ss.str()] = fs->make<TH1D>((ss.str()).c_str() ,"p_T (AK8 jet) [GeV]" ,100, 0., 2000.) ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "ptak4leading_" << myhltpath ; 
+    h1_[ss.str()] = fs->make<TH1D>((ss.str()).c_str() ,"p_T (leading AK4 jet) [GeV]" ,100, 0., 2000.) ; 
+
+    ss.clear() ;
+    ss.str("") ; 
+    ss << "ptbjetleading_" << myhltpath ; 
+    h1_[ss.str()] = fs->make<TH1D>((ss.str()).c_str() ,"p_T (leading b jet) [GeV]" ,100, 0., 2000.) ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "ht_" << myhltpath ; 
+    h1_[ss.str()] = fs->make<TH1D>((ss.str()).c_str() ,"H_T (AK4 jets) [GeV]" ,200, 0., 4000.) ; 
+  }
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-VLQAna::endJob() {
+void VLQAna::endJob() {
   TGraphAsymmErrors* greff = fs->make<TGraphAsymmErrors>(h1_["pthjet"], h1_["ptak8"], "cp") ; 
   greff->SetName("effhtag") ;
   greff->Write() ;
+  for ( const string& myhltpath : hltPaths_ ) {
+    stringstream ss ;
+    ss << "ptak8leading_" << myhltpath ; 
+    TGraphAsymmErrors* greffak8 = fs->make<TGraphAsymmErrors>(h1_[ss.str()], h1_["ptak8leading"], "cp") ;
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "eff_ptak8_" << myhltpath ;
+    greffak8->SetName((ss.str()).c_str()) ;  
+    greffak8->Write() ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "ptbjetleading_" << myhltpath ; 
+    TGraphAsymmErrors* greffbjetleading = fs->make<TGraphAsymmErrors>(h1_[ss.str()], h1_["ptbjetleading"], "cp") ;
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "eff_ptbjetleading_" << myhltpath ;
+    greffbjetleading->SetName((ss.str()).c_str()) ; 
+    greffbjetleading->Write() ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "ptak4leading_" << myhltpath ; 
+    TGraphAsymmErrors* greffak4 = fs->make<TGraphAsymmErrors>(h1_[ss.str()], h1_["ptak4leading"], "cp") ;
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "eff_ptak4_" << myhltpath ;
+    greffak4->SetName((ss.str()).c_str()) ; 
+    greffak4->Write() ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "ht_" << myhltpath ; 
+    TGraphAsymmErrors* greffht = fs->make<TGraphAsymmErrors>(h1_[ss.str()], h1_["ht"], "cp") ;
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "eff_ht_" << myhltpath ;
+    greffht->SetName((ss.str()).c_str()) ; 
+    greffht->Write() ; 
+  }
+
+  return ; 
 }
 
 // ------------ method called when starting to processes a run  ------------

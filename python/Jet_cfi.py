@@ -65,5 +65,5 @@ defaultSubjetParameters = cms.PSet(
     jetEtaLabel        = cms.InputTag("subjetsAK8", "subjetAK8Eta"),
     jetPhiLabel        = cms.InputTag("subjetsAK8", "subjetAK8Phi"),
     jetMassLabel       = cms.InputTag("subjetsAK8", "subjetAK8Mass"),
-    jetCSVLabel        = cms.InputTag("subjetsAK8", "subjetAK8subjetCSV"),
+    jetCSVLabel        = cms.InputTag("subjetsAK8", "subjetAK8CSV"),
     )
