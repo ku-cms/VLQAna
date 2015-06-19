@@ -7,9 +7,9 @@ defaultAK4JetSelectionParameters = cms.PSet(
     JetSubstrParams     = cms.PSet(), 
     SubjetParams        = cms.PSet(),
     jettype             = cms.string('AK4JET'),
-    jetPtMin            = cms.double(30),
+    jetPtMin            = cms.double(20),
     jetPtMax            = cms.double(1000000),
-    jetAbsEtaMax        = cms.double(2.4),
+    jetAbsEtaMax        = cms.double(5.0),
     jetCSVDiscMin       = cms.double(-10000),
     jetCSVDiscMax       = cms.double(1.000),
     IsJetIDLoose        = cms.bool(True),
@@ -18,6 +18,7 @@ defaultAK4JetSelectionParameters = cms.PSet(
 
 defaultBTaggedAK4JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jettype             = cms.string('BTAGGEDAK4JET'),
+    jetAbsEtaMax        = cms.double(2.4),
     jetCSVDiscMin       = cms.double(0.814),
     jetCSVDiscMax       = cms.double(1.000),
     )
@@ -28,6 +29,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     SubjetParams        = defaultSubjetParameters.clone(), 
     jettype             = cms.string('AK8JET'),
     jetPtMin            = cms.double(300),
+    jetAbsEtaMax        = cms.double(2.4),
     jetPtMax            = cms.double(1000000),
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(1.0) ,
