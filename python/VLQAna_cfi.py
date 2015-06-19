@@ -4,8 +4,8 @@ from Analysis.VLQAna.PickGenPart_cfi import *
 from Analysis.VLQAna.JetSelector_cfi import *
 ana = cms.EDFilter("VLQAna", 
     processName                = cms.string  ('@'), 
-    trigNameLabel              = cms.InputTag("TriggerUserDataMYHLT", "triggerNameTree"), 
-    trigBitLabel               = cms.InputTag("TriggerUserDataMYHLT", "triggerBitTree"), 
+    trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
+    trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
     jetAK8PtLabel              = cms.InputTag("jetsAK8", "jetAK8Pt"),
     jetAK8EtaLabel             = cms.InputTag("jetsAK8", "jetAK8Eta"),
     jetAK8PhiLabel             = cms.InputTag("jetsAK8", "jetAK8Phi"),
