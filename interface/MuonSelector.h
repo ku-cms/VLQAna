@@ -107,7 +107,7 @@ class MuonSelector {
       double muCharge  = (h_muCharge.product())->at(mu) ; 
       double muPt = (h_muPt.product())->at(mu) ; 
       double muAbsEta  = std::abs((h_muEta.product())->at(mu)) ; 
-      double muIso = ((h_muIso04.product())->at(mu))/muPt ; 
+      double muIso = (h_muIso04.product())->at(mu) ; 
 
       bool passMuId(false) ; 
       if (type_ == TIGHT && (h_muIsTightMuon.product())->at(mu) > 0) passMuId = true ;

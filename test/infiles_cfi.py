@@ -1,3 +1,15 @@
+files_TprimeTprimeM700 = [
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_1.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_10.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_11.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_12.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_13.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_14.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_15.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_16.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_17.root', 
+    '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_18.root', 
+    ]
 files_qcd = [ 
     '/store/user/srappocc/QCD_Pt-15TTo7000_TuneZ2star-Flat_13TeV_pythia6/crab_b2ganafw741_QCD_Pt-15TTo7000_TuneZ2star-Flat_13TeV_pythia6_RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/150603_153217/0000/B2GEDMNtuple_1.root', 
     '/store/user/srappocc/QCD_Pt-15TTo7000_TuneZ2star-Flat_13TeV_pythia6/crab_b2ganafw741_QCD_Pt-15TTo7000_TuneZ2star-Flat_13TeV_pythia6_RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/150603_153217/0000/B2GEDMNtuple_10.root', 

@@ -77,7 +77,7 @@ class ElectronSelector {
       double elCharge  = (h_elCharge.product())->at(el) ; 
       double elPt = (h_elPt.product())->at(el) ; 
       double elAbsEta  = std::abs((h_elEta.product())->at(el)) ; 
-      double elIso = ((h_elIso03.product())->at(el))/elPt ; 
+      double elIso = (h_elIso03.product())->at(el) ; 
 
       bool passElId(false) ; 
       if (type_ == TIGHT && (h_elisTight.product())->at(el) > 0) passElId = true ;
@@ -88,6 +88,7 @@ class ElectronSelector {
           && elIso > elIsoMin_ && elIso < elIsoMax_ 
          ) ret = true ;
 
+      ret = true ; //// DM: FIXME
       return ret ; 
     }
 

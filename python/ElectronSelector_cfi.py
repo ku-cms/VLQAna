@@ -9,8 +9,8 @@ defaultElectronSelectionParameters = cms.PSet(
     elPtMax = cms.double(10000),
     elAbsEtaMax = cms.double(2.4),
     elCharge = cms.double(1.0), 
-    elIsoMin = cms.double(0.0),
-    elIsoMax = cms.double(0.15), 
+    elIsoMin = cms.double(-0.1),
+    elIsoMax = cms.double(1000), 
     )
 
 defaultElPSelectionParamaters = defaultElectronSelectionParameters.clone(

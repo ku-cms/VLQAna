@@ -44,6 +44,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/MuonSelector.h"
 #include "Analysis/VLQAna/interface/ElectronSelector.h"
+//#include "Analysis/VLQAna/interface/ZCandidateProducer.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -151,6 +152,8 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet BTaggedMediumAK4SelParams_ ; 
     edm::ParameterSet mupselParams_              ; 
     edm::ParameterSet mumselParams_              ; 
+    edm::ParameterSet elpselParams_              ; 
+    edm::ParameterSet elmselParams_              ; 
     edm::ParameterSet AK8JetSelParams_           ; 
     edm::ParameterSet TJetSelParams_             ; 
     edm::ParameterSet HJetSelParams_             ; 
@@ -258,6 +261,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   BTaggedMediumAK4SelParams_ (iConfig.getParameter<edm::ParameterSet> ("BTaggedMediumAK4SelParams")),
   mupselParams_           (iConfig.getParameter<edm::ParameterSet> ("mupselParams")),
   mumselParams_           (iConfig.getParameter<edm::ParameterSet> ("mumselParams")),
+  elpselParams_           (iConfig.getParameter<edm::ParameterSet> ("elpselParams")),
+  elmselParams_           (iConfig.getParameter<edm::ParameterSet> ("elmselParams")),
   AK8JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK8JetSelParams")),
   TJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("TJetSelParams")),
   HJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("HJetSelParams")),
@@ -444,7 +449,74 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
   }
 
-  cout << ">>>> goodMuP size = " << goodMuPs.size() << " goodMuM size = " << goodMuMs.size() << endl ;  
+  vlq::ElectronCollection goodElPs, goodElMs ; 
+  ElectronSelector elpsel(elpselParams_) ; 
+  ElectronSelector elmsel(elmselParams_) ; 
+  for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
+    bool retelpsel(false) ;
+    if (elpsel(evt, iel, retelpsel) == 1) {
+      TLorentzVector  elP4;
+      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), 
+        (h_elEta.product())->at(iel), 
+        (h_elPhi.product())->at(iel), 
+        (h_elMass.product())->at(iel) ) ;
+      vlq::Electron el ; 
+      el.setP4(elP4) ; 
+      el.setIndex(iel) ;
+      el.setCharge((h_elCharge.product()->at(iel))) ; 
+      goodElPs.push_back(el) ; 
+    }
+    bool retelmsel(false) ;
+    if (elmsel(evt, iel, retelmsel) == 1) {
+      TLorentzVector  elP4;
+      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), 
+        (h_elEta.product())->at(iel), 
+        (h_elPhi.product())->at(iel), 
+        (h_elMass.product())->at(iel) ) ;
+      vlq::Electron el ; 
+      el.setP4(elP4) ; 
+      el.setIndex(iel) ;
+      el.setCharge((h_elCharge.product()->at(iel))) ; 
+      goodElMs.push_back(el) ; 
+    }
+  }
+
+  //// Make ZmumuCands 
+  vlq::CandidateCollection zmumucands ;
+  for ( vlq::Muon lp : goodMuPs ) {
+    for ( vlq::Muon lm : goodMuMs ) {
+      TLorentzVector p4lp(lp.getP4()), p4lm(lm.getP4()) ;
+      double mass = (p4lp+p4lm).Mag() ; 
+      h1_["mumu_mass"] -> Fill(mass) ; 
+      if ( mass > 60 && mass < 120 ) {
+        vlq::Candidate zll(p4lp+p4lm) ; 
+        zmumucands.push_back(zll) ; 
+        h1_["zmumu_pt"] -> Fill(zll.getPt()) ; 
+      }
+    }
+  }
+  //ZCandidateProducer zmumuprod(vlq::CandidateCollection(goodMuPs), vlq::CandidateCollection(goodMuMs)) ; 
+  //vlq::CandidateCollection zmumu ;
+  //zmumuprod(zmumu) ; 
+
+  //// Make ZelelCands 
+  vlq::CandidateCollection zelelcands ;
+  for ( vlq::Electron lp : goodElPs ) {
+    for ( vlq::Electron lm : goodElMs ) {
+      TLorentzVector p4lp(lp.getP4()), p4lm(lm.getP4()) ;
+      double mass = (p4lp+p4lm).Mag() ; 
+      h1_["elel_mass"] -> Fill(mass) ; 
+      if ( mass > 60 && mass < 120 ) {
+        vlq::Candidate zll(p4lp+p4lm) ; 
+        zelelcands.push_back(zll) ; 
+        h1_["zelel_pt"] -> Fill(zll.getPt()) ; 
+      }
+    }
+  }
+
+
+  //cout << ">>>> goodMuP size = " << goodMuPs.size() << " goodMuM size = " << goodMuMs.size() << endl ;  
+  //cout << ">>>> goodElP size = " << goodElPs.size() << " goodElM size = " << goodElMs.size() << endl ;  
 
   vlq::JetCollection goodAK8Jets, goodAK4Jets, btaggedlooseAK4, btaggedmediumAK4 ;
   vector<unsigned> ak4selIdxs, ak8selIdxs, bjetIdxs;
@@ -945,6 +1017,11 @@ void OS2LAna::beginJob() {
   h1_["csvhjets"] = fs->make<TH1D>("csvhjets", ";CSV (H-tagged jets);;" ,50 ,0. ,1.) ;
 
   h1_["drwh"] = fs->make<TH1D>("drwh", ";#DeltaR(H,W);;", 40, 0, 4.) ;  
+
+  h1_["mumu_mass"] = fs->make<TH1D>("mumu_mass", ";M(mumu) [GeV]", 50, 0., 200.) ; 
+  h1_["elel_mass"] = fs->make<TH1D>("elel_mass", ";M(elel) [GeV]", 50, 0., 200.) ; 
+  h1_["zmumu_pt"] = fs->make<TH1D>("zmumu_pt", ";p_T (Zmumu) [GeV]", 100, 0., 2000.) ; 
+  h1_["zelel_pt"] = fs->make<TH1D>("zelel_pt", ";p_T (Zelel) [GeV]", 100, 0., 2000.) ; 
 
 }
 
