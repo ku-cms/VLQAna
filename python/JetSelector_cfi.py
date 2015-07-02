@@ -19,7 +19,7 @@ defaultAK4JetSelectionParameters = cms.PSet(
 defaultBTaggedAK4JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jettype             = cms.string('BTAGGEDAK4JET'),
     jetAbsEtaMax        = cms.double(2.4),
-    jetCSVDiscMin       = cms.double(0.814),
+    jetCSVDiscMin       = cms.double(0.890),
     jetCSVDiscMax       = cms.double(1.000),
     )
 
@@ -74,7 +74,7 @@ defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jetPrunedMassMax    = cms.double(140) ,
     jetMassMin          = cms.double(120.) ,
     jetMassMax          = cms.double(150) ,
-    subjetCSVMin        = cms.double(0.423) ,
+    subjetCSVMin        = cms.double(0.605) ,
     jetnSubJetsMin      = cms.double(2) ,
     jetnSubJetsMax      = cms.double(2) ,
     )
