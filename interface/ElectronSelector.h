@@ -83,12 +83,11 @@ class ElectronSelector {
       if (type_ == TIGHT && (h_elisTight.product())->at(el) > 0) passElId = true ;
 
       if ( elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ 
-          && std::abs(elCharge - elCharge_) < 0.001*elCharge_ 
+          && std::abs(elCharge - elCharge_) < 0.001*abs(elCharge_) 
           && passElId 
           && elIso > elIsoMin_ && elIso < elIsoMax_ 
          ) ret = true ;
 
-      ret = true ; //// DM: FIXME
       return ret ; 
     }
 

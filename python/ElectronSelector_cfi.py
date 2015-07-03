@@ -5,7 +5,7 @@ from Analysis.VLQAna.Electron_cfi import *
 defaultElectronSelectionParameters = cms.PSet(
     defaultElectronParameters, 
     elidtype = cms.string("TIGHT"), 
-    elPtMin = cms.double(30),
+    elPtMin = cms.double(0),
     elPtMax = cms.double(10000),
     elAbsEtaMax = cms.double(2.4),
     elCharge = cms.double(1.0), 

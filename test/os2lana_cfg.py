@@ -16,10 +16,11 @@ process.source = cms.Source(
       #'/store/user/devdatta/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150623_161611/0000/B2GEDMNtuple_5.root' 
       files_TprimeTprimeM700
       #files_qcd
+      #files_DYM50
       )
       )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50000) )
 
 process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
 

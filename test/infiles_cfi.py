@@ -1,3 +1,8 @@
+files_DYM50 = [
+    '/store/user/devdatta/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V3/150703_105335/0000/B2GEDMNtuple_145.root',
+    '/store/user/devdatta/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V3/150703_105335/0000/B2GEDMNtuple_261.root'
+    ]
+
 files_TprimeTprimeM700 = [
     '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_1.root', 
     '/store/user/devdatta/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_74Xv2/150701_180552/0000/B2GEDMNtuple_10.root', 

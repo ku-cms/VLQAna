@@ -44,7 +44,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/MuonSelector.h"
 #include "Analysis/VLQAna/interface/ElectronSelector.h"
-//#include "Analysis/VLQAna/interface/ZCandidateProducer.h"
+#include "Analysis/VLQAna/interface/ZCandidateProducer.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -311,10 +311,6 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
 
 
 OS2LAna::~OS2LAna() {
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -407,13 +403,15 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //// Preselection HLT
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
-    vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
-    if ( it != (h_trigName.product())->end() ) {
-      std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
-      hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ; 
+    vector<string>::const_iterator it ;
+    for (it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it ) {
+      if ( it->find(myhltpath) ) {
+         std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
+         hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ;  
+      }
     }
   }
-  if (hltdecisions == 0) return false ; 
+  if (hltPaths_.size() > 0 && hltdecisions == 0) return false ; 
 
   h1_["cutflow"] -> AddBinContent(2) ; 
 
@@ -424,28 +422,34 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     bool retmupsel(false) ;
     if (mupsel(evt, imu, retmupsel) == 1) {
       TLorentzVector  muP4;
-      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), 
-        (h_muEta.product())->at(imu), 
-        (h_muPhi.product())->at(imu), 
-        (h_muMass.product())->at(imu) ) ;
+      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
       vlq::Muon mu ; 
       mu.setP4(muP4) ; 
       mu.setIndex(imu) ;
+      mu.setPt((h_muPt.product())->at(imu)) ; 
+      mu.setEta((h_muEta.product())->at(imu)) ; 
+      mu.setPhi((h_muPhi.product())->at(imu)) ; 
+      mu.setMass((h_muMass.product())->at(imu)) ; 
       mu.setCharge((h_muCharge.product()->at(imu))) ; 
-      goodMuPs.push_back(mu) ; 
+      h1_["mu_pt"] -> Fill(mu.getPt()) ; 
+      h1_["mu_eta"] -> Fill((h_muEta.product())->at(imu)) ; 
+      if ( mu.getPt() > 20 ) goodMuPs.push_back(mu) ; 
     }
     bool retmumsel(false) ;
     if (mumsel(evt, imu, retmumsel) == 1) {
       TLorentzVector  muP4;
-      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), 
-        (h_muEta.product())->at(imu), 
-        (h_muPhi.product())->at(imu), 
-        (h_muMass.product())->at(imu) ) ;
+      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
       vlq::Muon mu ; 
       mu.setP4(muP4) ; 
       mu.setIndex(imu) ;
+      mu.setPt((h_muPt.product())->at(imu)) ; 
+      mu.setEta((h_muEta.product())->at(imu)) ; 
+      mu.setPhi((h_muPhi.product())->at(imu)) ; 
+      mu.setMass((h_muMass.product())->at(imu)) ; 
       mu.setCharge((h_muCharge.product()->at(imu))) ; 
-      goodMuMs.push_back(mu) ; 
+      h1_["mu_pt"] -> Fill(mu.getPt()) ; 
+      h1_["mu_eta"] -> Fill((h_muEta.product())->at(imu)) ; 
+      if ( mu.getPt() > 20 ) goodMuMs.push_back(mu) ; 
     }
   }
 
@@ -456,67 +460,44 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     bool retelpsel(false) ;
     if (elpsel(evt, iel, retelpsel) == 1) {
       TLorentzVector  elP4;
-      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), 
-        (h_elEta.product())->at(iel), 
-        (h_elPhi.product())->at(iel), 
-        (h_elMass.product())->at(iel) ) ;
+      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
       vlq::Electron el ; 
       el.setP4(elP4) ; 
       el.setIndex(iel) ;
+      el.setPt((h_elPt.product())->at(iel)) ; 
+      el.setEta((h_elEta.product())->at(iel)) ; 
+      el.setPhi((h_elPhi.product())->at(iel)) ; 
+      el.setMass((h_elMass.product())->at(iel)) ; 
       el.setCharge((h_elCharge.product()->at(iel))) ; 
-      goodElPs.push_back(el) ; 
+      h1_["el_pt"] -> Fill(el.getPt()) ; 
+      h1_["el_eta"] -> Fill(el.getEta()) ; 
+      if ( el.getPt() > 20 ) goodElPs.push_back(el) ; 
     }
     bool retelmsel(false) ;
     if (elmsel(evt, iel, retelmsel) == 1) {
       TLorentzVector  elP4;
-      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), 
-        (h_elEta.product())->at(iel), 
-        (h_elPhi.product())->at(iel), 
-        (h_elMass.product())->at(iel) ) ;
+      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
       vlq::Electron el ; 
       el.setP4(elP4) ; 
       el.setIndex(iel) ;
+      el.setPt((h_elPt.product())->at(iel)) ; 
+      el.setEta((h_elEta.product())->at(iel)) ; 
+      el.setPhi((h_elPhi.product())->at(iel)) ; 
+      el.setMass((h_elMass.product())->at(iel)) ; 
       el.setCharge((h_elCharge.product()->at(iel))) ; 
-      goodElMs.push_back(el) ; 
+      h1_["el_pt"] -> Fill(el.getPt()) ; 
+      h1_["el_eta"] -> Fill(el.getEta()) ; 
+      if ( el.getPt() > 20 ) goodElMs.push_back(el) ; 
     }
   }
 
-  //// Make ZmumuCands 
-  vlq::CandidateCollection zmumucands ;
-  for ( vlq::Muon lp : goodMuPs ) {
-    for ( vlq::Muon lm : goodMuMs ) {
-      TLorentzVector p4lp(lp.getP4()), p4lm(lm.getP4()) ;
-      double mass = (p4lp+p4lm).Mag() ; 
-      h1_["mumu_mass"] -> Fill(mass) ; 
-      if ( mass > 60 && mass < 120 ) {
-        vlq::Candidate zll(p4lp+p4lm) ; 
-        zmumucands.push_back(zll) ; 
-        h1_["zmumu_pt"] -> Fill(zll.getPt()) ; 
-      }
-    }
-  }
-  //ZCandidateProducer zmumuprod(vlq::CandidateCollection(goodMuPs), vlq::CandidateCollection(goodMuMs)) ; 
-  //vlq::CandidateCollection zmumu ;
-  //zmumuprod(zmumu) ; 
+  ZCandidateProducer<vlq::MuonCollection> zmumuprod(goodMuPs, goodMuMs) ; 
+  vlq::CandidateCollection zmumu ;
+  zmumuprod(zmumu, h1_["zmumu_mass"], h1_["zmumu_pt"], h1_["zmumu_eta"], h1_["dr_mumu"]) ; 
 
-  //// Make ZelelCands 
-  vlq::CandidateCollection zelelcands ;
-  for ( vlq::Electron lp : goodElPs ) {
-    for ( vlq::Electron lm : goodElMs ) {
-      TLorentzVector p4lp(lp.getP4()), p4lm(lm.getP4()) ;
-      double mass = (p4lp+p4lm).Mag() ; 
-      h1_["elel_mass"] -> Fill(mass) ; 
-      if ( mass > 60 && mass < 120 ) {
-        vlq::Candidate zll(p4lp+p4lm) ; 
-        zelelcands.push_back(zll) ; 
-        h1_["zelel_pt"] -> Fill(zll.getPt()) ; 
-      }
-    }
-  }
-
-
-  //cout << ">>>> goodMuP size = " << goodMuPs.size() << " goodMuM size = " << goodMuMs.size() << endl ;  
-  //cout << ">>>> goodElP size = " << goodElPs.size() << " goodElM size = " << goodElMs.size() << endl ;  
+  ZCandidateProducer<vlq::ElectronCollection> zelelprod(goodElPs, goodElMs) ; 
+  vlq::CandidateCollection zelel ;
+  zelelprod(zelel, h1_["zelel_mass"], h1_["zelel_pt"], h1_["zelel_eta"], h1_["dr_elel"]) ; 
 
   vlq::JetCollection goodAK8Jets, goodAK4Jets, btaggedlooseAK4, btaggedmediumAK4 ;
   vector<unsigned> ak4selIdxs, ak8selIdxs, bjetIdxs;
@@ -1018,10 +999,20 @@ void OS2LAna::beginJob() {
 
   h1_["drwh"] = fs->make<TH1D>("drwh", ";#DeltaR(H,W);;", 40, 0, 4.) ;  
 
-  h1_["mumu_mass"] = fs->make<TH1D>("mumu_mass", ";M(mumu) [GeV]", 50, 0., 200.) ; 
-  h1_["elel_mass"] = fs->make<TH1D>("elel_mass", ";M(elel) [GeV]", 50, 0., 200.) ; 
+  h1_["mu_pt"] = fs->make<TH1D>("mu_pt", ";p_T (mu) [GeV]", 100, 0., 2000.) ; 
+  h1_["el_pt"] = fs->make<TH1D>("el_pt", ";p_T (el) [GeV]", 100, 0., 2000.) ; 
+
+  h1_["mu_eta"] = fs->make<TH1D>("mu_eta", ";#eta (mu) [GeV]", 80, -4., 4.) ; 
+  h1_["el_eta"] = fs->make<TH1D>("el_eta", ";#eta (el) [GeV]", 80, -4., 4.) ; 
+
+  h1_["zmumu_mass"] = fs->make<TH1D>("zmumu_mass", ";M(mumu) [GeV]", 60, 60., 120.) ; 
+  h1_["zelel_mass"] = fs->make<TH1D>("zelel_mass", ";M(elel) [GeV]", 60, 60., 120.) ; 
   h1_["zmumu_pt"] = fs->make<TH1D>("zmumu_pt", ";p_T (Zmumu) [GeV]", 100, 0., 2000.) ; 
   h1_["zelel_pt"] = fs->make<TH1D>("zelel_pt", ";p_T (Zelel) [GeV]", 100, 0., 2000.) ; 
+  h1_["zmumu_eta"] = fs->make<TH1D>("zmumu_eta", ";#eta (Zmumu) [GeV]", 80, -4., 4.) ; 
+  h1_["zelel_eta"] = fs->make<TH1D>("zelel_eta", ";#eta (Zelel) [GeV]", 80, -4., 4.) ; 
+  h1_["dr_mumu"] = fs->make<TH1D>("dr_mumu", ";#DeltaR(#mu^{+}#mu^{-});;", 40, 0., 4.) ; 
+  h1_["dr_elel"] = fs->make<TH1D>("dr_elel", ";#DeltaR(e^{+}e^{-});;", 40, 0., 4.) ; 
 
 }
 
