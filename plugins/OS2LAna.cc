@@ -146,6 +146,7 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_elCharge                     ;
     edm::InputTag l_HbbCands                     ; 
     std::vector<std::string> hltPaths_           ; 
+    edm::ParameterSet ZCandParams_               ; 
     edm::ParameterSet GenHSelParams_             ; 
     edm::ParameterSet AK4JetSelParams_           ; 
     edm::ParameterSet BTaggedLooseAK4SelParams_  ; 
@@ -255,6 +256,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_elCharge              (iConfig.getParameter<edm::InputTag>     ("elCharge")), 
   l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
+  ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   AK4JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK4JetSelParams")),
   BTaggedLooseAK4SelParams_ (iConfig.getParameter<edm::ParameterSet> ("BTaggedLooseAK4SelParams")),
@@ -491,11 +493,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
   }
 
-  ZCandidateProducer<vlq::MuonCollection> zmumuprod(goodMuPs, goodMuMs) ; 
+  ZCandidateProducer<vlq::MuonCollection> zmumuprod(ZCandParams_, goodMuPs, goodMuMs) ; 
   vlq::CandidateCollection zmumu ;
   zmumuprod(zmumu, h1_["zmumu_mass"], h1_["zmumu_pt"], h1_["zmumu_eta"], h1_["dr_mumu"]) ; 
 
-  ZCandidateProducer<vlq::ElectronCollection> zelelprod(goodElPs, goodElMs) ; 
+  ZCandidateProducer<vlq::ElectronCollection> zelelprod(ZCandParams_, goodElPs, goodElMs) ; 
   vlq::CandidateCollection zelel ;
   zelelprod(zelel, h1_["zelel_mass"], h1_["zelel_pt"], h1_["zelel_eta"], h1_["dr_elel"]) ; 
 

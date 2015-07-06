@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from Analysis.VLQAna.ZCandSelector_cfi import *
 from Analysis.VLQAna.ElectronSelector_cfi import *
 from Analysis.VLQAna.MuonSelector_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
@@ -81,6 +82,7 @@ ana = cms.EDFilter("OS2LAna",
         #"HLT_PFHT650", 
         #"HLT_PFHT900", 
         ), 
+    ZCandParams                = defaultZCandSelectionParameters.clone(), 
     GenHSelParams              = genPartParams.clone(), 
     AK4JetSelParams            = defaultAK4JetSelectionParameters.clone(), 
     BTaggedLooseAK4SelParams   = defaultBTaggedAK4JetSelectionParameters.clone(jetCSVDiscMin = cms.double(0.423),), 
