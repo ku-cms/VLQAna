@@ -10,5 +10,8 @@ git cms-merge-topic ku-cms:CMSSW_7_4_X
 
 git clone https://github.com/ku-cms/VLQAna.git Analysis/VLQAna
 
+#To just build this stuff
+cd Analysis/VLQAna
+
 scram b -j20
 
