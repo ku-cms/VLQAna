@@ -11,7 +11,16 @@ git cms-merge-topic ku-cms:CMSSW_7_4_X
 git clone https://github.com/ku-cms/VLQAna.git Analysis/VLQAna
 
 #To just build this stuff
-cd Analysis/VLQAna
+cd AnalysisDataFormats/BoostedObjects 
 
 scram b -j20
+
+cd ../../Analysis/VLQAna
+
+scram b -j20
+
+# To run
+cd test
+cmsRun vlqAna_cfg.py 
+
 
