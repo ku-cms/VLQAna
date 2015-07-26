@@ -5,6 +5,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/Common"/>
 <use name="AnalysisDataFormats/BoostedObjects"/>
+<use name="boost"/>
 <use name="root"/>
 <use name="roottmva"/>
 <export>

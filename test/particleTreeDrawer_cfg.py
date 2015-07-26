@@ -4,7 +4,8 @@ process = cms.Process('LIST')
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      'root://cmsxrootd.fnal.gov///store/mc/Phys14DR/TprimeJetToTH_M1200GeV_Tune4C_13TeV-madgraph-tauola/AODSIM/PU20bx25_PHYS14_25_V1-v1/10000/022C772D-BD6B-E411-A63D-485B39800BB4.root'
+     'file:/afs/cern.ch/work/d/devdatta/CMSREL/CMSSW_7_4_6_patch6/src/HLTrigger/Configuration/test/GENSIMRAWHLT.root' 
+      #'root://cmsxrootd.fnal.gov///store/mc/Phys14DR/TprimeJetToTH_M1200GeV_Tune4C_13TeV-madgraph-tauola/AODSIM/PU20bx25_PHYS14_25_V1-v1/10000/022C772D-BD6B-E411-A63D-485B39800BB4.root'
       #'root://cmsxrootd.fnal.gov///store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU20bx25_PHYS14_25_V1-v1/00000/000470E0-3B75-E411-8B90-00266CFFA604.root'
         )
     ) 
@@ -45,8 +46,9 @@ process.genTree = cms.EDAnalyzer("ParticleListDumper",
     )
 
 process.TFileService = cms.Service("TFileService",
-       fileName = cms.string("TprimeJetToTH_M1200_Tune4C_13TeV-madgraph-tauola_GEN.root")
+       fileName = cms.string("TprimeBToTH_M-800_LH_GEN.root")
+       #fileName = cms.string("TprimeJetToTH_M1200_Tune4C_13TeV-madgraph-tauola_GEN.root")
        #fileName = cms.string("TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola_GEN.root")
        )
 
-process.p = cms.Path(process.genTree)
+process.p = cms.Path(process.printDecay)

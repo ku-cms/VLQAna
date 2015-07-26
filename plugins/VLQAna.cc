@@ -40,6 +40,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/JetSelector.h"
 #include "Analysis/VLQAna/interface/HT.h"
 #include "Analysis/VLQAna/interface/VCandProducer.h"
+#include "Analysis/VLQAna/interface/Utilities.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -49,25 +50,25 @@ Implementation:
 
 #include <sstream>
 
-bool sortByPt (const vlq::Jet& jet1, const vlq::Jet& jet2) {
-  return jet1.getPt() > jet2.getPt() ;  
-}
-
-bool sortByMass (const vlq::Jet& jet1, const vlq::Jet& jet2) {
-  return jet1.getMass() > jet2.getMass() ;  
-}
-
-bool sortByTrimmedMass (const vlq::Jet& jet1, const vlq::Jet& jet2) {
-  return jet1.getTrimmedMass() > jet2.getTrimmedMass() ;  
-}
-
-bool sortBySoftDropMass (const vlq::Jet& jet1, const vlq::Jet& jet2) {
-  return jet1.getSoftDropMass() > jet2.getSoftDropMass() ;  
-}
-
-bool sortByCSV (const vlq::Jet& jet1, const vlq::Jet& jet2) {
-  return jet1.getCSV() > jet2.getCSV() ;  
-}
+//bool sortByPt (const vlq::Jet& jet1, const vlq::Jet& jet2) {
+//  return jet1.getPt() > jet2.getPt() ;  
+//}
+//
+//bool sortByMass (const vlq::Jet& jet1, const vlq::Jet& jet2) {
+//  return jet1.getMass() > jet2.getMass() ;  
+//}
+//
+//bool sortByTrimmedMass (const vlq::Jet& jet1, const vlq::Jet& jet2) {
+//  return jet1.getTrimmedMass() > jet2.getTrimmedMass() ;  
+//}
+//
+//bool sortBySoftDropMass (const vlq::Jet& jet1, const vlq::Jet& jet2) {
+//  return jet1.getSoftDropMass() > jet2.getSoftDropMass() ;  
+//}
+//
+//bool sortByCSV (const vlq::Jet& jet1, const vlq::Jet& jet2) {
+//  return jet1.getCSV() > jet2.getCSV() ;  
+//}
 
 //
 // class declaration
@@ -369,9 +370,12 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   
   //// Preselection HLT
   // Get all trig names
-  //for ( vector<string>::const_iterator it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it) {
-  //  cout << *it << endl ; 
-  //}
+  for ( vector<string>::const_iterator it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it) {
+    cout << *it << endl ; 
+  }
+
+  return false ; 
+
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
     vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
@@ -682,9 +686,9 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["cutflow"] -> AddBinContent(3) ; 
 
   if (goodAK4Jets.size() > 0) {
-    std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), sortByCSV) ; 
+    std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByCSV) ; 
     h1_["ak4highestcsv_nocuts"] -> Fill((goodAK4Jets.at(0)).getCSV()) ;
-    std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), sortByPt) ; 
+    std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByPt<vlq::Jet>) ; 
   }
 
   HT htak8(goodAK8Jets) ; 
@@ -745,16 +749,16 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["ptak8leadingPlus2nd"] -> Fill(ptak8leading+ptak82nd) ; 
 
-  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), sortByMass) ; 
+  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByMass<vlq::Jet>) ; 
   h1_["mak8highestm"] -> Fill((goodAK8Jets.at(0)).getMass()) ; 
 
-  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), sortByTrimmedMass) ; 
+  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByTrimmedMass) ; 
   h1_["trimmedmak8highesttrimmedm"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass()) ; 
 
-  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), sortBySoftDropMass) ; 
+  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortBySoftDropMass) ; 
   h1_["softdropmak8highestsoftdropm"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass()) ; 
 
-  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), sortByPt) ; 
+  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByPt<vlq::Jet>) ; 
 
   double ptak4leading ((h_jetAK4Pt.product())->at(ak4selIdxs.at(0))) ;   
   h1_["ptak4leading"] -> Fill(ptak4leading) ; 
@@ -770,7 +774,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["etabjetleading"] -> Fill((h_jetAK4Eta.product())->at(bjetIdxs.at(0))) ; 
     h1_["csvbjetleading"] -> Fill(csvbjetleading) ; 
 
-    std::sort(btaggedlooseAK4.begin(), btaggedlooseAK4.end(), sortByCSV) ; 
+    std::sort(btaggedlooseAK4.begin(), btaggedlooseAK4.end(), Utilities::sortByCSV) ; 
     csvbjethighestcsv = (btaggedlooseAK4.at(0)).getCSV() ; 
     h1_["csvbjethighestcsv"] -> Fill(csvbjethighestcsv) ; 
     h1_["ptak4highestcsv"] -> Fill((btaggedlooseAK4.at(0)).getPt()) ;

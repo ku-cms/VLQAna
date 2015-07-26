@@ -54,6 +54,8 @@ Implementation:
 
 #include <sstream>
 
+#include <boost/range/irange.hpp>
+
 //
 // class declaration
 //
@@ -164,6 +166,7 @@ class OS2LAna : public edm::EDFilter {
     double ak4jetsPtMin_                         ;
     double ak4jetsEtaMax_                        ; 
     double HTMin_                                ; 
+    bool   doHLTEff_                             ; 
 
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
@@ -273,7 +276,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   ak8jetsEtaMax_          (iConfig.getParameter<double>            ("ak8jetsEtaMax")), 
   ak4jetsPtMin_           (iConfig.getParameter<double>            ("ak4jetsPtMin")),
   ak4jetsEtaMax_          (iConfig.getParameter<double>            ("ak4jetsEtaMax")), 
-  HTMin_                  (iConfig.getParameter<double>            ("HTMin"))
+  HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
+  doHLTEff_               (iConfig.getParameter<bool>              ("doHLTEff"))
 {
   produces<unsigned>("ngoodAK4Jets");
   produces<unsigned>("ngoodAK8Jets");
@@ -408,12 +412,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     vector<string>::const_iterator it ;
     for (it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it ) {
       if ( it->find(myhltpath) ) {
-         std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
-         hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ;  
+        std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
+        hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ;  
       }
     }
   }
-  if (hltPaths_.size() > 0 && hltdecisions == 0) return false ; 
+  if ( !doHLTEff_ && hltPaths_.size() > 0 && hltdecisions == 0 ) return false ; 
 
   h1_["cutflow"] -> AddBinContent(2) ; 
 
@@ -501,6 +505,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::CandidateCollection zelel ;
   zelelprod(zelel, h1_["zelel_mass"], h1_["zelel_pt"], h1_["zelel_eta"], h1_["dr_elel"]) ; 
 
+  //// Preselection  Z candidates 
+  if ( zmumu.size() == 0 && zelel.size() == 0 ) return false ; 
+
+  //DMcout << " zmumu size = " << zmumu.size() << " zelel size " << zelel.size() << endl ;  
+
   vlq::JetCollection goodAK8Jets, goodAK4Jets, btaggedlooseAK4, btaggedmediumAK4 ;
   vector<unsigned> ak4selIdxs, ak8selIdxs, bjetIdxs;
 
@@ -528,9 +537,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     ak8selIdxs.push_back(ijet);
   }
 
-  //// Preselection 2 AK8 jets 
+  //// Preselection 1 AK8 jets 
   if ( goodAK8Jets.size() < 1 ) return false ; 
-  if ( goodAK8Jets.size() > 1 && ( goodAK8Jets.at(0).getPt() < 300 || goodAK8Jets.at(1).getPt() < 220.) )  return false ; 
+  //if ( goodAK8Jets.size() > 1 && ( goodAK8Jets.at(0).getPt() < 300 || goodAK8Jets.at(1).getPt() < 220.) )  return false ; 
+  //DMcout << " ak8 jets size " << goodAK8Jets.size() << endl ; 
 
   //// Store good AK4 jets 
   JetSelector ak4jetsel(AK4JetSelParams_) ;
@@ -568,6 +578,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   //// Preselection at least one b-tagged AK4 jet 
   if ( btaggedlooseAK4.size() < 1 ) return false; 
+  //DMcout << " b jets size " << btaggedlooseAK4.size() << endl ; 
 
   //h1_["nak8_nocuts"] -> Fill(goodAK8Jets.size()) ; 
   //h1_["nak4_nocuts"] -> Fill(goodAK4Jets.size()) ; 
@@ -636,13 +647,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   HT htak4(goodAK4Jets) ; 
   //// Preselection HT
   if ( htak4.getHT() < HTMin_ ) return false; 
+  //DMcout << " HT " << htak4.getHT() << endl ; 
 
   h1_["cutflow"] -> AddBinContent(3) ; 
 
   if (goodAK4Jets.size() > 0) {
     std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByCSV) ; 
     h1_["ak4highestcsv_nocuts"] -> Fill((goodAK4Jets.at(0)).getCSV()) ;
-    std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByPt) ; 
+    std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByPt<vlq::Jet>) ; 
   }
 
   HT htak8(goodAK8Jets) ; 
@@ -703,7 +715,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["ptak8leadingPlus2nd"] -> Fill(ptak8leading+ptak82nd) ; 
 
-  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByMass) ; 
+  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByMass<vlq::Jet>) ; 
   h1_["mak8highestm"] -> Fill((goodAK8Jets.at(0)).getMass()) ; 
 
   std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByTrimmedMass) ; 
@@ -712,7 +724,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortBySoftDropMass) ; 
   h1_["softdropmak8highestsoftdropm"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass()) ; 
 
-  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByPt) ; 
+  std::sort(goodAK8Jets.begin(), goodAK8Jets.end(), Utilities::sortByPt<vlq::Jet>) ; 
 
   double ptak4leading ((h_jetAK4Pt.product())->at(ak4selIdxs.at(0))) ;   
   h1_["ptak4leading"] -> Fill(ptak4leading) ; 
@@ -770,16 +782,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nhcand_presel"] -> Fill(hcands.size()) ; 
 
   //// Event selection
-  if ( goodAK4Jets.size() < 6 ) return false ; 
+  if ( goodAK4Jets.size() < 4 ) return false ; 
   h1_["cutflow"] -> AddBinContent(4) ; 
+  //DMcout << " AK4 jets size " << goodAK4Jets.size() << endl ; 
 
   //// Event selection
-  if ( btaggedmediumAK4.size() < 1 || btaggedlooseAK4.size() < 3 ) return false ; 
-  h1_["cutflow"] -> AddBinContent(5) ; 
+  if ( btaggedmediumAK4.size() < 1 || btaggedlooseAK4.size() < 2 ) return false ; 
+  //h1_["cutflow"] -> AddBinContent(5) ; 
+  //DMcout << " b jets medium size " << btaggedmediumAK4.size() << "  b jets loose size " << btaggedlooseAK4.size() << endl ; 
 
   //// Event selection
-  if ( abs(forwardestjet.getEta()) < 2.5) return false ; 
-  h1_["cutflow"] -> AddBinContent(6) ; 
+  //if ( abs(forwardestjet.getEta()) < 0.0) return false ; 
+  //h1_["cutflow"] -> AddBinContent(6) ; 
 
   if (wcands.size() > 0) h1_["ptleadingwcand"] -> Fill((wcands.at(0)).getPt()) ; 
   if (hcands.size() > 0) h1_["ptleadinghcand"] -> Fill((hcands.at(0)).getPt()) ; 
@@ -828,6 +842,109 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nhcand_presel"] -> Fill(hcands.size()) ; 
 
   h1_["ht"] ->Fill(htak4.getHT()) ; 
+
+    
+  vlq::MuonCollection goodMus; 
+  vlq::ElectronCollection goodEls ;
+
+  if (goodMuPs.size()+goodMuMs.size() > 0) { 
+    goodMus.reserve(goodMuPs.size()+goodMuMs.size()) ; 
+    for ( auto mup : goodMuPs ) {
+      goodMus.push_back(mup) ; 
+    }
+    for ( auto mum : goodMuMs ) {
+      goodMus.push_back(mum) ; 
+    }
+  }
+
+  if (goodElPs.size()+goodElMs.size() > 0) {
+    goodEls.reserve(goodElPs.size()+goodElMs.size()) ; 
+    for ( auto elp : goodElPs ) {
+      goodEls.push_back(elp) ; 
+    }
+    for ( auto elm : goodElMs ) {
+      goodEls.push_back(elm) ; 
+    }
+  }
+
+  if (goodMus.size() > 0) std::sort(goodMus.begin(), goodMus.end(), Utilities::sortByPt<vlq::Muon>) ;
+  if (goodEls.size() > 0) std::sort(goodEls.begin(), goodEls.end(), Utilities::sortByPt<vlq::Electron>) ;
+
+  //DMcout << " good muons size " << goodMus.size() << " good electrons size " << goodEls.size() << endl ; 
+
+  if ( doHLTEff_ ) {
+    //// Fill all histos
+    if (goodMus.size() > 0) h1_["pt_leading_mu"] -> Fill (goodMus.at(0).getPt()) ; 
+    if (goodMus.size() > 1) h1_["pt_2nd_mu"] -> Fill (goodMus.at(1).getPt()) ; 
+    if (goodEls.size() > 0) h1_["pt_leading_el"] -> Fill (goodEls.at(0).getPt()) ; 
+    if (goodEls.size() > 1) h1_["pt_2nd_el"] -> Fill (goodEls.at(1).getPt()) ; 
+    h1_["pt_Zmumu"] -> Fill (zmumu.at(0).getPt()) ; 
+    h1_["pt_Zelel"] -> Fill (zelel.at(0).getPt()) ; 
+    //h1_["dr_mumu"] -> Fill () ; 
+    //h1_["dr_elel"] -> Fill () ; 
+    //// Fill if passes HLT 
+
+    //DMcout << " good muons size " << goodMus.size() << " good electrons size " << goodEls.size() << endl ; 
+
+    for ( const string& myhltpath : hltPaths_ ) {
+      //DMcout << "hlt path " << myhltpath << endl ; 
+      vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
+      //DMcout << " found hlt path " << myhltpath << endl ; 
+      if ( it != (h_trigName.product())->end() ) {
+        std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
+        int hltdecision = int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) ; 
+        //DMcout << " hlt path " << myhltpath << " name " << hltname << " decision " << hltdecision << endl ; 
+
+        if ( hltdecision == 1 ) {
+
+          //DMcout << " event passing hlt " << myhltpath << endl ; 
+
+          stringstream ss ;
+          ss << "pt_leading_mu_" << myhltpath ; 
+          if (goodMus.size() > 0) h1_[ss.str()] -> Fill(goodMus.at(0).getPt()) ; 
+
+          ss.clear() ; 
+          ss.str("") ; 
+          ss << "pt_2nd_mu_" << myhltpath ; 
+          if (goodMus.size() > 1) h1_[ss.str()] -> Fill (goodMus.at(1).getPt()) ;  
+
+          ss.clear() ; 
+          ss.str("") ; 
+          ss << "pt_leading_el_" << myhltpath ; 
+          if (goodEls.size() > 0) h1_[ss.str()] -> Fill (goodEls.at(0).getPt()) ;  
+
+          ss.clear() ; 
+          ss.str("") ; 
+          ss << "pt_2nd_el_" << myhltpath ; 
+          if (goodEls.size() > 1) h1_[ss.str()] -> Fill (goodEls.at(1).getPt()) ;  
+
+          ss.clear() ; 
+          ss.str("") ; 
+          ss << "pt_Zmumu_" << myhltpath ; 
+          h1_[ss.str()] -> Fill (zmumu.at(0).getPt()) ;  
+
+          ss.clear() ; 
+          ss.str("") ; 
+          ss << "pt_Zelel_" << myhltpath ; 
+          h1_[ss.str()] -> Fill (zelel.at(0).getPt()) ;  
+
+          //ss.clear() ; 
+          //ss.str("") ; 
+          //ss << "dr_mumu_" << myhltpath ; 
+          //h1_[ss.str()] -> Fill () ;  
+
+          //ss.clear() ; 
+          //ss.str("") ; 
+          //ss << "dr_elel_" << myhltpath ; 
+          //h1_[ss.str()] -> Fill () ;  
+
+        }
+
+      }
+
+    }
+
+  }
 
   if (wjets.size()>0) h1_["ht_nwjetGt0"] ->Fill(htak4.getHT()) ; 
   if (hjets.size()>0) h1_["ht_nhjetGt0"] ->Fill(htak4.getHT()) ; 
@@ -1016,10 +1133,48 @@ void OS2LAna::beginJob() {
   h1_["dr_mumu"] = fs->make<TH1D>("dr_mumu", ";#DeltaR(#mu^{+}#mu^{-});;", 40, 0., 4.) ; 
   h1_["dr_elel"] = fs->make<TH1D>("dr_elel", ";#DeltaR(e^{+}e^{-});;", 40, 0., 4.) ; 
 
+  h1_["pt_leading_mu"] = fs->make<TH1D>("pt_leading_mu", ";p_T (mu) [GeV]", 100, 0., 2000.) ;
+  h1_["pt_leading_el"] = fs->make<TH1D>("pt_leading_el", ";p_T (e) [GeV]", 100, 0., 2000.) ;
+
+  for ( const string& myhltpath : hltPaths_ ) {
+    stringstream ss ;
+    ss << "pt_leading_mu_" << myhltpath ; 
+    h1_[ss.str()] = fs->make<TH1D>((ss.str()).c_str() ,";p_T (mu) [GeV]", 100, 0., 2000.) ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "pt_leading_el_" << myhltpath ; 
+    h1_[ss.str()] = fs->make<TH1D>((ss.str()).c_str() ,";p_T (e) [GeV]", 100, 0., 2000.) ; 
+
+  }
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void OS2LAna::endJob() {
+
+  for ( const string& myhltpath : hltPaths_ ) {
+    stringstream ss ;
+    ss << "pt_leading_mu_" << myhltpath ; 
+    TGraphAsymmErrors* grleadingmu = fs->make<TGraphAsymmErrors>(h1_[ss.str()], h1_["pt_leading_mu"], "cp") ;
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "eff_pt_leading_mu_" << myhltpath ;
+    grleadingmu->SetName((ss.str()).c_str()) ;  
+    grleadingmu->Write() ; 
+
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "pt_leading_el_" << myhltpath ; 
+    TGraphAsymmErrors* grleadingel = fs->make<TGraphAsymmErrors>(h1_[ss.str()], h1_["pt_leading_el"], "cp") ;
+    ss.clear() ; 
+    ss.str("") ; 
+    ss << "eff_pt_leading_el_" << myhltpath ;
+    grleadingel->SetName((ss.str()).c_str()) ;  
+    grleadingel->Write() ; 
+
+  }
+
   return ; 
 }
 
