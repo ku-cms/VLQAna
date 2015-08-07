@@ -8,7 +8,8 @@ cmsenv
 
 git cms-merge-topic ku-cms:CMSSW_7_4_X
 
-git clobe -b v1.00 git://github.com/cms-btv-pog/cms-EventCounter.git  Analysis/EventCounter 
+git clone -b v1.00 git://github.com/dmajumder/EventCounter.git  Analysis/EventCounter 
+
 git clone https://github.com/ku-cms/VLQAna.git Analysis/VLQAna
 
 #To just build this stuff
