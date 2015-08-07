@@ -16,7 +16,7 @@ class ZCandidateProducer {
       lm_(lm)
     {}
 
-    void operator () (vlq::CandidateCollection& zcands, TH1D* h1mass, TH1D* h1pt, TH1D* h1eta, TH1D* h1drll) {
+    void operator () (vlq::CandidateCollection& zcands, TH1D* h1mass, TH1D* h1pt, TH1D* h1eta, TH1D* h1drll, double evtwt) {
 
       for ( auto lp : lp_ ) {
         for ( auto lm : lm_ ) {
@@ -26,10 +26,10 @@ class ZCandidateProducer {
           if ( mass > massMin_ && mass < massMax_ && pt > ptMin_ && pt < ptMax_ ) {
             vlq::Candidate zll(p4lp+p4lm) ; 
             zcands_.push_back(zll) ; 
-            h1mass->Fill(mass) ; 
-            h1pt->Fill((p4lp+p4lm).Pt()) ; 
-            h1eta->Fill((p4lp+p4lm).Eta()) ; 
-            h1drll->Fill(p4lp.DeltaR(p4lm)) ; 
+            h1mass->Fill(mass, evtwt) ; 
+            h1pt->Fill((p4lp+p4lm).Pt(), evtwt) ; 
+            h1eta->Fill((p4lp+p4lm).Eta(), evtwt) ; 
+            h1drll->Fill(p4lp.DeltaR(p4lm), evtwt) ; 
           }
         }
       }

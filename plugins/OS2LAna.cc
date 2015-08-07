@@ -34,6 +34,8 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Muon.h"
@@ -81,6 +83,13 @@ class OS2LAna : public edm::EDFilter {
     std::string pn_;
     edm::InputTag l_trigName                     ; 
     edm::InputTag l_trigBit                      ; 
+    edm::InputTag l_metFiltersName               ; 
+    edm::InputTag l_metFiltersBit                ; 
+    edm::InputTag l_hbheNoiseFilter              ; 
+    edm::InputTag l_vtxRho                       ; 
+    edm::InputTag l_vtxZ                         ; 
+    edm::InputTag l_vtxChi                       ; 
+    edm::InputTag l_vtxNdf                       ; 
     edm::InputTag l_jetAK8Pt                     ; 
     edm::InputTag l_jetAK8Eta                    ; 
     edm::InputTag l_jetAK8Phi                    ; 
@@ -148,6 +157,7 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_elCharge                     ;
     edm::InputTag l_HbbCands                     ; 
     std::vector<std::string> hltPaths_           ; 
+    std::vector<std::string> metFilters_         ; 
     edm::ParameterSet ZCandParams_               ; 
     edm::ParameterSet GenHSelParams_             ; 
     edm::ParameterSet AK4JetSelParams_           ; 
@@ -161,12 +171,16 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet TJetSelParams_             ; 
     edm::ParameterSet HJetSelParams_             ; 
     edm::ParameterSet WJetSelParams_             ; 
+    std::string l_genEvtInfoProd                 ; 
     double ak8jetsPtMin_                         ;
     double ak8jetsEtaMax_                        ; 
     double ak4jetsPtMin_                         ;
     double ak4jetsEtaMax_                        ; 
     double HTMin_                                ; 
     bool   doHLTEff_                             ; 
+    bool   isData_                               ; 
+
+    edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
 
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
@@ -192,6 +206,13 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   pn_                     (iConfig.getParameter<string>            ("processName")),
   l_trigName              (iConfig.getParameter<edm::InputTag>     ("trigNameLabel")),
   l_trigBit               (iConfig.getParameter<edm::InputTag>     ("trigBitLabel")),
+  l_metFiltersName        (iConfig.getParameter<edm::InputTag>     ("metFiltersNameLabel")),
+  l_metFiltersBit         (iConfig.getParameter<edm::InputTag>     ("metFiltersBitLabel")),
+  l_hbheNoiseFilter       (iConfig.getParameter<edm::InputTag>     ("hbheNoiseFilterLabel")),
+  l_vtxRho                (iConfig.getParameter<edm::InputTag>     ("vtxRhoLabel")),  
+  l_vtxZ                  (iConfig.getParameter<edm::InputTag>     ("vtxZLabel")),  
+  l_vtxChi                (iConfig.getParameter<edm::InputTag>     ("vtxChiLabel")),  
+  l_vtxNdf                (iConfig.getParameter<edm::InputTag>     ("vtxNdfLabel")),  
   l_jetAK8Pt              (iConfig.getParameter<edm::InputTag>     ("jetAK8PtLabel")),  
   l_jetAK8Eta             (iConfig.getParameter<edm::InputTag>     ("jetAK8EtaLabel")),  
   l_jetAK8Phi             (iConfig.getParameter<edm::InputTag>     ("jetAK8PhiLabel")),  
@@ -259,6 +280,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_elCharge              (iConfig.getParameter<edm::InputTag>     ("elCharge")), 
   l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
+  metFilters_             (iConfig.getParameter<vector<string>>    ("metFilters")), 
   ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   AK4JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK4JetSelParams")),
@@ -269,16 +291,20 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   elpselParams_           (iConfig.getParameter<edm::ParameterSet> ("elpselParams")),
   elmselParams_           (iConfig.getParameter<edm::ParameterSet> ("elmselParams")),
   AK8JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK8JetSelParams")),
-  TJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("TJetSelParams")),
-  HJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("HJetSelParams")),
-  WJetSelParams_          (iConfig.getParameter<edm::ParameterSet>  ("WJetSelParams")),
+  TJetSelParams_          (iConfig.getParameter<edm::ParameterSet> ("TJetSelParams")),
+  HJetSelParams_          (iConfig.getParameter<edm::ParameterSet> ("HJetSelParams")),
+  WJetSelParams_          (iConfig.getParameter<edm::ParameterSet> ("WJetSelParams")),
+  l_genEvtInfoProd        (iConfig.getParameter<std::string>       ("genEvtInfoProdName")),
   ak8jetsPtMin_           (iConfig.getParameter<double>            ("ak8jetsPtMin")),
   ak8jetsEtaMax_          (iConfig.getParameter<double>            ("ak8jetsEtaMax")), 
   ak4jetsPtMin_           (iConfig.getParameter<double>            ("ak4jetsPtMin")),
   ak4jetsEtaMax_          (iConfig.getParameter<double>            ("ak4jetsEtaMax")), 
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
-  doHLTEff_               (iConfig.getParameter<bool>              ("doHLTEff"))
+  doHLTEff_               (iConfig.getParameter<bool>              ("doHLTEff")), 
+  isData_                 (iConfig.getParameter<bool>              ("isData"))
 {
+  t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
+
   produces<unsigned>("ngoodAK4Jets");
   produces<unsigned>("ngoodAK8Jets");
   produces<unsigned>("nbtaggedlooseAK4");
@@ -330,9 +356,16 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   typedef Handle <vector<string>> hstring ; 
   typedef Handle <vector<float>> hfloat ; 
+  typedef Handle <vector<int>> hint ; 
 
   hstring h_trigName             ; evt.getByLabel (l_trigName               , h_trigName             );
   hfloat  h_trigBit              ; evt.getByLabel (l_trigBit                , h_trigBit              ); 
+  hstring h_metFiltersName       ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
+  hfloat  h_metFiltersBit        ; evt.getByLabel (l_metFiltersBit          , h_metFiltersBit        ); 
+  hfloat  h_vtxRho               ; evt.getByLabel (l_vtxRho                 , h_vtxRho               );
+  hfloat  h_vtxZ                 ; evt.getByLabel (l_vtxZ                   , h_vtxZ                 );
+  hfloat  h_vtxChi               ; evt.getByLabel (l_vtxChi                 , h_vtxChi               );
+  hint    h_vtxNdf               ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
   hfloat  h_jetAK8Pt             ; evt.getByLabel (l_jetAK8Pt               , h_jetAK8Pt             );
   hfloat  h_jetAK8Eta            ; evt.getByLabel (l_jetAK8Eta              , h_jetAK8Eta            );
   hfloat  h_jetAK8Phi            ; evt.getByLabel (l_jetAK8Phi              , h_jetAK8Phi            );
@@ -401,25 +434,66 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   hfloat h_elE                   ; evt.getByLabel(l_elE                      , h_elE                  ); 
   hfloat h_elCharge              ; evt.getByLabel(l_elCharge                 , h_elCharge             ); 
 
-  Handle<vlq::GenParticleWithDaughtersCollection> h_HbbCands ; evt.getByLabel (l_HbbCands , h_HbbCands );
-  vlq::GenParticleWithDaughtersCollection::const_iterator ihbb ;
+  Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter, h_hbheNoiseFilter);
 
-  h1_["cutflow"] -> AddBinContent(1) ; 
+  double evtwt(1.0) ; 
+  Handle<GenEventInfoProduct> h_genEvtInfoProd; 
+  if ( !isData_ ) {
+    evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
+    evtwt = h_genEvtInfoProd->weight() ; 
+  }
 
-  //// Preselection HLT
+  h1_["cutflow"] -> AddBinContent(1, evtwt) ; 
+  h1_["cutflow_nowt"] -> AddBinContent(1) ; 
+
+  //// HLT
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
     vector<string>::const_iterator it ;
     for (it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it ) {
-      if ( it->find(myhltpath) ) {
-        std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
-        hltdecisions |= int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) << (it - (h_trigName.product())->begin()) ;  
+      if ( it->find(myhltpath) < std::string::npos) {
+        std::string hltname = (h_trigName.product()) -> at ( it - (h_trigName.product())->begin() ) ; 
+        hltdecisions |= int((h_trigBit.product())->at( it - (h_trigName.product())->begin() )) << ( it - (h_trigName.product())->begin() ) ;  
       }
     }
   }
   if ( !doHLTEff_ && hltPaths_.size() > 0 && hltdecisions == 0 ) return false ; 
 
-  h1_["cutflow"] -> AddBinContent(2) ; 
+  h1_["cutflow"] -> AddBinContent(2, evtwt) ; 
+  h1_["cutflow_nowt"] -> AddBinContent(2) ; 
+
+  //// Require good primary vertices
+  unsigned npv(0) ; 
+  for ( unsigned ipv = 0; ipv < (h_vtxRho.product())->size(); ++ipv) {
+    double vtxRho = (h_vtxRho.product())->at(ipv) ; 
+    double vtxZ = (h_vtxZ.product())->at(ipv) ; 
+    double vtxNdf = (h_vtxNdf.product())->at(ipv) ; 
+    if ( abs(vtxRho) < 2. && abs(vtxZ) < 24. && vtxNdf >= 4 ) ++npv ; 
+  }
+  if ( isData_ && npv < 1 ) return false ; 
+
+  h1_["cutflow"] -> AddBinContent(3, evtwt) ; 
+  h1_["cutflow_nowt"] -> AddBinContent(3) ; 
+
+  //// Apply MET filters: CSC beam halo and HBHE noise filters
+  bool hbheNoiseFilter = h_hbheNoiseFilter.product() ; 
+  if ( isData_ && !hbheNoiseFilter ) return false ; 
+
+  bool metfilterdecision(1) ; 
+  if ( isData_ ) {
+    for ( const string& metfilter : metFilters_ ) {
+      vector<string>::const_iterator it ; 
+      for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
+        if ( it->find(metfilter) < std::string::npos) {
+          metfilterdecision *= (h_metFiltersBit.product())->at( it - (h_metFiltersName.product())->begin() ) ; 
+        }
+      }
+    }
+  }
+  if ( !metfilterdecision ) return false ; 
+
+  h1_["cutflow"] -> AddBinContent(4, evtwt) ; 
+  h1_["cutflow_nowt"] -> AddBinContent(4) ; 
 
   vlq::MuonCollection goodMuPs, goodMuMs ; 
   MuonSelector mupsel(mupselParams_) ; 
@@ -437,8 +511,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       mu.setPhi((h_muPhi.product())->at(imu)) ; 
       mu.setMass((h_muMass.product())->at(imu)) ; 
       mu.setCharge((h_muCharge.product()->at(imu))) ; 
-      h1_["mu_pt"] -> Fill(mu.getPt()) ; 
-      h1_["mu_eta"] -> Fill((h_muEta.product())->at(imu)) ; 
+      h1_["mu_pt"] -> Fill(mu.getPt(), evtwt) ; 
+      h1_["mu_eta"] -> Fill((h_muEta.product())->at(imu), evtwt) ; 
       if ( mu.getPt() > 20 ) goodMuPs.push_back(mu) ; 
     }
     bool retmumsel(false) ;
@@ -453,8 +527,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       mu.setPhi((h_muPhi.product())->at(imu)) ; 
       mu.setMass((h_muMass.product())->at(imu)) ; 
       mu.setCharge((h_muCharge.product()->at(imu))) ; 
-      h1_["mu_pt"] -> Fill(mu.getPt()) ; 
-      h1_["mu_eta"] -> Fill((h_muEta.product())->at(imu)) ; 
+      h1_["mu_pt"] -> Fill(mu.getPt(), evtwt) ; 
+      h1_["mu_eta"] -> Fill((h_muEta.product())->at(imu), evtwt) ; 
       if ( mu.getPt() > 20 ) goodMuMs.push_back(mu) ; 
     }
   }
@@ -475,8 +549,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       el.setPhi((h_elPhi.product())->at(iel)) ; 
       el.setMass((h_elMass.product())->at(iel)) ; 
       el.setCharge((h_elCharge.product()->at(iel))) ; 
-      h1_["el_pt"] -> Fill(el.getPt()) ; 
-      h1_["el_eta"] -> Fill(el.getEta()) ; 
+      h1_["el_pt"] -> Fill(el.getPt(), evtwt) ; 
+      h1_["el_eta"] -> Fill(el.getEta(), evtwt) ; 
       if ( el.getPt() > 20 ) goodElPs.push_back(el) ; 
     }
     bool retelmsel(false) ;
@@ -491,24 +565,42 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       el.setPhi((h_elPhi.product())->at(iel)) ; 
       el.setMass((h_elMass.product())->at(iel)) ; 
       el.setCharge((h_elCharge.product()->at(iel))) ; 
-      h1_["el_pt"] -> Fill(el.getPt()) ; 
-      h1_["el_eta"] -> Fill(el.getEta()) ; 
+      h1_["el_pt"] -> Fill(el.getPt(), evtwt) ; 
+      h1_["el_eta"] -> Fill(el.getEta(), evtwt) ; 
       if ( el.getPt() > 20 ) goodElMs.push_back(el) ; 
     }
   }
 
+  //// Preselection l+l- pairs 
+  if ( (goodMuPs.size() > 0 && goodMuMs.size() > 0) || (goodElPs.size() > 0 && goodElMs.size() > 0) ) {
+    h1_["cutflow"] -> AddBinContent(5, evtwt) ; 
+    h1_["cutflow_nowt"] -> AddBinContent(5) ; 
+  }
+  else return false ; 
+
   ZCandidateProducer<vlq::MuonCollection> zmumuprod(ZCandParams_, goodMuPs, goodMuMs) ; 
   vlq::CandidateCollection zmumu ;
-  zmumuprod(zmumu, h1_["zmumu_mass"], h1_["zmumu_pt"], h1_["zmumu_eta"], h1_["dr_mumu"]) ; 
+  zmumuprod(zmumu, h1_["zmumu_mass"], h1_["zmumu_pt"], h1_["zmumu_eta"], h1_["dr_mumu"], evtwt) ; 
 
   ZCandidateProducer<vlq::ElectronCollection> zelelprod(ZCandParams_, goodElPs, goodElMs) ; 
   vlq::CandidateCollection zelel ;
-  zelelprod(zelel, h1_["zelel_mass"], h1_["zelel_pt"], h1_["zelel_eta"], h1_["dr_elel"]) ; 
+  zelelprod(zelel, h1_["zelel_mass"], h1_["zelel_pt"], h1_["zelel_eta"], h1_["dr_elel"], evtwt) ; 
 
   //// Preselection  Z candidates 
-  if ( zmumu.size() == 0 && zelel.size() == 0 ) return false ; 
+  if (zmumu.size() > 0 || zelel.size() > 0) {   
+    h1_["cutflow"] -> AddBinContent(6, evtwt) ; 
+    h1_["cutflow_nowt"] -> AddBinContent(5) ; 
+  }
+  else return false ; 
 
-  //DMcout << " zmumu size = " << zmumu.size() << " zelel size " << zelel.size() << endl ;  
+  h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; 
+  h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; 
+
+  //// Selection: Z pT
+  if ( (zmumu.size() > 0 && zmumu.at(0).getPt() > 150.) || (zelel.size() > 0 && zelel.at(0).getPt() > 150. ) ) {   
+    h1_["cutflow"] -> AddBinContent(7, evtwt) ;
+    h1_["cutflow_nowt"] -> AddBinContent(7) ; 
+  }
 
   vlq::JetCollection goodAK8Jets, goodAK4Jets, btaggedlooseAK4, btaggedmediumAK4 ;
   vector<unsigned> ak4selIdxs, ak8selIdxs, bjetIdxs;
@@ -536,11 +628,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     goodAK8Jets.push_back(jet) ;
     ak8selIdxs.push_back(ijet);
   }
-
-  //// Preselection 1 AK8 jets 
-  if ( goodAK8Jets.size() < 1 ) return false ; 
-  //if ( goodAK8Jets.size() > 1 && ( goodAK8Jets.at(0).getPt() < 300 || goodAK8Jets.at(1).getPt() < 220.) )  return false ; 
-  //DMcout << " ak8 jets size " << goodAK8Jets.size() << endl ; 
 
   //// Store good AK4 jets 
   JetSelector ak4jetsel(AK4JetSelParams_) ;
@@ -576,13 +663,21 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
   }
 
-  //// Preselection at least one b-tagged AK4 jet 
-  if ( btaggedlooseAK4.size() < 1 ) return false; 
-  //DMcout << " b jets size " << btaggedlooseAK4.size() << endl ; 
+  h1_["nak8_nocuts"] -> Fill(goodAK8Jets.size()) ; 
+  h1_["nak4_nocuts"] -> Fill(goodAK4Jets.size()) ; 
+  h1_["nbloose_nocuts"] -> Fill(btaggedlooseAK4.size()) ; 
 
-  //h1_["nak8_nocuts"] -> Fill(goodAK8Jets.size()) ; 
-  //h1_["nak4_nocuts"] -> Fill(goodAK4Jets.size()) ; 
-  //h1_["nbloose_nocuts"] -> Fill(btaggedlooseAK4.size()) ; 
+  //// Preselection 1 AK8 jets 
+  //if ( goodAK8Jets.size() < 1 ) return false ; 
+  //if ( goodAK8Jets.size() > 1 && ( goodAK8Jets.at(0).getPt() < 300 || goodAK8Jets.at(1).getPt() < 220.) )  return false ; 
+
+  //// Preselection at least one b-tagged AK4 jet 
+  //if ( btaggedlooseAK4.size() < 1 ) return false; 
+  
+  if ( btaggedlooseAK4.size() > 0 ) {
+    h1_["cutflow"] -> AddBinContent(8, evtwt) ;  
+    h1_["cutflow_nowt"] -> AddBinContent(8) ; 
+  }
 
   //// Make W, top and H jets 
   vector<unsigned> seltjets, selhjets, selwjets;
@@ -595,31 +690,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   bool retwjetsel = false ;
   for ( unsigned  &ijet :  ak8selIdxs) {
     TLorentzVector jetP4 ;
-    vector<float>drhjet_hpart, drhjet_bpart, drhjet_bbarpart ; 
     jetP4.SetPtEtaPhiM( (h_jetAK8Pt.product())->at(ijet), 
         (h_jetAK8Eta.product())->at(ijet), 
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
-    for ( ihbb = h_HbbCands.product()->begin(); ihbb != h_HbbCands.product()->end(); ++ihbb ) {
-      TLorentzVector hp4 = (ihbb->getMom()).getP4() ; 
-      drhjet_hpart.push_back(hp4.DeltaR(jetP4)) ; 
-      vlq::GenParticleCollection bs =  ( ihbb->getDaughters() ) ; 
-      for ( vlq::GenParticle& b : bs ) {
-        TLorentzVector bp4 = b.getP4() ; 
-        if ( b.getPdgID() == 5 ) {
-          drhjet_bpart.push_back(bp4.DeltaR(jetP4)) ; 
-        }
-        if ( b.getPdgID() == -5 ) {
-          drhjet_bbarpart.push_back(bp4.DeltaR(jetP4)) ; 
-        }
-      }
-    }
-    std::vector<float>::iterator iminh    = std::min_element(drhjet_hpart.begin(), drhjet_hpart.end());
-    std::vector<float>::iterator iminb    = std::min_element(drhjet_bpart.begin(), drhjet_bpart.end());
-    std::vector<float>::iterator iminbbar = std::min_element(drhjet_bbarpart.begin(), drhjet_bbarpart.end());
-    if ( iminh != drhjet_hpart.end() && iminb != drhjet_bpart.end() && iminbbar != drhjet_bbarpart.end() )
-      if ( *iminh < 0.8 && *iminb < 0.8 && *iminbbar < 0.8 ) 
-        h1_["ptak8"]->Fill(jetP4.Pt()) ; 
     vlq::Jet jet; 
     jet.setP4(jetP4) ;
     jet.setCSV((h_jetAK8CSV.product())->at(ijet)) ;
@@ -633,9 +707,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       hjets.push_back(jet) ; 
       selhjets.push_back(ijet) ; 
       h1_["csvhjets"] -> Fill((h_jetAK8CSV.product())->at(ijet)) ; 
-      if ( iminh != drhjet_hpart.end() && iminb != drhjet_bpart.end() && iminbbar != drhjet_bbarpart.end() )
-        if ( *iminh < 0.8  && *iminb < 0.8 && *iminbbar < 0.8 ) 
-          h1_["pthjets"]->Fill(jetP4.Pt()) ;
+      h1_["pthjets"]->Fill(jetP4.Pt()) ;
     } 
     retwjetsel = false ;
     if (wjetsel(evt, ijet,retwjetsel) == true ) { 
@@ -649,7 +721,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( htak4.getHT() < HTMin_ ) return false; 
   //DMcout << " HT " << htak4.getHT() << endl ; 
 
-  h1_["cutflow"] -> AddBinContent(3) ; 
+  if ( wjets.size() > 0 ) h1_["cutflow"] -> AddBinContent(9, evtwt) ;  
+  if ( hjets.size() > 0 ) h1_["cutflow"] -> AddBinContent(10, evtwt) ;  
+  if ( tjets.size() > 0 ) h1_["cutflow"] -> AddBinContent(11, evtwt) ;  
 
   if (goodAK4Jets.size() > 0) {
     std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByCSV) ; 
@@ -693,11 +767,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double mak8leading ((goodAK8Jets.at(0)).getMass()) ; 
   double csvak8leading ((goodAK8Jets.at(0)).getCSV()) ; 
 
-  h1_["ptak8leading"] -> Fill(ptak8leading) ; 
-  h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta()) ;
-  h1_["mak8leading"] -> Fill(mak8leading) ; 
-  h1_["trimmedmak8leading"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass()) ;
-  h1_["softdropmak8leading"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass()) ;
+  h1_["ptak8leading"] -> Fill(ptak8leading, evtwt) ; 
+  h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta(), evtwt) ;
+  h1_["mak8leading"] -> Fill(mak8leading, evtwt) ; 
+  h1_["trimmedmak8leading"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass(), evtwt) ;
+  h1_["softdropmak8leading"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass(), evtwt) ;
   h1_["csvak8leading"] -> Fill(csvak8leading) ;
 
   double ptak82nd (0) ;
@@ -765,7 +839,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["ht_presel"] ->Fill(htak4.getHT()) ; 
 
-  // Make H cands
+  //// Make H cands
   std::vector<vlq::ResolvedVjj> wcands, hcands ; 
   if (goodAK4Jets.size() > 1 && wjets.size() == 0) {
     double mmin (60), mmax(100), drmax(1.2), smdmin(0.0), smdmax(0.5) ;  
@@ -782,12 +856,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nhcand_presel"] -> Fill(hcands.size()) ; 
 
   //// Event selection
-  if ( goodAK4Jets.size() < 4 ) return false ; 
+  //if ( goodAK4Jets.size() < 4 ) return false ; 
   h1_["cutflow"] -> AddBinContent(4) ; 
   //DMcout << " AK4 jets size " << goodAK4Jets.size() << endl ; 
 
   //// Event selection
-  if ( btaggedmediumAK4.size() < 1 || btaggedlooseAK4.size() < 2 ) return false ; 
+  //if ( btaggedmediumAK4.size() < 1 || btaggedlooseAK4.size() < 2 ) return false ; 
   //h1_["cutflow"] -> AddBinContent(5) ; 
   //DMcout << " b jets medium size " << btaggedmediumAK4.size() << "  b jets loose size " << btaggedlooseAK4.size() << endl ; 
 
@@ -843,7 +917,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["ht"] ->Fill(htak4.getHT()) ; 
 
-    
+
   vlq::MuonCollection goodMus; 
   vlq::ElectronCollection goodEls ;
 
@@ -870,34 +944,25 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (goodMus.size() > 0) std::sort(goodMus.begin(), goodMus.end(), Utilities::sortByPt<vlq::Muon>) ;
   if (goodEls.size() > 0) std::sort(goodEls.begin(), goodEls.end(), Utilities::sortByPt<vlq::Electron>) ;
 
-  //DMcout << " good muons size " << goodMus.size() << " good electrons size " << goodEls.size() << endl ; 
-
   if ( doHLTEff_ ) {
     //// Fill all histos
     if (goodMus.size() > 0) h1_["pt_leading_mu"] -> Fill (goodMus.at(0).getPt()) ; 
     if (goodMus.size() > 1) h1_["pt_2nd_mu"] -> Fill (goodMus.at(1).getPt()) ; 
     if (goodEls.size() > 0) h1_["pt_leading_el"] -> Fill (goodEls.at(0).getPt()) ; 
     if (goodEls.size() > 1) h1_["pt_2nd_el"] -> Fill (goodEls.at(1).getPt()) ; 
-    h1_["pt_Zmumu"] -> Fill (zmumu.at(0).getPt()) ; 
-    h1_["pt_Zelel"] -> Fill (zelel.at(0).getPt()) ; 
+    h1_["zmumu_pt"] -> Fill (zmumu.at(0).getPt()) ; 
+    h1_["zelel_pt"] -> Fill (zelel.at(0).getPt()) ; 
     //h1_["dr_mumu"] -> Fill () ; 
     //h1_["dr_elel"] -> Fill () ; 
     //// Fill if passes HLT 
 
-    //DMcout << " good muons size " << goodMus.size() << " good electrons size " << goodEls.size() << endl ; 
-
     for ( const string& myhltpath : hltPaths_ ) {
-      //DMcout << "hlt path " << myhltpath << endl ; 
       vector<string>::const_iterator it = find( (h_trigName.product())->begin(), (h_trigName.product())->end(), myhltpath) ; 
-      //DMcout << " found hlt path " << myhltpath << endl ; 
       if ( it != (h_trigName.product())->end() ) {
         std::string hltname = (h_trigName.product()) -> at (it - (h_trigName.product())->begin()) ; 
         int hltdecision = int((h_trigBit.product())->at(it - (h_trigName.product())->begin())) ; 
-        //DMcout << " hlt path " << myhltpath << " name " << hltname << " decision " << hltdecision << endl ; 
 
         if ( hltdecision == 1 ) {
-
-          //DMcout << " event passing hlt " << myhltpath << endl ; 
 
           stringstream ss ;
           ss << "pt_leading_mu_" << myhltpath ; 
@@ -1005,21 +1070,35 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 // ------------ method called once each job just before starting event loop  ------------
 void OS2LAna::beginJob() {
 
-  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 14, 0, 14) ;  
+  h1_["cutflow_nowt"] = fs->make<TH1D>("cutflow_nowt", "cut flow", 11, 0, 11) ;  
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(2, "Trigger") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(3, "Nvtx") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(4, "MET filters") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(5, "l^{+}l^{-} pairs") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(6, "Z(l^{+}l^{-})") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(7, "p_{T}(Z)") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(8, "N(b jet)>0") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(9, "N(W jet)>0") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(10, "N(H jet)>0") ; 
+  h1_["cutflow_nowt"] -> GetXaxis() -> SetBinLabel(11, "N(top jet)>0") ; 
+
+  h1_["cutflow_nowt"] -> Sumw2() ; 
+
+  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 11, 0, 11) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "Trigger") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "Presel") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4)>5") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "N(b jet medium)>0 && N(b jet loose)>2") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "Forward jet") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(W jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(H jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(top jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "N(W jet)>0 and N(H jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "N(H jet)>0 and N(top jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(12, "N(W cand)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(13, "N(H cand)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(14, "N(W jet or cand)>0 and N(H jet or cand)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "Nvtx") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "MET filters") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "l^{+}l^{-} pairs") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "Z(l^{+}l^{-})") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "p_{T}(Z)") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(b jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(W jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "N(H jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "N(top jet)>0") ; 
+
+  h1_["cutflow"] -> Sumw2() ; 
 
   h1_["ptak8leading"]  = fs->make<TH1D>("ptak8leading"  ,";p_T(leading AK8 jet) [GeV];;"      , 40, 0., 2000.) ; 
   h1_["ptak4leading"]  = fs->make<TH1D>("ptak4leading"  ,";p_T(leading AK4 jet) [GeV];;"      , 40, 0., 2000.) ; 
@@ -1118,8 +1197,8 @@ void OS2LAna::beginJob() {
 
   h1_["drwh"] = fs->make<TH1D>("drwh", ";#DeltaR(H,W);;", 40, 0, 4.) ;  
 
-  h1_["mu_pt"] = fs->make<TH1D>("mu_pt", ";p_T (mu) [GeV]", 100, 0., 2000.) ; 
-  h1_["el_pt"] = fs->make<TH1D>("el_pt", ";p_T (el) [GeV]", 100, 0., 2000.) ; 
+  h1_["mu_pt"] = fs->make<TH1D>("mu_pt", ";p_T (mu) [GeV]", 200, 0., 2000.) ; 
+  h1_["el_pt"] = fs->make<TH1D>("el_pt", ";p_T (el) [GeV]", 200, 0., 2000.) ; 
 
   h1_["mu_eta"] = fs->make<TH1D>("mu_eta", ";#eta (mu) [GeV]", 80, -4., 4.) ; 
   h1_["el_eta"] = fs->make<TH1D>("el_eta", ";#eta (el) [GeV]", 80, -4., 4.) ; 
@@ -1132,6 +1211,8 @@ void OS2LAna::beginJob() {
   h1_["zelel_eta"] = fs->make<TH1D>("zelel_eta", ";#eta (Zelel) [GeV]", 80, -4., 4.) ; 
   h1_["dr_mumu"] = fs->make<TH1D>("dr_mumu", ";#DeltaR(#mu^{+}#mu^{-});;", 40, 0., 4.) ; 
   h1_["dr_elel"] = fs->make<TH1D>("dr_elel", ";#DeltaR(e^{+}e^{-});;", 40, 0., 4.) ; 
+  h1_["nzmumu"] = fs->make<TH1D>("nzmumu", "N (Z#rightarrow #mu#mu)", 5, -0.5, 4.5) ; 
+  h1_["nzelel"] = fs->make<TH1D>("nzelel", "N (Z#rightarrow ee)", 5, -0.5, 4.5) ; 
 
   h1_["pt_leading_mu"] = fs->make<TH1D>("pt_leading_mu", ";p_T (mu) [GeV]", 100, 0., 2000.) ;
   h1_["pt_leading_el"] = fs->make<TH1D>("pt_leading_el", ";p_T (e) [GeV]", 100, 0., 2000.) ;

@@ -4,6 +4,7 @@
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ServiceRegistry"/>
     <use name="CommonTools/UtilAlgos"/>
+    <use name="SimDataFormats/GeneratorProducts"/>
     <use name="AnalysisDataFormats/BoostedObjects"/>
     <use name="root"/>
     <use name="roottmva"/>
