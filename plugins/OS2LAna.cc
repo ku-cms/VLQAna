@@ -748,8 +748,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( tjets.size() > 0 ) h1_["cutflow"] -> AddBinContent(11, evtwt) ;  
   if ( tjets.size() > 0 ) h1_["cutflow_nowt"] -> AddBinContent(11) ;  
 
-  HT htak8(goodAK8Jets) ; 
-
   //// Pick forwardmost AK4 jet
   double maxeta(0) ;
   vlq::Jet forwardestjet ; 
@@ -759,6 +757,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       maxeta = jet.getEta() ; 
     }
   }
+
+  //// Selection: fat jet
+  if ( goodAK8Jets.size() < 1 ) return false ; 
+
+  HT htak8(goodAK8Jets) ; 
 
   double ptak8_1 = goodAK8Jets.at(0).getP4().Pt() ;
   double ptak8_2(0) ; 
@@ -782,6 +785,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta(), evtwt) ;
   h1_["mak8leading"] -> Fill(mak8leading, evtwt) ; 
   h1_["trimmedmak8leading"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass(), evtwt) ;
+  h1_["prunedmak8leading"] -> Fill((goodAK8Jets.at(0)).getPrunedMass(), evtwt) ;
   h1_["softdropmak8leading"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass(), evtwt) ;
 
   double ptak82nd (0) ;
@@ -863,10 +867,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<unsigned> ngoodAK4Jets ( new unsigned(goodAK4Jets.size()) );
   std::auto_ptr<unsigned> ngoodAK8Jets ( new unsigned(goodAK8Jets.size()) );
+  std::auto_ptr<unsigned> nbtaggedlooseAK4 ( new unsigned(btaggedlooseAK4.size()) );
   std::auto_ptr<unsigned> nTJets ( new unsigned(tjets.size()) );
   std::auto_ptr<unsigned> nHJets ( new unsigned(hjets.size()) );
   std::auto_ptr<unsigned> nWJets ( new unsigned(wjets.size()) );
-  std::auto_ptr<unsigned> nbtaggedlooseAK4 ( new unsigned(btaggedlooseAK4.size()) );
   std::auto_ptr<double> htak4jets ( new double(htak4.getHT()) );
   std::auto_ptr<double> htak8jets ( new double(htak8.getHT()) );
   std::auto_ptr<double> maxetaak4 ( new double(maxeta) );
@@ -885,10 +889,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   evt.put(ngoodAK4Jets, "ngoodAK4Jets") ; 
   evt.put(ngoodAK8Jets, "ngoodAK8Jets") ; 
+  evt.put(nbtaggedlooseAK4, "nbtaggedlooseAK4") ; 
   evt.put(nTJets, "nTJets") ; 
   evt.put(nHJets, "nHJets") ; 
   evt.put(nWJets, "nWJets") ; 
-  evt.put(nbtaggedlooseAK4, "nbtaggedlooseAK4") ; 
+  evt.put(htak4jets, "htak4jets") ; 
+  evt.put(htak8jets, "htak8jets") ; 
   evt.put(maxetaak4, "maxetaak4") ; 
   evt.put(MassLeading2AK8, "MassLeading2AK8") ; 
   evt.put(DeltaEtaLeading2AK8, "DeltaEtaLeading2AK8") ; 
@@ -896,8 +902,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(pt2ndAK8  , "pt2ndAK8") ; 
   evt.put(mass1stAK8, "mass1stAK8") ; 
   evt.put(mass2ndAK8, "mass2ndAK8") ; 
-  evt.put(htak4jets, "htak4jets") ; 
-  evt.put(htak8jets, "htak8jets") ; 
   evt.put(ak4goodjets, "ak4goodjets");
   evt.put(ak8goodjets, "ak8goodjets");
   evt.put(bjetIdxsptr, "bjetIdxs");

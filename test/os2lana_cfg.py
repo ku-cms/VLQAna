@@ -33,16 +33,16 @@ from infiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_1.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_10.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_11.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_12.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_13.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_14.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_15.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_16.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_17.root', 
-      '/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_18.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_1.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_10.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_11.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_12.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_13.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_14.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_15.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_16.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_17.root', 
+      #'/store/user/decosa/ttDM/CMSSW_74X_V5/SingleMuon/SingleMuon_Run2015B-PromptReco-v74x_V5_v2/150813_191142/0000/B2GEDMNtuple_18.root', 
 
       #'/store/user/oiorio/ttDM/samples/Aug2015/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/EDMNTUPLE_13Aug/150814_173628/0000/B2GEDMNtuple_1.root', 
       #'/store/user/oiorio/ttDM/samples/Aug2015/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/EDMNTUPLE_13Aug/150814_173628/0000/B2GEDMNtuple_10.root', 
@@ -54,6 +54,7 @@ process.source = cms.Source(
       #'/store/user/oiorio/ttDM/samples/Aug2015/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/EDMNTUPLE_13Aug/150814_173628/0000/B2GEDMNtuple_105.root', 
       #'/store/user/oiorio/ttDM/samples/Aug2015/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/EDMNTUPLE_13Aug/150814_173628/0000/B2GEDMNtuple_106.root', 
       #'/store/user/oiorio/ttDM/samples/Aug2015/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/EDMNTUPLE_13Aug/150814_173628/0000/B2GEDMNtuple_107.root', 
+      '/store/user/oiorio/ttDM/samples/Aug2015/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/EDMNTUPLE_13Aug/150814_173628/0000/B2GEDMNtuple_119.root'
       )
       )
 
