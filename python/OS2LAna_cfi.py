@@ -7,16 +7,14 @@ from Analysis.VLQAna.PickGenPart_cfi import *
 from Analysis.VLQAna.JetSelector_cfi import *
 
 ana = cms.EDFilter("OS2LAna", 
-    processName                = cms.string  ('@'), 
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
     trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
     metFiltersNameLabel        = cms.InputTag("METUserData", "triggerNameTree"), 
     metFiltersBitLabel         = cms.InputTag("METUserData", "triggerBitTree"), 
     hbheNoiseFilterLabel       = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun1"), 
-    #genEvtInfoProdLabel        = cms.InputTag("generator", ""), 
+    genEvtInfoProdName         = cms.string('generator'),
     vtxRhoLabel                = cms.InputTag("vertexInfo", "rho"),
     vtxZLabel                  = cms.InputTag("vertexInfo", "z"),
-    vtxChiLabel                = cms.InputTag("vertexInfo", "chi"),
     vtxNdfLabel                = cms.InputTag("vertexInfo", "ndof"),
     jetAK8PtLabel              = cms.InputTag("jetsAK8", "jetAK8Pt"),
     jetAK8EtaLabel             = cms.InputTag("jetsAK8", "jetAK8Eta"),
@@ -85,9 +83,13 @@ ana = cms.EDFilter("OS2LAna",
     HbbCandsLabel              = cms.InputTag("hbb", "HbbCandidates"),
     jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
     hltPaths                   = cms.vstring (
-        "HLT_IsoMu20_eta2p1_v",
-        "HLT_Mu30_TkMu11_v", 
-        "HLT_Mu45_eta2p1_v", 
+        ### Muon paths
+        #"HLT_IsoMu20_eta2p1_v",
+        #"HLT_Mu30_TkMu11_v", 
+        #"HLT_Mu45_eta2p1_v", 
+        #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"
+        ### Electron paths
+        "HLT_Ele27_eta2p1_WPLoose_Gsf_v", 
         ), 
     metFilters                 = cms.vstring (
         "Flag_goodVertices",
@@ -119,13 +121,7 @@ ana = cms.EDFilter("OS2LAna",
     TJetSelParams              = defaultTJetSelectionParameters.clone(), 
     HJetSelParams              = defaultHJetSelectionParameters.clone(), 
     WJetSelParams              = defaultWJetSelectionParameters.clone(), 
-    genEvtInfoProdName         = cms.string('generator'),
-    ak8jetsPtMin               = cms.double  (300),
-    ak8jetsEtaMax              = cms.double  (2.4),
-    ak4jetsPtMin               = cms.double  (20),
-    ak4jetsEtaMax              = cms.double  (5.0),
-    HTMin                      = cms.double  (800.), 
-    doHLTEff                   = cms.bool    (False), 
+    HTMin                      = cms.double  (300.), 
     isData                     = cms.bool    (False), 
     )
 
