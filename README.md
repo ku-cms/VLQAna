@@ -1,23 +1,23 @@
 setenv SCRAM_ARCH slc6_amd64_gcc491
 
-cmsrel CMSSW_7_4_5_patch1
+cmsrel CMSSW_7_4_12
 
-cd CMSSW_7_4_5_patch1/src/
+cd CMSSW_7_4_12/src/
 
 cmsenv
 
 git cms-merge-topic ku-cms:CMSSW_7_4_X
 
-git clone -b v1.00 git://github.com/dmajumder/EventCounter.git  Analysis/EventCounter 
+git clone -b v1.00 git://github.com/dmajumder/EventCounter.git  MyAnalysis/EventCounter 
 
-git clone https://github.com/ku-cms/VLQAna.git Analysis/VLQAna
+git clone https://github.com/ku-cms/VLQAna.git MyAnalysis/VLQAna
 
 #To just build this stuff
 cd AnalysisDataFormats/BoostedObjects 
 
 scram b -j20
 
-cd ../../Analysis/VLQAna
+cd ../../MyAnalysis/VLQAna
 
 scram b -j20
 
