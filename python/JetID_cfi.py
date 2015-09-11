@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Analysis.VLQAna.Jet_cfi import * 
+from MyAnalysis.VLQAna.Jet_cfi import * 
 
 defaultAK4JetIDParameters = cms.PSet(
     defaultAK4JetParameters, 

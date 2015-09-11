@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Analysis.VLQAna.Electron_cfi import * 
+from MyAnalysis.VLQAna.Electron_cfi import * 
 
 defaultElectronSelectionParameters = cms.PSet(
     defaultElectronParameters, 

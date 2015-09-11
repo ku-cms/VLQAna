@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Analysis/VLQAna
+// Package:    MyAnalysis/VLQAna
 // Class:      TprimeMVA
 // 
-/**\class TprimeMVA TprimeMVA.cc Analysis/VLQAna/plugins/TprimeMVA.cc
+/**\class TprimeMVA TprimeMVA.cc MyAnalysis/VLQAna/plugins/TprimeMVA.cc
 
 Description: [one line class summary]
 
@@ -33,8 +33,8 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "Analysis/VLQAna/interface/JetSelector.h"
-#include "Analysis/VLQAna/interface/HT.h"
+#include "MyAnalysis/VLQAna/interface/JetSelector.h"
+#include "MyAnalysis/VLQAna/interface/HT.h"
 
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"

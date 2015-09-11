@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Analysis/VLQAna
+// Package:    MyAnalysis/VLQAna
 // Class:      OS2LAna
 // 
-/**\class VLQAna OS2LAna.cc Analysis/VLQAna/plugins/OS2LAna.cc
+/**\class VLQAna OS2LAna.cc MyAnalysis/VLQAna/plugins/OS2LAna.cc
 
 Description: [one line class summary]
 
@@ -40,14 +40,14 @@ Implementation:
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Muon.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Electron.h"
-#include "Analysis/VLQAna/interface/JetSelector.h"
-#include "Analysis/VLQAna/interface/HT.h"
-#include "Analysis/VLQAna/interface/VCandProducer.h"
-#include "Analysis/VLQAna/interface/Utilities.h"
-#include "Analysis/VLQAna/interface/MuonSelector.h"
-#include "Analysis/VLQAna/interface/ElectronSelector.h"
-#include "Analysis/VLQAna/interface/DileptonCandsProducer.h"
-#include "Analysis/VLQAna/interface/CandidateFilter.h"
+#include "MyAnalysis/VLQAna/interface/JetSelector.h"
+#include "MyAnalysis/VLQAna/interface/HT.h"
+#include "MyAnalysis/VLQAna/interface/VCandProducer.h"
+#include "MyAnalysis/VLQAna/interface/Utilities.h"
+#include "MyAnalysis/VLQAna/interface/MuonSelector.h"
+#include "MyAnalysis/VLQAna/interface/ElectronSelector.h"
+#include "MyAnalysis/VLQAna/interface/DileptonCandsProducer.h"
+#include "MyAnalysis/VLQAna/interface/CandidateFilter.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -86,7 +86,7 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_metFiltersName               ; 
     edm::InputTag l_metFiltersBit                ; 
     edm::InputTag l_hbheNoiseFilter              ; 
-    std::string l_genEvtInfoProd                 ; 
+    std::string   l_genEvtInfoProd               ; 
     edm::InputTag l_vtxRho                       ; 
     edm::InputTag l_vtxZ                         ; 
     edm::InputTag l_vtxNdf                       ; 
@@ -155,6 +155,10 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_elMass                       ;
     edm::InputTag l_elE                          ;
     edm::InputTag l_elCharge                     ;
+    edm::InputTag l_met                          ; 
+    edm::InputTag l_metPhi                       ; 
+    edm::InputTag l_metNoHF                      ; 
+    edm::InputTag l_metNoHFPhi                   ; 
     edm::InputTag l_HbbCands                     ; 
     std::vector<std::string> hltPaths_           ; 
     std::vector<std::string> metFilters_         ; 
@@ -273,6 +277,10 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_elMass                (iConfig.getParameter<edm::InputTag>     ("elMass")), 
   l_elE                   (iConfig.getParameter<edm::InputTag>     ("elE")), 
   l_elCharge              (iConfig.getParameter<edm::InputTag>     ("elCharge")), 
+  l_met                   (iConfig.getParameter<edm::InputTag>     ("met")),
+  l_metPhi                (iConfig.getParameter<edm::InputTag>     ("metPhi")),
+  l_metNoHF               (iConfig.getParameter<edm::InputTag>     ("metNoHF")),
+  l_metNoHFPhi            (iConfig.getParameter<edm::InputTag>     ("metNoHFPhi")),
   l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
   metFilters_             (iConfig.getParameter<vector<string>>    ("metFilters")), 
@@ -424,11 +432,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   hfloat h_elE                   ; evt.getByLabel(l_elE                      , h_elE                  ); 
   hfloat h_elCharge              ; evt.getByLabel(l_elCharge                 , h_elCharge             ); 
 
+  hfloat h_met                   ; evt.getByLabel(l_met                      , h_met                  ); 
+  hfloat h_metPhi                ; evt.getByLabel(l_metPhi                   , h_metPhi               ); 
+  hfloat h_metNoHF               ; evt.getByLabel(l_metNoHF                  , h_metNoHF              ); 
+  hfloat h_metNoHFPhi            ; evt.getByLabel(l_metNoHFPhi               , h_metNoHFPhi           ); 
+
   Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter, h_hbheNoiseFilter);
 
   //// Event variables 
   double evtwt(1.0) ; 
-  
+  bool isemu(false)  ; 
+
   //// Get event weight if not data
   if ( !isData_ ) {
     Handle<GenEventInfoProduct> h_genEvtInfoProd; 
@@ -474,14 +488,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   bool metfilterdecision(1) ; 
   //if ( isData_ ) {
-    for ( const string& metfilter : metFilters_ ) {
-      vector<string>::const_iterator it ; 
-      for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
-        if ( it->find(metfilter) < std::string::npos) {
-          metfilterdecision *= (h_metFiltersBit.product())->at( it - (h_metFiltersName.product())->begin() ) ; 
-        }
+  for ( const string& metfilter : metFilters_ ) {
+    vector<string>::const_iterator it ; 
+    for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
+      if ( it->find(metfilter) < std::string::npos) {
+        metfilterdecision *= (h_metFiltersBit.product())->at( it - (h_metFiltersName.product())->begin() ) ; 
       }
     }
+  }
   //}
   if ( !metfilterdecision ) return false ; 
 
@@ -557,70 +571,81 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   //// Presel: l+l- pairs 
-  if ( goodMuPs.size()*goodMuMs.size() < 1 && goodElPs.size()*goodElMs.size() < 1 ) return false ;  
-  h1_["cutflow"] -> AddBinContent(5, evtwt) ; 
-  h1_["cutflow_nowt"] -> AddBinContent(5) ; 
 
   vlq::CandidateCollection dimu, zmumu, zmumuBoosted, diel, zelel, zelelBoosted ; 
 
-  DileptonCandsProducer<vlq::MuonCollection> dimuprod(DilepCandParams_, goodMuPs, goodMuMs) ; 
-  dimuprod(dimu); 
+  //// Do e+e- or mu+mu - 
+  if ( goodMuPs.size()*goodMuMs.size() > 0 || goodElPs.size()*goodElMs.size() > 0 ) { 
+    h1_["cutflow"] -> AddBinContent(5, evtwt) ; 
+    h1_["cutflow_nowt"] -> AddBinContent(5) ; 
 
-  DileptonCandsProducer<vlq::ElectronCollection> dielprod(DilepCandParams_, goodElPs, goodElMs) ; 
-  dielprod(diel) ; 
+    DileptonCandsProducer<vlq::MuonCollection> dimuprod(DilepCandParams_, goodMuPs, goodMuMs) ; 
+    dimuprod(dimu); 
 
-  CandidateFilter zllfilter(ZCandParams_) ; 
-  zllfilter(dimu, zmumu) ; 
-  zllfilter(diel, zelel) ; 
+    DileptonCandsProducer<vlq::ElectronCollection> dielprod(DilepCandParams_, goodElPs, goodElMs) ; 
+    dielprod(diel) ; 
 
-  CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
-  boostedzllfilter(zmumu, zmumuBoosted) ; 
-  boostedzllfilter(zelel, zelelBoosted) ; 
+    CandidateFilter zllfilter(ZCandParams_) ; 
+    zllfilter(dimu, zmumu) ; 
+    zllfilter(diel, zelel) ; 
 
-  for (auto idimu : dimu) {
-    h1_["mass_mumu"] -> Fill(idimu.getMass(), evtwt) ; 
-    h1_["mass_mumu_nowt"] -> Fill(idimu.getMass()) ; 
-  }
+    CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
+    boostedzllfilter(zmumu, zmumuBoosted) ; 
+    boostedzllfilter(zelel, zelelBoosted) ; 
 
-  for (auto idiel : diel) {
-    h1_["mass_elel"] -> Fill(idiel.getMass(), evtwt) ; 
-    h1_["mass_elel_nowt"] -> Fill(idiel.getMass()) ; 
-  }
+    for (auto idimu : dimu) {
+      h1_["mass_mumu"] -> Fill(idimu.getMass(), evtwt) ; 
+      h1_["mass_mumu_nowt"] -> Fill(idimu.getMass()) ; 
+    }
 
-  h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; 
-  h1_["nzmumu_nowt"] -> Fill (zmumu.size()) ; 
-  h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; 
-  h1_["nzelel_nowt"] -> Fill (zelel.size()) ; 
+    for (auto idiel : diel) {
+      h1_["mass_elel"] -> Fill(idiel.getMass(), evtwt) ; 
+      h1_["mass_elel_nowt"] -> Fill(idiel.getMass()) ; 
+    }
 
-  //// Preselection  Z candidates 
-  if ( zmumu.size() == 0 && zelel.size() == 0 ) return false ; 
-  h1_["cutflow"] -> AddBinContent(6, evtwt) ; 
-  h1_["cutflow_nowt"] -> AddBinContent(6) ; 
+    h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; 
+    h1_["nzmumu_nowt"] -> Fill (zmumu.size()) ; 
+    h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; 
+    h1_["nzelel_nowt"] -> Fill (zelel.size()) ; 
 
-  for (auto izmumu : zmumu) {
-    h1_["mass_zmumu"] -> Fill(izmumu.getMass(), evtwt) ; 
-    h1_["mass_zmumu_nowt"] -> Fill(izmumu.getMass()) ; 
-    h1_["pt_zmumu"] -> Fill(izmumu.getPt(), evtwt) ; 
-    h1_["pt_zmumu_nowt"] -> Fill(izmumu.getPt()) ; 
-    h1_["eta_zmumu"] -> Fill(izmumu.getEta(), evtwt) ; 
-    h1_["eta_zmumu_nowt"] -> Fill(izmumu.getEta()) ; 
-  }
+    //// Preselection  Z candidates 
+    if ( zmumu.size() > 0 || zelel.size() > 0 ) {
+      h1_["cutflow"] -> AddBinContent(6, evtwt) ; 
+      h1_["cutflow_nowt"] -> AddBinContent(6) ; 
 
-  for (auto izelel : zelel) {
-    h1_["mass_zelel"] -> Fill(izelel.getMass(), evtwt) ; 
-    h1_["mass_zelel_nowt"] -> Fill(izelel.getMass()) ; 
-    h1_["pt_zelel"] -> Fill(izelel.getPt(), evtwt) ; 
-    h1_["pt_zelel_nowt"] -> Fill(izelel.getPt()) ; 
-    h1_["eta_zelel"] -> Fill(izelel.getEta(), evtwt) ; 
-    h1_["eta_zelel_nowt"] -> Fill(izelel.getEta()) ; 
-  }
+      for (auto izmumu : zmumu) {
+        h1_["mass_zmumu"] -> Fill(izmumu.getMass(), evtwt) ; 
+        h1_["mass_zmumu_nowt"] -> Fill(izmumu.getMass()) ; 
+        h1_["pt_zmumu"] -> Fill(izmumu.getPt(), evtwt) ; 
+        h1_["pt_zmumu_nowt"] -> Fill(izmumu.getPt()) ; 
+        h1_["eta_zmumu"] -> Fill(izmumu.getEta(), evtwt) ; 
+        h1_["eta_zmumu_nowt"] -> Fill(izmumu.getEta()) ; 
+      }
 
-  //// Selection: Z pT
-  if ( zmumuBoosted.size() == 0 && zelelBoosted.size() == 0 ) return false ; 
-  h1_["cutflow"] -> AddBinContent(7, evtwt) ;
-  h1_["cutflow_nowt"] -> AddBinContent(7) ; 
+      for (auto izelel : zelel) {
+        h1_["mass_zelel"] -> Fill(izelel.getMass(), evtwt) ; 
+        h1_["mass_zelel_nowt"] -> Fill(izelel.getMass()) ; 
+        h1_["pt_zelel"] -> Fill(izelel.getPt(), evtwt) ; 
+        h1_["pt_zelel_nowt"] -> Fill(izelel.getPt()) ; 
+        h1_["eta_zelel"] -> Fill(izelel.getEta(), evtwt) ; 
+        h1_["eta_zelel_nowt"] -> Fill(izelel.getEta()) ; 
+      }
 
-  return true ; 
+      //// Selection: Z pT
+      if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) {
+        h1_["cutflow"] -> AddBinContent(7, evtwt) ;
+        h1_["cutflow_nowt"] -> AddBinContent(7) ; 
+      }
+
+    }
+
+  } 
+
+  //// Do emu 
+  if ( (goodMuPs.size() > 0 && goodElMs.size() > 0) || (goodMuMs.size() > 0 && goodElPs.size() > 0) ) isemu = true ; 
+
+  double met = (h_met.product())->at(0) ; 
+  double metPhi = (h_metPhi.product())->at(0) ; 
 
   vlq::JetCollection goodAK8Jets, goodAK4Jets, btaggedlooseAK4, btaggedmediumAK4 ;
   vector<unsigned> ak4selIdxs, ak8selIdxs, bjetIdxs;
@@ -724,6 +749,86 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   HT htak4(goodAK4Jets) ; 
+
+  if ( (isemu || (dimu.size() > 0 && zmumu.size() ==0) || (diel.size() > 0 && zelel.size() == 0))
+      && btaggedmediumAK4.size() > 0) {
+
+    h1_["met_ttbaremu"] ->Fill(met, evtwt) ; 
+    h1_["metPhi_ttbaremu"] ->Fill(metPhi, evtwt) ; 
+    h1_["ht_ttbaremu"] ->Fill(htak4.getHT(), evtwt) ; 
+    h1_["nak8_ttbaremu"] -> Fill(goodAK8Jets.size(), evtwt) ; 
+    h1_["nak4_ttbaremu"] -> Fill(goodAK4Jets.size(), evtwt) ; 
+    h1_["nbloose_ttbaremu"] -> Fill(btaggedlooseAK4.size(), evtwt) ; 
+    h1_["nbmedium_ttbaremu"] -> Fill(btaggedmediumAK4.size(), evtwt) ; 
+
+    for ( auto mu : goodMuPs ) {
+      h1_["pt_mu_ttbaremu"] -> Fill (mu.getPt()) ; 
+      h1_["eta_mu_ttbaremu"] -> Fill (mu.getEta()) ; 
+      TLorentzVector p4_mu, p4_el ; 
+      p4_mu.SetPtEtaPhiM(mu.getPt(), mu.getEta(), mu.getPhi(), mu.getMass() ) ; 
+      for ( auto el : goodElMs ) {
+        p4_el.SetPtEtaPhiM(el.getPt(), el.getEta(), el.getPhi(), el.getMass() ) ; 
+        //h1_["dr_elmu_ttbaremu"] -> Fill(p4_mu.DeltaR(p4_el)) ; 
+        h1_["mass_elmu_ttbaremu"] -> Fill((p4_mu+p4_el).Mag()) ; 
+      }
+    }
+
+    for ( auto mu : goodMuMs ) {
+      h1_["pt_mu_ttbaremu"] -> Fill (mu.getPt()) ; 
+      h1_["eta_mu_ttbaremu"] -> Fill (mu.getEta()) ; 
+      TLorentzVector p4_mu, p4_el ; 
+      p4_mu.SetPtEtaPhiM(mu.getPt(), mu.getEta(), mu.getPhi(), mu.getMass() ) ; 
+      for ( auto el : goodElPs ) {
+        p4_el.SetPtEtaPhiM(el.getPt(), el.getEta(), el.getPhi(), el.getMass() ) ; 
+        //h1_["dr_elmu_ttbaremu"] -> Fill(p4_mu.DeltaR(p4_el)) ; 
+        h1_["mass_elmu_ttbaremu"] -> Fill((p4_mu+p4_el).Mag()) ; 
+      }
+    } 
+
+    for ( auto el : goodElPs ) {
+      h1_["pt_el_ttbaremu"] -> Fill (el.getPt()) ; 
+      h1_["eta_el_ttbaremu"] -> Fill (el.getEta()) ; 
+    }
+
+    for ( auto el : goodElMs ) {
+      h1_["pt_el_ttbaremu"] -> Fill (el.getPt()) ; 
+      h1_["eta_el_ttbaremu"] -> Fill (el.getEta()) ; 
+    }
+
+  }
+  else if ( (goodMuPs.size() > 0 || goodMuMs.size() > 0 || goodElPs.size() > 0 || goodElMs.size() > 0) 
+       && btaggedmediumAK4.size() > 1 ) { //// Fill ttbar1lep plots 
+
+    h1_["met_ttbar1lep"] ->Fill(met, evtwt) ; 
+    h1_["metPhi_ttbar1lep"] ->Fill(metPhi, evtwt) ; 
+    h1_["ht_ttbar1lep"] ->Fill(htak4.getHT(), evtwt) ; 
+    h1_["nak8_ttbar1lep"] -> Fill(goodAK8Jets.size(), evtwt) ; 
+    h1_["nak4_ttbar1lep"] -> Fill(goodAK4Jets.size(), evtwt) ; 
+    h1_["nbloose_ttbar1lep"] -> Fill(btaggedlooseAK4.size(), evtwt) ; 
+    h1_["nbmedium_ttbar1lep"] -> Fill(btaggedmediumAK4.size(), evtwt) ; 
+
+    for ( auto mu : goodMuPs ) {
+      h1_["pt_mu_ttbar1lep"] -> Fill (mu.getPt()) ; 
+      h1_["eta_mu_ttbar1lep"] -> Fill (mu.getEta()) ; 
+    }
+
+    for ( auto mu : goodMuMs ) {
+      h1_["pt_mu_ttbar1lep"] -> Fill (mu.getPt()) ; 
+      h1_["eta_mu_ttbar1lep"] -> Fill (mu.getEta()) ; 
+    } 
+
+    for ( auto el : goodElPs ) {
+      h1_["pt_el_ttbar1lep"] -> Fill (el.getPt()) ; 
+      h1_["eta_el_ttbar1lep"] -> Fill (el.getEta()) ; 
+    }
+
+    for ( auto el : goodElMs ) {
+      h1_["pt_el_ttbar1lep"] -> Fill (el.getPt()) ; 
+      h1_["eta_el_ttbar1lep"] -> Fill (el.getEta()) ; 
+    }
+
+  }
+
   //// Preselection HT
   if ( htak4.getHT() < HTMin_ ) return false; 
 
@@ -817,15 +922,21 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     HCandProducer.getCands(hcands) ; 
   }
 
-  h1_["nak8"] -> Fill(goodAK8Jets.size()) ; 
-  h1_["nak4"] -> Fill(goodAK4Jets.size()) ; 
-  h1_["nbloose"] -> Fill(btaggedlooseAK4.size()) ; 
-  h1_["nbmedium"] -> Fill(btaggedmediumAK4.size()) ; 
-  h1_["nwjet"] -> Fill(wjets.size()) ; 
-  h1_["nhjet"] -> Fill(hjets.size()) ; 
-  h1_["ntjet"] -> Fill(tjets.size()) ; 
+  h1_["nak8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
+  h1_["nak4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
+  h1_["nbloose"] -> Fill(btaggedlooseAK4.size(), evtwt) ; 
+  h1_["nbmedium"] -> Fill(btaggedmediumAK4.size(), evtwt) ; 
+  h1_["nwjet"] -> Fill(wjets.size(), evtwt) ; 
+  h1_["nhjet"] -> Fill(hjets.size(), evtwt) ; 
+  h1_["ntjet"] -> Fill(tjets.size(), evtwt) ; 
 
-  h1_["ht"] ->Fill(htak4.getHT()) ; 
+  h1_["ht"] ->Fill(htak4.getHT(), evtwt) ; 
+  h1_["ht_nowt"] ->Fill(htak4.getHT()) ; 
+
+  h1_["met"] ->Fill(met, evtwt) ; 
+  h1_["met_nowt"] ->Fill(metPhi) ; 
+  h1_["metPhi"] ->Fill(metPhi, evtwt) ; 
+  h1_["metPhi_nowt"] ->Fill(metPhi) ; 
 
   vlq::MuonCollection goodMus; 
   vlq::ElectronCollection goodEls ;
@@ -984,6 +1095,9 @@ void OS2LAna::beginJob() {
 
   h1_["ht"] = fs->make<TH1D>("ht" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
 
+  h1_["met"] = fs->make<TH1D>("met", ";E_{T}^{miss} [GeV];;", 40, 0., 400.) ; 
+  h1_["metPhi"] = fs->make<TH1D>("metPhi", ";#phi(E_{T}^{miss});;", 80, -4., 4.) ; 
+
   h1_["pt_leading_mu_nowt"] = fs->make<TH1D>("pt_leading_mu_nowt", ";p_{T} (leading #mu^{#pm}) [GeV]", 50, 0., 1000.) ;
   h1_["eta_leading_mu_nowt"] = fs->make<TH1D>("eta_leading_mu_nowt", ";#eta (leading #mu^{#pm}) [GeV]", 80, -4., 4.) ;
   h1_["pt_2nd_mu_nowt"] = fs->make<TH1D>("pt_2nd_mu_nowt", ";p_{T} (2nd #mu^{#pm}) [GeV]", 50, 0., 1000.) ;
@@ -1033,6 +1147,35 @@ void OS2LAna::beginJob() {
   h1_["csvbjetleading_nowt"] = fs->make<TH1D>("csvbjetleading_nowt", ";CSV (leading b jet);;" ,50 ,0. ,1.) ; 
 
   h1_["ht_nowt"] = fs->make<TH1D>("ht_nowt", ";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
+
+  h1_["met_nowt"] = fs->make<TH1D>("met_nowt", ";E_{T}^{miss} [GeV];;", 40, 0., 400.) ; 
+  h1_["metPhi_nowt"] = fs->make<TH1D>("metPhi_nowt", ";#phi(E_{T}^{miss});;", 80, -4., 4.) ; 
+
+  h1_["met_ttbar1lep"] = fs->make<TH1D>("met_ttbar1lep", ";E_{T}^{miss} [GeV];;", 20, 0., 400.) ; 
+  h1_["metPhi_ttbar1lep"] = fs->make<TH1D>("metPhi_ttbar1lep", ";#phi(E_{T}^{miss});;", 80, -4., 4.) ; 
+  h1_["ht_ttbar1lep"] = fs->make<TH1D>("ht_ttbar1lep", ";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
+  h1_["nak8_ttbar1lep"] = fs->make<TH1D>("nak8_ttbar1lep", ";N(AK8 jets);;" , 11, -0.5,10.5) ; 
+  h1_["nak4_ttbar1lep"] = fs->make<TH1D>("nak4_ttbar1lep", ";N(AK4 jets);;" , 11, -0.5,10.5) ; 
+  h1_["nbloose_ttbar1lep"] = fs->make<TH1D>("nbloose_ttbar1lep", ";N(b jets, loose OP);;" , 11, -0.5,10.5) ; 
+  h1_["nbmedium_ttbar1lep"] = fs->make<TH1D>("nbmedium_ttbar1lep", ";N(b jets, medium OP);;" , 11, -0.5,10.5) ; 
+  h1_["pt_mu_ttbar1lep"] = fs->make<TH1D>("pt_mu_ttbar1lep", ";p_{T} (#mu^{#pm}) [GeV]", 50, 0., 1000.) ;
+  h1_["eta_mu_ttbar1lep"] = fs->make<TH1D>("eta_mu_ttbar1lep", ";#eta (mu^{#pm}) [GeV]", 80, -4., 4.) ;
+  h1_["pt_el_ttbar1lep"] = fs->make<TH1D>("pt_el_ttbar1lep", ";p_{T} (e^{#pm}) [GeV]", 50, 0., 1000.) ;
+  h1_["eta_el_ttbar1lep"] = fs->make<TH1D>("eta_el_ttbar1lep", ";#eta (e^{#pm}) [GeV]", 80, -4., 4.) ;
+
+  h1_["met_ttbaremu"] = fs->make<TH1D>("met_ttbaremu", ";E_{T}^{miss} [GeV];;", 40, 0., 400.) ; 
+  h1_["metPhi_ttbaremu"] = fs->make<TH1D>("metPhi_ttbaremu", ";#phi(E_{T}^{miss});;", 80, -4., 4.) ; 
+  h1_["ht_ttbaremu"] = fs->make<TH1D>("ht_ttbaremu", ";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
+  h1_["nak8_ttbaremu"] = fs->make<TH1D>("nak8_ttbaremu", ";N(AK8 jets);;" , 11, -0.5,10.5) ; 
+  h1_["nak4_ttbaremu"] = fs->make<TH1D>("nak4_ttbaremu", ";N(AK4 jets);;" , 11, -0.5,10.5) ; 
+  h1_["nbloose_ttbaremu"] = fs->make<TH1D>("nbloose_ttbaremu", ";N(b jets, loose OP);;" , 11, -0.5,10.5) ; 
+  h1_["nbmedium_ttbaremu"] = fs->make<TH1D>("nbmedium_ttbaremu", ";N(b jets, medium OP);;" , 11, -0.5,10.5) ; 
+  h1_["pt_mu_ttbaremu"] = fs->make<TH1D>("pt_mu_ttbaremu", ";p_{T} (#mu^{#pm}) [GeV]", 50, 0., 1000.) ;
+  h1_["eta_mu_ttbaremu"] = fs->make<TH1D>("eta_mu_ttbaremu", ";#eta (mu^{#pm}) [GeV]", 80, -4., 4.) ;
+  h1_["pt_el_ttbaremu"] = fs->make<TH1D>("pt_el_ttbaremu", ";p_{T} (e^{#pm}) [GeV]", 50, 0., 1000.) ;
+  h1_["eta_el_ttbaremu"] = fs->make<TH1D>("eta_el_ttbaremu", ";#eta (e^{#pm}) [GeV]", 80, -4., 4.) ;
+  h1_["dr_elmu_ttbaremu"] = fs->make<TH1D>("dr_elmu_ttbaremu", ";#DeltaR(e^{#pm}#mu^{#mp});;", 40, 0., 4.) ; 
+  h1_["mass_elmu_ttbaremu"] = fs->make<TH1D>("mass_elmu_ttbaremu", ";M(e^{#pm}#mu^{#mp}) [GeV]", 100, 20., 220.) ; 
 
 }
 

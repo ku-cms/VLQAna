@@ -99,7 +99,7 @@ def main():
       root_file = TFile(dataset)
       htemp = root_file.Get(os.path.join(options.analyzer_module,'cutflow'))
       #nEventsAll = htemp.GetBinContent(1)
-      nEventsAll = dataset_nevt[dataset]*23443.424/2 
+      nEventsAll = dataset_nevt[dataset]#*23443.424/2 
       scale = 1.
       if group_xsec[group] > 0.:
         if group_intlumi[group] > 0.:

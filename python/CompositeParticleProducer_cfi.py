@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Analysis.VLQAna.PickGenPart_cfi import *
+from MyAnalysis.VLQAna.PickGenPart_cfi import *
 
 par = cms.EDProducer("CompositeParticleProducer",
     particlename     = cms.string("HbbCandidates"), 

@@ -1,4 +1,4 @@
-<library file="*.cc" name="AnalysisVLQAnaPlugins"/> 
+<library file="*.cc" name="MyAnalysisVLQAnaPlugins"/> 
     <use name="FWCore/Framework"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/ParameterSet"/>

@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Analysis.VLQAna.ZCandSelector_cfi import *
-from Analysis.VLQAna.ElectronSelector_cfi import *
-from Analysis.VLQAna.MuonSelector_cfi import *
-from Analysis.VLQAna.PickGenPart_cfi import *
-from Analysis.VLQAna.JetSelector_cfi import *
+from MyAnalysis.VLQAna.ZCandSelector_cfi import *
+from MyAnalysis.VLQAna.ElectronSelector_cfi import *
+from MyAnalysis.VLQAna.MuonSelector_cfi import *
+from MyAnalysis.VLQAna.PickGenPart_cfi import *
+from MyAnalysis.VLQAna.JetSelector_cfi import *
 
 ana = cms.EDFilter("OS2LAna", 
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
@@ -80,6 +80,10 @@ ana = cms.EDFilter("OS2LAna",
     elMass                     = cms.InputTag("electrons", "elMass"), 
     elE                        = cms.InputTag("electrons", "elE"), 
     elCharge                   = cms.InputTag("electrons", "elCharge"), 
+    met                        = cms.InputTag("metFull", "metFullPt"), 
+    metPhi                     = cms.InputTag("metFull", "metFullPhi"), 
+    metNoHF                    = cms.InputTag("met", "metPt"), 
+    metNoHFPhi                 = cms.InputTag("met", "metPhi"), 
     HbbCandsLabel              = cms.InputTag("hbb", "HbbCandidates"),
     jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
     hltPaths                   = cms.vstring (

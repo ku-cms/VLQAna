@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Analysis/VLQAna
+// Package:    MyAnalysis/VLQAna
 // Class:      ResolvedVjjCandidateFilter
 // 
-/**\class ResolvedVjjCandidateFilter ResolvedVjjCandidateFilter.cc Analysis/VLQAna/plugins/ResolvedVjjCandidateFilter.cc
+/**\class ResolvedVjjCandidateFilter ResolvedVjjCandidateFilter.cc MyAnalysis/VLQAna/plugins/ResolvedVjjCandidateFilter.cc
 
 Description: [one line class summary]
 
