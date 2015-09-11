@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Analysis/VLQAna
+// Package:    MyAnalysis/VLQAna
 // Class:      TprimeSel
 // 
-/**\class TprimeSel TprimeSel.cc Analysis/VLQAna/plugins/TprimeSel.cc
+/**\class TprimeSel TprimeSel.cc MyAnalysis/VLQAna/plugins/TprimeSel.cc
 
 Description: [one line class summary]
 
@@ -33,8 +33,8 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "Analysis/VLQAna/interface/JetSelector.h"
-#include "Analysis/VLQAna/interface/HT.h"
+#include "MyAnalysis/VLQAna/interface/JetSelector.h"
+#include "MyAnalysis/VLQAna/interface/HT.h"
 
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"

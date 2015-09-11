@@ -1,13 +1,13 @@
-#ifndef ZCANDIDATEPRODUCER_HH
-#define ZCANDIDATEPRODUCER_HH
+#ifndef DILEPTONCANDSPRODUCER_HH
+#define DILEPTONCANDSPRODUCER_HH
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Candidate.h"
 
 template <class T>
-class ZCandidateProducer {
+class DileptonCandsProducer {
   public:
-    ZCandidateProducer (edm::ParameterSet const& iConfig, const T& lp, const T& lm) : 
+    DileptonCandsProducer (edm::ParameterSet const& iConfig, const T& lp, const T& lm) : 
       massMin_(iConfig.getParameter<double> ("massMin")), 
       massMax_(iConfig.getParameter<double> ("massMax")), 
       ptMin_(iConfig.getParameter<double> ("ptMin")), 
@@ -16,7 +16,7 @@ class ZCandidateProducer {
       lm_(lm)
     {}
 
-    void operator () (vlq::CandidateCollection& zcands, TH1D* h1mass, TH1D* h1pt, TH1D* h1eta, TH1D* h1drll, double evtwt) {
+    void operator () (vlq::CandidateCollection& zcands) {
 
       for ( auto lp : lp_ ) {
         for ( auto lm : lm_ ) {
@@ -26,10 +26,6 @@ class ZCandidateProducer {
           if ( mass > massMin_ && mass < massMax_ && pt > ptMin_ && pt < ptMax_ ) {
             vlq::Candidate zll(p4lp+p4lm) ; 
             zcands_.push_back(zll) ; 
-            h1mass->Fill(mass, evtwt) ; 
-            h1pt->Fill((p4lp+p4lm).Pt(), evtwt) ; 
-            h1eta->Fill((p4lp+p4lm).Eta(), evtwt) ; 
-            h1drll->Fill(p4lp.DeltaR(p4lm), evtwt) ; 
           }
         }
       }
@@ -38,7 +34,7 @@ class ZCandidateProducer {
       return ;
     }
 
-    ~ZCandidateProducer () {}  
+    ~DileptonCandsProducer () {}  
 
   private:
     vlq::CandidateCollection zcands_ ;

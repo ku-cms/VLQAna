@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
-#include "Analysis/VLQAna/interface/PickGenPart.h"
+#include "MyAnalysis/VLQAna/interface/PickGenPart.h"
 
 class HbbCandidateProducer : public edm::EDProducer {
   public:
