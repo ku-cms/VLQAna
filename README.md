@@ -6,6 +6,8 @@ cd CMSSW_7_4_12/src/
 
 cmsenv
 
+git cms-init
+
 git cms-merge-topic ku-cms:CMSSW_7_4_X
 
 git clone -b v1.00 git://github.com/dmajumder/EventCounter.git  MyAnalysis/EventCounter 
@@ -13,11 +15,7 @@ git clone -b v1.00 git://github.com/dmajumder/EventCounter.git  MyAnalysis/Event
 git clone https://github.com/ku-cms/VLQAna.git MyAnalysis/VLQAna
 
 #To just build this stuff
-cd AnalysisDataFormats/BoostedObjects 
-
-scram b -j20
-
-cd ../../MyAnalysis/VLQAna
+cd MyAnalysis/VLQAna
 
 scram b -j20
 
