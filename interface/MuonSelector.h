@@ -6,7 +6,7 @@ using namespace edm ;
 
 class MuonSelector {
   public:
-    enum MUONIDTYPES_t {LOOSE, MEDIUM, TIGHT} ; 
+    enum MUONIDTYPES_t {LOOSE, TIGHT} ; 
     MuonSelector (edm::ParameterSet const& pars) : 
     l_muCharge                   (pars.getParameter<edm::InputTag>("muChargeLabel")), 
     l_muD0                       (pars.getParameter<edm::InputTag>("muD0Label")), 
@@ -56,7 +56,6 @@ class MuonSelector {
   {
     std::string muidtypestr = pars.getParameter<std::string>("muidtype") ; 
     if ( muidtypestr == "LOOSE" ) type_ = LOOSE ; 
-    else if ( muidtypestr == "MEDIUM" ) type_ = MEDIUM ; 
     else if ( muidtypestr == "TIGHT" ) type_ = TIGHT ; 
     else edm::LogError("MuonSelector::MuonSelector") << " >>>> WrongMuonIdType: " << type_<< " Check muon id type !!!" ; 
   }
@@ -110,10 +109,11 @@ class MuonSelector {
       double muIso = (h_muIso04.product())->at(mu) ; 
 
       bool passMuId(false) ; 
-      if (type_ == TIGHT && (h_muIsTightMuon.product())->at(mu) > 0) passMuId = true ;
+      if (type_ == LOOSE && (h_muIsLooseMuon.product())->at(mu) > 0) passMuId = true ;
+      else if (type_ == TIGHT && (h_muIsTightMuon.product())->at(mu) > 0) passMuId = true ;
 
       if ( muPt > muPtMin_ && muPt < muPtMax_ && muAbsEta < muAbsEtaMax_ 
-          && std::abs(muCharge - muCharge_) < 0.001*abs(muCharge_)  
+          && ( muCharge_ == 0 || muCharge == muCharge_ )  
           && passMuId 
           && muIso > muIsoMin_ && muIso < muIsoMax_ 
           ) ret = true  ;
