@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
-#include "MyAnalysis/VLQAna/interface/JetID.h"
+#include "Analysis/VLQAna/interface/JetID.h"
 
 #include <boost/algorithm/string.hpp>
 #include <string>

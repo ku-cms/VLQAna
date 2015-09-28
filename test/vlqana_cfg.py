@@ -20,9 +20,9 @@ process.source = cms.Source(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.load("MyAnalysis.VLQAna.HbbCandidateProducer_cfi") 
+process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
 
-process.load("MyAnalysis.VLQAna.VLQAna_cfi") 
+process.load("Analysis.VLQAna.VLQAna_cfi") 
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(

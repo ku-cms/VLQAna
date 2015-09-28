@@ -10,7 +10,7 @@ process.source = cms.Source(
       #'/store/user/eschmitz/b2g/PHYS14/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/TTJets_edmntuples_B2GAnaFW_1/150223_193315/0000/B2GEDMNtuple_1.root'
       #'/store/user/devdatta/QCD_HT_1000ToInf_13TeV-madgraph/B2GAnaFW_PHYS14/150323_203541/0000/B2GEDMNtuple_1.root'
       #/Rad_HHto4b_M1600_13TeV_PHYS14_25_V1/cvernier-miniAOD-b7ec9eab226684f647ba3bf663cdb8b0/USER
-      'file:/afs/cern.ch/work/d/devdatta/CMSREL/CMSSW_7_3_2_patch4/src/MyAnalysis/B2GAnaFW/test/B2GEDMNtuple_74X.root'
+      'file:/afs/cern.ch/work/d/devdatta/CMSREL/CMSSW_7_3_2_patch4/src/Analysis/B2GAnaFW/test/B2GEDMNtuple_74X.root'
       )
       )
 
@@ -18,10 +18,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200) 
     )
 
-process.load("MyAnalysis.VLQAna.HbbCandidateProducer_cfi") 
-#process.load("MyAnalysis.VLQAna.CompositeParticleProducer_cfi") 
+process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
+#process.load("Analysis.VLQAna.CompositeParticleProducer_cfi") 
 
-from MyAnalysis.VLQAna.VLQAna_cfi import *
+from Analysis.VLQAna.VLQAna_cfi import *
 process.ana1 = ana.clone(
     HJetSelParams = defaultHJetSelectionParameters.clone(
       jettype             = cms.string('HTAGGEDAK8JET'),
@@ -52,12 +52,12 @@ process.ana2 = ana.clone(
     ) 
 process.ana = ana.clone() 
 
-from MyAnalysis.VLQAna.TprimeSel_cfi import *
-from MyAnalysis.VLQAna.TprimeMVA_cfi import *
+from Analysis.VLQAna.TprimeSel_cfi import *
+from Analysis.VLQAna.TprimeMVA_cfi import *
 process.sel = sel.clone() 
 process.mva = mva.clone() 
 
-#process.load("MyAnalysis.VLQAna.ResolvedVjjFilter_cfi")
+#process.load("Analysis.VLQAna.ResolvedVjjFilter_cfi")
 #process.vjj.isMC = cms.bool(True)
 #process.vjj.isSignal = cms.bool(True)
 

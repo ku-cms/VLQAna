@@ -6,7 +6,7 @@ using namespace edm ;
 
 class ElectronSelector {
   public:
-    enum ELECTRONIDTYPES_t {LOOSE, MEDIUM, TIGHT} ; 
+    enum ELECTRONIDTYPES_t {LOOSE, MEDIUM, TIGHT, VETO, HEEP} ; 
     ElectronSelector (edm::ParameterSet const& pars) : 
       l_elCharge            (pars.getParameter<edm::InputTag>("elChargeLabel")),
       l_elD0                (pars.getParameter<edm::InputTag>("elD0Label")),
@@ -29,6 +29,11 @@ class ElectronSelector {
       l_elisMedium          (pars.getParameter<edm::InputTag>("elisMediumLabel")),
       l_elisTight           (pars.getParameter<edm::InputTag>("elisTightLabel")),
       l_elisVeto            (pars.getParameter<edm::InputTag>("elisVetoLabel")),
+      l_elvidLoose          (pars.getParameter<edm::InputTag>("elvidLooseLabel")),
+      l_elvidMedium         (pars.getParameter<edm::InputTag>("elvidMediumLabel")),
+      l_elvidTight          (pars.getParameter<edm::InputTag>("elvidTightLabel")),
+      l_elvidVeto           (pars.getParameter<edm::InputTag>("elvidVetoLabel")),
+      l_elvidHEEP           (pars.getParameter<edm::InputTag>("elvidHEEPLabel")),
       l_elmissHits          (pars.getParameter<edm::InputTag>("elmissHitsLabel")),
       l_elooEmooP           (pars.getParameter<edm::InputTag>("elooEmooPLabel")),
       l_elscEta             (pars.getParameter<edm::InputTag>("elscEtaLabel")),
@@ -43,6 +48,8 @@ class ElectronSelector {
     if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
     else if ( elidtypestr == "MEDIUM" ) type_ = MEDIUM ; 
     else if ( elidtypestr == "TIGHT" ) type_ = TIGHT ; 
+    else if ( elidtypestr == "VETO" ) type_ = VETO ; 
+    else if ( elidtypestr == "HEEP" ) type_ = HEEP ; 
     else edm::LogError("ElectronSelector::ElectronSelector") << " >>>> WrongElectronIdType: " << type_<< " Check electron id type !!!" ; 
   }
 
@@ -70,6 +77,11 @@ class ElectronSelector {
       Handle<vector<float>> h_elisMedium           ; evt.getByLabel(l_elisMedium          , h_elisMedium          ); 
       Handle<vector<float>> h_elisTight            ; evt.getByLabel(l_elisTight           , h_elisTight           ); 
       Handle<vector<float>> h_elisVeto             ; evt.getByLabel(l_elisVeto            , h_elisVeto            ); 
+      Handle<vector<float>> h_elvidLoose           ; evt.getByLabel(l_elvidLoose          , h_elvidLoose          ); 
+      Handle<vector<float>> h_elvidMedium          ; evt.getByLabel(l_elvidMedium         , h_elvidMedium         ); 
+      Handle<vector<float>> h_elvidTight           ; evt.getByLabel(l_elvidTight          , h_elvidTight          ); 
+      Handle<vector<float>> h_elvidVeto            ; evt.getByLabel(l_elvidVeto           , h_elvidVeto           ); 
+      Handle<vector<float>> h_elvidHEEP            ; evt.getByLabel(l_elvidHEEP           , h_elvidHEEP           ); 
       Handle<vector<float>> h_elmissHits           ; evt.getByLabel(l_elmissHits          , h_elmissHits          ); 
       Handle<vector<float>> h_elooEmooP            ; evt.getByLabel(l_elooEmooP           , h_elooEmooP           ); 
       Handle<vector<float>> h_elscEta              ; evt.getByLabel(l_elscEta             , h_elscEta             ); 
@@ -80,10 +92,14 @@ class ElectronSelector {
       double elIso = (h_elIso03.product())->at(el) ; 
 
       bool passElId(false) ; 
-      if (type_ == TIGHT && (h_elisTight.product())->at(el) > 0) passElId = true ;
+      if (type_ == LOOSE && (h_elvidLoose.product())->at(el) > 0) passElId = true ;
+      else if (type_ == MEDIUM && (h_elvidMedium.product())->at(el) > 0) passElId = true ;
+      else if (type_ == TIGHT && (h_elvidTight.product())->at(el) > 0) passElId = true ;
+      else if (type_ == VETO && (h_elvidVeto.product())->at(el) > 0) passElId = true ;
+      else if (type_ == HEEP && (h_elvidHEEP.product())->at(el) > 0) passElId = true ;
 
       if ( elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ 
-          && std::abs(elCharge - elCharge_) < 0.001*abs(elCharge_) 
+          && ( elCharge_ == 0 || elCharge == elCharge_ )  
           && passElId 
           && elIso > elIsoMin_ && elIso < elIsoMax_ 
          ) ret = true ;
@@ -114,6 +130,11 @@ class ElectronSelector {
     edm::InputTag l_elisMedium      ;
     edm::InputTag l_elisTight       ;
     edm::InputTag l_elisVeto        ;
+    edm::InputTag l_elvidLoose      ;
+    edm::InputTag l_elvidMedium     ;
+    edm::InputTag l_elvidTight      ;
+    edm::InputTag l_elvidVeto       ;
+    edm::InputTag l_elvidHEEP       ;
     edm::InputTag l_elmissHits      ;
     edm::InputTag l_elooEmooP       ;
     edm::InputTag l_elscEta         ;

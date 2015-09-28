@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.PickGenPart_cfi import *
+from Analysis.VLQAna.PickGenPart_cfi import *
 
 hbb = cms.EDProducer("HbbCandidateProducer",
     GenHSelParams    = genPartParams.clone(

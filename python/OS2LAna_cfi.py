@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.ZCandSelector_cfi import *
-from MyAnalysis.VLQAna.ElectronSelector_cfi import *
-from MyAnalysis.VLQAna.MuonSelector_cfi import *
-from MyAnalysis.VLQAna.PickGenPart_cfi import *
-from MyAnalysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.ZCandSelector_cfi import *
+from Analysis.VLQAna.ElectronSelector_cfi import *
+from Analysis.VLQAna.MuonSelector_cfi import *
+from Analysis.VLQAna.PickGenPart_cfi import *
+from Analysis.VLQAna.JetSelector_cfi import *
 
 ana = cms.EDFilter("OS2LAna", 
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
@@ -87,13 +87,6 @@ ana = cms.EDFilter("OS2LAna",
     HbbCandsLabel              = cms.InputTag("hbb", "HbbCandidates"),
     jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
     hltPaths                   = cms.vstring (
-        ### Muon paths
-        #"HLT_IsoMu20_eta2p1_v",
-        #"HLT_Mu30_TkMu11_v", 
-        #"HLT_Mu45_eta2p1_v", 
-        #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"
-        ### Electron paths
-        "HLT_Ele27_eta2p1_WPLoose_Gsf_v", 
         ), 
     metFilters                 = cms.vstring (
         "Flag_goodVertices",
@@ -102,22 +95,23 @@ ana = cms.EDFilter("OS2LAna",
         ), 
     DilepCandParams            = defaultZCandSelectionParameters.clone(), 
     ZCandParams                = defaultZCandSelectionParameters.clone(
-        massMin = cms.double(60),
-        massMax = cms.double(120),
+        massMin = cms.double(75),
+        massMax = cms.double(105),
+        ptMin = cms.double(0.),
         ), 
     BoostedZCandParams         = defaultZCandSelectionParameters.clone(
-        massMin = cms.double(60),
-        massMax = cms.double(120),
-        ptMin = cms.double(150.),
+        massMin = cms.double(75),
+        massMax = cms.double(105),
+        ptMin = cms.double(0.),
         ), 
     GenHSelParams              = genPartParams.clone(), 
     AK4JetSelParams            = defaultAK4JetSelectionParameters.clone(), 
     BTaggedLooseAK4SelParams   = defaultBTaggedAK4JetSelectionParameters.clone(jetCSVDiscMin = cms.double(0.423),), 
     BTaggedMediumAK4SelParams   = defaultBTaggedAK4JetSelectionParameters.clone(), 
-    mupselParams = defaultMuPSelectionParamaters.clone(), 
-    mumselParams = defaultMuMSelectionParamaters.clone(), 
-    elpselParams = defaultElPSelectionParamaters.clone(), 
-    elmselParams = defaultElMSelectionParamaters.clone(), 
+    mupselParams = defaultMuPSelectionParameters.clone(), 
+    mumselParams = defaultMuMSelectionParameters.clone(), 
+    elpselParams = defaultElPSelectionParameters.clone(), 
+    elmselParams = defaultElMSelectionParameters.clone(), 
     AK8JetSelParams            = defaultAK8JetSelectionParameters.clone(
         jetPtMin   = cms.double(300),
         jetMassMin = cms.double(0) ,
@@ -125,7 +119,7 @@ ana = cms.EDFilter("OS2LAna",
     TJetSelParams              = defaultTJetSelectionParameters.clone(), 
     HJetSelParams              = defaultHJetSelectionParameters.clone(), 
     WJetSelParams              = defaultWJetSelectionParameters.clone(), 
-    HTMin                      = cms.double  (300.), 
+    HTMin                      = cms.double  (500.), 
     isData                     = cms.bool    (False), 
     )
 

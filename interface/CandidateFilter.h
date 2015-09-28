@@ -8,10 +8,12 @@ class CandidateFilter {
       massMin_(iConfig.getParameter<double> ("massMin")), 
       massMax_(iConfig.getParameter<double> ("massMax")), 
       ptMin_(iConfig.getParameter<double> ("ptMin")), 
-      ptMax_(iConfig.getParameter<double> ("ptMax")) {}
+      ptMax_(iConfig.getParameter<double> ("ptMax")) { }
     ~CandidateFilter () {}  
 
     void operator () (vlq::CandidateCollection& cands, vlq::CandidateCollection& filteredcands) {
+      vlq::CandidateCollection cands_ ;
+      cands_.clear() ; 
       for ( auto cand : cands ) {
         double mass = cand.getMass() ;
         double pt = cand.getPt() ; 
@@ -22,7 +24,6 @@ class CandidateFilter {
     }
 
   private:
-    vlq::CandidateCollection cands_ ;
     double massMin_ ;
     double massMax_ ; 
     double ptMin_ ; 

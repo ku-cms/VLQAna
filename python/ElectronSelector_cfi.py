@@ -1,22 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.Electron_cfi import * 
+from Analysis.VLQAna.Electron_cfi import * 
 
 defaultElectronSelectionParameters = cms.PSet(
     defaultElectronParameters, 
-    elidtype = cms.string("TIGHT"), 
-    elPtMin = cms.double(30),
+    elidtype = cms.string("LOOSE"), #Using electron ID coded in VID tool
+    elPtMin = cms.double(5),
     elPtMax = cms.double(10000),
-    elAbsEtaMax = cms.double(2.4),
-    elCharge = cms.double(1.0), 
+    elAbsEtaMax = cms.double(5),
+    elCharge = cms.double(0), 
     elIsoMin = cms.double(0.00),
-    elIsoMax = cms.double(0.15), 
+    elIsoMax = cms.double(1.00), # No need to set electron isolation by hand
     )
 
-defaultElPSelectionParamaters = defaultElectronSelectionParameters.clone(
+defaultElPSelectionParameters = defaultElectronSelectionParameters.clone(
+    elPtMin = cms.double(30),
+    elAbsEtaMax = cms.double(2.4),
     elCharge  = cms.double(1.0),  
     )
 
-defaultElMSelectionParamaters = defaultElectronSelectionParameters.clone(
+defaultElMSelectionParameters = defaultElectronSelectionParameters.clone(
+    elPtMin = cms.double(30),
+    elAbsEtaMax = cms.double(2.4),
     elCharge  = cms.double(-1.0),  
     )

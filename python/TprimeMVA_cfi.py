@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.JetSelector_cfi import *
 
 mva = cms.EDFilter("TprimeMVA",
     jetcoll                    = cms.InputTag("vjj",    "JetCollection"),
