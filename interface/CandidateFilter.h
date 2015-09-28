@@ -12,6 +12,8 @@ class CandidateFilter {
     ~CandidateFilter () {}  
 
     void operator () (vlq::CandidateCollection& cands, vlq::CandidateCollection& filteredcands) {
+      vlq::CandidateCollection cands_ ;
+      cands_.clear() ; 
       for ( auto cand : cands ) {
         double mass = cand.getMass() ;
         double pt = cand.getPt() ; 
@@ -22,7 +24,6 @@ class CandidateFilter {
     }
 
   private:
-    vlq::CandidateCollection cands_ ;
     double massMin_ ;
     double massMax_ ; 
     double ptMin_ ; 

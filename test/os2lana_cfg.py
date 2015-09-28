@@ -58,9 +58,9 @@ process.source = cms.Source(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
-process.load("MyAnalysis.VLQAna.HbbCandidateProducer_cfi") 
+process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
 
-from MyAnalysis.VLQAna.OS2LAna_cfi import ana
+from Analysis.VLQAna.OS2LAna_cfi import ana
 
 process.anaelel = ana.clone(
     isData = options.isData,
@@ -104,7 +104,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 
 ## Event counter
-from MyAnalysis.EventCounter.eventcounter_cfi import eventCounter
+from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone()
 process.selectedEvents = eventCounter.clone()
 

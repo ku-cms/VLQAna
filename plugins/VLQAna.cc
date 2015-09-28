@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MyAnalysis/VLQAna
+// Package:    Analysis/VLQAna
 // Class:      VLQAna
 // 
-/**\class VLQAna VLQAna.cc MyAnalysis/VLQAna/plugins/VLQAna.cc
+/**\class VLQAna VLQAna.cc Analysis/VLQAna/plugins/VLQAna.cc
 
 Description: [one line class summary]
 
@@ -37,10 +37,10 @@ Implementation:
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"
-#include "MyAnalysis/VLQAna/interface/JetSelector.h"
-#include "MyAnalysis/VLQAna/interface/HT.h"
-#include "MyAnalysis/VLQAna/interface/VCandProducer.h"
-#include "MyAnalysis/VLQAna/interface/Utilities.h"
+#include "Analysis/VLQAna/interface/JetSelector.h"
+#include "Analysis/VLQAna/interface/HT.h"
+#include "Analysis/VLQAna/interface/VCandProducer.h"
+#include "Analysis/VLQAna/interface/Utilities.h"
 
 #include <TH1D.h>
 #include <TH2D.h>

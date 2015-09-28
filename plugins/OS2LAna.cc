@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MyAnalysis/VLQAna
+// Package:    Analysis/VLQAna
 // Class:      OS2LAna
 // 
-/**\class VLQAna OS2LAna.cc MyAnalysis/VLQAna/plugins/OS2LAna.cc
+/**\class VLQAna OS2LAna.cc Analysis/VLQAna/plugins/OS2LAna.cc
 
 Description: [one line class summary]
 
@@ -40,14 +40,14 @@ Implementation:
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Muon.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Electron.h"
-#include "MyAnalysis/VLQAna/interface/JetSelector.h"
-#include "MyAnalysis/VLQAna/interface/HT.h"
-#include "MyAnalysis/VLQAna/interface/VCandProducer.h"
-#include "MyAnalysis/VLQAna/interface/Utilities.h"
-#include "MyAnalysis/VLQAna/interface/MuonSelector.h"
-#include "MyAnalysis/VLQAna/interface/ElectronSelector.h"
-#include "MyAnalysis/VLQAna/interface/DileptonCandsProducer.h"
-#include "MyAnalysis/VLQAna/interface/CandidateFilter.h"
+#include "Analysis/VLQAna/interface/JetSelector.h"
+#include "Analysis/VLQAna/interface/HT.h"
+#include "Analysis/VLQAna/interface/VCandProducer.h"
+#include "Analysis/VLQAna/interface/Utilities.h"
+#include "Analysis/VLQAna/interface/MuonSelector.h"
+#include "Analysis/VLQAna/interface/ElectronSelector.h"
+#include "Analysis/VLQAna/interface/DileptonCandsProducer.h"
+#include "Analysis/VLQAna/interface/CandidateFilter.h"
 
 #include <TH1D.h>
 #include <TH2D.h>

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.PickGenPart_cfi import *
-from MyAnalysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.PickGenPart_cfi import *
+from Analysis.VLQAna.JetSelector_cfi import *
 ana = cms.EDFilter("VLQAna", 
     processName                = cms.string  ('@'), 
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 

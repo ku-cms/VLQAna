@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.Muon_cfi import * 
+from Analysis.VLQAna.Muon_cfi import * 
 
 defaultMuonSelectionParameters = cms.PSet(
     defaultMuonParameters, 

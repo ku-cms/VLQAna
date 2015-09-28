@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
-#include "MyAnalysis/VLQAna/interface/PickGenPart.h"
+#include "Analysis/VLQAna/interface/PickGenPart.h"
 
 #include <iostream>
 

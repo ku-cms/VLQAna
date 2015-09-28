@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from MyAnalysis.VLQAna.ZCandSelector_cfi import *
-from MyAnalysis.VLQAna.ElectronSelector_cfi import *
-from MyAnalysis.VLQAna.MuonSelector_cfi import *
-from MyAnalysis.VLQAna.PickGenPart_cfi import *
-from MyAnalysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.ZCandSelector_cfi import *
+from Analysis.VLQAna.ElectronSelector_cfi import *
+from Analysis.VLQAna.MuonSelector_cfi import *
+from Analysis.VLQAna.PickGenPart_cfi import *
+from Analysis.VLQAna.JetSelector_cfi import *
 
 ana = cms.EDFilter("OS2LAna", 
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 

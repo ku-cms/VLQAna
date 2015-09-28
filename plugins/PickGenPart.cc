@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "MyAnalysis/VLQAna/interface/PickGenPart.h"
+#include "Analysis/VLQAna/interface/PickGenPart.h"
 
 PickGenPart::PickGenPart (const edm::ParameterSet& iConfig) :
   l_genPartCharge (iConfig.getParameter<edm::InputTag>("genPartCharge")), 
