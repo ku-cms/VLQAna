@@ -27,7 +27,14 @@ process = cms.Process("OS2LAna")
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_38.root'
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_17.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_18.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_19.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_20.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_26.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_37.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_38.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_41.root',
 
     #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_1.root',
     #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_10.root',
@@ -98,6 +105,16 @@ process.anamumuBoosted = ana.clone(
         ptMin = cms.double(150.),
         ), 
     )
+
+if not options.isData:
+  process.anamumu.elpselParams.useVID = cms.bool(False)
+  process.anaelel.elpselParams.useVID = cms.bool(False)
+  process.anamumuBoosted.elpselParams.useVID = cms.bool(False)
+  process.anaelelBoosted.elpselParams.useVID = cms.bool(False)
+  process.anamumu.elmselParams.useVID = cms.bool(False)
+  process.anaelel.elmselParams.useVID = cms.bool(False)
+  process.anamumuBoosted.elmselParams.useVID = cms.bool(False)
+  process.anaelelBoosted.elmselParams.useVID = cms.bool(False)
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
