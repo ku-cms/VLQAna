@@ -92,6 +92,7 @@ ana = cms.EDFilter("OS2LAna",
         "Flag_goodVertices",
         "Flag_CSCTightHaloFilter",
         "Flag_HBHENoiseFilter", 
+        "Flag_eeBadScFilter",
         ), 
     DilepCandParams            = defaultZCandSelectionParameters.clone(), 
     ZCandParams                = defaultZCandSelectionParameters.clone(
