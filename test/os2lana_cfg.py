@@ -120,8 +120,8 @@ process.selectedEvents = eventCounter.clone()
 
 process.p = cms.Path(
     process.allEvents
-    *cms.ignore(process.anaelel*process.anaelelBoosted)
-    *cms.ignore(process.anamumu*process.anamumuBoosted)
+    *cms.ignore(process.anaelel)*cms.ignore(process.anaelelBoosted)
+    *cms.ignore(process.anamumu)*cms.ignore(process.anamumuBoosted)
     * process.selectedEvents
     )
 #process.outpath = cms.EndPath(process.out)
