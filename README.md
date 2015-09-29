@@ -12,7 +12,7 @@ git cms-merge-topic ku-cms:CMSSW_7_4_X
 
 git clone -b v1.00 git://github.com/dmajumder/EventCounter.git  Analysis/EventCounter 
 
-git -b Data2015 clone https://github.com/ku-cms/VLQAna.git Analysis/VLQAna  
+git clone -b Data2015D git@github.com:ku-cms/VLQAna.git Analysis/VLQAna  
 
 #To just build this stuff
 cd Analysis/VLQAna
