@@ -67,6 +67,7 @@ defaultTJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     )
 
 defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
+    jetPtMin            = cms.double(300),
     jettype             = cms.string('HTAGGEDAK8JET'),
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(0.5) ,
@@ -80,6 +81,7 @@ defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     )
 
 defaultWJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
+    jetPtMin            = cms.double(200),
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(0.5) ,
     jetPrunedMassMin    = cms.double(65) ,
