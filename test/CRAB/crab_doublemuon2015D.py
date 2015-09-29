@@ -16,12 +16,13 @@ config.Data.inputDataset = '/DoubleMuon/devdatta-crab_Run2015D-PromptReco-v3_Sep
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
-config.Data.ignoreLocality = False
+config.Data.ignoreLocality = True
 config.Data.publication = False
 config.Data.outLFNDirBase = '/store/user/devdatta/OS2LAna/'
 # This string is used to construct the output dataset name
 
 config.section_("Site")
 config.Site.storageSite = 'T2_CH_CERN'
+config.Site.whitelist = ['T3_US_FNALLPC']
 
 config.section_('User')
