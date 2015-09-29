@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'TT_Run2Spring15_50ns'
+config.General.requestName = 'TT_TuneCUETP8M1_13TeV-powheg-pythia8_RunIISpring15_v74x_V6_25ns'
 config.General.workArea = 'OS2LAna'
 config.General.transferLogs = True
 
@@ -12,10 +12,10 @@ config.JobType.psetName = 'os2lana_cfg.py'
 config.JobType.pyCfgParams = ['isData=False']
 
 config.section_("Data")
-config.Data.inputDataset = '/TT_TuneCUETP8M1_13TeV-powheg-pythia8/decosa-TT_Spring15DR74-Asympt50ns_13Aug_v2-209c08bb87cc8fc49a5fba4f844ae589/USER'
+config.Data.inputDataset = '/TT_TuneCUETP8M1_13TeV-powheg-pythia8/decosa-TT_TuneCUETP8M1_13TeV-d5e3976e154b1b4043d031aaa9c2809b/USER' 
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
+config.Data.unitsPerJob = 10
 config.Data.ignoreLocality = False
 config.Data.publication = False
 config.Data.outLFNDirBase = '/store/user/devdatta/OS2LAna/'
