@@ -42,7 +42,8 @@ class ElectronSelector {
       elAbsEtaMax_ (pars.getParameter<double>("elAbsEtaMax")), 
       elCharge_ (pars.getParameter<double>("elCharge")), 
       elIsoMin_ (pars.getParameter<double>("elIsoMin")), 
-      elIsoMax_ (pars.getParameter<double>("elIsoMax"))  
+      elIsoMax_ (pars.getParameter<double>("elIsoMax")), 
+      useVID_   (pars.getParameter<bool>("useVID")) 
   {
     std::string elidtypestr = pars.getParameter<std::string>("elidtype") ; 
     if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
@@ -92,16 +93,24 @@ class ElectronSelector {
       double elIso = (h_elIso03.product())->at(el) ; 
 
       bool passElId(false) ; 
-      if (type_ == LOOSE && (h_elvidLoose.product())->at(el) > 0) passElId = true ;
-      else if (type_ == MEDIUM && (h_elvidMedium.product())->at(el) > 0) passElId = true ;
-      else if (type_ == TIGHT && (h_elvidTight.product())->at(el) > 0) passElId = true ;
-      else if (type_ == VETO && (h_elvidVeto.product())->at(el) > 0) passElId = true ;
-      else if (type_ == HEEP && (h_elvidHEEP.product())->at(el) > 0) passElId = true ;
+      if ( useVID_ ) {
+        if (type_ == LOOSE && (h_elvidLoose.product())->at(el) > 0) passElId = true ;
+        else if (type_ == MEDIUM && (h_elvidMedium.product())->at(el) > 0) passElId = true ;
+        else if (type_ == TIGHT && (h_elvidTight.product())->at(el) > 0) passElId = true ;
+        else if (type_ == VETO && (h_elvidVeto.product())->at(el) > 0) passElId = true ;
+        else if (type_ == HEEP && (h_elvidHEEP.product())->at(el) > 0) passElId = true ;
+      }
+      else {
+        if (type_ == LOOSE && (h_elisLoose.product())->at(el) > 0) passElId = true ;
+        else if (type_ == MEDIUM && (h_elisMedium.product())->at(el) > 0) passElId = true ;
+        else if (type_ == TIGHT && (h_elisTight.product())->at(el) > 0) passElId = true ;
+        else if (type_ == VETO && (h_elisVeto.product())->at(el) > 0) passElId = true ;
+      }
 
       if ( elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ 
           && ( elCharge_ == 0 || elCharge == elCharge_ )  
           && passElId 
-          && elIso > elIsoMin_ && elIso < elIsoMax_ 
+          && ( useVID_ || (elIso > elIsoMin_ && elIso < elIsoMax_) ) 
          ) ret = true ;
 
       return ret ; 
@@ -145,6 +154,8 @@ class ElectronSelector {
     double elCharge_ ; 
     double elIsoMin_ ; 
     double elIsoMax_ ; 
+
+    bool   useVID_ ; 
 
 
 };
