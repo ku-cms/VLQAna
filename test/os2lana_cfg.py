@@ -22,7 +22,7 @@ options.parseArguments()
 
 process = cms.Process("OS2LAna")
 
-#from infiles_cfi import * 
+from infiles_cfi import * 
 
 process.source = cms.Source(
     "PoolSource",

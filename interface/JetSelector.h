@@ -102,6 +102,7 @@ class JetSelector {
         idxjetnSubJetsMax_ = pars.getParameter<double>("jetnSubJetsMax")  ;
         idxsjMassMin_ = pars.getParameter<double>("subjetMassMin")  ;
         idxsjCSVMin_ = pars.getParameter<double>("subjetCSVMin")  ;
+        idxsjCSVMax_ = pars.getParameter<double>("subjetCSVMax")  ;
       }
 
       if (pars.getParameter<bool>("IsJetIDLoose") == true && pars.getParameter<bool>("IsJetIDTight") == false) quality_ = JetID::LOOSE ; 
@@ -260,6 +261,8 @@ class JetSelector {
               && p4sj1.Mag() > idxsjMassMin_
               && vjetssj0CSV > idxsjCSVMin_
               && vjetssj1CSV > idxsjCSVMin_
+              && vjetssj0CSV < idxsjCSVMax_
+              && vjetssj1CSV < idxsjCSVMax_
               ) return true ; 
           else return false ; 
         }
@@ -349,6 +352,7 @@ class JetSelector {
     double idxjetnSubJetsMax_    ; 
     double idxsjMassMin_         ; 
     double idxsjCSVMin_          ; 
+    double idxsjCSVMax_          ; 
 
     edm::InputTag l_jetPt              ; 
     edm::InputTag l_jetEta             ; 

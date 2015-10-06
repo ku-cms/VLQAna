@@ -1,3 +1,23 @@
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+options = VarParsing('analysis')
+
+options.register('outFileName', 'singleT.root',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Output file name"
+    )
+
+options.register('isData', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Is data?"
+    )
+
+options.setDefault('maxEvents', 100)
+
+options.parseArguments()
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("VLQAna")
@@ -7,45 +27,43 @@ from infiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      #'file:../../B2GAnaFW/test/B2GEDMNtuple.root'
-#/TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/devdatta-B2GAnaFW_Run2Sping15_25ns-93296e97710faac6591502ff11c71e47/USER
-      #'/store/user/devdatta/TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150618_090136/0000/B2GEDMNtuple_1.root', 
-      #'/store/user/devdatta/TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150618_090136/0000/B2GEDMNtuple_2.root'
-#/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/devdatta-B2GAnaFW_Run2Sping15_25ns-71ae93134bf811066d2681edbf0174df/USER
-      '/store/user/devdatta/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150623_161611/0000/B2GEDMNtuple_2.root', 
-      '/store/user/devdatta/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150623_161611/0000/B2GEDMNtuple_5.root' 
-      #files_qcd
-      )
-      )
+      files_TprimeBToTH_M1200_LH
+      #files_QCD_HT2000toInf
+      ) 
+    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
-process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
-
-process.load("Analysis.VLQAna.VLQAna_cfi") 
+from Analysis.VLQAna.VLQAna_cfi import *
+process.anaA = ana.clone()
+process.anaB = ana.clone(
+    TJetSelParams = defaultTJetSelectionParameters.clone(
+      jetMassMax          = cms.double(140) ,
+      ), 
+    )
+process.anaC = ana.clone(
+    TJetSelParams = defaultTJetSelectionParameters.clone(
+      jetMassMax          = cms.double(140) ,
+      ), 
+      HJetSelParams = defaultHJetSelectionParameters.clone(
+        subjetCSVMin        = cms.double(-10000000) ,
+        subjetCSVMax        = cms.double(0.605) ,
+        ), 
+    )
+process.anaD = ana.clone(
+    HJetSelParams = defaultHJetSelectionParameters.clone(
+      subjetCSVMin        = cms.double(-10000000) ,
+      subjetCSVMax        = cms.double(0.605) ,
+      ), 
+    )
 
 process.TFileService = cms.Service("TFileService",
-       fileName = cms.string(
-         #"TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root"
-         "TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root" 
-         #"QCD_Pt-15TTo7000_TuneZ2star-Flat_13TeV_pythia6__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root"
-         )
+       fileName = cms.string(options.outFileName)
        )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("SingleTprimeAnaEvtsMVA.root"),
-    SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('p')
-      ),
-    outputCommands = cms.untracked.vstring(
-      "drop *",
-      )
-    )
-
 process.p = cms.Path(
-    process.hbb
-    *process.ana 
+    cms.ignore(process.anaA) *
+    cms.ignore(process.anaB) *
+    cms.ignore(process.anaC) *
+    cms.ignore(process.anaD) 
     )
-process.outpath = cms.EndPath(process.out)
-
-
