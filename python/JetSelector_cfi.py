@@ -59,39 +59,39 @@ defaultTJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(1.0) ,
     jettau3Bytau2Min    = cms.double(0.00) ,
-    jettau3Bytau2Max    = cms.double(1.00) ,
+    jettau3Bytau2Max    = cms.double(0.67) ,
     jetMinMassMin       = cms.double(50.) ,
     jetMassMin          = cms.double(140) ,
     jetMassMax          = cms.double(250) ,
-    jetnSubJetsMin      = cms.double(3) ,
-    jetnSubJetsMax      = cms.double(3) ,
+    jetnSubJetsMin      = cms.double(-1) ,
+    jetnSubJetsMax      = cms.double(100) ,
     )
 
 defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jettype             = cms.string('HTAGGEDAK8JET'),
     jettau2Bytau1Min    = cms.double(0.0) ,
-    jettau2Bytau1Max    = cms.double(0.5) ,
+    jettau2Bytau1Max    = cms.double(0.6) ,
     jetPrunedMassMin    = cms.double(105) ,
     jetPrunedMassMax    = cms.double(145) ,
     jetMassMin          = cms.double(0.) ,
     jetMassMax          = cms.double(1000) ,
     subjetCSVMin        = cms.double(0.605) ,
     subjetCSVMax        = cms.double(1.001) ,
-    jetnSubJetsMin      = cms.double(2) ,
-    jetnSubJetsMax      = cms.double(2) ,
+    jetnSubJetsMin      = cms.double(-1) ,
+    jetnSubJetsMax      = cms.double(100) ,
     )
 
 defaultWJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jettau2Bytau1Min    = cms.double(0.0) ,
-    jettau2Bytau1Max    = cms.double(0.5) ,
+    jettau2Bytau1Max    = cms.double(0.6) ,
     jetPrunedMassMin    = cms.double(65) ,
     jetPrunedMassMax    = cms.double(105) ,
     jetMassMin          = cms.double(0.) ,
     jetMassMax          = cms.double(1000) ,
     subjetCSVMin        = cms.double(0.000) ,
     subjetCSVMax        = cms.double(1.000) ,
-    jetnSubJetsMin      = cms.double(2) ,
-    jetnSubJetsMax      = cms.double(2) ,
+    jetnSubJetsMin      = cms.double(-1) ,
+    jetnSubJetsMax      = cms.double(100) ,
     )
 
 defaultBTaggedAK8JetSelectionParameters = defaultAK8JetSelectionParameters.clone(

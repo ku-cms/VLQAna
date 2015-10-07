@@ -170,10 +170,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     if (tjetsel(evt, ijet,rettjetsel) == true ) goodTJets.push_back(jet) ; 
   }
 
+  h1_["nak8"] -> Fill(goodAK8Jets.size()) ; 
+  if ( goodAK8Jets.size() < 1 ) return false ; 
+  h1_["ptak8leading"] -> Fill(goodAK8Jets.at(0).getPt()) ; 
+  h1_["etaak8leading"] -> Fill(goodAK8Jets.at(0).getEta()) ; 
   if ( goodAK8Jets.size() < 2 ) return false ; 
   h1_["cutflow"] -> Fill(3) ; 
 
-  vlq::JetCollection  goodAK4Jets, googBTaggedJets;
+  vlq::JetCollection  goodAK4Jets, goodBTaggedJets;
   JetSelector ak4jetsel(AK4JetSelParams_), btaggedmediumak4sel(BTaggedMediumAK4SelParams_) ;
   bool retak4jetsel(false), retbtaggedmediumak4sel(false) ; 
   for ( unsigned ijet = 0; ijet < (h_jetAK4Pt.product())->size(); ++ijet) {
@@ -188,27 +192,49 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jet.setP4(jetP4) ;
     jet.setCSV((h_jetAK4CSV.product())->at(ijet)) ;
     goodAK4Jets.push_back(jet) ;
-    if ( btaggedmediumak4sel(evt, ijet,retbtaggedmediumak4sel) != 0 ) googBTaggedJets.push_back(jet) ; 
+    if ( btaggedmediumak4sel(evt, ijet,retbtaggedmediumak4sel) != 0 ) goodBTaggedJets.push_back(jet) ; 
   }
 
+  h1_["nak4"] -> Fill(goodAK4Jets.size()) ; 
   if ( goodAK4Jets.size() < 1 ) return false ; 
+  h1_["ptak4leading"] -> Fill(goodAK4Jets.at(0).getPt()) ; 
+  h1_["etaak4leading"] -> Fill(goodAK4Jets.at(0).getEta()) ; 
+  
   HT htak4(goodAK4Jets) ; 
+  h1_["htak4"] -> Fill(htak4.getHT()) ; 
   if ( htak4.getHT() < HTMin_ ) return false; 
   h1_["cutflow"] -> Fill(4) ; 
 
   std::sort(goodAK4Jets.begin(), goodAK4Jets.end(), Utilities::sortByEta<vlq::Jet>) ; 
-
+  h1_["ptak4forwardmost"] -> Fill(goodAK4Jets.at(0).getPt()) ; 
+  h1_["etaak4forwardmost"] -> Fill(goodAK4Jets.at(0).getEta()) ; 
   if ( abs(goodAK4Jets.at(0).getEta()) < minForwardEtaJet_ ) return false ; 
   h1_["cutflow"] -> Fill(5) ; 
 
-  if ( googBTaggedJets.size() < 1 ) return false ; 
+  h1_["nbmedium"] -> Fill(goodBTaggedJets.size()) ; 
+  if ( goodBTaggedJets.size() < 1 ) return false ; 
   h1_["cutflow"] -> Fill(6) ; 
+  h1_["ptbjetleading"] -> Fill(goodBTaggedJets.at(0).getPt()) ; 
+  h1_["etabjetleading"] -> Fill(goodBTaggedJets.at(0).getEta()) ; 
 
+  h1_["nhjets"] -> Fill(goodHJets.size()) ; 
   if (goodHJets.size() < 1) return false ;
   h1_["cutflow"] -> Fill(7) ;
+  h1_["pthjetleading"] -> Fill(goodHJets.at(0).getPt()) ; 
+  h1_["etahjetleading"] -> Fill(goodHJets.at(0).getEta()) ; 
+  h1_["masshjetleading"] -> Fill(goodHJets.at(0).getMass()) ; 
 
+  h1_["ntjets"] -> Fill(goodTJets.size()) ; 
   if (goodTJets.size() < 1) return false ;
   h1_["cutflow"] -> Fill(8) ;
+  h1_["pttjetleading"] -> Fill(goodTJets.at(0).getPt()) ; 
+  h1_["etatjetleading"] -> Fill(goodTJets.at(0).getEta()) ; 
+  h1_["masstjetleading"] -> Fill(goodTJets.at(0).getMass()) ; 
+
+  h1_["drthjets"] -> Fill((goodTJets.at(0).getP4()).DeltaR(goodHJets.at(0).getP4())) ; 
+  h1_["dphithjets"] -> Fill((goodTJets.at(0).getP4()).DeltaPhi(goodHJets.at(0).getP4())) ; 
+  h1_["detathjets"] -> Fill(abs(goodTJets.at(0).getEta()-goodHJets.at(0).getEta())) ; 
+  h1_["massthjets"] -> Fill((goodTJets.at(0).getP4()+goodHJets.at(0).getP4()).Mag()) ; 
 
   return true ; 
 
@@ -221,11 +247,42 @@ void VLQAna::beginJob() {
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "Trigger") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "N(AK8)>1") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "H_{T} > 850 GeV") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "H_{T} > 1050 GeV") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "N(forward jet)>0") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "N(b jet medium)>0") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(H jet)>0") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(top jet)>0") ; 
+
+  h1_["nak4"] = fs->make<TH1D>("nak4", ";N(AK4);;", 21,-0.5,20.5); 
+  h1_["nak8"] = fs->make<TH1D>("nak8", ";N(AK8);;", 11,-0.5,10.5); 
+  h1_["nbmedium"] = fs->make<TH1D>("nbmedium", ";N(b jets, medium OP);;" , 11, -0.5,10.5) ; 
+  h1_["nhjets"] = fs->make<TH1D>("nhjets", ";N(H jets);;", 11, -0.5,10.5) ; 
+  h1_["ntjets"] = fs->make<TH1D>("ntjets", ";N(top jets);;", 11, -0.5,10.5) ; 
+
+  h1_["ptak4leading"] = fs->make<TH1D>("ptak4leading" ,";p_T(leading AK4 jet) [GeV];;", 40, 0., 2000.) ; 
+  h1_["ptak8leading"] = fs->make<TH1D>("ptak8leading" ,";p_T(leading AK8 jet) [GeV];;", 40, 0., 2000.) ; 
+  h1_["ptbjetleading"] = fs->make<TH1D>("ptbjetleading" ,";p_T(leading b jet) [GeV];;", 40, 0., 2000.) ; 
+  h1_["ptak4forwardmost"] = fs->make<TH1D>("ptak4forwardmost", ";p_T(forwardmost AK4 jet);;" , 20, 0., 200.) ; 
+  h1_["pthjetleading"] = fs->make<TH1D>("pthjetleading" ,";p_T (leading H jet) [GeV]", 100, 0., 2000.) ; 
+  h1_["pttjetleading"] = fs->make<TH1D>("pttjetleading" ,";p_T (leading top-tagged jet) [GeV]", 100, 0., 2000.) ; 
+
+  h1_["etaak4leading"] = fs->make<TH1D>("etaak4leading", ";#eta(leading AK4 jet);;", 100 ,-5. ,5.) ; 
+  h1_["etaak8leading"] = fs->make<TH1D>("etaak8leading", ";#eta(leading AK8 jet);;", 100 ,-5. ,5.) ; 
+  h1_["etabjetleading"] = fs->make<TH1D>("etabjetleading", ";#eta(leading b jet);;", 100 ,-5. ,5.) ; 
+  h1_["etaak4forwardmost"] = fs->make<TH1D>("etaak4forwardmost", ";p_T(forwardmost AK4 jet);;" , 100 ,-5. ,5.) ; 
+  h1_["etahjetleading"] = fs->make<TH1D>("etahjetleading", ";#eta(leading H jet);;", 100 ,-5. ,5.) ; 
+  h1_["etatjetleading"] = fs->make<TH1D>("etatjetleading", ";#eta(leading top-tagged jet);;", 100 ,-5. ,5.) ; 
+
+  h1_["masshjetleading"] = fs->make<TH1D>("masshjetleading" ,";M (leading H jet) [GeV]", 50, 0., 250.) ; 
+  h1_["masstjetleading"] = fs->make<TH1D>("masstjetleading" ,";M (leading top-tagged jet) [GeV]", 50, 0., 250.) ; 
+
+  h1_["htak4"] = fs->make<TH1D>("htak4", "H_{T}(AK4 jets) [GeV]", 200, 0., 4000); 
+
+  h1_["drthjets"] = fs->make<TH1D>("drthjets", ";#DeltaR(H jet, top-tagged jet);;", 40, 0, 4.) ;  
+  h1_["dphithjets"] = fs->make<TH1D>("dphithjets", ";#Delta#phi(H jet, top-tagged jet);;", 40, 0, 4.) ;  
+  h1_["detathjets"] = fs->make<TH1D>("detathjets", ";#Delta#eta(H jet, top-tagged jet);;", 40, 0, 4.) ;  
+
+  h1_["massthjets"] = fs->make<TH1D>("massthjets", ";M_{inv.}(H jet, top-tagged jet);;", 100, 0., 2000.) ;  
 
 }
 

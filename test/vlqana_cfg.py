@@ -27,6 +27,7 @@ from infiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
+      #files_TprimeBToTH_M800_LH
       files_TprimeBToTH_M1200_LH
       #files_QCD_HT2000toInf
       ) 
@@ -38,23 +39,25 @@ from Analysis.VLQAna.VLQAna_cfi import *
 process.anaA = ana.clone()
 process.anaB = ana.clone(
     TJetSelParams = defaultTJetSelectionParameters.clone(
+      jettau3Bytau2Min    = cms.double(0.70) ,
+      jettau3Bytau2Max    = cms.double(1.00) ,
+      jetMinMassMin       = cms.double(0.0) ,
+      jetMinMassMax       = cms.double(50.) ,
+      jetMassMin          = cms.double(0) ,
       jetMassMax          = cms.double(140) ,
       ), 
     )
 process.anaC = ana.clone(
-    TJetSelParams = defaultTJetSelectionParameters.clone(
-      jetMassMax          = cms.double(140) ,
-      ), 
-      HJetSelParams = defaultHJetSelectionParameters.clone(
-        subjetCSVMin        = cms.double(-10000000) ,
-        subjetCSVMax        = cms.double(0.605) ,
-        ), 
-    )
-process.anaD = ana.clone(
     HJetSelParams = defaultHJetSelectionParameters.clone(
       subjetCSVMin        = cms.double(-10000000) ,
       subjetCSVMax        = cms.double(0.605) ,
       ), 
+    )
+process.anaD = process.anaB.clone(
+      HJetSelParams = defaultHJetSelectionParameters.clone(
+        subjetCSVMin        = cms.double(-10000000) ,
+        subjetCSVMax        = cms.double(0.605) ,
+        ), 
     )
 
 process.TFileService = cms.Service("TFileService",

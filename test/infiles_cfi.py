@@ -1,3 +1,12 @@
+files_TprimeBToTH_M800_LH = [ 
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_174806/0000/B2GEDMNtuple_1.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_174806/0000/B2GEDMNtuple_2.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_174806/0000/B2GEDMNtuple_3.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_174806/0000/B2GEDMNtuple_4.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_174806/0000/B2GEDMNtuple_5.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_174806/0000/B2GEDMNtuple_6.root',
+    ]
+
 files_TprimeBToTH_M1200_LH = [ 
     'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172819/0000/B2GEDMNtuple_1.root',
     'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172819/0000/B2GEDMNtuple_2.root',
@@ -777,3 +786,4 @@ files_QCD_HT2000toInf = [
   'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_072155/0000/B2GEDMNtuple_8.root',
   'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_072155/0000/B2GEDMNtuple_9.root',
   ]
+
