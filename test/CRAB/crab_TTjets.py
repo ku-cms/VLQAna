@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'DYamcnlo_25ns'
+config.General.requestName = 'TTjets_25ns'
 config.General.workArea = 'OS2LAna_06oct2015/'
 config.General.transferLogs = True
 
@@ -12,7 +12,7 @@ config.JobType.psetName = 'os2lana_cfg.py'
 config.JobType.pyCfgParams = ['isData=False']
 
 config.section_("Data")
-config.Data.inputDataset = '/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/phys_b2g-B2GAnaFW_v74x_v6p1_25ns-V2-d5e3976e154b1b4043d031aaa9c2809b/USER'
+config.Data.inputDataset = '/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/vorobiev-B2GAnaFW_Run2Spring15_25ns_v74x_V6_1-6cd0525a22c1e7f79f9247caf4357294/USER'
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 20

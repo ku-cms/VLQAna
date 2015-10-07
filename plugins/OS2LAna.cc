@@ -614,6 +614,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["nhjet"] -> Fill(hjets.size(), evtwt) ; 
     h1_["ntjet"] -> Fill(tjets.size(), evtwt) ; 
 
+    double ST = htak4.getHT() ;
+    if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
+    if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
+
+    h1_["st"] ->Fill(ST, evtwt) ; 
+    h1_["st_nowt"] ->Fill(ST) ; 
+
     //// Selection: fat jet
     if ( goodAK8Jets.size() < 1 ) return false ; 
 
@@ -672,13 +679,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     }
 
-    double ST = htak4.getHT() ;
-    if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
-    if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
-
     if ( ST > STMin_ ) {
       h1_["cutflow"] -> Fill(8, evtwt) ;  
       h1_["cutflow_nowt"] -> Fill(8) ; 
+
+      if ( btaggedmediumAK4.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
+      if ( btaggedmediumAK4.size() > 0 ) h1_["cutflow_nowt"] -> Fill(9) ;  
 
       if ( wjets.size() > 0 ) h1_["cutflow"] -> Fill(10, evtwt) ;  
       if ( wjets.size() > 0 ) h1_["cutflow_nowt"] -> Fill(10) ;  
@@ -948,6 +954,7 @@ void OS2LAna::beginJob() {
   h1_["csvbjetleading"] = fs->make<TH1D>("csvbjetleading", ";CSV (leading b jet);;" ,50 ,0. ,1.) ; 
 
   h1_["ht"] = fs->make<TH1D>("ht" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
+  h1_["st"] = fs->make<TH1D>("st" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
 
   h1_["met"] = fs->make<TH1D>("met", ";E_{T}^{miss} [GeV];;", 40, 0., 400.) ; 
   h1_["metPhi"] = fs->make<TH1D>("metPhi", ";#phi(E_{T}^{miss});;", 80, -4., 4.) ; 
@@ -1000,6 +1007,7 @@ void OS2LAna::beginJob() {
   h1_["csvbjetleading_nowt"] = fs->make<TH1D>("csvbjetleading_nowt", ";CSV (leading b jet);;" ,50 ,0. ,1.) ; 
 
   h1_["ht_nowt"] = fs->make<TH1D>("ht_nowt", ";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
+  h1_["st_nowt"] = fs->make<TH1D>("st_nowt" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
 
   h1_["met_nowt"] = fs->make<TH1D>("met_nowt", ";E_{T}^{miss} [GeV];;", 40, 0., 400.) ; 
   h1_["metPhi_nowt"] = fs->make<TH1D>("metPhi_nowt", ";#phi(E_{T}^{miss});;", 80, -4., 4.) ; 

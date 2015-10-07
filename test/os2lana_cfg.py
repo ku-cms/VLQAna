@@ -26,39 +26,10 @@ from infiles_cfi import *
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(fileNamess_TT_M1200_Spring15_25ns) 
-    #fileNames = cms.untracked.vstring(
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_17.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_18.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_19.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_20.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_26.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_37.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_38.root',
-    #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_v6p1_25ns/150928_171042/0000/B2GEDMNtuple_41.root',
-
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_1.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_10.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_11.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_12.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_13.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_14.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_15.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_16.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_17.root',
-    #'/store/user/devdatta/DoubleMuon/crab_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075412/0000/B2GEDMNtuple_18.root',
-
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_1.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_10.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_11.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_12.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_13.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_14.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_15.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_16.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_17.root',
-    #'/store/user/devdatta/DoubleEG/crab_DoubleEG_Run2015D-PromptReco-v3_Sep26_v74x_V7_25ns/150926_075907/0000/B2GEDMNtuple_18.root',
-    #)
+    fileNames = cms.untracked.vstring(
+    #fileNamess_TT_M800_Spring15_25ns
+    files_DY_M50
+    ) 
     )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
