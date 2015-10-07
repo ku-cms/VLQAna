@@ -91,7 +91,7 @@ process.anaelelBoosted = ana.clone(
     BoostedZCandParams = defaultZCandSelectionParameters.clone(
         massMin = cms.double(75),
         massMax = cms.double(105),
-        ptMin = cms.double(150.),
+        ptMin = cms.double(250.),
         ), 
     )
 
@@ -103,7 +103,7 @@ process.anamumuBoosted = ana.clone(
     BoostedZCandParams = defaultZCandSelectionParameters.clone(
         massMin = cms.double(75),
         massMax = cms.double(105),
-        ptMin = cms.double(150.),
+        ptMin = cms.double(250.),
         ), 
     )
 
