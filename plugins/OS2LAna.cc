@@ -83,13 +83,14 @@ class OS2LAna : public edm::EDFilter {
     // ----------member data ---------------------------
     edm::InputTag l_trigName                     ; 
     edm::InputTag l_trigBit                      ; 
-    edm::InputTag l_metFiltersName               ; 
-    edm::InputTag l_metFiltersBit                ; 
-    edm::InputTag l_hbheNoiseFilter              ; 
+   // edm::InputTag l_metFiltersName               ; 
+   // edm::InputTag l_metFiltersBit                ; 
+   // edm::InputTag l_hbheNoiseFilter              ; 
     std::string   l_genEvtInfoProd               ; 
-    edm::InputTag l_vtxRho                       ; 
-    edm::InputTag l_vtxZ                         ; 
-    edm::InputTag l_vtxNdf                       ; 
+   // edm::InputTag l_vtxRho                       ; 
+   // edm::InputTag l_vtxZ                         ; 
+   // edm::InputTag l_vtxNdf                       ; 
+    edm::InputTag l_npv                          ; 
     edm::InputTag l_jetAK8Pt                     ; 
     edm::InputTag l_jetAK8Eta                    ; 
     edm::InputTag l_jetAK8Phi                    ; 
@@ -157,8 +158,8 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_elCharge                     ;
     edm::InputTag l_met                          ; 
     edm::InputTag l_metPhi                       ; 
-    edm::InputTag l_metNoHF                      ; 
-    edm::InputTag l_metNoHFPhi                   ; 
+   //edm::InputTag l_metNoHF                      ; 
+   //edm::InputTag l_metNoHFPhi                   ; 
     edm::InputTag l_HbbCands                     ; 
     std::vector<std::string> hltPaths_           ; 
     std::vector<std::string> metFilters_         ; 
@@ -205,13 +206,14 @@ using namespace std;
 OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_trigName              (iConfig.getParameter<edm::InputTag>     ("trigNameLabel")),
   l_trigBit               (iConfig.getParameter<edm::InputTag>     ("trigBitLabel")),
-  l_metFiltersName        (iConfig.getParameter<edm::InputTag>     ("metFiltersNameLabel")),
-  l_metFiltersBit         (iConfig.getParameter<edm::InputTag>     ("metFiltersBitLabel")),
-  l_hbheNoiseFilter       (iConfig.getParameter<edm::InputTag>     ("hbheNoiseFilterLabel")),
+  //l_metFiltersName        (iConfig.getParameter<edm::InputTag>     ("metFiltersNameLabel")),
+  //l_metFiltersBit         (iConfig.getParameter<edm::InputTag>     ("metFiltersBitLabel")),
+  //l_hbheNoiseFilter       (iConfig.getParameter<edm::InputTag>     ("hbheNoiseFilterLabel")),
   l_genEvtInfoProd        (iConfig.getParameter<std::string>       ("genEvtInfoProdName")),
-  l_vtxRho                (iConfig.getParameter<edm::InputTag>     ("vtxRhoLabel")),  
-  l_vtxZ                  (iConfig.getParameter<edm::InputTag>     ("vtxZLabel")),  
-  l_vtxNdf                (iConfig.getParameter<edm::InputTag>     ("vtxNdfLabel")),  
+  //l_vtxRho                (iConfig.getParameter<edm::InputTag>     ("vtxRhoLabel")),  
+  //l_vtxZ                  (iConfig.getParameter<edm::InputTag>     ("vtxZLabel")),  
+  //l_vtxNdf                (iConfig.getParameter<edm::InputTag>     ("vtxNdfLabel")),  
+  l_npv                   (iConfig.getParameter<edm::InputTag>     ("npvLabel")), 
   l_jetAK8Pt              (iConfig.getParameter<edm::InputTag>     ("jetAK8PtLabel")),  
   l_jetAK8Eta             (iConfig.getParameter<edm::InputTag>     ("jetAK8EtaLabel")),  
   l_jetAK8Phi             (iConfig.getParameter<edm::InputTag>     ("jetAK8PhiLabel")),  
@@ -279,8 +281,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_elCharge              (iConfig.getParameter<edm::InputTag>     ("elCharge")), 
   l_met                   (iConfig.getParameter<edm::InputTag>     ("met")),
   l_metPhi                (iConfig.getParameter<edm::InputTag>     ("metPhi")),
-  l_metNoHF               (iConfig.getParameter<edm::InputTag>     ("metNoHF")),
-  l_metNoHFPhi            (iConfig.getParameter<edm::InputTag>     ("metNoHFPhi")),
+  //l_metNoHF               (iConfig.getParameter<edm::InputTag>     ("metNoHF")),
+  //l_metNoHFPhi            (iConfig.getParameter<edm::InputTag>     ("metNoHFPhi")),
   l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
   metFilters_             (iConfig.getParameter<vector<string>>    ("metFilters")), 
@@ -310,6 +312,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   produces<unsigned>("nTJets");
   produces<unsigned>("nHJets");
   produces<unsigned>("nWJets");
+  produces<double>("weight");
   produces<double>("htak4jets");
   produces<double>("htak8jets");
   produces<double>("maxetaak4");
@@ -359,11 +362,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   hstring h_trigName             ; evt.getByLabel (l_trigName               , h_trigName             );
   hfloat  h_trigBit              ; evt.getByLabel (l_trigBit                , h_trigBit              ); 
-  hstring h_metFiltersName       ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
-  hfloat  h_metFiltersBit        ; evt.getByLabel (l_metFiltersBit          , h_metFiltersBit        ); 
-  hfloat  h_vtxRho               ; evt.getByLabel (l_vtxRho                 , h_vtxRho               );
-  hfloat  h_vtxZ                 ; evt.getByLabel (l_vtxZ                   , h_vtxZ                 );
-  hint    h_vtxNdf               ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
+  //hstring h_metFiltersName       ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
+  //hfloat  h_metFiltersBit        ; evt.getByLabel (l_metFiltersBit          , h_metFiltersBit        ); 
+  //hfloat  h_vtxRho               ; evt.getByLabel (l_vtxRho                 , h_vtxRho               );
+  //hfloat  h_vtxZ                 ; evt.getByLabel (l_vtxZ                   , h_vtxZ                 );
+  //hint    h_vtxNdf               ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
+  Handle <int> h_npv             ; evt.getByLabel (l_npv                    , h_npv                  );
   hfloat  h_jetAK8Pt             ; evt.getByLabel (l_jetAK8Pt               , h_jetAK8Pt             );
   hfloat  h_jetAK8Eta            ; evt.getByLabel (l_jetAK8Eta              , h_jetAK8Eta            );
   hfloat  h_jetAK8Phi            ; evt.getByLabel (l_jetAK8Phi              , h_jetAK8Phi            );
@@ -434,10 +438,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   hfloat h_met                   ; evt.getByLabel(l_met                      , h_met                  ); 
   hfloat h_metPhi                ; evt.getByLabel(l_metPhi                   , h_metPhi               ); 
-  hfloat h_metNoHF               ; evt.getByLabel(l_metNoHF                  , h_metNoHF              ); 
-  hfloat h_metNoHFPhi            ; evt.getByLabel(l_metNoHFPhi               , h_metNoHFPhi           ); 
+  //hfloat h_metNoHF               ; evt.getByLabel(l_metNoHF                  , h_metNoHF              ); 
+  //hfloat h_metNoHFPhi            ; evt.getByLabel(l_metNoHFPhi               , h_metNoHFPhi           ); 
 
-  Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter, h_hbheNoiseFilter);
+  //Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter, h_hbheNoiseFilter);
 
   //// Event variables 
   double evtwt(1.0) ; 
@@ -470,18 +474,21 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["cutflow_nowt"] -> AddBinContent(2) ; 
 
   //// Pre-sel: Good primary vertices
-  unsigned npv(0) ; 
+/* 
+ unsigned npv(0) ; 
   for ( unsigned ipv = 0; ipv < (h_vtxRho.product())->size(); ++ipv) {
     double vtxRho = (h_vtxRho.product())->at(ipv) ; 
     double vtxZ = (h_vtxZ.product())->at(ipv) ; 
     double vtxNdf = (h_vtxNdf.product())->at(ipv) ; 
     if ( abs(vtxRho) < 2. && abs(vtxZ) <= 24. && vtxNdf > 4 ) ++npv ; 
   }
+*/
+  int npv = (h_npv.product())[0];
   if ( npv < 1 ) return false ; 
 
   h1_["cutflow"] -> AddBinContent(3, evtwt) ; 
   h1_["cutflow_nowt"] -> AddBinContent(3) ; 
-
+/*
   //// Pre-sel: MET filters: CSC beam halo and HBHE noise filters
   bool hbheNoiseFilter = h_hbheNoiseFilter.product() ; 
   if ( !hbheNoiseFilter ) return false ; 
@@ -498,7 +505,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
   //}
   if ( !metfilterdecision ) return false ; 
-
+*/
   h1_["cutflow"] -> AddBinContent(4, evtwt) ; 
   h1_["cutflow_nowt"] -> AddBinContent(4) ; 
 
@@ -872,7 +879,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   double ptak8leading ((goodAK8Jets.at(0)).getPt()) ; 
   double mak8leading ((goodAK8Jets.at(0)).getMass()) ; 
-  double csvak8leading ((goodAK8Jets.at(0)).getCSV()) ; 
+  //double csvak8leading ((goodAK8Jets.at(0)).getCSV()) ; 
 
   h1_["ptak8leading"] -> Fill(ptak8leading, evtwt) ; 
   h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta(), evtwt) ;
@@ -883,13 +890,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   double ptak82nd (0) ;
   double mak82nd (0) ;
+/*
   double csvak82nd (0) ; 
   if (goodAK8Jets.size() > 1) {
     ptak82nd = (goodAK8Jets.at(1)).getPt() ; 
     mak82nd = (goodAK8Jets.at(1)).getMass() ; 
     csvak82nd = (goodAK8Jets.at(1)).getCSV() ; 
   }
-
+*/
   h1_["ptak82nd"] -> Fill(ptak82nd) ; 
   h1_["mak82nd"] -> Fill(mak82nd) ; 
 
@@ -899,7 +907,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   double ptbjetleading (-1);
   double csvbjetleading (-1);
-  double csvbjethighestcsv(-1); 
+  //double csvbjethighestcsv(-1); 
   if ( bjetIdxs.size() > 0 ) {
     ptbjetleading = (h_jetAK4Pt.product())->at(bjetIdxs.at(0)) ; 
     csvbjetleading = (h_jetAK4CSV.product())->at(bjetIdxs.at(0)) ; 
@@ -970,6 +978,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::auto_ptr<unsigned> nTJets ( new unsigned(tjets.size()) );
   std::auto_ptr<unsigned> nHJets ( new unsigned(hjets.size()) );
   std::auto_ptr<unsigned> nWJets ( new unsigned(wjets.size()) );
+  std::auto_ptr<double> weight ( new double(evtwt) );
   std::auto_ptr<double> htak4jets ( new double(htak4.getHT()) );
   std::auto_ptr<double> htak8jets ( new double(htak8.getHT()) );
   std::auto_ptr<double> maxetaak4 ( new double(maxeta) );
@@ -991,7 +1000,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(nbtaggedlooseAK4, "nbtaggedlooseAK4") ; 
   evt.put(nTJets, "nTJets") ; 
   evt.put(nHJets, "nHJets") ; 
-  evt.put(nWJets, "nWJets") ; 
+  evt.put(nWJets, "nWJets") ;
+  evt.put(weight, "weight") ; 
   evt.put(htak4jets, "htak4jets") ; 
   evt.put(htak8jets, "htak8jets") ; 
   evt.put(maxetaak4, "maxetaak4") ; 
