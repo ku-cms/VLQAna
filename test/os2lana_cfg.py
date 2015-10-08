@@ -128,6 +128,9 @@ process.out = cms.OutputModule("PoolOutputModule",
       "drop *_generator_*_*",
       "drop *_genPart_*_*",
       "drop *_TriggerResults_*_*",
+      "drop *_TriggerUserData_*_*",
+      "drop *_eventShape*_*_*",
+      "drop *_centrality_*_*", 
       "keep *_GenInfo_*_*",
       #"keep *_*_puBX_*", 
       #"keep *_*_puNInt_*",
@@ -139,6 +142,7 @@ if options.runMuon:
     process.out.outputCommands += [
         "drop *_electrons_*_*",# sometimes gives LogicError
         "drop *_anaelel_*_*",
+        "drop *_*_goodElectronsIdxs_*",
         ]
     process.p = cms.Path(
         process.allEvents
@@ -151,6 +155,7 @@ else:
     process.out.outputCommands += [
         "drop *_muons_*_*", 
         "drop *_anamumu_*_*",
+        "drop *_*_goodMuonsIdxs_*",
         ]
     process.p = cms.Path(
         process.allEvents

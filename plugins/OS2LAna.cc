@@ -160,7 +160,7 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_metPhi                       ; 
    //edm::InputTag l_metNoHF                      ; 
    //edm::InputTag l_metNoHFPhi                   ; 
-    edm::InputTag l_HbbCands                     ; 
+   //edm::InputTag l_HbbCands                     ; 
     std::vector<std::string> hltPaths_           ; 
     std::vector<std::string> metFilters_         ; 
     edm::ParameterSet DilepCandParams_           ; 
@@ -283,7 +283,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_metPhi                (iConfig.getParameter<edm::InputTag>     ("metPhi")),
   //l_metNoHF               (iConfig.getParameter<edm::InputTag>     ("metNoHF")),
   //l_metNoHFPhi            (iConfig.getParameter<edm::InputTag>     ("metNoHFPhi")),
-  l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
+  //l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
   hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
   metFilters_             (iConfig.getParameter<vector<string>>    ("metFilters")), 
   DilepCandParams_        (iConfig.getParameter<edm::ParameterSet> ("DilepCandParams")),
@@ -322,6 +322,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   produces<double>("pt2ndAK8");
   produces<double>("mass1stAK8");
   produces<double>("mass2ndAK8");
+  produces<vector<unsigned> >("goodMuonsIdxs");
+  produces<vector<unsigned> >("goodElectronsIdxs");
   produces<vector<unsigned> >("ak4goodjets");
   produces<vector<unsigned> >("ak8goodjets");
   produces<vector<unsigned>>("bjetIdxs");
@@ -509,7 +511,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["cutflow"] -> AddBinContent(4, evtwt) ; 
   h1_["cutflow_nowt"] -> AddBinContent(4) ; 
 
-  vlq::MuonCollection goodMuPs, goodMuMs ; 
+  vlq::MuonCollection goodMuPs, goodMuMs ;
+  vector<unsigned> muSelIdxs; 
   MuonSelector mupsel(mupselParams_) ; 
   MuonSelector mumsel(mumselParams_) ; 
   for (unsigned imu = 0; imu < (h_muPt.product())->size(); ++imu) {
@@ -526,6 +529,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       mu.setMass((h_muMass.product())->at(imu)) ; 
       mu.setCharge((h_muCharge.product()->at(imu))) ; 
       goodMuPs.push_back(mu) ; 
+      muSelIdxs.push_back(imu);
     }
     bool retmumsel(false) ;
     if (mumsel(evt, imu, retmumsel) == 1) {
@@ -540,10 +544,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       mu.setMass((h_muMass.product())->at(imu)) ; 
       mu.setCharge((h_muCharge.product()->at(imu))) ; 
       goodMuMs.push_back(mu) ; 
+      muSelIdxs.push_back(imu);
     }
   }
-
   vlq::ElectronCollection goodElPs, goodElMs ; 
+  vector<unsigned> eleSelIdxs;
   ElectronSelector elpsel(elpselParams_) ; 
   ElectronSelector elmsel(elmselParams_) ; 
   for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
@@ -560,6 +565,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       el.setMass((h_elMass.product())->at(iel)) ; 
       el.setCharge((h_elCharge.product()->at(iel))) ; 
       goodElPs.push_back(el) ; 
+      eleSelIdxs.push_back(iel);
     }
     bool retelmsel(false) ;
     if (elmsel(evt, iel, retelmsel) == 1) {
@@ -574,6 +580,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       el.setMass((h_elMass.product())->at(iel)) ; 
       el.setCharge((h_elCharge.product()->at(iel))) ; 
       goodElMs.push_back(el) ; 
+      eleSelIdxs.push_back(iel);
     }
   }
 
@@ -972,6 +979,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (goodMus.size() > 0) std::sort(goodMus.begin(), goodMus.end(), Utilities::sortByPt<vlq::Muon>) ;
   if (goodEls.size() > 0) std::sort(goodEls.begin(), goodEls.end(), Utilities::sortByPt<vlq::Electron>) ;
 
+  //loop over good
+
   std::auto_ptr<unsigned> ngoodAK4Jets ( new unsigned(goodAK4Jets.size()) );
   std::auto_ptr<unsigned> ngoodAK8Jets ( new unsigned(goodAK8Jets.size()) );
   std::auto_ptr<unsigned> nbtaggedlooseAK4 ( new unsigned(btaggedlooseAK4.size()) );
@@ -988,6 +997,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::auto_ptr<double> pt2ndAK8   ( new double(ptak8_2) );
   std::auto_ptr<double> mass1stAK8 ( new double(mak8_1) );
   std::auto_ptr<double> mass2ndAK8 ( new double(mak8_2) );
+  std::auto_ptr<vector<unsigned> > goodMuonsIdxs ( new vector<unsigned>(muSelIdxs));
+  std::auto_ptr<vector<unsigned> > goodElectronsIdxs ( new vector<unsigned>(eleSelIdxs));
   std::auto_ptr<vector<unsigned> > ak4goodjets ( new vector<unsigned>(ak4selIdxs));
   std::auto_ptr<vector<unsigned> > ak8goodjets ( new vector<unsigned>(ak8selIdxs));
   std::auto_ptr<vector<unsigned> > bjetIdxsptr ( new vector<unsigned>(bjetIdxs));
@@ -1010,7 +1021,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(pt1stAK8  , "pt1stAK8") ; 
   evt.put(pt2ndAK8  , "pt2ndAK8") ; 
   evt.put(mass1stAK8, "mass1stAK8") ; 
-  evt.put(mass2ndAK8, "mass2ndAK8") ; 
+  evt.put(mass2ndAK8, "mass2ndAK8") ;
+  evt.put(goodMuonsIdxs, "goodMuonsIdxs");
+  evt.put(goodElectronsIdxs, "goodElectronsIdxs");
   evt.put(ak4goodjets, "ak4goodjets");
   evt.put(ak8goodjets, "ak8goodjets");
   evt.put(bjetIdxsptr, "bjetIdxs");
