@@ -98,14 +98,15 @@ def main():
       ### Open input ROOT file
       root_file = TFile(dataset)
       htemp = root_file.Get(os.path.join(options.analyzer_module,'cutflow'))
-      #nEventsAll = htemp.GetBinContent(1)
-      nEventsAll = dataset_nevt[dataset]#*23443.424/2 
+      nEventsAll = htemp.GetBinContent(1)
+      #nEventsAll = dataset_nevt[dataset]#*23443.424/2 
       scale = 1.
       if group_xsec[group] > 0.:
         if group_intlumi[group] > 0.:
           scale = (dataset_xsec[dataset]*group_intlumi[group])/nEventsAll
         else:
           scale = dataset_xsec[dataset]/(group_xsec[group]*nEventsAll)
+      print 'dataset', dataset, ' nevts ', nEventsAll, ' group sxec', group_xsec[group], ' dataset xsec ', dataset_xsec[dataset], ' int lumi ', group_intlumi[group], ' scale ', scale
 
       ### Get number of histograms
       nhists = root_file.Get(options.analyzer_module).GetListOfKeys().GetEntries()
