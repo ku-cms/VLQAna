@@ -34,31 +34,28 @@ process.source = cms.Source(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
+process.load("Analysis.VLQAna.EventCleaner_cff") 
+process.evtcleaner.isData = options.isData 
+process.evtcleaner.hltPaths = cms.vstring (
+        #"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", 
+        #"HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"
+        #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", 
+        )  
+
 process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
 process.anaelel = ana.clone(
     isData = options.isData,
-    hltPaths = cms.vstring (
-        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", 
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"
-        ), 
     )
 
 process.anamumu = ana.clone(
     isData = options.isData, 
-    hltPaths = cms.vstring (
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", 
-        ), 
     )
 
 process.anaelelBoosted = ana.clone(
     isData = options.isData,
-    hltPaths = cms.vstring (
-        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", 
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"
-        ), 
     BoostedZCandParams = defaultZCandSelectionParameters.clone(
         massMin = cms.double(75),
         massMax = cms.double(105),
@@ -68,9 +65,6 @@ process.anaelelBoosted = ana.clone(
 
 process.anamumuBoosted = ana.clone(
     isData = options.isData, 
-    hltPaths = cms.vstring (
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", 
-        ), 
     BoostedZCandParams = defaultZCandSelectionParameters.clone(
         massMin = cms.double(75),
         massMax = cms.double(105),
@@ -79,14 +73,10 @@ process.anamumuBoosted = ana.clone(
     )
 
 if not options.isData:
-  process.anamumu.elpselParams.useVID = cms.bool(False)
-  process.anaelel.elpselParams.useVID = cms.bool(False)
-  process.anamumuBoosted.elpselParams.useVID = cms.bool(False)
-  process.anaelelBoosted.elpselParams.useVID = cms.bool(False)
-  process.anamumu.elmselParams.useVID = cms.bool(False)
-  process.anaelel.elmselParams.useVID = cms.bool(False)
-  process.anamumuBoosted.elmselParams.useVID = cms.bool(False)
-  process.anaelelBoosted.elmselParams.useVID = cms.bool(False)
+  process.anamumu.elselParams.useVID = cms.bool(False)
+  process.anaelel.elselParams.useVID = cms.bool(False)
+  process.anamumuBoosted.elselParams.useVID = cms.bool(False)
+  process.anaelelBoosted.elselParams.useVID = cms.bool(False)
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
@@ -106,14 +96,17 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 ## Event counter
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
-process.allEvents = eventCounter.clone()
-process.selectedEvents = eventCounter.clone()
+process.allEvents = eventCounter.clone(isData=options.isData)
+process.cleanedEvents = eventCounter.clone(isData=options.isData)
+process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.p = cms.Path(
     process.allEvents
+    *process.evtcleaner
+    *process.cleanedEvents
     *cms.ignore(process.anaelel)*cms.ignore(process.anaelelBoosted)
     *cms.ignore(process.anamumu)*cms.ignore(process.anamumuBoosted)
-    * process.selectedEvents
+    * process.finalEvents
     )
 #process.outpath = cms.EndPath(process.out)
 

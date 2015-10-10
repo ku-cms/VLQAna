@@ -6,6 +6,7 @@
     <use name="CommonTools/UtilAlgos"/>
     <use name="SimDataFormats/GeneratorProducts"/>
     <use name="AnalysisDataFormats/BoostedObjects"/>
+    <use name="Analysis/VLQAna"/>
     <use name="root"/>
     <use name="roottmva"/>
     <flags EDM_PLUGIN="1"/>

@@ -1,21 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.ZCandSelector_cfi import *
-from Analysis.VLQAna.ElectronSelector_cfi import *
-from Analysis.VLQAna.MuonSelector_cfi import *
+from Analysis.VLQAna.ElectronMaker_cfi import *
+from Analysis.VLQAna.MuonMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
 from Analysis.VLQAna.JetSelector_cfi import *
 
 ana = cms.EDFilter("OS2LAna", 
-    trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
-    trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
-    metFiltersNameLabel        = cms.InputTag("METUserData", "triggerNameTree"), 
-    metFiltersBitLabel         = cms.InputTag("METUserData", "triggerBitTree"), 
-    hbheNoiseFilterLabel       = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun1"), 
-    genEvtInfoProdName         = cms.string('generator'),
-    vtxRhoLabel                = cms.InputTag("vertexInfo", "rho"),
-    vtxZLabel                  = cms.InputTag("vertexInfo", "z"),
-    vtxNdfLabel                = cms.InputTag("vertexInfo", "ndof"),
     jetAK8PtLabel              = cms.InputTag("jetsAK8", "jetAK8Pt"),
     jetAK8EtaLabel             = cms.InputTag("jetsAK8", "jetAK8Eta"),
     jetAK8PhiLabel             = cms.InputTag("jetsAK8", "jetAK8Phi"),
@@ -30,34 +21,13 @@ ana = cms.EDFilter("OS2LAna",
     jetAK4PhiLabel             = cms.InputTag("jetsAK4", "jetAK4Phi"),
     jetAK4MassLabel            = cms.InputTag("jetsAK4", "jetAK4Mass"),
     jetAK4CSVLabel             = cms.InputTag("jetsAK4", "jetAK4CSV"),
-    muPt                       = cms.InputTag("muons", "muPt"), 
-    muEta                      = cms.InputTag("muons", "muEta"), 
-    muY                        = cms.InputTag("muons", "muY"),
-    muPhi                      = cms.InputTag("muons", "muPhi"), 
-    muMass                     = cms.InputTag("muons", "muMass"), 
-    muE                        = cms.InputTag("muons", "muE"), 
-    muCharge                   = cms.InputTag("muons", "muCharge"), 
-    elPt                       = cms.InputTag("electrons", "elPt"), 
-    elEta                      = cms.InputTag("electrons", "elEta"), 
-    elY                        = cms.InputTag("electrons", "elY"),
-    elPhi                      = cms.InputTag("electrons", "elPhi"), 
-    elMass                     = cms.InputTag("electrons", "elMass"), 
-    elE                        = cms.InputTag("electrons", "elE"), 
-    elCharge                   = cms.InputTag("electrons", "elCharge"), 
     met                        = cms.InputTag("metFull", "metFullPt"), 
     metPhi                     = cms.InputTag("metFull", "metFullPhi"), 
     metNoHF                    = cms.InputTag("met", "metPt"), 
     metNoHFPhi                 = cms.InputTag("met", "metPhi"), 
+    evtwt                      = cms.InputTag("evtcleaner","evtwt"),
     HbbCandsLabel              = cms.InputTag("hbb", "HbbCandidates"),
     jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
-    hltPaths                   = cms.vstring (
-        ), 
-    metFilters                 = cms.vstring (
-        "Flag_goodVertices",
-        "Flag_CSCTightHaloFilter",
-        "Flag_HBHENoiseFilter", 
-        "Flag_eeBadScFilter",
-        ), 
     DilepCandParams            = defaultZCandSelectionParameters.clone(), 
     ZCandParams                = defaultZCandSelectionParameters.clone(
         massMin = cms.double(75),
@@ -72,10 +42,6 @@ ana = cms.EDFilter("OS2LAna",
     GenHSelParams              = genPartParams.clone(), 
     AK4JetSelParams            = defaultAK4JetSelectionParameters.clone(), 
     BTaggedMediumAK4SelParams   = defaultBTaggedAK4JetSelectionParameters.clone(), 
-    mupselParams = defaultMuPSelectionParameters.clone(), 
-    mumselParams = defaultMuMSelectionParameters.clone(), 
-    elpselParams = defaultElPSelectionParameters.clone(), 
-    elmselParams = defaultElMSelectionParameters.clone(), 
     AK8JetSelParams            = defaultAK8JetSelectionParameters.clone(
         jetPtMin   = cms.double(300),
         jetMassMin = cms.double(0) ,
@@ -86,5 +52,7 @@ ana = cms.EDFilter("OS2LAna",
     HTMin                      = cms.double  (800.), 
     STMin                      = cms.double  (1200.), 
     isData                     = cms.bool    (False), 
+    muselParams                = defaultMuonMakerParameters, 
+    elselParams                = defaultElectronMakerParameters, 
     )
 

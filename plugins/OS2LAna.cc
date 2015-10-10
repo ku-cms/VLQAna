@@ -38,14 +38,12 @@ Implementation:
 
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticleWithDaughters.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/ResolvedVjj.h"
-#include "AnalysisDataFormats/BoostedObjects/interface/Muon.h"
-#include "AnalysisDataFormats/BoostedObjects/interface/Electron.h"
 #include "Analysis/VLQAna/interface/JetSelector.h"
 #include "Analysis/VLQAna/interface/HT.h"
 #include "Analysis/VLQAna/interface/VCandProducer.h"
 #include "Analysis/VLQAna/interface/Utilities.h"
-#include "Analysis/VLQAna/interface/MuonSelector.h"
-#include "Analysis/VLQAna/interface/ElectronSelector.h"
+#include "Analysis/VLQAna/interface/MuonMaker.h"
+#include "Analysis/VLQAna/interface/ElectronMaker.h"
 #include "Analysis/VLQAna/interface/DileptonCandsProducer.h"
 #include "Analysis/VLQAna/interface/CandidateFilter.h"
 
@@ -99,24 +97,11 @@ class OS2LAna : public edm::EDFilter {
     edm::InputTag l_jetAK4Phi                    ; 
     edm::InputTag l_jetAK4Mass                   ; 
     edm::InputTag l_jetAK4CSV                    ; 
-    edm::InputTag l_muPt                         ;
-    edm::InputTag l_muEta                        ;
-    edm::InputTag l_muY                          ;
-    edm::InputTag l_muPhi                        ;
-    edm::InputTag l_muMass                       ;
-    edm::InputTag l_muE                          ;
-    edm::InputTag l_muCharge                     ;
-    edm::InputTag l_elPt                         ;
-    edm::InputTag l_elEta                        ;
-    edm::InputTag l_elY                          ;
-    edm::InputTag l_elPhi                        ;
-    edm::InputTag l_elMass                       ;
-    edm::InputTag l_elE                          ;
-    edm::InputTag l_elCharge                     ;
     edm::InputTag l_met                          ; 
     edm::InputTag l_metPhi                       ; 
     edm::InputTag l_metNoHF                      ; 
     edm::InputTag l_metNoHFPhi                   ; 
+    edm::InputTag l_evtwt                        ;
     edm::InputTag l_HbbCands                     ; 
     std::vector<std::string> hltPaths_           ; 
     std::vector<std::string> metFilters_         ; 
@@ -126,10 +111,6 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet GenHSelParams_             ; 
     edm::ParameterSet AK4JetSelParams_           ; 
     edm::ParameterSet BTaggedMediumAK4SelParams_ ; 
-    edm::ParameterSet mupselParams_              ; 
-    edm::ParameterSet mumselParams_              ; 
-    edm::ParameterSet elpselParams_              ; 
-    edm::ParameterSet elmselParams_              ; 
     edm::ParameterSet AK8JetSelParams_           ; 
     edm::ParameterSet TJetSelParams_             ; 
     edm::ParameterSet HJetSelParams_             ; 
@@ -137,6 +118,9 @@ class OS2LAna : public edm::EDFilter {
     double HTMin_                                ; 
     double STMin_                                ; 
     bool   isData_                               ; 
+
+    MuonMaker muonmaker ; 
+    ElectronMaker electronmaker ; 
 
     edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
 
@@ -161,15 +145,6 @@ using namespace std;
 // constructors and destructor
 //
 OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
-  l_trigName              (iConfig.getParameter<edm::InputTag>     ("trigNameLabel")),
-  l_trigBit               (iConfig.getParameter<edm::InputTag>     ("trigBitLabel")),
-  l_metFiltersName        (iConfig.getParameter<edm::InputTag>     ("metFiltersNameLabel")),
-  l_metFiltersBit         (iConfig.getParameter<edm::InputTag>     ("metFiltersBitLabel")),
-  l_hbheNoiseFilter       (iConfig.getParameter<edm::InputTag>     ("hbheNoiseFilterLabel")),
-  l_genEvtInfoProd        (iConfig.getParameter<std::string>       ("genEvtInfoProdName")),
-  l_vtxRho                (iConfig.getParameter<edm::InputTag>     ("vtxRhoLabel")),  
-  l_vtxZ                  (iConfig.getParameter<edm::InputTag>     ("vtxZLabel")),  
-  l_vtxNdf                (iConfig.getParameter<edm::InputTag>     ("vtxNdfLabel")),  
   l_jetAK8Pt              (iConfig.getParameter<edm::InputTag>     ("jetAK8PtLabel")),  
   l_jetAK8Eta             (iConfig.getParameter<edm::InputTag>     ("jetAK8EtaLabel")),  
   l_jetAK8Phi             (iConfig.getParameter<edm::InputTag>     ("jetAK8PhiLabel")),  
@@ -184,46 +159,28 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   l_jetAK4Phi             (iConfig.getParameter<edm::InputTag>     ("jetAK4PhiLabel")),  
   l_jetAK4Mass            (iConfig.getParameter<edm::InputTag>     ("jetAK4MassLabel")),  
   l_jetAK4CSV             (iConfig.getParameter<edm::InputTag>     ("jetAK4CSVLabel")),  
-  l_muPt                  (iConfig.getParameter<edm::InputTag>     ("muPt")), 
-  l_muEta                 (iConfig.getParameter<edm::InputTag>     ("muEta")), 
-  l_muY                   (iConfig.getParameter<edm::InputTag>     ("muY")),
-  l_muPhi                 (iConfig.getParameter<edm::InputTag>     ("muPhi")), 
-  l_muMass                (iConfig.getParameter<edm::InputTag>     ("muMass")), 
-  l_muE                   (iConfig.getParameter<edm::InputTag>     ("muE")), 
-  l_muCharge              (iConfig.getParameter<edm::InputTag>     ("muCharge")), 
-  l_elPt                  (iConfig.getParameter<edm::InputTag>     ("elPt")), 
-  l_elEta                 (iConfig.getParameter<edm::InputTag>     ("elEta")), 
-  l_elY                   (iConfig.getParameter<edm::InputTag>     ("elY")),
-  l_elPhi                 (iConfig.getParameter<edm::InputTag>     ("elPhi")), 
-  l_elMass                (iConfig.getParameter<edm::InputTag>     ("elMass")), 
-  l_elE                   (iConfig.getParameter<edm::InputTag>     ("elE")), 
-  l_elCharge              (iConfig.getParameter<edm::InputTag>     ("elCharge")), 
   l_met                   (iConfig.getParameter<edm::InputTag>     ("met")),
   l_metPhi                (iConfig.getParameter<edm::InputTag>     ("metPhi")),
   l_metNoHF               (iConfig.getParameter<edm::InputTag>     ("metNoHF")),
   l_metNoHFPhi            (iConfig.getParameter<edm::InputTag>     ("metNoHFPhi")),
+  l_evtwt                 (iConfig.getParameter<edm::InputTag>     ("evtwt")),
   l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
-  hltPaths_               (iConfig.getParameter<vector<string>>    ("hltPaths")), 
-  metFilters_             (iConfig.getParameter<vector<string>>    ("metFilters")), 
   DilepCandParams_        (iConfig.getParameter<edm::ParameterSet> ("DilepCandParams")),
   ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   BoostedZCandParams_     (iConfig.getParameter<edm::ParameterSet> ("BoostedZCandParams")),
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   AK4JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK4JetSelParams")),
   BTaggedMediumAK4SelParams_ (iConfig.getParameter<edm::ParameterSet> ("BTaggedMediumAK4SelParams")),
-  mupselParams_           (iConfig.getParameter<edm::ParameterSet> ("mupselParams")),
-  mumselParams_           (iConfig.getParameter<edm::ParameterSet> ("mumselParams")),
-  elpselParams_           (iConfig.getParameter<edm::ParameterSet> ("elpselParams")),
-  elmselParams_           (iConfig.getParameter<edm::ParameterSet> ("elmselParams")),
   AK8JetSelParams_        (iConfig.getParameter<edm::ParameterSet> ("AK8JetSelParams")),
   TJetSelParams_          (iConfig.getParameter<edm::ParameterSet> ("TJetSelParams")),
   HJetSelParams_          (iConfig.getParameter<edm::ParameterSet> ("HJetSelParams")),
   WJetSelParams_          (iConfig.getParameter<edm::ParameterSet> ("WJetSelParams")),
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
-  isData_                 (iConfig.getParameter<bool>              ("isData"))  
+  isData_                 (iConfig.getParameter<bool>              ("isData")), 
+  muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
+  electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")) 
 {
-  t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
 
   produces<unsigned>("ngoodAK4Jets");
   produces<unsigned>("ngoodAK8Jets");
@@ -264,13 +221,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   typedef Handle <vector<float>> hfloat ; 
   typedef Handle <vector<int>> hint ; 
 
-  hstring h_trigName             ; evt.getByLabel (l_trigName               , h_trigName             );
-  hfloat  h_trigBit              ; evt.getByLabel (l_trigBit                , h_trigBit              ); 
-  hstring h_metFiltersName       ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
-  hfloat  h_metFiltersBit        ; evt.getByLabel (l_metFiltersBit          , h_metFiltersBit        ); 
-  hfloat  h_vtxRho               ; evt.getByLabel (l_vtxRho                 , h_vtxRho               );
-  hfloat  h_vtxZ                 ; evt.getByLabel (l_vtxZ                   , h_vtxZ                 );
-  hint    h_vtxNdf               ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
   hfloat  h_jetAK8Pt             ; evt.getByLabel (l_jetAK8Pt               , h_jetAK8Pt             );
   hfloat  h_jetAK8Eta            ; evt.getByLabel (l_jetAK8Eta              , h_jetAK8Eta            );
   hfloat  h_jetAK8Phi            ; evt.getByLabel (l_jetAK8Phi              , h_jetAK8Phi            );
@@ -286,191 +236,56 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   hfloat  h_jetAK4Mass           ; evt.getByLabel (l_jetAK4Mass             , h_jetAK4Mass           );
   hfloat  h_jetAK4CSV            ; evt.getByLabel (l_jetAK4CSV              , h_jetAK4CSV            );
 
-  hfloat h_muPt                  ; evt.getByLabel (l_muPt                    ,h_muPt                  );
-  hfloat h_muEta                 ; evt.getByLabel (l_muEta                   ,h_muEta                 );
-  hfloat h_muY                   ; evt.getByLabel (l_muY                     ,h_muY                   );
-  hfloat h_muPhi                 ; evt.getByLabel (l_muPhi                   ,h_muPhi                 );
-  hfloat h_muMass                ; evt.getByLabel (l_muMass                  ,h_muMass                );
-  hfloat h_muE                   ; evt.getByLabel(l_muE                      ,h_muE                   );
-  hfloat h_muCharge              ; evt.getByLabel (l_muCharge                ,h_muCharge              );
-
-  hfloat h_elPt                  ; evt.getByLabel(l_elPt                     , h_elPt                 ); 
-  hfloat h_elEta                 ; evt.getByLabel(l_elEta                    , h_elEta                ); 
-  hfloat h_elY                   ; evt.getByLabel(l_elY                      , h_elY                  ); 
-  hfloat h_elPhi                 ; evt.getByLabel(l_elPhi                    , h_elPhi                ); 
-  hfloat h_elMass                ; evt.getByLabel(l_elMass                   , h_elMass               ); 
-  hfloat h_elE                   ; evt.getByLabel(l_elE                      , h_elE                  ); 
-  hfloat h_elCharge              ; evt.getByLabel(l_elCharge                 , h_elCharge             ); 
-
   hfloat h_met                   ; evt.getByLabel(l_met                      , h_met                  ); 
   hfloat h_metPhi                ; evt.getByLabel(l_metPhi                   , h_metPhi               ); 
   hfloat h_metNoHF               ; evt.getByLabel(l_metNoHF                  , h_metNoHF              ); 
   hfloat h_metNoHFPhi            ; evt.getByLabel(l_metNoHFPhi               , h_metNoHFPhi           ); 
 
-  Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter, h_hbheNoiseFilter);
+  Handle<double>h_evtwt ; evt.getByLabel(l_evtwt, h_evtwt) ; 
 
   //// Event variables 
-  double evtwt(1.0) ; 
-  bool isemu(false)  ; 
-
-  //// Get event weight if not data
-  if ( !isData_ ) {
-    Handle<GenEventInfoProduct> h_genEvtInfoProd; 
-    evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
-    evtwt = h_genEvtInfoProd->weight() ; 
-    evtwt /= abs(evtwt) ; 
-  }
+  double evtwt(*h_evtwt.product()) ; 
 
   h1_["cutflow"] -> Fill(1, evtwt) ; 
   h1_["cutflow_nowt"] -> Fill(1) ; 
 
-  //// Presel: HLT 
-  unsigned int hltdecisions(0) ; 
-  for ( const string& myhltpath : hltPaths_ ) {
-    vector<string>::const_iterator it ;
-    for (it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it ) {
-      if ( it->find(myhltpath) < std::string::npos) {
-        hltdecisions |= int((h_trigBit.product())->at( it - (h_trigName.product())->begin() )) << ( it - (h_trigName.product())->begin() ) ;  
-      }
-    }
-  }
-  if (hltPaths_.size() > 0 && hltdecisions == 0) return false ; 
-
   h1_["cutflow"] -> Fill(2, evtwt) ; 
   h1_["cutflow_nowt"] -> Fill(2) ; 
 
-  //// Pre-sel: Good primary vertices
-  unsigned npv(0) ; 
-  for ( unsigned ipv = 0; ipv < (h_vtxRho.product())->size(); ++ipv) {
-    double vtxRho = (h_vtxRho.product())->at(ipv) ; 
-    double vtxZ = (h_vtxZ.product())->at(ipv) ; 
-    double vtxNdf = (h_vtxNdf.product())->at(ipv) ; 
-    if ( abs(vtxRho) < 2. && abs(vtxZ) <= 24. && vtxNdf > 4 ) ++npv ; 
-  }
-  if ( npv < 1 ) return false ; 
+  vlq::MuonCollection goodMuons; 
+  muonmaker(evt, goodMuons) ; 
 
-  h1_["cutflow"] -> Fill(3, evtwt) ; 
-  h1_["cutflow_nowt"] -> Fill(3) ; 
+  vlq::ElectronCollection goodElectrons; 
+  electronmaker(evt, goodElectrons) ; 
 
-  //// Pre-sel: MET filters: CSC beam halo and HBHE noise filters
-  bool hbheNoiseFilter = h_hbheNoiseFilter.product() ; 
-  if ( !hbheNoiseFilter ) return false ; 
+  cout << ">>>>>>>> goodMuons.size = " <<  goodMuons.size() << " goodElectrons.size = " <<  goodElectrons.size() << endl ; 
 
-  if ( isData_ ) {
-    bool metfilterdecision(false) ; 
-    for ( const string& metfilter : metFilters_ ) {
-      vector<string>::const_iterator it ; 
-      for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
-        if ( it->find(metfilter) < std::string::npos) {
-          metfilterdecision *= (h_metFiltersBit.product())->at( it - (h_metFiltersName.product())->begin() ) ; 
-        }
-      }
-    }
-    if ( !metfilterdecision ) return false ; 
-  }
-
-  h1_["cutflow"] -> Fill(4, evtwt) ; 
-  h1_["cutflow_nowt"] -> Fill(4) ; 
-
-  vlq::MuonCollection goodMuPs, goodMuMs ; 
-  MuonSelector mupsel(mupselParams_) ; 
-  MuonSelector mumsel(mumselParams_) ; 
-  for (unsigned imu = 0; imu < (h_muPt.product())->size(); ++imu) {
-    bool retmupsel(false) ;
-    if (mupsel(evt, imu, retmupsel) == 1) {
-      TLorentzVector  muP4;
-      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
-      vlq::Muon mu ; 
-      mu.setP4(muP4) ; 
-      mu.setIndex(imu) ;
-      mu.setPt((h_muPt.product())->at(imu)) ; 
-      mu.setEta((h_muEta.product())->at(imu)) ; 
-      mu.setPhi((h_muPhi.product())->at(imu)) ; 
-      mu.setMass((h_muMass.product())->at(imu)) ; 
-      mu.setCharge((h_muCharge.product()->at(imu))) ; 
-      goodMuPs.push_back(mu) ; 
-    }
-    bool retmumsel(false) ;
-    if (mumsel(evt, imu, retmumsel) == 1) {
-      TLorentzVector  muP4;
-      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
-      vlq::Muon mu ; 
-      mu.setP4(muP4) ; 
-      mu.setIndex(imu) ;
-      mu.setPt((h_muPt.product())->at(imu)) ; 
-      mu.setEta((h_muEta.product())->at(imu)) ; 
-      mu.setPhi((h_muPhi.product())->at(imu)) ; 
-      mu.setMass((h_muMass.product())->at(imu)) ; 
-      mu.setCharge((h_muCharge.product()->at(imu))) ; 
-      goodMuMs.push_back(mu) ; 
-    }
-  }
-
-  vlq::ElectronCollection goodElPs, goodElMs ; 
-  ElectronSelector elpsel(elpselParams_) ; 
-  ElectronSelector elmsel(elmselParams_) ; 
-  for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
-    bool retelpsel(false) ;
-    if (elpsel(evt, iel, retelpsel) == 1) {
-      TLorentzVector  elP4;
-      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
-      vlq::Electron el ; 
-      el.setP4(elP4) ; 
-      el.setIndex(iel) ;
-      el.setPt((h_elPt.product())->at(iel)) ; 
-      el.setEta((h_elEta.product())->at(iel)) ; 
-      el.setPhi((h_elPhi.product())->at(iel)) ; 
-      el.setMass((h_elMass.product())->at(iel)) ; 
-      el.setCharge((h_elCharge.product()->at(iel))) ; 
-      goodElPs.push_back(el) ; 
-    }
-    bool retelmsel(false) ;
-    if (elmsel(evt, iel, retelmsel) == 1) {
-      TLorentzVector  elP4;
-      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
-      vlq::Electron el ; 
-      el.setP4(elP4) ; 
-      el.setIndex(iel) ;
-      el.setPt((h_elPt.product())->at(iel)) ; 
-      el.setEta((h_elEta.product())->at(iel)) ; 
-      el.setPhi((h_elPhi.product())->at(iel)) ; 
-      el.setMass((h_elMass.product())->at(iel)) ; 
-      el.setCharge((h_elCharge.product()->at(iel))) ; 
-      goodElMs.push_back(el) ; 
-    }
-  }
-
-  //// Presel: l+l- pairs 
-
-  vlq::CandidateCollection dimu, zmumu, zmumuBoosted, diel, zelel, zelelBoosted ; 
+  vlq::CandidateCollection dimuons, zmumu, zmumuBoosted, dielectrons, zelel, zelelBoosted ; 
+  DileptonCandsProducer dileptonsprod(DilepCandParams_) ; 
+  dileptonsprod.operator()<vlq::MuonCollection>(dimuons, goodMuons); 
+  dileptonsprod.operator()<vlq::ElectronCollection>(dielectrons, goodElectrons) ; 
 
   //// Do e+e- or mu+mu - 
-  if ( goodMuPs.size()*goodMuMs.size() > 0 || goodElPs.size()*goodElMs.size() > 0 ) { 
+  if ( dimuons.size() > 0 || dielectrons.size() > 0 ) { 
     h1_["cutflow"] -> Fill(5, evtwt) ; 
     h1_["cutflow_nowt"] -> Fill(5) ; 
 
-    DileptonCandsProducer<vlq::MuonCollection> dimuprod(DilepCandParams_, goodMuPs, goodMuMs) ; 
-    dimuprod(dimu); 
-
-    DileptonCandsProducer<vlq::ElectronCollection> dielprod(DilepCandParams_, goodElPs, goodElMs) ; 
-    dielprod(diel) ; 
-
     CandidateFilter zllfilter(ZCandParams_) ; 
-    zllfilter(diel, zelel) ; 
-    zllfilter(dimu, zmumu) ; 
+    zllfilter(dielectrons, zelel) ; 
+    zllfilter(dimuons, zmumu) ; 
 
     CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
     boostedzllfilter(zmumu, zmumuBoosted) ; 
     boostedzllfilter(zelel, zelelBoosted) ; 
 
-    for (auto idimu : dimu) {
-      h1_["mass_mumu"] -> Fill(idimu.getMass(), evtwt) ; 
-      h1_["mass_mumu_nowt"] -> Fill(idimu.getMass()) ; 
+    for (auto idimuons : dimuons) {
+      h1_["mass_mumu"] -> Fill(idimuons.getMass(), evtwt) ; 
+      h1_["mass_mumu_nowt"] -> Fill(idimuons.getMass()) ; 
     }
 
-    for (auto idiel : diel) {
-      h1_["mass_elel"] -> Fill(idiel.getMass(), evtwt) ; 
-      h1_["mass_elel_nowt"] -> Fill(idiel.getMass()) ; 
+    for (auto idielectrons : dielectrons) {
+      h1_["mass_elel"] -> Fill(idielectrons.getMass(), evtwt) ; 
+      h1_["mass_elel_nowt"] -> Fill(idielectrons.getMass()) ; 
     }
 
     h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; 
@@ -699,130 +514,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   return true; 
-
-  //// Do emu 
-  if ( (goodMuPs.size() > 0 && goodElMs.size() > 0) || (goodMuMs.size() > 0 && goodElPs.size() > 0) ) isemu = true ; 
-
-  double met = (h_met.product())->at(0) ; 
-  double metPhi = (h_metPhi.product())->at(0) ; 
-
-  if ( (isemu || (dimu.size() > 0 && zmumu.size() ==0) || (diel.size() > 0 && zelel.size() == 0))
-      && btaggedmediumAK4.size() > 0) {
-
-    h1_["met_ttbaremu"] ->Fill(met, evtwt) ; 
-    h1_["metPhi_ttbaremu"] ->Fill(metPhi, evtwt) ; 
-    h1_["ht_ttbaremu"] ->Fill(htak4.getHT(), evtwt) ; 
-    h1_["nak8_ttbaremu"] -> Fill(goodAK8Jets.size(), evtwt) ; 
-    h1_["nak4_ttbaremu"] -> Fill(goodAK4Jets.size(), evtwt) ; 
-    h1_["nbmedium_ttbaremu"] -> Fill(btaggedmediumAK4.size(), evtwt) ; 
-
-    for ( auto mu : goodMuPs ) {
-      h1_["pt_mu_ttbaremu"] -> Fill (mu.getPt()) ; 
-      h1_["eta_mu_ttbaremu"] -> Fill (mu.getEta()) ; 
-      TLorentzVector p4_mu, p4_el ; 
-      p4_mu.SetPtEtaPhiM(mu.getPt(), mu.getEta(), mu.getPhi(), mu.getMass() ) ; 
-      for ( auto el : goodElMs ) {
-        p4_el.SetPtEtaPhiM(el.getPt(), el.getEta(), el.getPhi(), el.getMass() ) ; 
-        //h1_["dr_elmu_ttbaremu"] -> Fill(p4_mu.DeltaR(p4_el)) ; 
-        h1_["mass_elmu_ttbaremu"] -> Fill((p4_mu+p4_el).Mag()) ; 
-      }
-    }
-
-    for ( auto mu : goodMuMs ) {
-      h1_["pt_mu_ttbaremu"] -> Fill (mu.getPt()) ; 
-      h1_["eta_mu_ttbaremu"] -> Fill (mu.getEta()) ; 
-      TLorentzVector p4_mu, p4_el ; 
-      p4_mu.SetPtEtaPhiM(mu.getPt(), mu.getEta(), mu.getPhi(), mu.getMass() ) ; 
-      for ( auto el : goodElPs ) {
-        p4_el.SetPtEtaPhiM(el.getPt(), el.getEta(), el.getPhi(), el.getMass() ) ; 
-        //h1_["dr_elmu_ttbaremu"] -> Fill(p4_mu.DeltaR(p4_el)) ; 
-        h1_["mass_elmu_ttbaremu"] -> Fill((p4_mu+p4_el).Mag()) ; 
-      }
-    } 
-
-    for ( auto el : goodElPs ) {
-      h1_["pt_el_ttbaremu"] -> Fill (el.getPt()) ; 
-      h1_["eta_el_ttbaremu"] -> Fill (el.getEta()) ; 
-    }
-
-    for ( auto el : goodElMs ) {
-      h1_["pt_el_ttbaremu"] -> Fill (el.getPt()) ; 
-      h1_["eta_el_ttbaremu"] -> Fill (el.getEta()) ; 
-    }
-
-  }
-  else if ( (goodMuPs.size() > 0 || goodMuMs.size() > 0 || goodElPs.size() > 0 || goodElMs.size() > 0) 
-      && btaggedmediumAK4.size() > 1 ) { //// Fill ttbar1lep plots 
-
-    h1_["met_ttbar1lep"] ->Fill(met, evtwt) ; 
-    h1_["metPhi_ttbar1lep"] ->Fill(metPhi, evtwt) ; 
-    h1_["ht_ttbar1lep"] ->Fill(htak4.getHT(), evtwt) ; 
-    h1_["nak8_ttbar1lep"] -> Fill(goodAK8Jets.size(), evtwt) ; 
-    h1_["nak4_ttbar1lep"] -> Fill(goodAK4Jets.size(), evtwt) ; 
-    h1_["nbmedium_ttbar1lep"] -> Fill(btaggedmediumAK4.size(), evtwt) ; 
-
-    for ( auto mu : goodMuPs ) {
-      h1_["pt_mu_ttbar1lep"] -> Fill (mu.getPt()) ; 
-      h1_["eta_mu_ttbar1lep"] -> Fill (mu.getEta()) ; 
-    }
-
-    for ( auto mu : goodMuMs ) {
-      h1_["pt_mu_ttbar1lep"] -> Fill (mu.getPt()) ; 
-      h1_["eta_mu_ttbar1lep"] -> Fill (mu.getEta()) ; 
-    } 
-
-    for ( auto el : goodElPs ) {
-      h1_["pt_el_ttbar1lep"] -> Fill (el.getPt()) ; 
-      h1_["eta_el_ttbar1lep"] -> Fill (el.getEta()) ; 
-    }
-
-    for ( auto el : goodElMs ) {
-      h1_["pt_el_ttbar1lep"] -> Fill (el.getPt()) ; 
-      h1_["eta_el_ttbar1lep"] -> Fill (el.getEta()) ; 
-    }
-
-  }
-
-  //// Make H cands
-  //std::vector<vlq::ResolvedVjj> wcands, hcands ; 
-  //if (goodAK4Jets.size() > 1 && wjets.size() == 0) {
-  //  double mmin (60), mmax(100), drmax(1.2), smdmin(0.0), smdmax(0.5) ;  
-  //  VCandProducer WCandProducer(goodAK4Jets, mmin, mmax,drmax, smdmin, smdmax) ;  
-  //  WCandProducer.getCands(wcands) ; 
-  //}
-  //if (btaggedmediumAK4.size() > 1 && hjets.size() == 0) {
-  //  double mmin (100), mmax(140), drmax(1.2), smdmin(0.0), smdmax(0.5) ;  
-  //  VCandProducer HCandProducer(btaggedmediumAK4, mmin, mmax,drmax, smdmin, smdmax) ;  
-  //  HCandProducer.getCands(hcands) ; 
-  //}
-
-  //h1_["met"] ->Fill(met, evtwt) ; 
-  //h1_["met_nowt"] ->Fill(metPhi) ; 
-  //h1_["metPhi"] ->Fill(metPhi, evtwt) ; 
-  //h1_["metPhi_nowt"] ->Fill(metPhi) ; 
-
-  //vlq::MuonCollection goodMus; 
-  //vlq::ElectronCollection goodEls ;
-
-  //if (goodMuPs.size()+goodMuMs.size() > 0) { 
-  //  goodMus.reserve(goodMuPs.size()+goodMuMs.size()) ; 
-  //  for ( auto mup : goodMuPs ) {
-  //    goodMus.push_back(mup) ; 
-  //  }
-  //  for ( auto mum : goodMuMs ) {
-  //    goodMus.push_back(mum) ; 
-  //  }
-  //}
-
-  //if (goodElPs.size()+goodElMs.size() > 0) {
-  //  goodEls.reserve(goodElPs.size()+goodElMs.size()) ; 
-  //  for ( auto elp : goodElPs ) {
-  //    goodEls.push_back(elp) ; 
-  //  }
-  //  for ( auto elm : goodElMs ) {
-  //    goodEls.push_back(elm) ; 
-  //  }
-  //}
 
   //if (goodMus.size() > 0) std::sort(goodMus.begin(), goodMus.end(), Utilities::sortByPt<vlq::Muon>) ;
   //if (goodEls.size() > 0) std::sort(goodEls.begin(), goodEls.end(), Utilities::sortByPt<vlq::Electron>) ;
