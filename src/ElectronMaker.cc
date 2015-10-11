@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Analysis/VLQAna/interface/ElectronMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -5,50 +6,50 @@ using namespace std;
 using namespace edm ; 
 
 ElectronMaker::ElectronMaker (edm::ParameterSet const& pars) : 
-      l_elCharge            (pars.getParameter<edm::InputTag>("elChargeLabel")),
-      l_elD0                (pars.getParameter<edm::InputTag>("elD0Label")),
-      l_elDz                (pars.getParameter<edm::InputTag>("elDzLabel")),
-      l_elE                 (pars.getParameter<edm::InputTag>("elELabel")),
-      l_elEta               (pars.getParameter<edm::InputTag>("elEtaLabel")),
-      l_elHoE               (pars.getParameter<edm::InputTag>("elHoELabel")),
-      l_elIso03             (pars.getParameter<edm::InputTag>("elIso03Label")),
-      l_elKey               (pars.getParameter<edm::InputTag>("elKeyLabel")),
-      l_elMass              (pars.getParameter<edm::InputTag>("elMassLabel")),
-      l_elPhi               (pars.getParameter<edm::InputTag>("elPhiLabel")),
-      l_elPt                (pars.getParameter<edm::InputTag>("elPtLabel")),
-      l_elY                 (pars.getParameter<edm::InputTag>("elYLabel")),
-      l_eldEtaIn            (pars.getParameter<edm::InputTag>("eldEtaInLabel")),
-      l_eldPhiIn            (pars.getParameter<edm::InputTag>("eldPhiInLabel")),
-      l_elfull5x5siee       (pars.getParameter<edm::InputTag>("elfull5x5sieeLabel")),
-      l_elhasMatchedConVeto (pars.getParameter<edm::InputTag>("elhasMatchedConVetoLabel")),
-      l_elisEB              (pars.getParameter<edm::InputTag>("elisEBLabel")),
-      l_elisLoose           (pars.getParameter<edm::InputTag>("elisLooseLabel")),
-      l_elisMedium          (pars.getParameter<edm::InputTag>("elisMediumLabel")),
-      l_elisTight           (pars.getParameter<edm::InputTag>("elisTightLabel")),
-      l_elisVeto            (pars.getParameter<edm::InputTag>("elisVetoLabel")),
-      l_elvidLoose          (pars.getParameter<edm::InputTag>("elvidLooseLabel")),
-      l_elvidMedium         (pars.getParameter<edm::InputTag>("elvidMediumLabel")),
-      l_elvidTight          (pars.getParameter<edm::InputTag>("elvidTightLabel")),
-      l_elvidVeto           (pars.getParameter<edm::InputTag>("elvidVetoLabel")),
-      l_elvidHEEP           (pars.getParameter<edm::InputTag>("elvidHEEPLabel")),
-      l_elmissHits          (pars.getParameter<edm::InputTag>("elmissHitsLabel")),
-      l_elooEmooP           (pars.getParameter<edm::InputTag>("elooEmooPLabel")),
-      l_elscEta             (pars.getParameter<edm::InputTag>("elscEtaLabel")),
-      elPtMin_ (pars.getParameter<double>("elPtMin")), 
-      elPtMax_ (pars.getParameter<double>("elPtMax")), 
-      elAbsEtaMax_ (pars.getParameter<double>("elAbsEtaMax")), 
-      elIsoMin_ (pars.getParameter<double>("elIsoMin")), 
-      elIsoMax_ (pars.getParameter<double>("elIsoMax")), 
-      useVID_   (pars.getParameter<bool>("useVID")) 
-  {
-    std::string elidtypestr = pars.getParameter<std::string>("elidtype") ; 
-    if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
-    else if ( elidtypestr == "MEDIUM" ) type_ = MEDIUM ; 
-    else if ( elidtypestr == "TIGHT" ) type_ = TIGHT ; 
-    else if ( elidtypestr == "VETO" ) type_ = VETO ; 
-    else if ( elidtypestr == "HEEP" ) type_ = HEEP ; 
-    else edm::LogError("ElectronMaker::ElectronMaker") << " >>>> WrongElectronIdType: " << type_<< " Check electron id type !!!" ; 
-  }
+  l_elCharge            (pars.getParameter<edm::InputTag>("elChargeLabel")),
+  l_elD0                (pars.getParameter<edm::InputTag>("elD0Label")),
+  l_elDz                (pars.getParameter<edm::InputTag>("elDzLabel")),
+  l_elE                 (pars.getParameter<edm::InputTag>("elELabel")),
+  l_elEta               (pars.getParameter<edm::InputTag>("elEtaLabel")),
+  l_elHoE               (pars.getParameter<edm::InputTag>("elHoELabel")),
+  l_elIso03             (pars.getParameter<edm::InputTag>("elIso03Label")),
+  l_elKey               (pars.getParameter<edm::InputTag>("elKeyLabel")),
+  l_elMass              (pars.getParameter<edm::InputTag>("elMassLabel")),
+  l_elPhi               (pars.getParameter<edm::InputTag>("elPhiLabel")),
+  l_elPt                (pars.getParameter<edm::InputTag>("elPtLabel")),
+  l_elY                 (pars.getParameter<edm::InputTag>("elYLabel")),
+  l_eldEtaIn            (pars.getParameter<edm::InputTag>("eldEtaInLabel")),
+  l_eldPhiIn            (pars.getParameter<edm::InputTag>("eldPhiInLabel")),
+  l_elfull5x5siee       (pars.getParameter<edm::InputTag>("elfull5x5sieeLabel")),
+  l_elhasMatchedConVeto (pars.getParameter<edm::InputTag>("elhasMatchedConVetoLabel")),
+  l_elisEB              (pars.getParameter<edm::InputTag>("elisEBLabel")),
+  l_elisLoose           (pars.getParameter<edm::InputTag>("elisLooseLabel")),
+  l_elisMedium          (pars.getParameter<edm::InputTag>("elisMediumLabel")),
+  l_elisTight           (pars.getParameter<edm::InputTag>("elisTightLabel")),
+  l_elisVeto            (pars.getParameter<edm::InputTag>("elisVetoLabel")),
+  l_elvidLoose          (pars.getParameter<edm::InputTag>("elvidLooseLabel")),
+  l_elvidMedium         (pars.getParameter<edm::InputTag>("elvidMediumLabel")),
+  l_elvidTight          (pars.getParameter<edm::InputTag>("elvidTightLabel")),
+  l_elvidVeto           (pars.getParameter<edm::InputTag>("elvidVetoLabel")),
+  l_elvidHEEP           (pars.getParameter<edm::InputTag>("elvidHEEPLabel")),
+  l_elmissHits          (pars.getParameter<edm::InputTag>("elmissHitsLabel")),
+  l_elooEmooP           (pars.getParameter<edm::InputTag>("elooEmooPLabel")),
+  l_elscEta             (pars.getParameter<edm::InputTag>("elscEtaLabel")),
+  elPtMin_ (pars.getParameter<double>("elPtMin")), 
+  elPtMax_ (pars.getParameter<double>("elPtMax")), 
+  elAbsEtaMax_ (pars.getParameter<double>("elAbsEtaMax")), 
+  elIsoMin_ (pars.getParameter<double>("elIsoMin")), 
+  elIsoMax_ (pars.getParameter<double>("elIsoMax")), 
+  useVID_   (pars.getParameter<bool>("useVID")) 
+{
+  std::string elidtypestr = pars.getParameter<std::string>("elidtype") ; 
+  if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
+  else if ( elidtypestr == "MEDIUM" ) type_ = MEDIUM ; 
+  else if ( elidtypestr == "TIGHT" ) type_ = TIGHT ; 
+  else if ( elidtypestr == "VETO" ) type_ = VETO ; 
+  else if ( elidtypestr == "HEEP" ) type_ = HEEP ; 
+  else edm::LogError("ElectronMaker::ElectronMaker") << " >>>> WrongElectronIdType: " << type_<< " Check electron id type !!!" ; 
+}
 
 ElectronMaker::~ElectronMaker () {} 
 
@@ -86,7 +87,6 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
 
   for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
 
-    double elCharge  = (h_elCharge.product())->at(iel) ; 
     double elPt = (h_elPt.product())->at(iel) ; 
     double elAbsEta  = std::abs((h_elEta.product())->at(iel)) ; 
     double elIso = (h_elIso03.product())->at(iel) ; 
@@ -113,6 +113,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
       vlq::Electron electron ; 
       TLorentzVector  elP4;
       elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
+      electron.setP4                (elP4)                                      ;
       electron.setIndex             (iel)                                       ;  
       electron.setCharge            (h_elCharge            .product()->at(iel)) ; 
       electron.setD0                (h_elD0                .product()->at(iel)) ; 

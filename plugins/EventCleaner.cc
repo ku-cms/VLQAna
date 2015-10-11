@@ -11,6 +11,9 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include <TFile.h>
+#include <TH1D.h>
+
 class EventCleaner : public edm::EDFilter {
   public:
     explicit EventCleaner(const edm::ParameterSet&) ;
@@ -19,6 +22,7 @@ class EventCleaner : public edm::EDFilter {
     virtual void beginJob() override;
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
+    double GetLumiWeightsPVBased (const std::string file, const std::string hist, const unsigned npv) ; 
 
     edm::InputTag l_trigName                               ; 
     edm::InputTag l_trigBit                                ; 
@@ -31,7 +35,10 @@ class EventCleaner : public edm::EDFilter {
     edm::InputTag l_vtxNdf                                 ; 
     std::vector<std::string> hltPaths_                     ; 
     std::vector<std::string> metFilters_                   ; 
-    bool          isData_                                  ; 
+    const bool isData_                                     ; 
+    const bool doPUReweightingNPV_                         ;
+    const std::string file_PVWt_                           ; 
+    const std::string hist_PVWt_                           ; 
     edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
 
 };
@@ -48,11 +55,15 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   l_vtxNdf                (iConfig.getParameter<edm::InputTag>            ("vtxNdfLabel")),  
   hltPaths_               (iConfig.getParameter<std::vector<std::string>> ("hltPaths")), 
   metFilters_             (iConfig.getParameter<std::vector<std::string>> ("metFilters")), 
-  isData_                 (iConfig.getParameter<bool>                     ("isData"))  
+  isData_                 (iConfig.getParameter<bool>                     ("isData")),
+  doPUReweightingNPV_     (iConfig.getParameter<bool>                     ("DoPUReweightingNPV")),
+  file_PVWt_              (iConfig.getParameter<std::string>              ("File_PVWt")),
+  hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt"))
 {
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
-  produces<double>("evtwt");
   produces<std::string>("evttype"); 
+  produces<double>("evtwtGen");
+  produces<double>("evtwtPV");
   produces<unsigned>("npv");
 }
 
@@ -74,7 +85,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   hfloat  h_vtxZ                  ; evt.getByLabel (l_vtxZ                   , h_vtxZ                 );
   hint    h_vtxNdf                ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
   Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter        , h_hbheNoiseFilter      );
-  
+
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
     vector<string>::const_iterator it ;
@@ -86,10 +97,10 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
   if ( hltPaths_.size() > 0 && !hltdecisions) return false ; 
 
-  bool hbheNoiseFilter = h_hbheNoiseFilter.product() ; 
+  bool hbheNoiseFilter(h_hbheNoiseFilter.product()) ; 
   if ( !hbheNoiseFilter ) return false ; 
   if ( isData_ ) {
-    bool metfilterdecision(false) ; 
+    bool metfilterdecision(1) ; 
     for ( const string& metfilter : metFilters_ ) {
       vector<string>::const_iterator it ; 
       for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
@@ -110,22 +121,27 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
   if ( npv < 1 ) return false ; 
 
-  double evtwt(1.0) ; 
+  double evtwtGen(1.0) ; 
   if ( !isData_ ) {
     Handle<GenEventInfoProduct> h_genEvtInfoProd; 
     evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
-    evtwt = h_genEvtInfoProd->weight() ; 
-    evtwt /= abs(evtwt) ; 
+    evtwtGen = h_genEvtInfoProd->weight() ; 
+    evtwtGen /= abs(evtwtGen) ; 
   }
+
+  double evtwtPV(1.0) ;
+  if ( !isData_ && doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
 
   string evttype(isData_ ? "data_" : "mc_");
 
-  auto_ptr<double>ptr_evtwt(new double(evtwt)); 
   auto_ptr<string>ptr_evttype(new string(evttype)); 
+  auto_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
+  auto_ptr<double>ptr_evtwtPV(new double(evtwtPV)); 
   auto_ptr<unsigned>ptr_npv(new unsigned(npv)); 
 
-  evt.put(ptr_evtwt, "evtwt");
   evt.put(ptr_evttype, "evttype");
+  evt.put(ptr_evtwtGen, "evtwtGen");
+  evt.put(ptr_evtwtPV, "evtwtPV");
   evt.put(ptr_npv, "npv");
 
   return true ; 
@@ -136,6 +152,16 @@ void EventCleaner::beginJob() {
 }
 
 void EventCleaner::endJob() {
+}
+
+double EventCleaner::GetLumiWeightsPVBased (const std::string file, const std::string hist, const unsigned npv) { 
+  double wtPU(1) ;
+  TFile f(file.c_str()) ;
+  TH1D* hwt = dynamic_cast<TH1D*>( f.Get( hist.c_str() ) ) ; 
+  wtPU = npv > 0 && npv <= 60 ? hwt->GetBinContent(npv) : 1.; 
+  delete hwt ; 
+  f.Close() ; 
+  return wtPU ;
 }
 
 DEFINE_FWK_MODULE(EventCleaner);

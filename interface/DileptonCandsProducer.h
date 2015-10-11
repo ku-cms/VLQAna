@@ -1,8 +1,11 @@
 #ifndef ANALYSIS_VLQANA_DILEPTONCANDSPRODUCER_HH
 #define ANALYSIS_VLQANA_DILEPTONCANDSPRODUCER_HH
 
+#include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Candidate.h"
+
+using namespace std;
 
 class DileptonCandsProducer {
   public:
@@ -14,7 +17,7 @@ class DileptonCandsProducer {
   {}
 
     template <class T>
-    void operator () (vlq::CandidateCollection& zcands, const T leptons) {
+    void operator () (vlq::CandidateCollection& zcands, const T& leptons) {
 
       for ( auto l1 = leptons.begin(); l1 != leptons.end(); ++l1) {
         for ( auto l2 = std::next(l1); l2 != leptons.end(); ++l2) {

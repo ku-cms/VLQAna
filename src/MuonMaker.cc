@@ -102,7 +102,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
 
   for (unsigned imu = 0; imu < (h_muPt.product())->size(); ++imu) {
 
-    double muCharge  = (h_muCharge.product())->at(imu) ; 
     double muPt = (h_muPt.product())->at(imu) ; 
     double muAbsEta  = std::abs((h_muEta.product())->at(imu)) ; 
     double muIso = (h_muIso04.product())->at(imu) ; 
@@ -115,53 +114,52 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
         && passMuId 
         && muIso > muIsoMin_ && muIso < muIsoMax_ 
        ) {
-      vlq::Muon muon ; 
-      TLorentzVector  muP4;
-      muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
-      muon.setP4                      (muP4)                                              ; 
-      muon.setIndex                   (imu)                                               ;
-      muon.setCharge                  ((h_muCharge.product())->at(imu))                   ;
-      muon.setD0                      ((h_muD0.product())->at(imu))                       ;
-      muon.setD0err                   ((h_muD0err.product())->at(imu))                    ;
-      muon.setDxy                     ((h_muDxy.product())->at(imu))                      ;
-      muon.setDxyerr                  ((h_muDxyerr.product())->at(imu))                   ;
-      muon.setDz                      ((h_muDz.product())->at(imu))                       ;
-      muon.setDzerr                   ((h_muDzerr.product())->at(imu))                    ;
-      muon.setE                       ((h_muE.product())->at(imu))                        ;
-      muon.setEta                     ((h_muEta.product())->at(imu))                      ;
-      muon.setGenMuonCharge           ((h_muGenMuonCharge.product())->at(imu))            ;
-      muon.setGenMuonE                ((h_muGenMuonE.product())->at(imu))                 ;
-      muon.setGenMuonEta              ((h_muGenMuonEta.product())->at(imu))               ;
-      muon.setGenMuonPhi              ((h_muGenMuonPhi.product())->at(imu))               ;
-      muon.setGenMuonPt               ((h_muGenMuonPt.product())->at(imu))                ;
-      muon.setGenMuonY                ((h_muGenMuonY.product())->at(imu))                 ;
-      muon.setGlbTrkNormChi2          ((h_muGlbTrkNormChi2.product())->at(imu))           ;
-      muon.setInTrkNormChi2           ((h_muInTrkNormChi2.product())->at(imu))            ;
-      muon.setIsGlobalMuon            ((h_muIsGlobalMuon.product())->at(imu))             ;
-      muon.setIsLooseMuon             ((h_muIsLooseMuon.product())->at(imu))              ;
-      muon.setIsPFMuon                ((h_muIsPFMuon.product())->at(imu))                 ;
-      muon.setIsSoftMuon              ((h_muIsSoftMuon.product())->at(imu))               ;
-      muon.setIsTightMuon             ((h_muIsTightMuon.product())->at(imu))              ;
-      muon.setIsTrackerMuon           ((h_muIsTrackerMuon.product())->at(imu))            ;
-      muon.setIso04                   ((h_muIso04.product())->at(imu))                    ;
-      muon.setKey                     ((h_muKey.product())->at(imu))                      ;
-      muon.setMass                    ((h_muMass.product())->at(imu))                     ;
-      muon.setNumberMatchedStations   ((h_muNumberMatchedStations.product())->at(imu))    ;
-      muon.setNumberOfPixelLayers     ((h_muNumberOfPixelLayers.product())->at(imu))      ;
-      muon.setNumberOfValidTrackerHits((h_muNumberOfValidTrackerHits.product())->at(imu)) ;
-      muon.setNumberTrackerLayers     ((h_muNumberTrackerLayers.product())->at(imu))      ;
-      muon.setNumberValidMuonHits     ((h_muNumberValidMuonHits .product())->at(imu))     ;
-      muon.setNumberValidPixelHits    ((h_muNumberValidPixelHits .product())->at(imu))    ;
-      muon.setPhi                     ((h_muPhi .product())->at(imu))                     ;
-      muon.setPt                      ((h_muPt .product())->at(imu))                      ;
-      muon.setSumChargedHadronPt      ((h_muSumChargedHadronPt.product())->at(imu))       ;
-      muon.setSumNeutralHadronPt      ((h_muSumNeutralHadronPt.product())->at(imu))       ;
-      muon.setSumPUPt                 ((h_muSumPUPt.product())->at(imu))                  ;
-      muon.setSumPhotonPt             ((h_muSumPhotonPt.product())->at(imu))              ;
+    vlq::Muon muon ; 
+    TLorentzVector  muP4;
+    muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
+    muon.setP4                      (muP4)                                              ; 
+    muon.setIndex                   (imu)                                               ;
+    muon.setCharge                  ((h_muCharge.product())->at(imu))                   ;
+    muon.setD0                      ((h_muD0.product())->at(imu))                       ;
+    muon.setD0err                   ((h_muD0err.product())->at(imu))                    ;
+    muon.setDxy                     ((h_muDxy.product())->at(imu))                      ;
+    muon.setDxyerr                  ((h_muDxyerr.product())->at(imu))                   ;
+    muon.setDz                      ((h_muDz.product())->at(imu))                       ;
+    muon.setDzerr                   ((h_muDzerr.product())->at(imu))                    ;
+    muon.setE                       ((h_muE.product())->at(imu))                        ;
+    muon.setEta                     ((h_muEta.product())->at(imu))                      ;
+    muon.setGenMuonCharge           ((h_muGenMuonCharge.product())->at(imu))            ;
+    muon.setGenMuonE                ((h_muGenMuonE.product())->at(imu))                 ;
+    muon.setGenMuonEta              ((h_muGenMuonEta.product())->at(imu))               ;
+    muon.setGenMuonPhi              ((h_muGenMuonPhi.product())->at(imu))               ;
+    muon.setGenMuonPt               ((h_muGenMuonPt.product())->at(imu))                ;
+    muon.setGenMuonY                ((h_muGenMuonY.product())->at(imu))                 ;
+    muon.setGlbTrkNormChi2          ((h_muGlbTrkNormChi2.product())->at(imu))           ;
+    muon.setInTrkNormChi2           ((h_muInTrkNormChi2.product())->at(imu))            ;
+    muon.setIsGlobalMuon            ((h_muIsGlobalMuon.product())->at(imu))             ;
+    muon.setIsLooseMuon             ((h_muIsLooseMuon.product())->at(imu))              ;
+    muon.setIsPFMuon                ((h_muIsPFMuon.product())->at(imu))                 ;
+    muon.setIsSoftMuon              ((h_muIsSoftMuon.product())->at(imu))               ;
+    muon.setIsTightMuon             ((h_muIsTightMuon.product())->at(imu))              ;
+    muon.setIsTrackerMuon           ((h_muIsTrackerMuon.product())->at(imu))            ;
+    muon.setIso04                   ((h_muIso04.product())->at(imu))                    ;
+    muon.setKey                     ((h_muKey.product())->at(imu))                      ;
+    muon.setMass                    ((h_muMass.product())->at(imu))                     ;
+    muon.setNumberMatchedStations   ((h_muNumberMatchedStations.product())->at(imu))    ;
+    muon.setNumberOfPixelLayers     ((h_muNumberOfPixelLayers.product())->at(imu))      ;
+    muon.setNumberOfValidTrackerHits((h_muNumberOfValidTrackerHits.product())->at(imu)) ;
+    muon.setNumberTrackerLayers     ((h_muNumberTrackerLayers.product())->at(imu))      ;
+    muon.setNumberValidMuonHits     ((h_muNumberValidMuonHits .product())->at(imu))     ;
+    muon.setNumberValidPixelHits    ((h_muNumberValidPixelHits .product())->at(imu))    ;
+    muon.setPhi                     ((h_muPhi .product())->at(imu))                     ;
+    muon.setPt                      ((h_muPt .product())->at(imu))                      ;
+    muon.setSumChargedHadronPt      ((h_muSumChargedHadronPt.product())->at(imu))       ;
+    muon.setSumNeutralHadronPt      ((h_muSumNeutralHadronPt.product())->at(imu))       ;
+    muon.setSumPUPt                 ((h_muSumPUPt.product())->at(imu))                  ;
+    muon.setSumPhotonPt             ((h_muSumPhotonPt.product())->at(imu))              ;
 
-      muons.push_back(muon) ; 
+    muons.push_back(muon) ; 
     }
-
   }
 
 }
