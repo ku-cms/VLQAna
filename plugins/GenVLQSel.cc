@@ -114,6 +114,7 @@ GenVLQSel::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          cout << "WbHt = " << *TTtoWbHt <<", WbZt = " << *TTtoWbZt <<", HtZt = " << *TTtoHtZt << ", WbWb = " << *TTtoWbWb <<", HtHt = "<< *TTtoHtHt <<", ZtZt = " << *TTtoZtZt << endl;
          cout << "WtHb = " << *BBtoWtHb <<", WtZb = " << *BBtoWtZb <<", HbZb = " << *BBtoHbZb << ", WtWt = " << *BBtoWtWt <<", HbHb = "<< *BBtoHbHb <<", ZbZb = " << *BBtoZbZb << endl;
       }
+     
       
       if(TPrime){
          iEvent.put ( TTtoWbZt,       "TTtoWbZt"      );
