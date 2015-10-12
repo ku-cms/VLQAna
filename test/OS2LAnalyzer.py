@@ -51,6 +51,9 @@ elif options.runMC == 3:
 
 print ('runbkgMC: {0:2d}, runTPrime : {1:2d}, runBPrime : {2:2d}, runData : {3:2d}'.format (runbkgMC, runTPrime, runBPrime, runData))
 
+if options.runMuons:
+    runMu=1
+
 print ('Getting files from this dir: ' + options.files)
 
 if options.files:
@@ -68,7 +71,17 @@ if runTPrime:
     TTtoWbWb_H = Handle("unsigned"); TTtoWbWb_L = ("GenInfo", "TTtoWbWb")
     TTtoWbZt_H = Handle("unsigned"); TTtoWbZt_L = ("GenInfo", "TTtoWbZt")
     TTtoZtZt_H = Handle("unsigned"); TTtoZtZt_L = ("GenInfo", "TTtoZtZt")
+
+if runMu:
+    muPt_H   = Handle ("std::vector<float>"); muPt_L  = ("muons", "muPt")
+    muPhi_H  = Handle ("std::vector<float>"); muPhi_L = ("muons", "muPhi")
+    muEta_H  = Handle ("std::vector<float>"); muEta_L = ("muons", "muEta")
+    muE_H    = Handle ("std::vector<float>"); muE_L   = ("muons", "muE") 
+    muId_H   = Handle ("std::vector<unsigned>"); muId_L = ("anamumu", "goodMuonsIdxs")
+    muon_H   = Handle ("std::vector<vlq::Muon>"); muon_L = ("anamumu", "goodMuons")
     
+#jets:
+   
 # Keep some timing information
 nEventsAnalyzed = 0
 timer = TStopwatch()
@@ -90,10 +103,31 @@ for event in events:
         event.getByLabel(TTtoWbWb_L, TTtoWbWb_H); TTtoWbWb = TTtoWbWb_H.product()[0]
         event.getByLabel(TTtoWbZt_L, TTtoWbZt_H); TTtoWbZt = TTtoWbZt_H.product()[0]
         event.getByLabel(TTtoZtZt_L, TTtoZtZt_H); TTtoZtZt = TTtoZtZt_H.product()[0]
+        #Throw away non-Z events
         if (TTtoHtHt or TTtoWbHt or TTtoWbWb): continue
-        #print ("TPrime event with one Z  = {0:1d}".format(TTtoZtZt+TTtoHtZt+TTtoWbZt))
-        if (options.pickChannel == 'ZtZt' and (TTtoHtZt+TTtoWbZt == 1)): continue
-        print ("ZtZt: {0:2d}, HtZt : {1:2d}, WbZt : {2:2d}".format (TTtoZtZt, TTtoHtZt, TTtoWbZt))
+        if   (options.pickChannel == 'ZtZt' and (TTtoHtZt+TTtoWbZt == 1)): continue
+        elif (options.pickChannel == 'HtZt' and (TTtoZtZt+TTtoWbZt == 1)): continue
+        elif (options.pickChannel == 'WbZt' and (TTtoZtZt+TTtoHtZt == 1)): continue
+        #print ("ZtZt: {0:2d}, HtZt : {1:2d}, WbZt : {2:2d}".format (TTtoZtZt, TTtoHtZt, TTtoWbZt))
+
+    if runMu:
+       event.getByLabel (muPt_L, muPt_H);   muPt = muPt_H.product()
+       event.getByLabel (muPhi_L, muPhi_H); muPhi = muPhi_H.product()
+       event.getByLabel (muEta_L, muEta_H); muEta = muEta_H.product()
+       event.getByLabel (muE_L, muE_H);      muE = muE_H.product()
+       event.getByLabel (muId_L, muId_H);   muId = muId_H.product()
+       event.getByLabel (muon_L, muon_H);   muons = muon_H.product()
+       
+       print ('muons size = ', muPt.size(), ', good muon size = ', muId.size(), 'good muon collection size = ', len(muons))
+       
+       for imu in range(0, muPt.size()):
+           print ('muon pt in b2g muon collection =', muPt.at(imu))
+       for imu in muons:
+           print ('muon pt', imu.getP4().Pt())
+           #print ('muon charge', imu.getCharge())
+
+       #Lets just get the good muons:
+       #goodMuIso 
 
 # Done processing the events!
 # Stop our timer
