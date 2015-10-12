@@ -62,7 +62,6 @@ Implementation:
 //
 // class declaration
 //
-
 class OS2LAna : public edm::EDFilter {
   public:
     explicit OS2LAna(const edm::ParameterSet&);
@@ -74,7 +73,6 @@ class OS2LAna : public edm::EDFilter {
     virtual void beginJob() override;
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
-
     //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -194,8 +192,9 @@ using namespace std;
 //
 // constants, enums and typedefs
 //
-
-
+typedef std::vector<vlq::Muon> MuonCollection ;
+typedef std::vector<vlq::Electron> ElectronCollection ;
+typedef std::vector<vlq::Jet> JetCollection ;
 //
 // static data member definitions
 //
@@ -322,15 +321,18 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   produces<double>("pt2ndAK8");
   produces<double>("mass1stAK8");
   produces<double>("mass2ndAK8");
+  produces<MuonCollection>("goodMuons");
+  produces<ElectronCollection>("goodElectrons");
+  produces<JetCollection>("goodAk4Jets");
+  produces<JetCollection>("goodAk8Jets");
   produces<vector<unsigned> >("goodMuonsIdxs");
   produces<vector<unsigned> >("goodElectronsIdxs");
-  produces<vector<unsigned> >("ak4goodjets");
-  produces<vector<unsigned> >("ak8goodjets");
+  produces<vector<unsigned> >("ak4goodjetsIdxs");
+  produces<vector<unsigned> >("ak8goodjetsIdxs");
   produces<vector<unsigned>>("bjetIdxs");
   produces<vector<unsigned>>("tjetIdxs");
   produces<vector<unsigned>>("hjetIdxs");
-  produces<vector<unsigned>>("wjetIdxs");
-
+  produces<vector<unsigned>>("wjetIdxs"); 
   //register your products
   /* Examples
      produces<ExampleData2>();
@@ -980,7 +982,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (goodEls.size() > 0) std::sort(goodEls.begin(), goodEls.end(), Utilities::sortByPt<vlq::Electron>) ;
 
   //loop over good
-
   std::auto_ptr<unsigned> ngoodAK4Jets ( new unsigned(goodAK4Jets.size()) );
   std::auto_ptr<unsigned> ngoodAK8Jets ( new unsigned(goodAK8Jets.size()) );
   std::auto_ptr<unsigned> nbtaggedlooseAK4 ( new unsigned(btaggedlooseAK4.size()) );
@@ -997,10 +998,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::auto_ptr<double> pt2ndAK8   ( new double(ptak8_2) );
   std::auto_ptr<double> mass1stAK8 ( new double(mak8_1) );
   std::auto_ptr<double> mass2ndAK8 ( new double(mak8_2) );
+  std::auto_ptr<MuonCollection> goodMuons (new MuonCollection(goodMus) );
+  std::auto_ptr<ElectronCollection> goodElectrons (new ElectronCollection(goodEls) );
+  std::auto_ptr<JetCollection> goodAk4Jets (new JetCollection(goodAK4Jets) );
+  std::auto_ptr<JetCollection> goodAk8Jets (new JetCollection(goodAK8Jets) );
   std::auto_ptr<vector<unsigned> > goodMuonsIdxs ( new vector<unsigned>(muSelIdxs));
   std::auto_ptr<vector<unsigned> > goodElectronsIdxs ( new vector<unsigned>(eleSelIdxs));
-  std::auto_ptr<vector<unsigned> > ak4goodjets ( new vector<unsigned>(ak4selIdxs));
-  std::auto_ptr<vector<unsigned> > ak8goodjets ( new vector<unsigned>(ak8selIdxs));
+  std::auto_ptr<vector<unsigned> > ak4goodjetsIdxs ( new vector<unsigned>(ak4selIdxs));
+  std::auto_ptr<vector<unsigned> > ak8goodjetsIdxs ( new vector<unsigned>(ak8selIdxs));
   std::auto_ptr<vector<unsigned> > bjetIdxsptr ( new vector<unsigned>(bjetIdxs));
   std::auto_ptr<vector<unsigned> > tjetIdxs ( new vector<unsigned>(seltjets));
   std::auto_ptr<vector<unsigned> > hjetIdxs ( new vector<unsigned>(selhjets));
@@ -1022,10 +1027,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(pt2ndAK8  , "pt2ndAK8") ; 
   evt.put(mass1stAK8, "mass1stAK8") ; 
   evt.put(mass2ndAK8, "mass2ndAK8") ;
+  evt.put(goodMuons, "goodMuons") ;
+  evt.put(goodElectrons, "goodElectrons") ;
+  evt.put(goodAk4Jets, "goodAk4Jets") ;
+  evt.put(goodAk8Jets, "goodAk8Jets") ;
   evt.put(goodMuonsIdxs, "goodMuonsIdxs");
   evt.put(goodElectronsIdxs, "goodElectronsIdxs");
-  evt.put(ak4goodjets, "ak4goodjets");
-  evt.put(ak8goodjets, "ak8goodjets");
+  evt.put(ak4goodjetsIdxs, "ak4goodjetsIdxs");
+  evt.put(ak8goodjetsIdxs, "ak8goodjetsIdxs");
   evt.put(bjetIdxsptr, "bjetIdxs");
   evt.put(tjetIdxs, "tjetIdxs");
   evt.put(hjetIdxs, "hjetIdxs");
@@ -1240,6 +1249,5 @@ OS2LAna::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(OS2LAna);
