@@ -143,6 +143,7 @@ if options.runMuon:
         "drop *_electrons_*_*",# sometimes gives LogicError
         "drop *_anaelel_*_*",
         "drop *_*_goodElectronsIdxs_*",
+        "drop *_*_goodElectrons_*",
         ]
     process.p = cms.Path(
         process.allEvents
@@ -156,6 +157,7 @@ else:
         "drop *_muons_*_*", 
         "drop *_anamumu_*_*",
         "drop *_*_goodMuonsIdxs_*",
+        "drop *_*_goodMuons_*",
         ]
     process.p = cms.Path(
         process.allEvents
