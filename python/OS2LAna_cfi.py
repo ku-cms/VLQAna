@@ -85,7 +85,7 @@ ana = cms.EDFilter("OS2LAna",
     metPhi                     = cms.InputTag("met", "metPhi"), 
     #metNoHF                    = cms.InputTag("met", "metPt"), 
     #metNoHFPhi                 = cms.InputTag("met", "metPhi"), 
-    HbbCandsLabel              = cms.InputTag("hbb", "HbbCandidates"),
+    #HbbCandsLabel              = cms.InputTag("hbb", "HbbCandidates"),
     jetAK4AreaLabel            = cms.InputTag("jetsAK4", "jetAK4jetArea"),
     hltPaths                   = cms.vstring (
         ### Muon paths
