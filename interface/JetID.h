@@ -26,7 +26,8 @@ class JetID : public Selector<int>  {
       l_jetPhi             (params.getParameter<edm::InputTag> ("jetPhiLabel")),                   
       l_jetMass            (params.getParameter<edm::InputTag> ("jetMassLabel")),                 
       l_jetEnergy          (params.getParameter<edm::InputTag> ("jetEnergyLabel")),               
-      l_jetFlavour         (params.getParameter<edm::InputTag> ("jetFlavourLabel")),                  
+      l_jetPartonFlavour   (params.getParameter<edm::InputTag> ("jetPartonFlavourLabel")),                  
+      l_jetHadronFlavour   (params.getParameter<edm::InputTag> ("jetHadronFlavourLabel")),                  
       l_jetCSV             (params.getParameter<edm::InputTag> ("jetCSVLabel")),              
       l_jetJEC             (params.getParameter<edm::InputTag> ("jetJECLabel")),           
       l_jetnHadEnergy      (params.getParameter<edm::InputTag> ("jetnHadEnergyLabel")),          
@@ -184,7 +185,8 @@ class JetID : public Selector<int>  {
       Handle <vector<float>>  h_jetPhi            ; evt.getByLabel (l_jetPhi              , h_jetPhi            );
       Handle <vector<float>>  h_jetMass           ; evt.getByLabel (l_jetMass             , h_jetMass           );
       Handle <vector<float>>  h_jetEnergy         ; evt.getByLabel (l_jetEnergy           , h_jetEnergy         );
-      Handle <vector<float>>  h_jetFlavour        ; evt.getByLabel (l_jetFlavour          , h_jetFlavour        );
+      Handle <vector<float>>  h_jetPartonFlavour  ; evt.getByLabel (l_jetPartonFlavour    , h_jetPartonFlavour  );
+      Handle <vector<float>>  h_jetHadronFlavour  ; evt.getByLabel (l_jetHadronFlavour    , h_jetHadronFlavour  );
       Handle <vector<float>>  h_jetCSV            ; evt.getByLabel (l_jetCSV              , h_jetCSV            );
       Handle <vector<float>>  h_jetJEC            ; evt.getByLabel (l_jetJEC              , h_jetJEC            );
       Handle <vector<float>>  h_jetnHadEnergy     ; evt.getByLabel (l_jetnHadEnergy       , h_jetnHadEnergy     );
@@ -242,7 +244,8 @@ class JetID : public Selector<int>  {
     edm::InputTag l_jetPhi             ; 
     edm::InputTag l_jetMass            ; 
     edm::InputTag l_jetEnergy          ; 
-    edm::InputTag l_jetFlavour         ; 
+    edm::InputTag l_jetPartonFlavour   ; 
+    edm::InputTag l_jetHadronFlavour   ; 
     edm::InputTag l_jetCSV             ; 
     edm::InputTag l_jetJEC             ; 
     edm::InputTag l_jetnHadEnergy      ;

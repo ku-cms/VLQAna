@@ -1,15 +1,16 @@
-#ifndef ANALYSIS_VLQANA_MUONSELECTOR_HH
-#define ANALYSIS_VLQANA_MUONSELECTOR_HH
+#ifndef ANALYSIS_VLQAna_MUONMAKER_HH
+#define ANALYSIS_VLQAna_MUONMAKER_HH
 
-using namespace std;
-using namespace edm ; 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "AnalysisDataFormats/BoostedObjects/interface/Muon.h"
 
-class MuonSelector {
+class MuonMaker {
   public:
     enum MUONIDTYPES_t {LOOSE, TIGHT} ; 
-    MuonSelector (edm::ParameterSet const& pars) ; 
-    ~MuonSelector() ; 
-    bool operator () (edm::Event& evt, int const & mu, bool& ret ) ; 
+    MuonMaker (edm::ParameterSet const& pars) ; 
+    ~MuonMaker () ; 
+    void operator () (edm::Event& evt, vlq::MuonCollection& muons) ; 
 
   private:
     MUONIDTYPES_t type_ ; 
@@ -56,10 +57,8 @@ class MuonSelector {
     double muPtMin_ ; 
     double muPtMax_ ; 
     double muAbsEtaMax_ ; 
-    double muCharge_ ; 
     double muIsoMin_ ; 
     double muIsoMax_ ; 
-
 
 };
 #endif

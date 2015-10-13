@@ -1,35 +1,36 @@
-#ifndef DILEPTONCANDSPRODUCER_HH
-#define DILEPTONCANDSPRODUCER_HH
+#ifndef ANALYSIS_VLQANA_DILEPTONCANDSPRODUCER_HH
+#define ANALYSIS_VLQANA_DILEPTONCANDSPRODUCER_HH
 
+#include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Candidate.h"
 
-template <class T>
+using namespace std;
+
 class DileptonCandsProducer {
   public:
-    DileptonCandsProducer (edm::ParameterSet const& iConfig, const T& lp, const T& lm) : 
+    DileptonCandsProducer (edm::ParameterSet const& iConfig) : 
       massMin_(iConfig.getParameter<double> ("massMin")), 
       massMax_(iConfig.getParameter<double> ("massMax")), 
       ptMin_(iConfig.getParameter<double> ("ptMin")), 
-      ptMax_(iConfig.getParameter<double> ("ptMax")), 
-      lp_(lp), 
-      lm_(lm)
-    {}
+      ptMax_(iConfig.getParameter<double> ("ptMax")) 
+  {}
 
-    void operator () (vlq::CandidateCollection& zcands) {
+    template <class T>
+    void operator () (vlq::CandidateCollection& zcands, const T& leptons) {
 
-      for ( auto lp : lp_ ) {
-        for ( auto lm : lm_ ) {
-          TLorentzVector p4lp(lp.getP4()), p4lm(lm.getP4()) ;
-          double mass = (p4lp+p4lm).Mag() ; 
-          double pt = (p4lp+p4lm).Pt() ; 
+      for ( auto l1 = leptons.begin(); l1 != leptons.end(); ++l1) {
+        for ( auto l2 = std::next(l1); l2 != leptons.end(); ++l2) {
+          if (l1->getCharge()*l2->getCharge() != -1 ) continue ; 
+          TLorentzVector p4l1(l1->getP4()), p4l2(l2->getP4()) ;
+          double mass = (p4l1+p4l2).Mag() ; 
+          double pt = (p4l1+p4l2).Pt() ; 
           if ( mass > massMin_ && mass < massMax_ && pt > ptMin_ && pt < ptMax_ ) {
-            vlq::Candidate zll(p4lp+p4lm) ; 
-            zcands_.push_back(zll) ; 
+            vlq::Candidate zll(p4l1+p4l2) ; 
+            zcands.push_back(zll) ; 
           }
         }
       }
-      zcands = zcands_ ;
 
       return ;
     }
@@ -37,12 +38,9 @@ class DileptonCandsProducer {
     ~DileptonCandsProducer () {}  
 
   private:
-    vlq::CandidateCollection zcands_ ;
     double massMin_ ;
     double massMax_ ; 
     double ptMin_ ; 
     double ptMax_ ; 
-    T lp_ ;
-    T lm_ ;
 }; 
 #endif 

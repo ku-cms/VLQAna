@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'DYamcnlo_25ns'
+config.General.requestName = 'TpTp_M1000_25ns'
 config.General.workArea = 'OS2LAna_13oct2015/'
 config.General.transferLogs = True
 
@@ -13,10 +13,10 @@ config.JobType.pyCfgParams = ['isData=False', 'doPUReweightingNPV=True']
 config.JobType.inputFiles = ['hnpv_data_Run2015D_mc_RunIISpring15DR74-Asympt25ns_pvwt.root']
 
 config.section_("Data")
-config.Data.inputDataset = '/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/phys_b2g-B2GAnaFW_v74x_v6p1_25ns-V2-d5e3976e154b1b4043d031aaa9c2809b/USER'
+config.Data.inputDataset = '/TprimeTprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/vorobiev-B2GAnaFW_Run2Spring15_25ns_v74x_V61-d5e3976e154b1b4043d031aaa9c2809b/USER'
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 5
+config.Data.unitsPerJob = 2
 config.Data.ignoreLocality = False
 config.Data.publication = False
 config.Data.outLFNDirBase = '/store/user/devdatta/OS2LAna_13oct2015/'
