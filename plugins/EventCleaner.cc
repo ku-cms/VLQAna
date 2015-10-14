@@ -1,3 +1,4 @@
+#include <iostream>
 #include <memory>
 #include <vector>
 #include <string>
@@ -10,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "Analysis/VLQAna/interface/PickGenPart.h"
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -41,6 +44,8 @@ class EventCleaner : public edm::EDFilter {
     const std::string hist_PVWt_                           ; 
     edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
 
+    edm::ParameterSet vlqParams_                           ;
+
 };
 
 EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
@@ -58,7 +63,8 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   isData_                 (iConfig.getParameter<bool>                     ("isData")),
   doPUReweightingNPV_     (iConfig.getParameter<bool>                     ("DoPUReweightingNPV")),
   file_PVWt_              (iConfig.getParameter<std::string>              ("File_PVWt")),
-  hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt"))
+  hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt")),
+  vlqParams_              (iConfig.getParameter<edm::ParameterSet>        ("vlqParams")) 
 {
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
   produces<std::string>("evttype"); 
@@ -133,6 +139,15 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( !isData_ && doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
 
   string evttype(isData_ ? "data_" : "mc_");
+
+  if ( !isData_ ) {
+    PickGenPart pickVLQs(vlqParams_) ; 
+    vlq::GenParticleCollection vlqs = pickVLQs(evt) ;  
+    //for (auto part : vlqs ) cout << " id " << part.getPdgID() << " dau0 " << part.getDau0PdgID() << " dau1 " << part.getDau1PdgID() << endl;
+    if ( vlqs.size() == 2 ) evttype = "mc_qZqZ" ; 
+  }
+
+  //cout << "evttype = " << evttype << endl ; 
 
   auto_ptr<string>ptr_evttype(new string(evttype)); 
   auto_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 

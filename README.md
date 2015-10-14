@@ -10,9 +10,9 @@ git cms-init
 
 git cms-merge-topic dmajumder:CMSSW_7_4_X_AnalysisDataFormats_BoostedObjects
 
-git clone git://github.com/dmajumder/EventCounter.git Analysis/EventCounter
+git clone git://github.com/dmajumder/EventCounter.git Analysis/EventCounter 
 
-git clone https://github.com/skhalil/VLQAna.git Analysis/VLQAna
+git clone https://github.com/skhalil/VLQAna.git Analysis/VLQAna  
 
 #To just build this stuff
 cd Analysis/VLQAna

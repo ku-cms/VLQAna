@@ -72,6 +72,7 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet GenHSelParams_             ; 
     const double HTMin_                          ; 
     const double STMin_                          ; 
+    const bool filterSignal_                     ;
     const bool doPUReweightingNPV_               ;
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
@@ -99,6 +100,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
+  filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   doPUReweightingNPV_     (iConfig.getParameter<bool>              ("DoPUReweightingNPV")), 
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")), 
@@ -121,6 +123,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
   Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
   Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
+
+  if (filterSignal_ && *h_evttype.product()!="mc_qZqZ") return false ;
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
 
@@ -205,7 +209,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nhjet"] -> Fill(goodHTaggedJets.size(), evtwt) ; 
   h1_["ntjet"] -> Fill(goodTopTaggedJets.size(), evtwt) ; 
 
-  if ( goodAK4Jets.size() > 2 && goodAK8Jets.size() > 1 ) h1_["cutflow"] -> Fill(4, evtwt) ; 
+  if ( goodAK4Jets.size() > 2 && goodAK8Jets.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ; 
   else return false ;
 
   h1_["ptak4leading"] -> Fill(goodAK4Jets.at(0).getPt(), evtwt) ; 
@@ -223,12 +227,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["trimmedmak8leading"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass(), evtwt) ;
   h1_["prunedmak8leading"] -> Fill((goodAK8Jets.at(0)).getPrunedMass(), evtwt) ;
   h1_["softdropmak8leading"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass(), evtwt) ;
-  h1_["ptak82nd"] -> Fill((goodAK8Jets.at(1)).getPt(), evtwt) ; 
-  h1_["etaak82nd"] -> Fill((goodAK8Jets.at(1)).getEta(), evtwt) ;
-  h1_["mak82nd"] -> Fill((goodAK8Jets.at(1)).getMass(), evtwt) ; 
-  h1_["trimmedmak82nd"] -> Fill((goodAK8Jets.at(1)).getTrimmedMass(), evtwt) ;
-  h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
-  h1_["softdropmak82nd"] -> Fill((goodAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
+  if (goodAK8Jets.size() > 1) {
+    h1_["ptak82nd"] -> Fill((goodAK8Jets.at(1)).getPt(), evtwt) ; 
+    h1_["etaak82nd"] -> Fill((goodAK8Jets.at(1)).getEta(), evtwt) ;
+    h1_["mak82nd"] -> Fill((goodAK8Jets.at(1)).getMass(), evtwt) ; 
+    h1_["trimmedmak82nd"] -> Fill((goodAK8Jets.at(1)).getTrimmedMass(), evtwt) ;
+    h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
+    h1_["softdropmak82nd"] -> Fill((goodAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
+  }
   if ( goodBTaggedAK4Jets.size() > 0 ) {
     h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
     h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
@@ -243,22 +249,53 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["st"] ->Fill(ST, evtwt) ; 
 
   //double mak8_1 = goodAK8Jets.at(0).getP4().Mag() ;
-  double mak8_2(0) ; 
-  goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).getP4().Mag() : 0 ; 
+  //double mak8_2(0) ; 
+  //goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).getP4().Mag() : 0 ; 
   //double mak8_12(0) ; 
   //double detaLeading2AK8(-1) ; 
-  TLorentzVector p4_ak8_12(goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()) ;
+  //TLorentzVector p4_ak8_12(goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()) ;
   //mak8_12 = p4_ak8_12.Mag() ; 
   //detaLeading2AK8 = abs(goodAK8Jets.at(0).getEta() - goodAK8Jets.at(1).getEta() ) ;
 
-  if ( ST > STMin_ ) {
-    h1_["cutflow"] -> Fill(5, evtwt) ;  
-    if ( goodBTaggedAK4Jets.size() > 0 ) h1_["cutflow"] -> Fill(6, evtwt) ;  
-    if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(7, evtwt) ;  
-    if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
-    if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
-  }
+  if ( ST > STMin_ ) h1_["cutflow"] -> Fill(5, evtwt) ;  
   else return false ; 
+
+  if ( goodBTaggedAK4Jets.size() > 0 ) h1_["cutflow"] -> Fill(6, evtwt) ;  
+  if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(7, evtwt) ;  
+  if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
+  if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
+
+  //// Make B->bZ and T->tZ->bWZ candidates
+  TLorentzVector tp_p4, bp_p4;
+  tp_p4.SetPtEtaPhiM(0,0,0,0);
+  bp_p4.SetPtEtaPhiM(0,0,0,0);
+
+  if (goodTopTaggedJets.size() > 0) {
+    if (zmumuBoosted.size()>0) tp_p4 = zmumuBoosted.at(0).getP4() + goodTopTaggedJets.at(0).getP4() ; 
+    else if (zelelBoosted.size()>0) tp_p4 = zelelBoosted.at(0).getP4() + goodTopTaggedJets.at(0).getP4() ; 
+  }
+  else if ( goodWTaggedJets.size() > 0 && goodBTaggedAK4Jets.size() > 0 ) { 
+      if (zmumuBoosted.size()>0) tp_p4 = zmumuBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
+      else if (zelelBoosted.size()>0) tp_p4 = zelelBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
+  }
+  else if ( goodBTaggedAK4Jets.size() > 0 ) { 
+    if (zmumuBoosted.size()>0) {
+      tp_p4 = zmumuBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodAK8Jets.at(0).getP4() ; 
+      bp_p4 = zmumuBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() ; 
+    }
+    else if (zelelBoosted.size()>0) {
+      tp_p4 = zelelBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodAK8Jets.at(0).getP4() ; 
+      bp_p4 = zelelBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() ; 
+    }
+  }
+
+  h1_["ptTprime"]->Fill(tp_p4.Pt(), evtwt) ; 
+  h1_["yTprime"] ->Fill(tp_p4.Rapidity(), evtwt) ; 
+  h1_["mTprime"] ->Fill(tp_p4.Mag(), evtwt) ; 
+
+  h1_["ptBprime"]->Fill(bp_p4.Pt(), evtwt) ; 
+  h1_["yBprime"] ->Fill(bp_p4.Rapidity(), evtwt) ; 
+  h1_["mBprime"] ->Fill(bp_p4.Mag(), evtwt) ; 
 
   return true ; 
 }
@@ -270,7 +307,7 @@ void OS2LAna::beginJob() {
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "Z(l^{+}l^{-})") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "p_{T}(Z)") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4)>2&N(AK8)>1") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4)>2&N(AK8)>0") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "S_{T}") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "N(b jet)>0") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(W jet)>0") ; 
@@ -336,6 +373,13 @@ void OS2LAna::beginJob() {
   h1_["ht"] = fs->make<TH1D>("ht" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
   h1_["st"] = fs->make<TH1D>("st" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
 
+  h1_["ptTprime"]  = fs->make<TH1D>("ptTprime", ";p_{T}(T quark) [GeV];;" , 100, 0., 2000.) ; 
+  h1_["yTprime"] = fs->make<TH1D>("yTprime", ";y(T quark);;" , 40 ,-4. ,4.) ; 
+  h1_["mTprime"] = fs->make<TH1D>("mTprime", ";M(T quark) [GeV];;" ,100 ,0., 2000.) ; 
+
+  h1_["ptBprime"]  = fs->make<TH1D>("ptBprime", ";p_{T}(B quark) [GeV];;" , 100, 0., 2000.) ; 
+  h1_["yBprime"] = fs->make<TH1D>("yBprime", ";y(B quark);;" , 40 ,-4. ,4.) ; 
+  h1_["mBprime"] = fs->make<TH1D>("mBprime", ";M(B quark) [GeV];;" ,100 ,0., 2000.) ; 
 }
 
 void OS2LAna::endJob() {

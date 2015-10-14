@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from Analysis.VLQAna.VLQParams_cfi import * 
+
 evtcleaner = cms.EDFilter("EventCleaner",
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
     trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
@@ -22,6 +24,5 @@ evtcleaner = cms.EDFilter("EventCleaner",
     DoPUReweightingNPV         = cms.bool(False),
     File_PVWt                  = cms.string('hnpv_data_Run2015D_mc_RunIISpring15DR74-Asympt25ns_pvwt.root'),
     Hist_PVWt                  = cms.string('hpvwt_data_mc'),
+    vlqParams                  = cms.PSet(genPartParams,vlqParams)
     )
-
-

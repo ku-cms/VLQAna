@@ -97,8 +97,10 @@ def main():
 
       ### Open input ROOT file
       root_file = TFile(dataset)
-      htemp = root_file.Get(os.path.join(options.analyzer_module,'cutflow'))
-      nEventsAll = htemp.GetBinContent(1)
+      #htemp = root_file.Get(os.path.join(options.analyzer_module,'allEvents/hEventCount'))
+      htemp = root_file.Get(os.path.join('allEvents/hEventCount'))
+      #nEventsAll = htemp.GetBinContent(1)
+      nEventsAll = htemp.Integral()
       #nEventsAll = dataset_nevt[dataset]#*23443.424/2 
       scale = 1.
       if group_xsec[group] > 0.:

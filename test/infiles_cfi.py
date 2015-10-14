@@ -547,3 +547,16 @@ files_doubleMuon_Run2015D = [
     'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DoubleMuon/B2GAnaFW_v74x_v7p1_25ns/151009_131253/0000/B2GEDMNtuple_98.root',
     'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/DoubleMuon/B2GAnaFW_v74x_v7p1_25ns/151009_131253/0000/B2GEDMNtuple_99.root',
     ]
+
+fileNames_BB_M1000_Spring15_25ns =[
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_1.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_10.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_11.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_12.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_13.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_14.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_15.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_16.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_17.root',
+    'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151002_170055/0000/B2GEDMNtuple_18.root',
+    ]
