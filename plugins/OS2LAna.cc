@@ -72,6 +72,7 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet GenHSelParams_             ; 
     const double HTMin_                          ; 
     const double STMin_                          ; 
+    const bool filterSignal_                     ;
     const bool doPUReweightingNPV_               ;
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
@@ -99,6 +100,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
+  filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   doPUReweightingNPV_     (iConfig.getParameter<bool>              ("DoPUReweightingNPV")), 
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")), 
@@ -121,6 +123,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
   Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
   Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
+
+  if (filterSignal_ && *h_evttype.product()!="mc_qZqZ") return false ;
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
 
