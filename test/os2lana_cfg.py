@@ -35,11 +35,12 @@ hltpaths = []
 if options.isData:
   if options.zdecaymode == "zmumu":
     hltpaths = [
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+        #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+        "HLT_DoubleIsoMu17_eta2p1_v"
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
-        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v",
+        #"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v",
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"
         ]
   else:
@@ -47,15 +48,17 @@ if options.isData:
 
 process = cms.Process("OS2LAna")
 
-from infiles_cfi import * 
+from inputFiles_cfi import * 
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    'root://eoscms.cern.ch//eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172851/0000/B2GEDMNtuple_8.root'
+    #'root://eoscms.cern.ch//eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172851/0000/B2GEDMNtuple_8.root'
     #fileNamess_TT_M800_Spring15_25ns
     #files_DY_M50
     #files_doubleMuon_Run2015D
+    #fileNames_BB_M1000_Spring15_25ns
+    FileNames
     ) 
     )
 
@@ -67,16 +70,23 @@ process.evtcleaner.hltPaths = cms.vstring (hltpaths)
 process.evtcleaner.DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV)  
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
+
+### Low pt Z candidate with low pt jets 
+process.ana = ana.clone(
+    DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV),
+    )
+process.ana.elselParams.useVID = cms.bool(options.isData)
+process.ana.BoostedZCandParams.ptMin = cms.double(0.)
+process.ana.jetAK8selParams.jetPtMin = cms.double(100)
+process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
+
+
+### Boosted Z candidate
 process.anaBoosted = ana.clone(
     DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV),
     )
+process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
 
-process.ana = process.anaBoosted.clone()
-process.ana.BoostedZCandParams.ptMin = cms.double(0.)
-
-if not options.isData:
-  process.anaBoosted.elselParams.useVID = cms.bool(False)
-  process.ana.elselParams.useVID = cms.bool(False)
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
