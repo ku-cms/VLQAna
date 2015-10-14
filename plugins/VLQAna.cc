@@ -636,7 +636,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         (h_jetAK8Phi.product())->at(ijet), 
         (h_jetAK8Mass.product())->at(ijet) ) ;
     for ( ihbb = h_HbbCands.product()->begin(); ihbb != h_HbbCands.product()->end(); ++ihbb ) {
-      TLorentzVector hp4 = (ihbb->getMom()).getP4() ; 
+      TLorentzVector hp4 = (ihbb->getMothers().at(0)).getP4() ; 
       drhjet_hpart.push_back(hp4.DeltaR(jetP4)) ; 
       vlq::GenParticleCollection bs =  ( ihbb->getDaughters() ) ; 
       for ( vlq::GenParticle& b : bs ) {

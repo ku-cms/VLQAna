@@ -5,7 +5,7 @@ from Analysis.VLQAna.Electron_cfi import *
 defaultElectronMakerParameters = cms.PSet(
     defaultElectronParameters, 
     elidtype = cms.string("LOOSE"), #Using electron ID coded in VID tool
-    elPtMin = cms.double(30),
+    elPtMin = cms.double(40),
     elPtMax = cms.double(10000),
     elAbsEtaMax = cms.double(2.4),
     elIsoMin = cms.double(0.00),
