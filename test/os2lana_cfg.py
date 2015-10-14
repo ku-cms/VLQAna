@@ -28,11 +28,17 @@ options.register('zdecaymode', '',
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
     )
+options.register('filterSignal', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Select only tZtt or bZbZ modes"
+    )
 options.setDefault('maxEvents', 1000)
 options.parseArguments()
 
 hltpaths = []
 if options.isData:
+  options.filterSignal = False 
   if options.zdecaymode == "zmumu":
     hltpaths = [
         #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
@@ -73,6 +79,7 @@ from Analysis.VLQAna.OS2LAna_cfi import *
 
 ### Low pt Z candidate with low pt jets 
 process.ana = ana.clone(
+    filterSignal = cms.bool(options.filterSignal),
     DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV),
     )
 process.ana.elselParams.useVID = cms.bool(options.isData)
@@ -83,6 +90,7 @@ process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
 
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
+    filterSignal = cms.bool(options.filterSignal),
     DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV),
     )
 process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
