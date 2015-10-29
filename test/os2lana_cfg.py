@@ -74,13 +74,13 @@ process.load("Analysis.VLQAna.EventCleaner_cff")
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV)  
+process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
 ### Low pt Z candidate with low pt jets 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
-    DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV),
     )
 process.ana.elselParams.useVID = cms.bool(options.isData)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
@@ -91,7 +91,6 @@ process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
-    DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV),
     )
 process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
 
