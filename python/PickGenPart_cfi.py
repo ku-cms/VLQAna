@@ -20,6 +20,7 @@ genPartParams = cms.PSet(
     )
 
 getSelectParams = cms.PSet(
+    genPartParams, 
     ids                 = cms.vint32(-8000001,-8000002,8000001,8000002), 
     statuses            = cms.vint32(22), 
     checkstatus         = cms.bool(False),
@@ -28,5 +29,6 @@ getSelectParams = cms.PSet(
     checkmomid          = cms.bool(False),
     dau0ids             = cms.vint32(-5,5,-6,6,23), 
     dau1ids             = cms.vint32(-5,5,-6,6,23), 
-    checkdauid          = cms.bool(True),
+    checkdauid          = cms.bool(False),
+    debug               = cms.bool(False), 
     )

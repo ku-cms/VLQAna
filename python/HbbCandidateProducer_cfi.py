@@ -3,21 +3,24 @@ import FWCore.ParameterSet.Config as cms
 from Analysis.VLQAna.PickGenPart_cfi import *
 
 hbb = cms.EDProducer("HbbCandidateProducer",
-    GenHSelParams    = genPartParams.clone(
+    GenHSelParams    = getSelectParams.clone(
       ids            = cms.vint32(25), 
-      statuses       = cms.vint32(21,22,23,24,25,26,27,28,29,52), 
+      dau0ids             = cms.vint32(-5,5), 
+      dau1ids             = cms.vint32(-5,5), 
       checkstatus    = cms.bool(False),
       ), 
-    GenbSelParams    = genPartParams.clone(
+    GenbSelParams    = getSelectParams.clone(
       ids            = cms.vint32(5), 
-      momids         = cms.vint32(25), 
+      mom0ids        = cms.vint32(25,-900), 
+      mom1ids        = cms.vint32(25,-900), 
       checkmomid     = cms.bool(True),
       statuses       = cms.vint32(23), 
       checkstatus    = cms.bool(True),
       ), 
-    GenbbarSelParams = genPartParams.clone(
+    GenbbarSelParams = getSelectParams.clone(
       ids            = cms.vint32(-5), 
-      momids         = cms.vint32(25), 
+      mom0ids        = cms.vint32(25,-900), 
+      mom1ids        = cms.vint32(25,-900), 
       checkmomid     = cms.bool(True),
       statuses       = cms.vint32(23), 
       checkstatus    = cms.bool(True),

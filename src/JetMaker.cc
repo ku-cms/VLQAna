@@ -309,6 +309,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
       jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
       if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
+        jet.setTau1         ( (h_jettau1.product())->at(ijet) ) ; 
+        jet.setTau2         ( (h_jettau2.product())->at(ijet) ) ; 
+        jet.setTau3         ( (h_jettau3.product())->at(ijet) ) ; 
         jet.setFilteredMass ( (h_jetFilteredMass.product())->at(ijet) ) ; 
         jet.setTrimmedMass  ( (h_jetTrimmedMass.product())->at(ijet) ) ; 
         jet.setPrunedMass   ( (h_jetPrunedMass.product())->at(ijet) ) ; 

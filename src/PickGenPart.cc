@@ -27,7 +27,8 @@ PickGenPart::PickGenPart (const edm::ParameterSet& iConfig) :
   checkmomid_          (iConfig.getParameter<bool>("checkmomid")),
   dau0ids_             (iConfig.getParameter<std::vector<int>>("dau0ids")), 
   dau1ids_             (iConfig.getParameter<std::vector<int>>("dau1ids")), 
-  checkdauid_          (iConfig.getParameter<bool>("checkdauid"))  
+  checkdauid_          (iConfig.getParameter<bool>("checkdauid")),
+  debug_               (iConfig.getParameter<bool>("debug"))
 { }
 
 PickGenPart::~PickGenPart () {}
@@ -59,6 +60,17 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
 
     if ( std::find(ids_.begin(), ids_.end(), (h_genPartID.product())->at(igen)) == ids_.end() ) continue ; 
     if ( checkstatus_ && std::find(statuses_.begin(), statuses_.end(), (h_genPartStatus.product())->at(igen)) == statuses_.end() ) continue ;
+
+    if ( debug_ ) {
+      std::cout << " id = " << (h_genPartID.product())->at(igen) 
+        << " status = " << (h_genPartStatus.product())->at(igen) 
+        << " mom0 id = " << (h_genPartMom0ID.product())->at(igen) 
+        << " mom1 id = " << (h_genPartMom1ID.product())->at(igen)
+        << " dau0 id = " << (h_genPartDau0ID.product())->at(igen) 
+        << " dau1 id = " << (h_genPartDau1ID.product())->at(igen)
+        << std::endl ;
+    }
+
     if ( checkmomid_ && std::find(mom0ids_.begin(), mom0ids_.end(), (h_genPartMom0ID.product())->at(igen)) == mom0ids_.end() ) continue ; 
     if ( checkmomid_ && std::find(mom1ids_.begin(), mom1ids_.end(), (h_genPartMom1ID.product())->at(igen)) == mom1ids_.end() ) continue ; 
     if ( checkdauid_ && std::find(dau0ids_.begin(), dau0ids_.end(), (h_genPartDau0ID.product())->at(igen)) == dau0ids_.end() ) continue ; 
@@ -81,7 +93,7 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
     genpart.setDau0Status ( (h_genPartDau0Status.product())->at(igen) ) ; 
     genpart.setDau1Status ( (h_genPartDau1Status.product())->at(igen) ) ; 
     genParts_.push_back(genpart) ; 
-     
+
   }
 
   return genParts_ ; 

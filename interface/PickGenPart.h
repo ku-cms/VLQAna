@@ -42,6 +42,7 @@ class PickGenPart {
     std::vector<int> dau0ids_ ; 
     std::vector<int> dau1ids_ ; 
     bool checkdauid_ ; 
+    bool debug_ ; 
 
 
     GenParticleCollection genParts_ ; 
