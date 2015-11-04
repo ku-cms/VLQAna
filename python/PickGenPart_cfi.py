@@ -17,6 +17,7 @@ genPartParams = cms.PSet(
     genPartMom1Status   = cms.InputTag("genPart", "genPartMom1Status"), 
     genPartDau0Status   = cms.InputTag("genPart", "genPartDau0Status"), 
     genPartDau1Status   = cms.InputTag("genPart", "genPartDau1Status"), 
+    debug               = cms.bool(False), 
     )
 
 getSelectParams = cms.PSet(
@@ -30,5 +31,4 @@ getSelectParams = cms.PSet(
     dau0ids             = cms.vint32(-5,5,-6,6,23), 
     dau1ids             = cms.vint32(-5,5,-6,6,23), 
     checkdauid          = cms.bool(False),
-    debug               = cms.bool(False), 
     )

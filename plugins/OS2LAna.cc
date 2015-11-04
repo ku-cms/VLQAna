@@ -109,6 +109,11 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams")), 
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"))  
 {
+  produces<vlq::JetCollection>("tjets") ; 
+  produces<vlq::JetCollection>("wjets") ; 
+  produces<vlq::JetCollection>("bjets") ; 
+  produces<vlq::JetCollection>("jets") ; 
+  produces<vlq::CandidateCollection>("zllcands") ; 
 }
 
 
@@ -250,15 +255,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["ht"] ->Fill(htak4.getHT(), evtwt) ; 
   h1_["st"] ->Fill(ST, evtwt) ; 
 
-  //double mak8_1 = goodAK8Jets.at(0).getP4().Mag() ;
-  //double mak8_2(0) ; 
-  //goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).getP4().Mag() : 0 ; 
-  //double mak8_12(0) ; 
-  //double detaLeading2AK8(-1) ; 
-  //TLorentzVector p4_ak8_12(goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()) ;
-  //mak8_12 = p4_ak8_12.Mag() ; 
-  //detaLeading2AK8 = abs(goodAK8Jets.at(0).getEta() - goodAK8Jets.at(1).getEta() ) ;
-
   if ( ST > STMin_ ) h1_["cutflow"] -> Fill(5, evtwt) ;  
   else return false ; 
 
@@ -298,6 +294,22 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["ptBprime"]->Fill(bp_p4.Pt(), evtwt) ; 
   h1_["yBprime"] ->Fill(bp_p4.Rapidity(), evtwt) ; 
   h1_["mBprime"] ->Fill(bp_p4.Mag(), evtwt) ; 
+
+  vlq::CandidateCollection zllBoosted(zmumuBoosted.size()+zelelBoosted.size()) ;
+  for (vlq::Candidate cand : zmumuBoosted ) zllBoosted.push_back(cand) ; 
+  for (vlq::Candidate cand : zelelBoosted ) zllBoosted.push_back(cand) ; 
+
+  std::auto_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
+  std::auto_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zllBoosted) ) ; 
+
+  evt.put(ptr_tjets, "tjets") ; 
+  evt.put(ptr_wjets, "wjets") ; 
+  evt.put(ptr_bjets, "bjets") ; 
+  evt.put(ptr_jets , "jets")  ; 
+  evt.put(ptr_zllcands , "zllcands")  ; 
 
   return true ; 
 }

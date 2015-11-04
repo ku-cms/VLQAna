@@ -5,6 +5,12 @@
 #include "AnalysisDataFormats/BoostedObjects/interface/Muon.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 
+struct compareByPt {
+  bool operator () (const vlq::Candidate& cand0, const vlq::Candidate& cand1) {
+    return cand0.getPt() > cand1.getPt() ;     
+  }                                           
+};
+
 struct Utilities {
   public: 
     template <typename T>

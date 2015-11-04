@@ -303,8 +303,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       vlq::Jet jet ; 
       TLorentzVector  jetP4;
       jetP4.SetPtEtaPhiM( (h_jetPt.product())->at(ijet), (h_jetEta.product())->at(ijet), (h_jetPhi.product())->at(ijet), (h_jetMass.product())->at(ijet) ) ;
-      jet.setP4                      (jetP4)                                              ; 
-      jet.setIndex                   (ijet)                                               ;
+      jet.setP4           (jetP4) ; 
+      jet.setIndex        (ijet)  ;
       jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
       jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
       jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
