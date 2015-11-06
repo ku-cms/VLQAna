@@ -31,6 +31,9 @@ class JetMaker {
     edm::ParameterSet JetSubstrParams_ ; 
     edm::ParameterSet SubjetParams_ ; 
 
+    bool         scaleJetP4_     ;
+    double       scaledJetMass_  ; 
+
     double idxjetPtMin_          ;
     double idxjetPtMax_          ;
     double idxjetAbsEtaMax_      ;

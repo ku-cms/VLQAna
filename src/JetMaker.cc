@@ -7,13 +7,15 @@ JetMaker::JetMaker () {}
 
 JetMaker::~JetMaker () {} 
 
-JetMaker::JetMaker (edm::ParameterSet const& pars) :
-  JetIDParams_ (pars.getParameter<edm::ParameterSet> ("JetIDParams")), 
-  JetSubstrParams_ (pars.getParameter<edm::ParameterSet> ("JetSubstrParams")), 
-  SubjetParams_ (pars.getParameter<edm::ParameterSet> ("SubjetParams")) 
+JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
+  JetIDParams_     (iConfig.getParameter<edm::ParameterSet> ("JetIDParams")), 
+  JetSubstrParams_ (iConfig.getParameter<edm::ParameterSet> ("JetSubstrParams")), 
+  SubjetParams_    (iConfig.getParameter<edm::ParameterSet> ("SubjetParams")), 
+  scaleJetP4_      (iConfig.getParameter<bool>           ("scaleJetP4")), 
+  scaledJetMass_   (iConfig.getParameter<double>         ("scaledJetMass"))  
 {
 
-  std::string jettypeStr = pars.getParameter<std::string>("jettype") ;
+  std::string jettypeStr = iConfig.getParameter<std::string>("jettype") ;
   if      (jettypeStr == "AK4JET")             type_ = AK4JET; 
   else if (jettypeStr == "AK8JET")             type_ = AK8JET;
   else if (jettypeStr == "HTAGGEDAK8JET")      type_ = HTAGGEDAK8JET;
@@ -64,36 +66,36 @@ JetMaker::JetMaker (edm::ParameterSet const& pars) :
     l_ak8sjCSV           = SubjetParams_.getParameter<edm::InputTag> ("jetCSVLabel") ; 
   }
 
-  idxjetPtMin_ = pars.getParameter<double>("jetPtMin")  ;
-  idxjetPtMax_ = pars.getParameter<double>("jetPtMax")  ;
-  idxjetAbsEtaMax_ = pars.getParameter<double>("jetAbsEtaMax")  ;
-  idxjetCSVDiscMin_ = pars.getParameter<double>("jetCSVDiscMin")  ;
-  idxjetCSVDiscMax_ = pars.getParameter<double>("jetCSVDiscMax")  ;
+  idxjetPtMin_ = iConfig.getParameter<double>("jetPtMin")  ;
+  idxjetPtMax_ = iConfig.getParameter<double>("jetPtMax")  ;
+  idxjetAbsEtaMax_ = iConfig.getParameter<double>("jetAbsEtaMax")  ;
+  idxjetCSVDiscMin_ = iConfig.getParameter<double>("jetCSVDiscMin")  ;
+  idxjetCSVDiscMax_ = iConfig.getParameter<double>("jetCSVDiscMax")  ;
   if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
-    idxjettau2Bytau1Min_ = pars.getParameter<double>("jettau2Bytau1Min")  ;
-    idxjettau2Bytau1Max_ = pars.getParameter<double>("jettau2Bytau1Max")  ;
-    idxjettau3Bytau2Min_ = pars.getParameter<double>("jettau3Bytau2Min")  ;
-    idxjettau3Bytau2Max_ = pars.getParameter<double>("jettau3Bytau2Max")  ;
-    idxjetMassMin_ = pars.getParameter<double>("jetMassMin")  ;
-    idxjetMassMax_ = pars.getParameter<double>("jetMassMax")  ;
-    idxjetPrunedMassMin_ = pars.getParameter<double>("jetPrunedMassMin")  ;
-    idxjetPrunedMassMax_ = pars.getParameter<double>("jetPrunedMassMax")  ;
-    idxjetTrimmedMassMin_ = pars.getParameter<double>("jetTrimmedMassMin")  ;
-    idxjetTrimmedMassMax_ = pars.getParameter<double>("jetTrimmedMassMax")  ;
-    idxjetWMassMin_ = pars.getParameter<double>("jetWMassMin")  ;
-    idxjetWMassMax_ = pars.getParameter<double>("jetWMassMax")  ;
-    idxjetTopMassMin_ = pars.getParameter<double>("jetTopMassMin")  ;
-    idxjetTopMassMax_ = pars.getParameter<double>("jetTopMassMax")  ;
-    idxjetMinMassMin_ = pars.getParameter<double>("jetMinMassMin")  ;
-    idxjetMinMassMax_ = pars.getParameter<double>("jetMinMassMax")  ;
-    idxjetnSubJetsMin_ = pars.getParameter<double>("jetnSubJetsMin")  ;
-    idxjetnSubJetsMax_ = pars.getParameter<double>("jetnSubJetsMax")  ;
-    idxsjMassMin_ = pars.getParameter<double>("subjetMassMin")  ;
-    idxsjCSVMin_ = pars.getParameter<double>("subjetCSVMin")  ;
+    idxjettau2Bytau1Min_ = iConfig.getParameter<double>("jettau2Bytau1Min")  ;
+    idxjettau2Bytau1Max_ = iConfig.getParameter<double>("jettau2Bytau1Max")  ;
+    idxjettau3Bytau2Min_ = iConfig.getParameter<double>("jettau3Bytau2Min")  ;
+    idxjettau3Bytau2Max_ = iConfig.getParameter<double>("jettau3Bytau2Max")  ;
+    idxjetMassMin_ = iConfig.getParameter<double>("jetMassMin")  ;
+    idxjetMassMax_ = iConfig.getParameter<double>("jetMassMax")  ;
+    idxjetPrunedMassMin_ = iConfig.getParameter<double>("jetPrunedMassMin")  ;
+    idxjetPrunedMassMax_ = iConfig.getParameter<double>("jetPrunedMassMax")  ;
+    idxjetTrimmedMassMin_ = iConfig.getParameter<double>("jetTrimmedMassMin")  ;
+    idxjetTrimmedMassMax_ = iConfig.getParameter<double>("jetTrimmedMassMax")  ;
+    idxjetWMassMin_ = iConfig.getParameter<double>("jetWMassMin")  ;
+    idxjetWMassMax_ = iConfig.getParameter<double>("jetWMassMax")  ;
+    idxjetTopMassMin_ = iConfig.getParameter<double>("jetTopMassMin")  ;
+    idxjetTopMassMax_ = iConfig.getParameter<double>("jetTopMassMax")  ;
+    idxjetMinMassMin_ = iConfig.getParameter<double>("jetMinMassMin")  ;
+    idxjetMinMassMax_ = iConfig.getParameter<double>("jetMinMassMax")  ;
+    idxjetnSubJetsMin_ = iConfig.getParameter<double>("jetnSubJetsMin")  ;
+    idxjetnSubJetsMax_ = iConfig.getParameter<double>("jetnSubJetsMax")  ;
+    idxsjMassMin_ = iConfig.getParameter<double>("subjetMassMin")  ;
+    idxsjCSVMin_ = iConfig.getParameter<double>("subjetCSVMin")  ;
   }
 
-  if (pars.getParameter<bool>("IsJetIDLoose") == true && pars.getParameter<bool>("IsJetIDTight") == false) quality_ = JetID::LOOSE ; 
-  else if (pars.getParameter<bool>("IsJetIDTight") == true && pars.getParameter<bool>("IsJetIDLoose") == false) quality_ = JetID::TIGHT ; 
+  if (iConfig.getParameter<bool>("IsJetIDLoose") == true && iConfig.getParameter<bool>("IsJetIDTight") == false) quality_ = JetID::LOOSE ; 
+  else if (iConfig.getParameter<bool>("IsJetIDTight") == true && iConfig.getParameter<bool>("IsJetIDLoose") == false) quality_ = JetID::TIGHT ; 
   else edm::LogError("JetMaker::JetMaker") << "Ambiguous JetID: Please select only one (LOOSE or TIGHT) as True!!!" ; 
 
 }
@@ -135,6 +137,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
   Handle <vector<float>>  h_ak8sjPhi          ; 
   Handle <vector<float>>  h_ak8sjMass         ; 
   Handle <vector<float>>  h_ak8sjCSV          ; 
+  Handle <vector<float>>  h_vjetsjIdx0        ; 
+  Handle <vector<float>>  h_vjetsjIdx1        ; 
 
   if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
     evt.getByLabel (l_jettau1             , h_jettau1        );
@@ -153,6 +157,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     evt.getByLabel (l_ak8sjPhi            , h_ak8sjPhi       );
     evt.getByLabel (l_ak8sjMass           , h_ak8sjMass      );
     evt.getByLabel (l_ak8sjCSV            , h_ak8sjCSV       );
+    evt.getByLabel (l_vjetsjIdx0          , h_vjetsjIdx0     );
+    evt.getByLabel (l_vjetsjIdx1          , h_vjetsjIdx1     );
   }
 
   if ((h_jetPt.product())->size() < 1) return ; 
@@ -176,15 +182,50 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     bool passflag(false) ; 
 
-    if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
+    double jettau1       (-1000); 
+    double jettau2       (-1000); 
+    double jettau3       (-1000); 
+    double jetMass       (-1000); 
+    double jetPrunedMass (-1000); 
+    double jetTrimmedMass(-1000); 
+    int    jetnSubJets   (-1000); 
+    int    vjetsjIdx0    (-1000); 
+    int    vjetsjIdx1    (-1000); 
+    double vjetssj0Pt    (-1000) ;
+    double vjetssj0Eta   (-1000) ;
+    double vjetssj0Phi   (-1000) ;
+    double vjetssj0Mass  (-1000) ;
+    double vjetssj0CSV   (-1000) ;
+    double vjetssj1Pt    (-1000) ;
+    double vjetssj1Eta   (-1000) ;
+    double vjetssj1Phi   (-1000) ;
+    double vjetssj1Mass  (-1000) ;
+    double vjetssj1CSV   (-1000) ;
 
-      double jettau1         = (h_jettau1.product())->at(ijet) ; 
-      double jettau2         = (h_jettau2.product())->at(ijet) ; 
-      double jettau3         = (h_jettau3.product())->at(ijet) ; 
-      double jetMass         = (h_jetMass.product())->at(ijet) ;
-      double jetPrunedMass   = (h_jetPrunedMass.product())->at(ijet) ;
-      double jetTrimmedMass  = (h_jetTrimmedMass.product())->at(ijet) ;
-      int    jetnSubJets     = int((h_jetnSubJets.product())->at(ijet)) ;
+    if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
+      jettau1         = (h_jettau1.product())->at(ijet) ; 
+      jettau2         = (h_jettau2.product())->at(ijet) ; 
+      jettau3         = (h_jettau3.product())->at(ijet) ; 
+      jetMass         = (h_jetMass.product())->at(ijet) ;
+      jetPrunedMass   = (h_jetPrunedMass.product())->at(ijet) ;
+      jetTrimmedMass  = (h_jetTrimmedMass.product())->at(ijet) ;
+      jetnSubJets     = int((h_jetnSubJets.product())->at(ijet)) ;
+      vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
+      vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
+      if (vjetsjIdx0 >= 0 ) {
+        vjetssj0Pt      = (h_ak8sjPt.product())->at(vjetsjIdx0) ; 
+        vjetssj0Eta     = (h_ak8sjEta.product())->at(vjetsjIdx0) ; 
+        vjetssj0Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx0) ; 
+        vjetssj0Mass    = (h_ak8sjMass.product())->at(vjetsjIdx0) ; 
+        vjetssj0CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx0) ; 
+      }
+      if (vjetsjIdx1 >= 0) {
+        vjetssj1Pt      = (h_ak8sjPt.product())->at(vjetsjIdx1) ; 
+        vjetssj1Eta     = (h_ak8sjEta.product())->at(vjetsjIdx1) ; 
+        vjetssj1Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx1) ; 
+        vjetssj1Mass    = (h_ak8sjMass.product())->at(vjetsjIdx1) ; 
+        vjetssj1CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx1) ; 
+      }
 
       if ( jettau2/jettau1< idxjettau2Bytau1Min_ ) { 
         LogDebug("JetMaker") << " ak8 jet fails jettau2/jettau1 = " << jettau2/jettau1 << " < cutmin\n" ; 
@@ -228,21 +269,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }   
       if (type_ == HTAGGEDAK8JET) {
         LogDebug("JetMaker") << " jetnSubJets = " << jetnSubJets << " min = " << idxjetnSubJetsMin_  << " max = " << idxjetnSubJetsMax_ << endl ; 
-        Handle <vector<float>>  h_vjetsjIdx0        ; evt.getByLabel (l_vjetsjIdx0          , h_vjetsjIdx0     );
-        Handle <vector<float>>  h_vjetsjIdx1        ; evt.getByLabel (l_vjetsjIdx1          , h_vjetsjIdx1     );
-        int    vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
-        int    vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
         if (vjetsjIdx0 >= 0 && vjetsjIdx1 >= 0) {
-          double vjetssj0Pt      = (h_ak8sjPt.product())->at(vjetsjIdx0) ; 
-          double vjetssj1Pt      = (h_ak8sjPt.product())->at(vjetsjIdx1) ; 
-          double vjetssj0Eta     = (h_ak8sjEta.product())->at(vjetsjIdx0) ; 
-          double vjetssj1Eta     = (h_ak8sjEta.product())->at(vjetsjIdx1) ; 
-          double vjetssj0Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx0) ; 
-          double vjetssj1Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx1) ; 
-          double vjetssj0Mass    = (h_ak8sjMass.product())->at(vjetsjIdx0) ; 
-          double vjetssj1Mass    = (h_ak8sjMass.product())->at(vjetsjIdx1) ; 
-          double vjetssj0CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx0) ; 
-          double vjetssj1CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx1) ; 
           TLorentzVector p4sj0, p4sj1; 
           p4sj0.SetPtEtaPhiM(vjetssj0Pt, vjetssj0Eta, vjetssj0Phi, vjetssj0Mass) ; 
           p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
@@ -291,7 +318,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
             && jetTopMass < idxjetTopMassMax_
             && jetWMass > idxjetMinMassMin_ 
             && jetWMass < idxjetMinMassMax_
-           ) passflag = true ; 
+           ) {
+          passflag = true ; 
+        }
         else passflag = false ; 
       }
       else passflag = true ; 
@@ -302,7 +331,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     if (passflag)  {
       vlq::Jet jet ; 
       TLorentzVector  jetP4;
-      jetP4.SetPtEtaPhiM( (h_jetPt.product())->at(ijet), (h_jetEta.product())->at(ijet), (h_jetPhi.product())->at(ijet), (h_jetMass.product())->at(ijet) ) ;
+      jetP4.SetPtEtaPhiE( (h_jetPt.product())->at(ijet), (h_jetEta.product())->at(ijet), (h_jetPhi.product())->at(ijet), (h_jetEnergy.product())->at(ijet) ) ;
+      if (scaleJetP4_) jetP4 *= scaledJetMass_/jetP4.Mag() ; 
       jet.setP4           (jetP4) ; 
       jet.setIndex        (ijet)  ;
       jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
@@ -316,6 +346,10 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         jet.setTrimmedMass  ( (h_jetTrimmedMass.product())->at(ijet) ) ; 
         jet.setPrunedMass   ( (h_jetPrunedMass.product())->at(ijet) ) ; 
         jet.setSoftDropMass ( (h_jetSoftDropMass.product())->at(ijet) ) ; 
+        jet.setNSubjets     ( jetnSubJets ) ; 
+        jet.setCSVSubjet0   ( vjetssj0CSV ) ;
+        jet.setCSVSubjet1   ( vjetssj1CSV ) ;
+        jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
       }
       jets.push_back(jet) ; 
     }

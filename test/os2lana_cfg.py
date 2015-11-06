@@ -57,7 +57,8 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    'root://eoscms.cern.ch//eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172851/0000/B2GEDMNtuple_8.root'
+     #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172851/0000/B2GEDMNtuple_8.root', 
+    fileNames_TT_M800_Spring15_25ns
     #FileNames
     ) 
     )
