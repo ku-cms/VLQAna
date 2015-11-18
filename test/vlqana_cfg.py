@@ -1,39 +1,51 @@
+import sys
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+options = VarParsing('analysis')
+options.register('isData', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Is data?"
+    )
+options.register('outFileName', 'singleT.root',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Output file name"
+    )
+options.register('doPUReweightingOfficial', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Do pileup reweighting using official recipe"
+    )
+options.setDefault('maxEvents', 1000)
+options.parseArguments()
+
+hltpaths = []
+if options.isData:
+    hltpaths = [
+        "HLT_PFHT800_v"
+        ]
 
 process = cms.Process("VLQAna")
 
-from infiles_cfi import * 
-
-process.source = cms.Source(
-    "PoolSource",
+from inputFiles_cfi import * 
+process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      #'file:../../B2GAnaFW/test/B2GEDMNtuple.root'
-#/TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/devdatta-B2GAnaFW_Run2Sping15_25ns-93296e97710faac6591502ff11c71e47/USER
-      #'/store/user/devdatta/TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150618_090136/0000/B2GEDMNtuple_1.root', 
-      #'/store/user/devdatta/TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150618_090136/0000/B2GEDMNtuple_2.root'
-#/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/devdatta-B2GAnaFW_Run2Sping15_25ns-71ae93134bf811066d2681edbf0174df/USER
-      '/store/user/devdatta/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150623_161611/0000/B2GEDMNtuple_2.root', 
-      '/store/user/devdatta/TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Sping15_25ns/150623_161611/0000/B2GEDMNtuple_5.root' 
-      #files_qcd
+      FileNames_TprimeBToTH_M1200
       )
-      )
+    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
-
-process.load("Analysis.VLQAna.HbbCandidateProducer_cfi") 
-
-process.load("Analysis.VLQAna.VLQAna_cfi") 
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.TFileService = cms.Service("TFileService",
-       fileName = cms.string(
-         #"TprimeBToTH_M-800_RH_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root"
-         "TprimeBToTH_M-1200_RH_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root" 
-         #"QCD_Pt-15TTo7000_TuneZ2star-Flat_13TeV_pythia6__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root"
-         )
-       )
+    fileName = cms.string(
+      options.outFileName
+      )
+    )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("SingleTprimeAnaEvtsMVA.root"),
+    fileName = cms.untracked.string("SingleTEvts.root"),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring('p')
       ),
@@ -42,10 +54,26 @@ process.out = cms.OutputModule("PoolOutputModule",
       )
     )
 
+from Analysis.EventCounter.eventcounter_cfi import eventCounter
+process.allEvents = eventCounter.clone(isData=options.isData)
+process.cleanedEvents = eventCounter.clone(isData=options.isData)
+process.finalEvents = eventCounter.clone(isData=options.isData)
+
+process.load("Analysis.VLQAna.EventCleaner_cff") 
+process.evtcleaner.isData = options.isData 
+process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
+process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
+
+process.load("Analysis.VLQAna.VLQAna_cfi") 
+
 process.p = cms.Path(
-    process.hbb
+    process.allEvents
+    *process.evtcleaner
+    *process.cleanedEvents
     *process.ana 
+    *process.finalEvents
     )
+
 process.outpath = cms.EndPath(process.out)
 
-
+#open('dump.py','w').write(process.dumpPython())

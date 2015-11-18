@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 defaultAK4JetParameters = cms.PSet(
+    npvLabel                = cms.InputTag("eventUserData", "npv"),
+    rhoLabel                = cms.InputTag("fixedGridRhoFastjetAll", ""),
     jetPtLabel              = cms.InputTag("jetsAK4", "jetAK4Pt"),
     jetEtaLabel             = cms.InputTag("jetsAK4", "jetAK4Eta"),
     jetPhiLabel             = cms.InputTag("jetsAK4", "jetAK4Phi"),
@@ -22,15 +24,17 @@ defaultAK4JetParameters = cms.PSet(
     )
 
 defaultAK8JetParameters = defaultAK4JetParameters.clone( 
+    npvLabel                = cms.InputTag("eventUserData", "npv"),
+    rhoLabel                = cms.InputTag("fixedGridRhoFastjetAll", ""),
     jetPtLabel              = cms.InputTag("jetsAK8", "jetAK8Pt"),
     jetEtaLabel             = cms.InputTag("jetsAK8", "jetAK8Eta"),
     jetPhiLabel             = cms.InputTag("jetsAK8", "jetAK8Phi"),
     jetMassLabel            = cms.InputTag("jetsAK8", "jetAK8Mass"),
+    jetEnergyLabel          = cms.InputTag("jetsAK8", "jetAK8E"),
     jetPrunedMassLabel      = cms.InputTag("jetsAK8", "jetAK8prunedMass"),
     jetTrimmedMassLabel     = cms.InputTag("jetsAK8", "jetAK8trimmedMass"),
     jetFilteredMassLabel    = cms.InputTag("jetsAK8", "jetAK8filteredMass"),
     jetSoftDropMassLabel    = cms.InputTag("jetsAK8", "jetAK8softDropMass"),
-    jetEnergyLabel          = cms.InputTag("jetsAK8", "jetAK8E"),
     jetPartonFlavourLabel   = cms.InputTag("jetsAK8", "jetAK8PartonFlavour"),
     jetHadronFlavourLabel   = cms.InputTag("jetsAK8", "jetAK8HadronFlavour"),
     jetCSVLabel             = cms.InputTag("jetsAK8", "jetAK8CSV"),

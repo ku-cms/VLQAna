@@ -8,12 +8,16 @@ defaultAK4JetSelectionParameters = cms.PSet(
     SubjetParams        = cms.PSet(),
     scaleJetP4          = cms.bool(False),
     scaledJetMass       = cms.double(125.0), 
+    groomedPayloadNames = cms.vstring(), #Keep empty unless want to do groomed mass correction
     jettype             = cms.string('AK4JET'),
-    jetPtMin            = cms.double(40),
+    jetPtMin            = cms.double(30),
     jetPtMax            = cms.double(1000000),
     jetAbsEtaMax        = cms.double(5.0),
     jetCSVDiscMin       = cms.double(-10000),
     jetCSVDiscMax       = cms.double(1.000),
+    btaggedcsvlOP       = cms.double(0.605) , 
+    btaggedcsvmOP       = cms.double(0.890) , 
+    btaggedcsvtOP       = cms.double(0.970) , 
     IsJetIDLoose        = cms.bool(True),
     IsJetIDTight        = cms.bool(False),
     )
@@ -32,6 +36,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     SubjetParams        = defaultSubjetParameters.clone(), 
     scaleJetP4          = cms.bool(False),
     scaledJetMass       = cms.double(125.0), 
+    groomedPayloadNames = cms.vstring(),#'Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt') , 
     jettype             = cms.string('AK8JET'),
     jetPtMin            = cms.double(300),
     jetAbsEtaMax        = cms.double(2.4),
@@ -56,6 +61,9 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jetnSubJetsMax      = cms.double(1000000) ,
     subjetMassMin       = cms.double(0.0) ,
     subjetCSVMin        = cms.double(-1000000) ,
+    btaggedcsvlOP       = cms.double(0.605) , 
+    btaggedcsvmOP       = cms.double(0.890) , 
+    btaggedcsvtOP       = cms.double(0.970) , 
     )
 
 defaultTJetSelectionParameters = defaultAK8JetSelectionParameters.clone(

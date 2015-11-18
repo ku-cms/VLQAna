@@ -57,9 +57,19 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-     #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_v74x_v6p1_25ns/150930_172851/0000/B2GEDMNtuple_8.root', 
-    fileNames_TT_M800_Spring15_25ns
+    #'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/151111_093309/0000/B2GEDMNtuple_37.root'
+    #fileNames_TT_M800_Spring15_25ns
     #FileNames
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_1.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_10.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_100.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_101.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_102.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_103.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_104.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_105.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_106.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_107.root',
     ) 
     )
 
@@ -81,13 +91,17 @@ process.ana.elselParams.useVID = cms.bool(options.isData)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(100)
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
-
+if not options.isData:
+  process.ana.jetAK8selParams.groomedPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
 
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
     )
 process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
+if not options.isData:
+  process.anaBoosted.jetAK8selParams.groomedPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
+
 
 
 process.TFileService = cms.Service("TFileService",

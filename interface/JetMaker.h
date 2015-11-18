@@ -3,6 +3,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "Analysis/VLQAna/interface/JetID.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
@@ -33,6 +38,7 @@ class JetMaker {
 
     bool         scaleJetP4_     ;
     double       scaledJetMass_  ; 
+    std::vector<std::string>  jecAK8GroomedPayloadNames_;
 
     double idxjetPtMin_          ;
     double idxjetPtMax_          ;
@@ -59,7 +65,12 @@ class JetMaker {
     double idxjetnSubJetsMax_    ; 
     double idxsjMassMin_         ; 
     double idxsjCSVMin_          ; 
+    double btaggedcsvlOP_        ; 
+    double btaggedcsvmOP_        ; 
+    double btaggedcsvtOP_        ; 
 
+    edm::InputTag l_npv                ; 
+    edm::InputTag l_rho                ; 
     edm::InputTag l_jetPt              ; 
     edm::InputTag l_jetEta             ; 
     edm::InputTag l_jetPhi             ; 
@@ -100,6 +111,8 @@ class JetMaker {
     edm::InputTag l_ak8sjPhi           ; 
     edm::InputTag l_ak8sjMass          ; 
     edm::InputTag l_ak8sjCSV           ; 
+    boost::shared_ptr<FactorizedJetCorrector> jecAK8Groomed_ ;    
+    bool doGroomedMassCorr_;
 
 };
 
