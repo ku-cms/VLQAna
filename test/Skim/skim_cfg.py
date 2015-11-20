@@ -21,12 +21,17 @@ options.register('skimType', '',
 options.setDefault('maxEvents', 1000)
 options.parseArguments()
 
-###
 ###Skim variables:
+zmassMin = 60.
+zmassMax = 120. 
+ak4jetPtMin = 40.
+ak4jetAbsEtaMax = 2.4
+ak8jetPtMin = 200.
+ak8jetAbsEtaMax = 2.4
+global zptMin, nzelel, nzmumu, nak4jets, nak8jets 
 if options.skimType == "":
     sys.exit("!!!!Error: Enter 'skimType' . Options are: ''CR_Zelel, 'CR_Zmumu', 'SR_Zelel', 'SR_Zmumu'.\n")
-global zptMin, nzelel, nzmumu, nak4jets, nak8jets 
-if options.skimType == 'CR_Zelel':
+elif options.skimType == 'CR_Zelel':
   zptMin= 0.
   nzelel=1
   nzmumu=0
@@ -52,7 +57,6 @@ elif options.skimType == 'SR_Zmumu':
   nak8jets=1
 else:
   sys.exit("!!!!Error: Wrong 'skimType' entered. Options are: ''CR_Zelel, 'CR_Zmumu', 'SR_Zelel', 'SR_Zmumu'.\n") 
-
 ###
 
 process = cms.Process("Skim")
@@ -70,8 +74,8 @@ process.source = cms.Source(
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.TFileService = cms.Service("TFileService",
-       fileName = cms.string(options.outFileName)
-       )
+    fileName = cms.string('EvtCounts_'+options.outFileName)
+    )
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(options.outFileName),
@@ -88,22 +92,25 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 
 from Analysis.VLQAna.Skim_cff import *
 process.skim = skim.clone(
-    ZCandParams = skim.ZCandParams.clone(ptMin =  cms.double(zptMin)), 
+    ZCandParams = skim.ZCandParams.clone(
+      massMin = cms.double(zmassMin),
+      massMax = cms.double(zmassMax),
+      ptMin =  cms.double(zptMin)
+      ), 
     elselParams = skim.elselParams.clone(useVID = cms.bool(options.isData)), 
-    jetAK4selParams            = skim.jetAK4selParams.clone(
-      jetPtMin = cms.double(40), 
-      jetAbsEtaMax = cms.double(2.4),
+    jetAK4selParams = skim.jetAK4selParams.clone(
+      jetPtMin = cms.double(ak4jetPtMin), 
+      jetAbsEtaMax = cms.double(ak4jetAbsEtaMax),
       ),
-    jetAK8selParams            = skim.jetAK8selParams.clone(
-      jetPtMin = cms.double(170), 
-      jetAbsEtaMax = cms.double(2.4),
+    jetAK8selParams = skim.jetAK8selParams.clone(
+      jetPtMin = cms.double(ak8jetPtMin), 
+      jetAbsEtaMax = cms.double(ak8jetAbsEtaMax),
       ),
     nzelel = nzelel,
     nzmumu = nzmumu,
     nak4jets = nak4jets,
     nak8jets = nak8jets, 
     )
-#process.skim.elselParams.useVID = cms.bool(options.isData)
 
 process.p = cms.Path(
     process.allEvents
@@ -111,5 +118,4 @@ process.p = cms.Path(
     *process.finalEvents
     ) 
 
-#process.outpath = cms.EndPath(process.out)
-open('dump.py','w').write(process.dumpPython())
+process.outpath = cms.EndPath(process.out)

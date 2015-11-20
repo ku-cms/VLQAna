@@ -9,5 +9,5 @@ defaultMuonMakerParameters = cms.PSet(
     muPtMax = cms.double(10000),
     muAbsEtaMax = cms.double(2.1),
     muIsoMin = cms.double(0.00),
-    muIsoMax = cms.double(0.12), 
+    muIsoMax = cms.double(0.30), 
     )

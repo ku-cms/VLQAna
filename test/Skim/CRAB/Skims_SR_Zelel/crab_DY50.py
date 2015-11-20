@@ -17,7 +17,7 @@ config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 3
 config.Data.ignoreLocality = False
-config.Data.publication = False
+config.Data.publication = True
 config.Data.outLFNDirBase = '/store/user/devdatta/B2GEDMNtuplesSkim_SR_Zelel_20Nov/'
 # This string is used to construct the output dataset name
 
