@@ -28,29 +28,33 @@ ak4jetPtMin = 40.
 ak4jetAbsEtaMax = 2.4
 ak8jetPtMin = 200.
 ak8jetAbsEtaMax = 2.4
-global zptMin, nzelel, nzmumu, nak4jets, nak8jets 
+global zptMin, zptMax, nzelel, nzmumu, nak4jets, nak8jets 
 if options.skimType == "":
     sys.exit("!!!!Error: Enter 'skimType' . Options are: ''CR_Zelel, 'CR_Zmumu', 'SR_Zelel', 'SR_Zmumu'.\n")
 elif options.skimType == 'CR_Zelel':
   zptMin= 0.
+  zptMax= 200.
   nzelel=1
   nzmumu=0
   nak4jets=1
   nak8jets=0
 elif options.skimType == 'CR_Zmumu':
   zptMin= 0.
+  zptMax= 200.
   nzelel=0
   nzmumu=1
   nak4jets=1
   nak8jets=0
 elif options.skimType == 'SR_Zelel':
   zptMin= 200.
+  zptMax= 100000.
   nzelel=1
   nzmumu=0
   nak4jets=1
   nak8jets=1
 elif options.skimType == 'SR_Zmumu':
   zptMin= 200.
+  zptMax= 100000.
   nzelel=0
   nzmumu=1
   nak4jets=1
@@ -95,7 +99,8 @@ process.skim = skim.clone(
     ZCandParams = skim.ZCandParams.clone(
       massMin = cms.double(zmassMin),
       massMax = cms.double(zmassMax),
-      ptMin =  cms.double(zptMin)
+      ptMin =  cms.double(zptMin), 
+      ptMax =  cms.double(zptMax), 
       ), 
     elselParams = skim.elselParams.clone(useVID = cms.bool(options.isData)), 
     jetAK4selParams = skim.jetAK4selParams.clone(
