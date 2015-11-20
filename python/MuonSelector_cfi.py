@@ -10,7 +10,7 @@ defaultMuonSelectionParameters = cms.PSet(
     muAbsEtaMax = cms.double(5),
     muCharge = cms.double(0), 
     muIsoMin = cms.double(0.00),
-    muIsoMax = cms.double(0.12), 
+    muIsoMax = cms.double(0.30), 
     )
 
 defaultMuPSelectionParameters = defaultMuonSelectionParameters.clone(
