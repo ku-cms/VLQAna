@@ -10,7 +10,7 @@ git cms-init
 
 git cms-merge-topic ku-cms:CMSSW_7_4_X
 
-git clone git://github.com/dmajumder/EventCounter.git Analysis/EventCounter 
+git clone git://github.com:dmajumder/EventCounter.git Analysis/EventCounter 
 
 git clone -b Data2015D git@github.com:ku-cms/VLQAna.git Analysis/VLQAna  
 
