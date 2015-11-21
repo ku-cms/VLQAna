@@ -204,7 +204,7 @@ class JetID : public Selector<int>  {
           (h_jetEta.product())->at(ijet), 
           (h_jetPhi.product())->at(ijet), 
           (h_jetMass.product())->at(ijet) ) ;
-      float jec = (h_jetJEC.product())->at(ijet) ; 
+      float jec = 1; //(h_jetJEC.product())->at(ijet) ; 
       jetP4Raw *= jec ; 
       float jeteta = (h_jetEta.product())->at(ijet) ; 
       chf = (h_jetcHadEnergy.product())->at(ijet)/ jetP4Raw.E() ; 

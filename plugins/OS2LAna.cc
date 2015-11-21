@@ -73,7 +73,6 @@ class OS2LAna : public edm::EDFilter {
     const double HTMin_                          ; 
     const double STMin_                          ; 
     const bool filterSignal_                     ;
-    const bool doPUReweightingNPV_               ;
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
     JetMaker jetAK4maker                         ; 
@@ -101,7 +100,6 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
-  doPUReweightingNPV_     (iConfig.getParameter<bool>              ("DoPUReweightingNPV")), 
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")), 
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
@@ -111,6 +109,11 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams")), 
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"))  
 {
+  produces<vlq::JetCollection>("tjets") ; 
+  produces<vlq::JetCollection>("wjets") ; 
+  produces<vlq::JetCollection>("bjets") ; 
+  produces<vlq::JetCollection>("jets") ; 
+  produces<vlq::CandidateCollection>("zllcands") ; 
 }
 
 
@@ -187,6 +190,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["y_zelel"] -> Fill(izelel.getP4().Rapidity(), evtwt) ; 
   }
 
+  vlq::JetCollection goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
+  jetAK4maker(evt, goodAK4Jets) ;
+
+  HT htak4(goodAK4Jets) ; 
+
+  h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
+
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
   boostedzllfilter(dielectrons, zmumuBoosted) ; 
   boostedzllfilter(dimuons, zelelBoosted) ; 
@@ -194,8 +204,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
 
-  vlq::JetCollection goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
-  jetAK4maker(evt, goodAK4Jets) ;
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   jetAK8maker(evt, goodAK8Jets); 
   jetHTaggedmaker(evt, goodHTaggedJets);
@@ -240,22 +248,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
   }
 
-  HT htak4(goodAK4Jets) ; 
   double ST = htak4.getHT() ;
   if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
   else if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
 
   h1_["ht"] ->Fill(htak4.getHT(), evtwt) ; 
   h1_["st"] ->Fill(ST, evtwt) ; 
-
-  //double mak8_1 = goodAK8Jets.at(0).getP4().Mag() ;
-  //double mak8_2(0) ; 
-  //goodAK8Jets.size() > 1 ?  mak8_2 = goodAK8Jets.at(1).getP4().Mag() : 0 ; 
-  //double mak8_12(0) ; 
-  //double detaLeading2AK8(-1) ; 
-  //TLorentzVector p4_ak8_12(goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()) ;
-  //mak8_12 = p4_ak8_12.Mag() ; 
-  //detaLeading2AK8 = abs(goodAK8Jets.at(0).getEta() - goodAK8Jets.at(1).getEta() ) ;
 
   if ( ST > STMin_ ) h1_["cutflow"] -> Fill(5, evtwt) ;  
   else return false ; 
@@ -296,6 +294,22 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["ptBprime"]->Fill(bp_p4.Pt(), evtwt) ; 
   h1_["yBprime"] ->Fill(bp_p4.Rapidity(), evtwt) ; 
   h1_["mBprime"] ->Fill(bp_p4.Mag(), evtwt) ; 
+
+  vlq::CandidateCollection zllBoosted(zmumuBoosted.size()+zelelBoosted.size()) ;
+  for (vlq::Candidate cand : zmumuBoosted ) zllBoosted.push_back(cand) ; 
+  for (vlq::Candidate cand : zelelBoosted ) zllBoosted.push_back(cand) ; 
+
+  std::auto_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
+  std::auto_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zllBoosted) ) ; 
+
+  evt.put(ptr_tjets, "tjets") ; 
+  evt.put(ptr_wjets, "wjets") ; 
+  evt.put(ptr_bjets, "bjets") ; 
+  evt.put(ptr_jets , "jets")  ; 
+  evt.put(ptr_zllcands , "zllcands")  ; 
 
   return true ; 
 }
@@ -370,6 +384,7 @@ void OS2LAna::beginJob() {
   h1_["ptbjetleading"]  = fs->make<TH1D>("ptbjetleading", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ; 
   h1_["etabjetleading"] = fs->make<TH1D>("etabjetleading", ";#eta(leading b jet);;" , 80 ,-4. ,4.) ; 
 
+  h1_["ht_zsel"] = fs->make<TH1D>("ht_zsel" ,";H_{T} (AK4 jets) [GeV]", 400, 0., 8000.) ; 
   h1_["ht"] = fs->make<TH1D>("ht" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
   h1_["st"] = fs->make<TH1D>("st" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
 

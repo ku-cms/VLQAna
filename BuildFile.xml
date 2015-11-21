@@ -3,6 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="CondFormats/JetMETObjects"/>
 <use name="DataFormats/Common"/>
 <use name="AnalysisDataFormats/BoostedObjects"/>
 <use name="boost"/>
