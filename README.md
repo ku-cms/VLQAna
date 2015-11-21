@@ -8,19 +8,17 @@ cmsenv
 
 git cms-init
 
-git cms-merge-topic ku-cms:CMSSW_7_4_X
+git cms-merge-topic dmajumder:CMSSW_7_4_X_AnalysisDataFormats_BoostedObjects
 
-git clone git://github.com/dmajumder/EventCounter.git Analysis/EventCounter 
+git clone git@github.com:dmajumder/EventCounter.git Analysis/EventCounter 
 
-git clone -b Data2015D git@github.com:ku-cms/VLQAna.git Analysis/VLQAna  
+git clone -b Data2015D git@github.com:dmajumder/VLQAna.git Analysis/VLQAna  
 
 #To just build this stuff
-cd Analysis/VLQAna
-
 scram b -j20
 
 # To run
-cd test
+cd Analysis/VLQAna/test
 cmsRun vlqAna_cfg.py 
 
 #To run OS2L analysis 
