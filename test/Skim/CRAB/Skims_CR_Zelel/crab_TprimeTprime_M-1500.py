@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'TprimeTprime_M-700_25ns'
+config.General.requestName = 'TprimeTprime_M-1500_25ns'
 config.General.workArea = 'B2GEDMNtuplesSkim_CR_20Nov'
 config.General.transferLogs = True
 
@@ -12,7 +12,7 @@ config.JobType.psetName = 'skim_cfg.py'
 config.JobType.pyCfgParams = ['isData=False', 'skimType=CR_Zelel']
 
 config.section_("Data")
-config.Data.inputDataset = '/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/vorobiev-B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84-dde4a6f9141ed18b3aaa23431003cf13/USER'
+config.Data.inputDataset = '/TprimeTprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8/vorobiev-B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84-dde4a6f9141ed18b3aaa23431003cf13/USER'
 config.Data.inputDBS = 'phys03'
 config.Data.allowNonValidInputDataset = True
 config.Data.splitting = 'FileBased'
