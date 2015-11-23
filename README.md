@@ -34,7 +34,7 @@ condor submit -c crab_XX.py
 
 This will create an output condor directory, through which you can check the status of the jobs.
 
-condor status -d <Your condor directory>
+condor status -d MY_CONDOR_DIR
 
 Please see more details https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial.
 
