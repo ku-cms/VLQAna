@@ -65,13 +65,20 @@ else:
 
 process = cms.Process("Skim")
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.FwkReport.reportEvery = 500
+process.MessageLogger.cerr.FwkJob.limit=1
+process.MessageLogger.cerr.ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+
 from inputFiles_cfi import *
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
       #FileNames_TprimeBToTH_M1200
-      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151018_123637/0000/B2GEDMNtuple_1.root'
+      'root://cms-xrd-global.cern.ch//store/group/phys_b2g/vorobiev/TprimeTprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151004_184150/0000/B2GEDMNtuple_1.root',
+      #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151018_123637/0000/B2GEDMNtuple_1.root'
       )
     )
 
