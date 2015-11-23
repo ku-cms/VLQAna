@@ -13,7 +13,7 @@ git cms-merge-topic dmajumder:CMSSW_7_4_X_AnalysisDataFormats_BoostedObjects
 
 git clone git@github.com:dmajumder/EventCounter.git Analysis/EventCounter 
 
-git clone https://github.com/skhalil/VLQAna.git Analysis/VLQAna  
+git clone -b Data2015D  git@github.com:skhalil/VLQAna.git  Analysis/VLQAna
 
  
 #To just build this stuff
@@ -30,6 +30,12 @@ Analysis/VLQAna/test/Skim/CRAB/Skims_CR_Zelel
 
 Modify the exisiting crab file, by changing the relvant parameters, like config.General.requestName, config.Data.inputDataset, config.Data.outLFNDirBase, config.Site.storageSite etc.
 
-cmsRun crab_XX.py
+condor submit -c crab_XX.py
+
+This will create an output condor directory, through which you can check the status of the jobs.
+
+condor status -d <Your condor directory>
+
+Please see more details https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial.
 
 
