@@ -80,12 +80,12 @@ defaultSubjetParameters = cms.PSet(
     jetHadronFlavourLabel   = cms.InputTag("subjetsAK8", "subjetAK8HadronFlavour"),
     )
 
-defaultSubjetTopTaggedParameters = cms.PSet(
-    jetPtLabel              = cms.InputTag("subjetsCmsTopTag", "subjetAK8Pt"),
-    jetEtaLabel             = cms.InputTag("subjetsCmsTopTag", "subjetAK8Eta"),
-    jetPhiLabel             = cms.InputTag("subjetsCmsTopTag", "subjetAK8Phi"),
-    jetMassLabel            = cms.InputTag("subjetsCmsTopTag", "subjetAK8Mass"),
-    jetCSVLabel             = cms.InputTag("subjetsCmsTopTag", "subjetAK8CSV"),
-    jetPartonFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetAK8PartonFlavour"),
-    jetHadronFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetAK8HadronFlavour"),
+defaultTopTaggedSubjetParameters = cms.PSet(
+    jetPtLabel              = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPt"),
+    jetEtaLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagEta"),
+    jetPhiLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPhi"),
+    jetMassLabel            = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagMass"),
+    jetCSVLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagCSV"),
+    jetPartonFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPartonFlavour"),
+    jetHadronFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagHadronFlavour"),
     )

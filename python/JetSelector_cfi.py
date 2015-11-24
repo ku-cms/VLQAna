@@ -68,6 +68,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
 
 defaultTJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jettype             = cms.string('CMSTOPTAGGEDAK8JET'),
+    JetSubstrParams     = defaultTopTaggedSubjetParameters.clone(), 
     jetPtMin            = cms.double(300),
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(1.0) ,
