@@ -229,7 +229,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     int nsubjetsbtaggedcsvl(0) ; 
 
-    if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
+    if ( type_ == AK8JET || type_ == HTAGGEDAK8JET ) { //|| type_ == CMSTOPTAGGEDAK8JET ) {
       jettau1         = (h_jettau1.product())->at(ijet) ; 
       jettau2         = (h_jettau2.product())->at(ijet) ; 
       jettau3         = (h_jettau3.product())->at(ijet) ; 

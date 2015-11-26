@@ -62,7 +62,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
     #FileNames
-    Filenames_DoubleEle_CR_Zelel 
+    #Filenames_DoubleEle_CR_Zelel 
+    'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151111_093347/0000/B2GEDMNtuple_14.root'
     ) 
     )
 
@@ -118,7 +119,7 @@ process.p = cms.Path(
     *cms.ignore(process.ana)
     #*cms.ignore(process.anaBoosted+process.vlqcands)
     *process.anaBoosted
-    *process.vlqcands
+    #*process.vlqcands
     * process.finalEvents
     )
 
