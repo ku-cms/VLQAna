@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'DY_HT600toInf_25ns_CR_Zmumu'
+config.General.requestName = 'TTJets_MG_pythia8_asymptotic_25ns_CR_Zmumu'
 config.General.workArea = 'B2GEDMNtuplesSkim_CR_Zmumu_20Nov/'
 config.General.transferLogs = True
 
@@ -12,9 +12,8 @@ config.JobType.psetName = 'skim_cfg.py'
 config.JobType.pyCfgParams = ['isData=False', 'skimType=CR_Zmumu']
 
 config.section_("Data")
-config.Data.inputDataset = '/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/jkarancs-B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1-7b09a84a5c42d0a63b01d8e8e63c7a89/USER'
+config.Data.inputDataset = '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/jkarancs-B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1-7b09a84a5c42d0a63b01d8e8e63c7a89/USER'
 config.Data.inputDBS = 'phys03'
-config.Data.allowNonValidInputDataset = True
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
 config.Data.ignoreLocality = False
