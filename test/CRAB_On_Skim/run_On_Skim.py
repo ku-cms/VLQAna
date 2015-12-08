@@ -69,11 +69,9 @@ for job in jobList:
      fout.write( a5 )
      fout.close()
      print '------ CRAB starting up! ------'
-    # now create the job:
-     s = 'crab -create -c ' + crabName
+    # now submit the job:
+     s = 'crab submit -c ' + crabName
      print s
     # and submit:
     # subprocess.call( [s], shell=True )
-    #s = 'crab -submit -c ' + outname
-    #print s
-    #subprocess.call( [s], shell=True )
+    
