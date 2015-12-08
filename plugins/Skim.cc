@@ -59,7 +59,7 @@ Skim::Skim(const edm::ParameterSet& iConfig) :
   nak4jets_               (iConfig.getParameter<int>               ("nak4jets")), 
   nak8jets_               (iConfig.getParameter<int>               ("nak8jets"))  
 {
-  t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
+  if (!isData_)  t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
 }
 
 Skim::~Skim() {}

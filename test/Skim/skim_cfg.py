@@ -78,7 +78,6 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
       #FileNames_TprimeBToTH_M1200
       'root://cms-xrd-global.cern.ch//store/group/phys_b2g/vorobiev/TprimeTprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151004_184150/0000/B2GEDMNtuple_1.root',
-      #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/vorobiev/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_Run2Spring15_25ns_v74x_V61/151018_123637/0000/B2GEDMNtuple_1.root'
       )
     )
 
@@ -118,6 +117,7 @@ process.skim = skim.clone(
       jetPtMin = cms.double(ak8jetPtMin), 
       jetAbsEtaMax = cms.double(ak8jetAbsEtaMax),
       ),
+    isData = cms.bool(options.isData),
     nzelel = nzelel,
     nzmumu = nzmumu,
     nak4jets = nak4jets,

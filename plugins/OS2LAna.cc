@@ -206,8 +206,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   jetAK8maker(evt, goodAK8Jets); 
-  jetHTaggedmaker(evt, goodHTaggedJets);
   jetWTaggedmaker(evt, goodWTaggedJets);
+  jetHTaggedmaker(evt, goodHTaggedJets);
   jetTopTaggedmaker(evt, goodTopTaggedJets);
 
   h1_["nak8"] -> Fill(goodAK8Jets.size(), evtwt) ; 

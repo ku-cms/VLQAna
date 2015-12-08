@@ -1,0 +1,54 @@
+#DATA: 
+#OS2LAna_14Oct2015_v2/DoubleEG__Run2015D-PromptReco-v3__MINIAOD.root -1 -1
+#OS2LAna_14Oct2015_v2/DoubleMuon__Run2015D-PromptReco-v3__MINIAOD.root -1 -1
+
+#DYLL_HT100toInf: L=552.67 
+#OS2LAna_29Oct2015/DY_HT100to200_25ns.root 139.4 2625679
+#OS2LAna_29Oct2015/DY_HT200to400_25ns.root 42.75 955972
+#OS2LAna_29Oct2015/DY_HT400to600_25ns.root 5.497 1048047
+#OS2LAna_29Oct2015/DY_HT600toInf_25ns.root 2.21 987977
+
+#DYLL_amcnlo: L=552.67
+#OS2LAna_29Oct2015/DYamcnlo_25ns.root 6025.2 19925500 
+
+#TT: L=552.67
+#OS2LAna_14Oct2015_v2/TTjets_25ns.root 831.76 19665194
+
+#WLNu: L=552.67
+#WJetsToLNu_Spring15_50ns.root 61706.7 24089991 
+
+#BKG: L=552.67
+#OS2LAna_14Oct2015_v2/DYamcnlo_25ns.root 6025.2 19925500 
+#OS2LAna_14Oct2015_v2/TTjets_25ns.root 831.76 19665194
+#WJetsToLNu_Spring15_50ns.root 61706.7 24089991 
+
+#TpTpM700: L=2000
+#OS2LAna_14Oct2015_v2/TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2__MINIAODSIM.root 0.455 82552.670
+#
+#TpTpM800: L=2000
+#OS2LAna_14Oct2015_v2/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root 0.196 82552.670
+#
+#TpTpM1000: L=2000
+#OS2LAna_14Oct2015_v2/TprimeTprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root 0.0440 822800
+#
+#TpTpM1200: L=20000
+#OS2LAna_14Oct2015_v2/TprimeTprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root 0.0118 822800
+#
+#BpBpM800: L=2000
+#OS2LAna_14Oct2015_v2/BprimeBprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root 0.196 82552.670
+#
+#BpBpM1000: L=2000
+#OS2LAna_14Oct2015_v2/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1__MINIAODSIM.root 0.0440 822800
+
+#QCD: 
+#HH4b_05Nov2015/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 351300  1
+#HH4b_05Nov2015/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 31630  1 
+#HH4b_05Nov2015/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 6802 1 
+#HH4b_05Nov2015/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 1206 1
+#HH4b_05Nov2015/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 120.4 1 
+#
+#RadionTohhTohbbhbb_narrow_M1200:
+#HH4b_05Nov2015/RadionTohhTohbbhbb_narrow_M-1200_13TeV-madgraph.root 1000 1 
+#
+#RadionTohhTohbbhbb_narrow_M1600:
+#HH4b_05Nov2015/RadionTohhTohbbhbb_narrow_M-1600_13TeV-madgraph.root 1000 1

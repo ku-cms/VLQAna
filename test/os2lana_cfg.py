@@ -41,11 +41,15 @@ if options.isData:
   options.filterSignal = False 
   if options.zdecaymode == "zmumu":
     hltpaths = [
-        "HLT_DoubleIsoMu17_eta2p1_v"
+        "HLT_DoubleIsoMu17_eta2p1_v", 
+        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+        "HLT_DoubleMu8_Mass8_PFHT300_v",
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"
+        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+        "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
         ]
   else:
     sys.exit("Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'") 
@@ -57,19 +61,9 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    #'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/151111_093309/0000/B2GEDMNtuple_37.root'
-    #fileNames_TT_M800_Spring15_25ns
     #FileNames
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_1.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_10.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_100.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_101.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_102.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_103.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_104.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_105.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_106.root',
-    '/store/user/decosa/ttDM/CMSSW_7_4_15/SingleMuon/SingleMu_Run2015D_miniAODv2_v2_13Nov/151113_155244/0000/B2GEDMNtuple_107.root',
+    #Filenames_DoubleEle_CR_Zelel 
+    'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151111_093347/0000/B2GEDMNtuple_14.root'
     ) 
     )
 
@@ -125,7 +119,7 @@ process.p = cms.Path(
     *cms.ignore(process.ana)
     #*cms.ignore(process.anaBoosted+process.vlqcands)
     *process.anaBoosted
-    *process.vlqcands
+    #*process.vlqcands
     * process.finalEvents
     )
 

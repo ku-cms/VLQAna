@@ -19,7 +19,7 @@ options.parseArguments()
 
 hltpaths = ['HLT_PFHT650']
 if options.isData: 
-  hltpaths = ['HLT_PFHT800']
+  hltpaths = ['HLT_PFHT650', 'HLT_PFHT800', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50', 'HLT_AK8PFJet360_TrimMass30']
 
 process = cms.Process("hh4b")
 
@@ -29,8 +29,8 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    FileNames_Radion1200
-    #FileNames
+    #FileNames_Radion1200
+    FileNames
     ) 
     )
 

@@ -79,3 +79,13 @@ defaultSubjetParameters = cms.PSet(
     jetPartonFlavourLabel   = cms.InputTag("subjetsAK8", "subjetAK8PartonFlavour"),
     jetHadronFlavourLabel   = cms.InputTag("subjetsAK8", "subjetAK8HadronFlavour"),
     )
+
+defaultTopTaggedSubjetParameters = cms.PSet(
+    jetPtLabel              = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPt"),
+    jetEtaLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagEta"),
+    jetPhiLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPhi"),
+    jetMassLabel            = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagMass"),
+    jetCSVLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagCSV"),
+    jetPartonFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPartonFlavour"),
+    jetHadronFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagHadronFlavour"),
+    )
