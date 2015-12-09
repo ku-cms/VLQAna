@@ -402,6 +402,14 @@ void OS2LAna::beginJob() {
   h1_["ptBprime"]  = fs->make<TH1D>("ptBprime", ";p_{T}(B quark) [GeV];;" , 100, 0., 2000.) ; 
   h1_["yBprime"] = fs->make<TH1D>("yBprime", ";y(B quark);;" , 40 ,-4. ,4.) ; 
   h1_["mBprime"] = fs->make<TH1D>("mBprime", ";M(B quark) [GeV];;" ,100 ,0., 2000.) ; 
+
+  h2_["pt_eta_b_all"] = fs->make<TH1D>("pt_eta_b_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_all"] = fs->make<TH1D>("pt_eta_c_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_all"] = fs->make<TH1D>("pt_eta_l_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+
+  h2_["pt_eta_b_tagged"] = fs->make<TH1D>("pt_eta_b_tagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_tagged"] = fs->make<TH1D>("pt_eta_c_tagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_tagged"] = fs->make<TH1D>("pt_eta_l_tagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
 }
 
 void OS2LAna::endJob() {
