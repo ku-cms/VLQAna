@@ -163,12 +163,12 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     evtwtPV *= LumiWeights_.weight(npuTrue) ; 
   }
 
-  string evttype(isData_ ? "data_" : "mc_");
+  string evttype(isData_ ? "EvtType_Data" : "EvtType_MC");
 
   if ( !isData_ ) {
     PickGenPart pickVLQs(vlqParams_) ; 
     vlq::GenParticleCollection vlqs = pickVLQs(evt) ;  
-    if ( vlqs.size() == 2 ) evttype = "mc_qZqZ" ; 
+    if ( vlqs.size() == 2 ) evttype = "EvtType_MC_qZqZ" ; 
   }
 
   auto_ptr<string>ptr_evttype(new string(evttype)); 

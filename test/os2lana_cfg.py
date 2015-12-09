@@ -33,12 +33,18 @@ options.register('filterSignal', False,
     VarParsing.varType.bool,
     "Select only tZtt or bZbZ modes"
     )
+options.register('applyLeptonSFs', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Apply lepton SFs to the MC"
+    )
 options.setDefault('maxEvents', 1000)
 options.parseArguments()
 
 hltpaths = []
 if options.isData:
   options.filterSignal = False 
+  options.applyLeptonSFs = False 
   if options.zdecaymode == "zmumu":
     hltpaths = [
         "HLT_DoubleIsoMu17_eta2p1_v", 
@@ -62,8 +68,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
     #FileNames
-    #Filenames_DoubleEle_CR_Zelel 
-    'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151111_093347/0000/B2GEDMNtuple_14.root'
+    FileNames_TT_M1200
+    #'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151111_093347/0000/B2GEDMNtuple_14.root'
     ) 
     )
 
@@ -80,6 +86,7 @@ from Analysis.VLQAna.OS2LAna_cfi import *
 ### Low pt Z candidate with low pt jets 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
+    applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
 process.ana.elselParams.useVID = cms.bool(options.isData)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
@@ -91,6 +98,7 @@ if not options.isData:
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
+    applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
 process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
 if not options.isData:

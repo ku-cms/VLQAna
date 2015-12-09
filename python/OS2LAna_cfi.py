@@ -12,6 +12,7 @@ ana = cms.EDFilter("OS2LAna",
     evtwtPV                    = cms.InputTag("evtcleaner","evtwtPV"),
     npv                        = cms.InputTag("evtcleaner","npv"),
     filterSignal               = cms.bool(False), 
+    applyLeptonSFs             = cms.bool(True),  
     DoPUReweightingNPV         = cms.bool(False),
     DilepCandParams            = defaultZCandSelectionParameters.clone(), 
     ZCandParams                = defaultZCandSelectionParameters.clone(
