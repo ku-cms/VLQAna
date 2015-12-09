@@ -46,6 +46,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/ApplyLeptonSFs.h"
 
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TLorentzVector.h>
 
 //
@@ -87,6 +88,7 @@ class OS2LAna : public edm::EDFilter {
     JetMaker jetTopTaggedmaker                   ; 
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
+    std::map<std::string, TH2D*> h2_             ; 
 
 };
 
@@ -255,6 +257,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
   }
 
+  for (vlq::Jet jet : goodAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
+  for (vlq::Jet jet : goodBTaggedAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
   double ST = htak4.getHT() ;
   if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
   else if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
@@ -403,13 +417,13 @@ void OS2LAna::beginJob() {
   h1_["yBprime"] = fs->make<TH1D>("yBprime", ";y(B quark);;" , 40 ,-4. ,4.) ; 
   h1_["mBprime"] = fs->make<TH1D>("mBprime", ";M(B quark) [GeV];;" ,100 ,0., 2000.) ; 
 
-  h2_["pt_eta_b_all"] = fs->make<TH1D>("pt_eta_b_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_c_all"] = fs->make<TH1D>("pt_eta_c_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_l_all"] = fs->make<TH1D>("pt_eta_l_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_b_all"] = fs->make<TH2D>("pt_eta_b_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_all"] = fs->make<TH2D>("pt_eta_c_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_all"] = fs->make<TH2D>("pt_eta_l_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
 
-  h2_["pt_eta_b_tagged"] = fs->make<TH1D>("pt_eta_b_tagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_c_tagged"] = fs->make<TH1D>("pt_eta_c_tagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_l_tagged"] = fs->make<TH1D>("pt_eta_l_tagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_b_btagged"] = fs->make<TH2D>("pt_eta_b_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_btagged"] = fs->make<TH2D>("pt_eta_c_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_btagged"] = fs->make<TH2D>("pt_eta_l_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
 }
 
 void OS2LAna::endJob() {
