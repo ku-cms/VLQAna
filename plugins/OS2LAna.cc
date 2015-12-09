@@ -148,7 +148,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   dileptonsprod.operator()<vlq::MuonCollection>(dimuons, goodMuons); 
 
   if (dimuons.size() < 1 && dielectrons.size() < 1) return false ; 
+  
+  double IDSF = 1.0;
+  if (dimuons.size() >= 1) { IDSF = 1.0; } //need proper implementation like electrons
+  
+  if (dielectrons.size() >= 1) { IDSF = goodElectrons.at(0).getIDSF()*goodElectrons.at(1).getIDSF();}
 
+  evtwt = IDSF*evtwt;
+  
   if (dimuons.size() >= 1) {
     h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 
     h1_["eta_leading_mu"] -> Fill(goodMuons.at(0).getEta(), evtwt) ; 

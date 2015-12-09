@@ -16,6 +16,7 @@ class ElectronMaker {
     void operator () (edm::Event& evt, vlq::ElectronCollection& electrons) ; 
 
   private: 
+    double getEleSF(double pt, double eta);
     ELECTRONIDTYPES_t type_ ; 
     edm::InputTag l_elCharge        ;
     edm::InputTag l_elD0            ;
@@ -53,6 +54,83 @@ class ElectronMaker {
     double elIsoMin_ ; 
     double elIsoMax_ ; 
     bool   useVID_ ; 
-
 };
 #endif
+
+inline double ElectronMaker::getEleSF(double pt, double eta){
+   double SF = 1.0;
+   if(pt > 10 && pt <= 20){
+      if(eta <= -2.0          && eta > -2.5)    SF =  1.15;
+      else if(eta <= -1.566   && eta > -2.0)    SF =  0.96;
+      else if(eta <= -1.4442  && eta > -1.566)  SF =  1.12;
+      else if(eta <= -0.8     && eta > -1.4442) SF =  1.07;
+      else if(eta <= 0.0      && eta > -0.8)    SF =  1.05;
+      else if(eta <= 0.8      && eta > 0.0)     SF =  1.01;
+      else if(eta <= 1.4442   && eta > 0.8)     SF =  1.05;
+      else if(eta <= 1.566    && eta > 1.4442)  SF =  1.52;
+      else if(eta <= 2.0      && eta > 1.566)   SF =  1.01;
+      else if(eta < 2.5       && eta > 2.0)     SF =  1.05;
+   }
+   else if(pt > 20 && pt <= 30){
+      if(eta <= -2.0          && eta > -2.5)    SF =  1.01;
+      else if(eta <= -1.566   && eta > -2.0)    SF =  0.94;
+      else if(eta <= -1.4442  && eta > -1.566)  SF =  1.06;
+      else if(eta <= -0.8     && eta > -1.4442) SF =  1.00;
+      else if(eta <= 0.0      && eta > -0.8)    SF =  0.99;
+      else if(eta <= 0.8      && eta > 0.0)     SF =  1.00;
+      else if(eta <= 1.4442   && eta > 0.8)     SF =  1.02;
+      else if(eta <= 1.566    && eta > 1.4442)  SF =  0.98;
+      else if(eta <= 2.0      && eta > 1.566)   SF =  0.86;
+      else if(eta < 2.5       && eta > 2.0)     SF =  1.04;
+   }
+   else if(pt > 30 && pt <= 40){
+      if(eta <= -2.0          && eta > -2.5)    SF =  0.98;
+      else if(eta <= -1.566   && eta > -2.0)    SF =  0.96;
+      else if(eta <= -1.4442  && eta > -1.566)  SF =  0.99;
+      else if(eta <= -0.8     && eta > -1.4442) SF =  0.96;
+      else if(eta <= 0.0      && eta > -0.8)    SF =  0.96;
+      else if(eta <= 0.8      && eta > 0.0)     SF =  0.96;
+      else if(eta <= 1.4442   && eta > 0.8)     SF =  0.95;
+      else if(eta <= 1.566    && eta > 1.4442)  SF =  0.95;
+      else if(eta <= 2.0      && eta > 1.566)   SF =  0.95;
+      else if(eta < 2.5       && eta > 2.0)     SF =  0.99;
+   }
+   else if(pt > 40 && pt <= 50){
+      if(eta <= -2.0          && eta > -2.5)    SF =  1.01;
+      else if(eta <= -1.566   && eta > -2.0)    SF =  1.00;
+      else if(eta <= -1.4442  && eta > -1.566)  SF =  0.98;
+      else if(eta <= -0.8     && eta > -1.4442) SF =  0.97;
+      else if(eta <= 0.0      && eta > -0.8)    SF =  0.97;
+      else if(eta <= 0.8      && eta > 0.0)     SF =  0.97;
+      else if(eta <= 1.4442   && eta > 0.8)     SF =  0.97;
+      else if(eta <= 1.566    && eta > 1.4442)  SF =  0.98;
+      else if(eta <= 2.0      && eta > 1.566)   SF =  1.00;
+      else if(eta < 2.5       && eta > 2.0)     SF =  1.00;
+   }
+   else if(pt > 50 && pt <= 60){
+      if(eta <= -2.0          && eta > -2.5)    SF =  1.00;
+      else if(eta <= -1.566   && eta > -2.0)    SF =  0.94;
+      else if(eta <= -1.4442  && eta > -1.566)  SF =  0.98;
+      else if(eta <= -0.8     && eta > -1.4442) SF =  0.97;
+      else if(eta <= 0.0      && eta > -0.8)    SF =  0.96;
+      else if(eta <= 0.8      && eta > 0.0)     SF =  0.98;
+      else if(eta <= 1.4442   && eta > 0.8)     SF =  0.92;
+      else if(eta <= 1.566    && eta > 1.4442)  SF =  0.91;
+      else if(eta <= 2.0      && eta > 1.566)   SF =  1.00;
+      else if(eta < 2.5       && eta > 2.0)     SF =  0.96;
+   }
+   else if(pt > 60 && pt <= 100){
+      if(eta <= -2.0          && eta > -2.5)    SF =  0.90;
+      else if(eta <= -1.566   && eta > -2.0)    SF =  0.99;
+      else if(eta <= -1.4442  && eta > -1.566)  SF =  1.02;
+      else if(eta <= -0.8     && eta > -1.4442) SF =  0.98;
+      else if(eta <= 0.0      && eta > -0.8)    SF =  0.98;
+      else if(eta <= 0.8      && eta > 0.0)     SF =  0.98;
+      else if(eta <= 1.4442   && eta > 0.8)     SF =  0.97;
+      else if(eta <= 1.566    && eta > 1.4442)  SF =  0.85;
+      else if(eta <= 2.0      && eta > 1.566)   SF =  0.97;
+      else if(eta < 2.5       && eta > 2.0)     SF =  1.00;
+   }
+   return SF;
+     
+}

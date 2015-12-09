@@ -88,6 +88,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
 
     double elPt = (h_elPt.product())->at(iel) ; 
+    double eleEta = (h_elEta.product())->at(iel) ;
     double elAbsEta  = std::abs((h_elEta.product())->at(iel)) ; 
     double elIso = (h_elIso03.product())->at(iel) ; 
 
@@ -111,10 +112,13 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
         && ( useVID_ || (elIso > elIsoMin_ && elIso < elIsoMax_) ) 
        ) {
       vlq::Electron electron ; 
+      double idSF = getEleSF(elPt, eleEta);
+
       TLorentzVector  elP4;
       elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
       electron.setP4                (elP4)                                      ;
-      electron.setIndex             (iel)                                       ;  
+      electron.setIndex             (iel)                                       ; 
+      electron.setIDSF              (idSF)                                      ;  
       electron.setCharge            (h_elCharge            .product()->at(iel)) ; 
       electron.setD0                (h_elD0                .product()->at(iel)) ; 
       electron.setDz                (h_elDz                .product()->at(iel)) ; 
@@ -146,3 +150,4 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   }
 
 }
+
