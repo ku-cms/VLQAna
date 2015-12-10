@@ -53,8 +53,7 @@ class EventCleaner : public edm::EDFilter {
     const std::string hist_PVWt_                           ; 
     const std::string hist_PUDistData_                     ;
     const std::string hist_PUDistMC_                       ;
-    edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
-
+    edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ;
     edm::ParameterSet vlqParams_                           ;
 
 };
@@ -82,7 +81,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt")),
   hist_PUDistData_        (iConfig.getParameter<std::string>              ("Hist_PUDistData")),
   hist_PUDistMC_          (iConfig.getParameter<std::string>              ("Hist_PUDistMC")),
-  vlqParams_              (iConfig.getParameter<edm::ParameterSet>        ("vlqParams")) 
+  vlqParams_              (iConfig.getParameter<edm::ParameterSet>        ("vlqParams"))
 {
   if (doPUReweightingOfficial_) LumiWeights_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_, hist_PUDistMC_, hist_PUDistData_) ;
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
@@ -138,7 +137,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
     if ( !metfilterdecision ) return false ; 
   }
-
+  
   const int npv(*h_npv) ; 
   //for ( unsigned ipv = 0; ipv < (h_vtxRho.product())->size(); ++ipv) {
   //  double vtxRho = (h_vtxho.product())->at(ipv) ; 
