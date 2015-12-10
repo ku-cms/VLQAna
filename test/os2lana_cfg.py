@@ -35,6 +35,7 @@ options.register('filterSignal', False,
     )
 options.setDefault('maxEvents', 1000)
 options.parseArguments()
+print options
 
 hltpaths = []
 if options.isData:
