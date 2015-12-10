@@ -13,7 +13,7 @@ class ApplyLeptonSFs {
      else if ( elidtypestr == "TIGHT" ) type_ = TIGHT ; 
      else if ( elidtypestr == "VETO" ) type_ = VETO ; 
      else if ( elidtypestr == "HEEP" ) type_ = HEEP ; 
-     else edm::LogError("ElectronMaker::ElectronMaker") << " >>>> WrongElectronIdType: " << type_<< " Check electron id type !!!" ; 
+     else edm::LogError("ApplyLeptonSF") << " >>>> WrongElectronIdType: " << type_<< " Check electron id type !!!" ; 
   }
     ~ApplyLeptonSFs () {} 
     double operator () (double pt, double eta){
