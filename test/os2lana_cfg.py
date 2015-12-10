@@ -18,7 +18,7 @@ options.register('outFileName', 'os2lana.root',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('doPUReweightingOfficial', False,
+options.register('doPUReweightingOfficial', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
@@ -33,7 +33,12 @@ options.register('filterSignal', False,
     VarParsing.varType.bool,
     "Select only tZtt or bZbZ modes"
     )
-options.register('applyLeptonSFs', False,
+options.register('signalType', "EvtType_MC_tZtZ",
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
+    )
+options.register('applyLeptonSFs', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
@@ -44,6 +49,7 @@ options.parseArguments()
 hltpaths = []
 if options.isData:
   options.filterSignal = False 
+  options.signalType = "" 
   options.applyLeptonSFs = False 
   if options.zdecaymode == "zmumu":
     hltpaths = [
@@ -58,7 +64,10 @@ if options.isData:
         "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
         ]
   else:
-    sys.exit("Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'") 
+    sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
+
+if options.filterSignal == True and len(options.signalType) == 0:
+  sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!")  
 
 process = cms.Process("OS2LAna")
 
@@ -86,6 +95,7 @@ from Analysis.VLQAna.OS2LAna_cfi import *
 ### Low pt Z candidate with low pt jets 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
+    signalType = cms.string(options.signalType),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
 process.ana.elselParams.useVID = cms.bool(options.isData)
@@ -98,6 +108,7 @@ if not options.isData:
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
+    signalType = cms.string(options.signalType),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
 process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
