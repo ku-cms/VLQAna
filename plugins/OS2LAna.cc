@@ -63,8 +63,6 @@ class OS2LAna : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
-    ApplyLeptonSFs lepsfs ; 
-
     // ----------member data ---------------------------
     edm::InputTag l_evttype                      ;
     edm::InputTag l_evtwtGen                     ;
@@ -78,6 +76,7 @@ class OS2LAna : public edm::EDFilter {
     const double STMin_                          ; 
     const bool filterSignal_                     ;
     const bool applyLeptonSFs_                   ;
+    ApplyLeptonSFs lepsfs                        ; 
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
     JetMaker jetAK4maker                         ; 
@@ -107,6 +106,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
+  lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")), 
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
@@ -156,12 +156,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if (dimuons.size() < 1 && dielectrons.size() < 1) return false ; 
   
-  double IDSF = 1.0;
-  if (dimuons.size() >= 1) { IDSF = 1.0; } //need proper implementation like electrons
+//  double IDSF = 1.0;
+//  if (dimuons.size() >= 1) { IDSF = 1.0; } //need proper implementation like electrons
   
-  if (dielectrons.size() >= 1) { IDSF = goodElectrons.at(0).getIDSF()*goodElectrons.at(1).getIDSF();}
+//  if (dielectrons.size() >= 1) { IDSF = goodElectrons.at(0).getIDSF()*goodElectrons.at(1).getIDSF();}
 
-  evtwt = IDSF*evtwt;
+//  evtwt = IDSF*evtwt;
   
   if (dimuons.size() >= 1) {
     h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 

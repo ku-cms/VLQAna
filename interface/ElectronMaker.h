@@ -16,7 +16,7 @@ class ElectronMaker {
     void operator () (edm::Event& evt, vlq::ElectronCollection& electrons) ; 
 
   private: 
-    double getEleSF(double pt, double eta);
+   //double getEleSF(double pt, double eta);
     ELECTRONIDTYPES_t type_ ; 
     edm::InputTag l_elCharge        ;
     edm::InputTag l_elD0            ;
@@ -56,7 +56,7 @@ class ElectronMaker {
     bool   useVID_ ; 
 };
 #endif
-
+/*
 inline double ElectronMaker::getEleSF(double pt, double eta){
    double SF = 1.0;
    if(pt > 10 && pt <= 20){
@@ -134,3 +134,4 @@ inline double ElectronMaker::getEleSF(double pt, double eta){
    return SF;
      
 }
+*/

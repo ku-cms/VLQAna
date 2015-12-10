@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.ZCandSelector_cfi import *
+from Analysis.VLQAna.ApplyLeptonSFs_cfi import *
 from Analysis.VLQAna.ElectronMaker_cfi import *
 from Analysis.VLQAna.MuonMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
@@ -28,6 +29,7 @@ ana = cms.EDFilter("OS2LAna",
     GenHSelParams              = genPartParams.clone(), 
     HTMin                      = cms.double  (800.), 
     STMin                      = cms.double  (1000.), 
+    lepsfsParams               = defaultWP,
     muselParams                = defaultMuonMakerParameters, 
     elselParams                = defaultElectronMakerParameters, 
     jetAK4selParams            = defaultAK4JetSelectionParameters,
