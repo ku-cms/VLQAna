@@ -43,8 +43,10 @@ Implementation:
 #include "Analysis/VLQAna/interface/ElectronMaker.h"
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/HT.h"
+#include "Analysis/VLQAna/interface/ApplyLeptonSFs.h"
 
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TLorentzVector.h>
 
 //
@@ -61,6 +63,8 @@ class OS2LAna : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
+    ApplyLeptonSFs lepsfs ; 
+
     // ----------member data ---------------------------
     edm::InputTag l_evttype                      ;
     edm::InputTag l_evtwtGen                     ;
@@ -73,6 +77,7 @@ class OS2LAna : public edm::EDFilter {
     const double HTMin_                          ; 
     const double STMin_                          ; 
     const bool filterSignal_                     ;
+    const bool applyLeptonSFs_                   ;
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
     JetMaker jetAK4maker                         ; 
@@ -83,6 +88,7 @@ class OS2LAna : public edm::EDFilter {
     JetMaker jetTopTaggedmaker                   ; 
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
+    std::map<std::string, TH2D*> h2_             ; 
 
 };
 
@@ -100,6 +106,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
+  applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")), 
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
@@ -127,7 +134,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
   Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
 
-  if (filterSignal_ && *h_evttype.product()!="mc_qZqZ") return false ;
+  if (filterSignal_ && *h_evttype.product()!="EvtType_MC_qZqZ") return false ;
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
 
@@ -166,6 +173,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   if (dielectrons.size() >= 1) {
+    if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") 
+      evtwt *= lepsfs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepsfs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ; 
     h1_["pt_leading_el"] -> Fill(goodElectrons.at(0).getPt(), evtwt) ; 
     h1_["eta_leading_el"] -> Fill(goodElectrons.at(0).getEta(), evtwt) ; 
     h1_["pt_2nd_el"] -> Fill(goodElectrons.at(1).getPt(), evtwt) ; 
@@ -255,6 +264,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
   }
 
+  for (vlq::Jet jet : goodAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
+  for (vlq::Jet jet : goodBTaggedAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
   double ST = htak4.getHT() ;
   if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
   else if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
@@ -280,8 +301,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     else if (zelelBoosted.size()>0) tp_p4 = zelelBoosted.at(0).getP4() + goodTopTaggedJets.at(0).getP4() ; 
   }
   else if ( goodWTaggedJets.size() > 0 && goodBTaggedAK4Jets.size() > 0 ) { 
-      if (zmumuBoosted.size()>0) tp_p4 = zmumuBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
-      else if (zelelBoosted.size()>0) tp_p4 = zelelBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
+    if (zmumuBoosted.size()>0) tp_p4 = zmumuBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
+    else if (zelelBoosted.size()>0) tp_p4 = zelelBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
   }
   else if ( goodBTaggedAK4Jets.size() > 0 ) { 
     if (zmumuBoosted.size()>0) {
@@ -402,6 +423,14 @@ void OS2LAna::beginJob() {
   h1_["ptBprime"]  = fs->make<TH1D>("ptBprime", ";p_{T}(B quark) [GeV];;" , 100, 0., 2000.) ; 
   h1_["yBprime"] = fs->make<TH1D>("yBprime", ";y(B quark);;" , 40 ,-4. ,4.) ; 
   h1_["mBprime"] = fs->make<TH1D>("mBprime", ";M(B quark) [GeV];;" ,100 ,0., 2000.) ; 
+
+  h2_["pt_eta_b_all"] = fs->make<TH2D>("pt_eta_b_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_all"] = fs->make<TH2D>("pt_eta_c_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_all"] = fs->make<TH2D>("pt_eta_l_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+
+  h2_["pt_eta_b_btagged"] = fs->make<TH2D>("pt_eta_b_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_btagged"] = fs->make<TH2D>("pt_eta_c_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_btagged"] = fs->make<TH2D>("pt_eta_l_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
 }
 
 void OS2LAna::endJob() {
