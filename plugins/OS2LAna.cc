@@ -75,6 +75,7 @@ class OS2LAna : public edm::EDFilter {
     const double HTMin_                          ; 
     const double STMin_                          ; 
     const bool filterSignal_                     ;
+    const std::string signalType_                ;
     const bool applyLeptonSFs_                   ;
     ApplyLeptonSFs lepsfs                        ; 
     MuonMaker muonmaker                          ; 
@@ -105,6 +106,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
+  signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
   lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
@@ -134,7 +136,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
   Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
 
-  if (filterSignal_ && *h_evttype.product()!="EvtType_MC_qZqZ") return false ;
+  if (filterSignal_ && *h_evttype.product()!=signalType_) return false ;
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
 

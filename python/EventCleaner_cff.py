@@ -31,5 +31,10 @@ evtcleaner = cms.EDFilter("EventCleaner",
     Hist_PVWt                  = cms.string('hpvwt_data_mc'),
     Hist_PUDistData            = cms.string('pileup'),
     Hist_PUDistMC              = cms.string('pileup'),
-    vlqParams                  = cms.PSet(genPartParams,vlqParams)
+    TtZParams                  = cms.PSet(genPartParams,TtZParams), 
+    TtHParams                  = cms.PSet(genPartParams,TtHParams), 
+    TbWParams                  = cms.PSet(genPartParams,TbWParams), 
+    BbZParams                  = cms.PSet(genPartParams,BbZParams), 
+    BbHParams                  = cms.PSet(genPartParams,BbHParams), 
+    BtWParams                  = cms.PSet(genPartParams,BtWParams), 
     )

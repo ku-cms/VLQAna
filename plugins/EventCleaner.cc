@@ -53,8 +53,14 @@ class EventCleaner : public edm::EDFilter {
     const std::string hist_PVWt_                           ; 
     const std::string hist_PUDistData_                     ;
     const std::string hist_PUDistMC_                       ;
-    edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ;
-    edm::ParameterSet vlqParams_                           ;
+    edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
+
+    edm::ParameterSet TtZParams_                           ;
+    edm::ParameterSet TtHParams_                           ;
+    edm::ParameterSet TbWParams_                           ;
+    edm::ParameterSet BbZParams_                           ;
+    edm::ParameterSet BbHParams_                           ;
+    edm::ParameterSet BtWParams_                           ;
 
 };
 
@@ -81,7 +87,12 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt")),
   hist_PUDistData_        (iConfig.getParameter<std::string>              ("Hist_PUDistData")),
   hist_PUDistMC_          (iConfig.getParameter<std::string>              ("Hist_PUDistMC")),
-  vlqParams_              (iConfig.getParameter<edm::ParameterSet>        ("vlqParams"))
+  TtZParams_              (iConfig.getParameter<edm::ParameterSet>        ("TtZParams")),  
+  TtHParams_              (iConfig.getParameter<edm::ParameterSet>        ("TtHParams")),  
+  TbWParams_              (iConfig.getParameter<edm::ParameterSet>        ("TbWParams")),  
+  BbZParams_              (iConfig.getParameter<edm::ParameterSet>        ("BbZParams")),  
+  BbHParams_              (iConfig.getParameter<edm::ParameterSet>        ("BbHParams")),  
+  BtWParams_              (iConfig.getParameter<edm::ParameterSet>        ("BtWParams")) 
 {
   if (doPUReweightingOfficial_) LumiWeights_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_, hist_PUDistMC_, hist_PUDistData_) ;
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
@@ -165,9 +176,35 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   string evttype(isData_ ? "EvtType_Data" : "EvtType_MC");
 
   if ( !isData_ ) {
-    PickGenPart pickVLQs(vlqParams_) ; 
-    vlq::GenParticleCollection vlqs = pickVLQs(evt) ;  
-    if ( vlqs.size() == 2 ) evttype = "EvtType_MC_qZqZ" ; 
+    PickGenPart pickTtZ(TtZParams_) ; 
+    PickGenPart pickTtH(TtHParams_) ; 
+    PickGenPart pickTbW(TbWParams_) ; 
+    PickGenPart pickBbZ(BbZParams_) ; 
+    PickGenPart pickBbH(BbHParams_) ; 
+    PickGenPart pickBtW(BtWParams_) ; 
+
+    vlq::GenParticleCollection vlqTtZ = pickTtZ(evt) ;  
+    vlq::GenParticleCollection vlqTtH = pickTtH(evt) ;  
+    vlq::GenParticleCollection vlqTbW = pickTbW(evt) ;  
+    vlq::GenParticleCollection vlqBbZ = pickBbZ(evt) ;  
+    vlq::GenParticleCollection vlqBbH = pickBbH(evt) ;  
+    vlq::GenParticleCollection vlqBtW = pickBtW(evt) ;  
+
+    if ( vlqTtZ.size() == 2 ) evttype = "EvtType_MC_tZtZ" ; 
+    if ( vlqTtH.size() == 2 ) evttype = "EvtType_MC_tHtH" ; 
+    if ( vlqTbW.size() == 2 ) evttype = "EvtType_MC_bWbW" ; 
+
+    if ( vlqTtZ.size() == 1 && vlqTtH.size() == 1 ) evttype = "EvtType_MC_tZtH" ; 
+    if ( vlqTtZ.size() == 1 && vlqTbW.size() == 1 ) evttype = "EvtType_MC_tZbW" ; 
+    if ( vlqTtH.size() == 1 && vlqTbW.size() == 1 ) evttype = "EvtType_MC_tHbW" ; 
+
+    if ( vlqBbZ.size() == 2 ) evttype = "EvtType_MC_bZbZ" ; 
+    if ( vlqBbH.size() == 2 ) evttype = "EvtType_MC_bHbH" ; 
+    if ( vlqBtW.size() == 2 ) evttype = "EvtType_MC_tWtW" ; 
+
+    if ( vlqBbZ.size() == 1 && vlqBbH.size() == 1 ) evttype = "EvtType_MC_bZbH" ; 
+    if ( vlqBbZ.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bZtW" ; 
+    if ( vlqBbH.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bHtW" ; 
   }
 
   auto_ptr<string>ptr_evttype(new string(evttype)); 
