@@ -43,7 +43,7 @@ options.register('applyLeptonSFs', True,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.setDefault('maxEvents', 1000)
+options.setDefault('maxEvents', -1)
 options.parseArguments()
 
 hltpaths = []
