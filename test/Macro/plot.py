@@ -41,7 +41,7 @@ parser.add_option('--processDir', metavar='pD', type='string', action='store',
                   help='directory to read histograms from')
 
 parser.add_option('--var', metavar='T', type='string', action='store',
-                  default='cutflow',
+                  default='ht_zsel',#cutflow, st
                   dest='var',
                   help='variable to plot')
 
@@ -71,8 +71,8 @@ plotDir = options.plotDir
 skimType = options.skimType
 verbose = options.verbose
 
-if 'elel' in skimType: title = '#mu^{#pm}#mu^{#mp}+jets'
-elif 'mumu' in skimType: title = 'e^{#pm}e^{#mp}+jets'
+if 'elel' in skimType: title = 'e^{#pm}e^{#mp}+jets'
+elif 'mumu' in skimType: title = '#mu^{#pm}#mu^{#mp}+jets'
 else: title = ''
 # ==========add the input ============
 
@@ -82,13 +82,20 @@ execfile("input.py")
 dataLabel     = 'Data_'
 topLabel      = 'Top_'
 dyLabel       = 'DY_'
-sTopLabel     = 'STop_'
+wjLabel       = 'WJets_'
+sTLabel       = 'ST_'
 
 dataLeg       = 'Data'
 topLeg        = 't#bar{t}'
 dyLeg         = 'Drell-Yan'
-
+wjLeg         = 'W+Jets'
+sTLeg         = 'Single top'
 # === create structure ============
+data     = [
+            [f_Data_Oct2015, 1., 1., 1.],
+            [f_Data_PromptReco, 1., 1., 1.],    
+           ]
+
 top      = [[f_ttbar,         Top_xs,            Top_num,            lumi]]
 
 dy       = [
@@ -98,19 +105,42 @@ dy       = [
             [f_DY600toInf,    DY600toInf_xs,      DY600toInf_num,    lumi],    
            ]
 
+wjets    = [
+            [f_WJ100to200,    WJ100to200_xs,      WJ100to200_num,    lumi],
+            [f_WJ200to400,    WJ200to400_xs,      WJ200to400_num,    lumi],
+            [f_WJ400to600,    WJ400to600_xs,      WJ400to600_num,    lumi],
+            [f_WJ600to800,    WJ600to800_xs,      WJ600to800_num,    lumi],     
+            [f_WJ800to1200,   WJ800to1200_xs,     WJ800to1200_num,   lumi],
+            [f_WJ1200to2500,  WJ1200to2500_xs,    WJ1200to2500_num,  lumi],
+            [f_WJ2500toInf,   WJ2500toInf_xs,     WJ2500toInf_num,   lumi], 
+            ]
+
+st       = [
+            [f_ST_tW_top,     ST_tW_top_xs,       ST_tW_top_num,     lumi],
+            [f_ST_tW_antitop, ST_tW_antitop_xs,   ST_tW_antitop_num, lumi],
+            [f_ST_t,          ST_t_xs,            ST_t_num,          lumi],
+            [f_ST_t_ex1,      ST_t_xs,            ST_t_ex1_num,      lumi],
+            [f_ST_s,          ST_s_xs,            ST_s_num,          lumi], 
+           ]
+
 tZtZ_800 = [[f_TpTp_tZtZ_800, TpTp800_xs,         TpTp800_num,       lumi]]
 tZbW_800 = [[f_TpTp_tZbW_800, TpTp800_xs,         TpTp800_num,       lumi]]
 tZtH_800 = [[f_TpTp_tZtH_800, TpTp800_xs,         TpTp800_num,       lumi]]
 
+h_data     = getHisto(dataLabel,       dataLeg,        pDir, var,  data,     kBlack,     verbose)
 h_top      = getHisto(topLabel,        topLeg,         pDir, var,  top,      8,          verbose)
 h_dy       = getHisto(dyLabel,         dyLeg,          pDir, var,  dy,       90,         verbose)
+h_wjets    = getHisto(wjLabel,         wjLeg,          pDir, var,  wjets,    kBlue,      verbose)
+h_st       = getHisto(sTLabel,         sTLeg,          pDir, var,  st,       kCyan,      verbose)
 h_tZtZ_800 = getHisto('TT_tZtZ_M800_', 'TT_tZtZ_M800', pDir, var,  tZtZ_800, kBlue-9,    verbose)
 h_tZbW_800 = getHisto('TT_tZbW_M800_', 'TT_tZbW_M800', pDir, var,  tZbW_800, kOrange-9,  verbose)
 h_tZtH_800 = getHisto('TT_tZtH_M800_', 'TT_tZtH_M800', pDir, var,  tZtH_800, kMagenta+1, verbose)
 
 templates = []
-templates.append(h_top)
 templates.append(h_dy)
+templates.append(h_top)
+templates.append(h_st)
+templates.append(h_wjets)
 templates.append(h_tZtZ_800)
 templates.append(h_tZbW_800)
 templates.append(h_tZtH_800)
@@ -126,6 +156,8 @@ h_bkg.Reset()
 h_bkg.SetName("total bkg")
 h_bkg.Add(h_dy)
 h_bkg.Add(h_top)
+h_bkg.Add(h_wjets)
+h_bkg.Add(h_st)
 
 #histo properties
 nBins = h_bkg.GetNbinsX()
@@ -137,6 +169,7 @@ bin2 = h_bkg.GetXaxis().FindBin(bMax)
 for ibin in range(0,nBins+1):    
     iTop     = h_top.GetBinContent(ibin)
     iDY      = h_dy.GetBinContent(ibin)
+    iWJ      = h_wjets.GetBinContent(ibin)
     # stat error
     stat_err = (h_bkg.GetBinError(ibin))**2 
     # add approximate systematic uncertainty to each bin
@@ -145,9 +178,11 @@ for ibin in range(0,nBins+1):
     ID_err   = 0.03**2
     JES_err  = 0.05*0.05
     dy_err   = (0.1*iDY)**2
-    top_err  = (0.1*iTop)**2
+    top_err  = (0.2*iTop)**2
+    st_err   = (0.3*iTop)**2
+    wjet_err = (0.1*iWJ)**2
     
-    new_err = stat_err + top_err + lumi_err + btag_err + ID_err + JES_err + dy_err
+    new_err = stat_err + lumi_err + btag_err + ID_err + JES_err + dy_err + top_err + wjet_err +st_err
     if h_bkg.GetBinError(ibin) != 0: h_bkg.SetBinError(ibin, TMath.Sqrt(new_err))
 
 h_bkg.SetMarkerSize(0)
@@ -162,14 +197,42 @@ h_tot.Reset()
 h_tot.SetName("Total_"+h_tot.GetName().split('_',1)[1])
 h_tot.Add(h_top)
 h_tot.Add(h_dy)
+h_tot.Add(h_wjets)
+h_tot.Add(h_st)
 
 print h_tot.GetName().split('_',1)[1]
 
 ## =========Drawing==============
+integralError = Double(5)
+# print the latex table:
+print '\\begin{tabular}{|c|c| }'
+print '\hline'
+print 'Sample     & Events  \\\\ '
+print '\hline'
+count = 0
+for ihist in templates :
+    #if var != 'cutFlow':overUnderFlow(ihist)
+    count = count+1
+    if count == 10:
+        print '\hline'
+    if count == 14:
+        print '\hline'
+    ihist.IntegralAndError(bin1,bin2,integralError)
+    if 'TT' in ihist.GetName() or 'BB' in ihist.GetName():
+        print '{0:<5} & {1:<5.2f} $\pm$ {2:<5.2f} \\\\ '.format(ihist.GetName().split('_')[1], ihist.Integral(bin1,bin2), integralError)
+    else:      
+        print '{0:<5} & {1:<5.2f} $\pm$ {2:<5.2f} \\\\ '.format(ihist.GetName().split('_')[0], ihist.Integral(bin1,bin2), integralError)
+
+print '\hline'
+print '{0:<5} & {1:<5.0f} \\\\ '.format('Tot Bkg', h_tot.Integral(bin1,bin2), integralError)
+print '\hline'
+print '{0:<5} & {1:<5.0f} \\\\ '.format(h_data.GetName().split('_')[0], h_data.Integral())
+print '\end{tabular}'
+#print 'bkg : ', h_bkg.Integral(ibin,bin2), 'tot : ', h_tot.Integral(ibin,bin2)
 
 hs = THStack("","")
 
-for ihist in reversed(templates[0:2]):
+for ihist in reversed(templates[0:4]):
     hs.Add(ihist)
     print 'histo added', ihist.GetName()
 
@@ -200,8 +263,10 @@ gPad.SetLogy()
 
 hs.Draw("Hist")
 h_bkg.Draw("e2 same")
-for ihist in reversed(templates[2:5]):
-    #print 'overlaying, ', ihist.GetName() 
+h_data.Draw("same")
+
+for ihist in reversed(templates[4:7]):
+    print 'overlaying, ', ihist.GetName() 
     ihist.Draw("ehist same")
 
 xTitle= h_top.GetXaxis().GetTitle()
@@ -241,12 +306,11 @@ gPad.RedrawAxis()
 
 c1.cd(2)
 # add the systematic band
-h_ratio = h_bkg.Clone()
+h_ratio = h_data.Clone()
 h_ratio_bkg = h_bkg.Clone()
 h_ratio_bkg.SetDirectory(0)
 h_ratio.SetDirectory(0)
-#h_ratio.Divide(h_data, h_tot)
-h_ratio.Divide(h_tot, h_tot)
+h_ratio.Divide(h_data, h_tot)
 h_ratio_bkg.Divide(h_bkg, h_tot)
 
 for ibin in range(1, nBins+1):

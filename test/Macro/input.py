@@ -4,14 +4,32 @@
 #  INPUTS		
 # =====================================================
 path = '/uscms_data/d2/skhalil/MyVLQAna2/CMSSW_7_4_15_patch1/src/Analysis/VLQAna/test/CRAB_On_Skim/Histo/'
+#path = '/Users/skhalil/Desktop/Analysis/OSDL/Macro/Analysis/Histo/'
 ch = 'CR_Zelel'
+
+f_Data_Oct2015 = TFile(path+'DoubleEG-Run2015D-05Oct2015-v1_os2lana_v1_'+ch+'.root')
+f_Data_PromptReco = TFile(path+'DoubleEG-Run2015D-PromptReco-v4_os2lana_v1_'+ch+'.root')
 
 f_DY100to200 = TFile(path+'DY_HT100to200_os2lana_v1_'+ch+'.root')
 f_DY200to400 = TFile(path+'DY_HT200to400_os2lana_v1_'+ch+'.root')
 f_DY400to600 = TFile(path+'DY_HT400to600_os2lana_v1_'+ch+'.root')
 f_DY600toInf = TFile(path+'DY_HT600toInf_os2lana_v1_'+ch+'.root')
 
-f_ttbar      =  TFile(path+'TT-powheg-pythia8-ext3_os2lana_v1_'+ch+'.root')
+f_WJ100to200 = TFile(path+'WJetsToLNu_HT-100To200_os2lana_v1_'+ch+'.root')
+f_WJ200to400 = TFile(path+'WJetsToLNu_HT-200To400_os2lana_v1_'+ch+'.root')
+f_WJ400to600 = TFile(path+'WJetsToLNu_HT-400To600_os2lana_v1_'+ch+'.root')
+f_WJ600to800 = TFile(path+'WJetsToLNu_HT-600To800_os2lana_v1_'+ch+'.root')
+f_WJ800to1200 = TFile(path+'WJetsToLNu_HT-800To1200_os2lana_v1_'+ch+'.root')
+f_WJ1200to2500 = TFile(path+'WJetsToLNu_HT-1200To2500_os2lana_v1_'+ch+'.root')
+f_WJ2500toInf = TFile(path+'WJetsToLNu_HT-2500ToInf_os2lana_v1_'+ch+'.root')
+
+f_ST_tW_top     = TFile(path+'ST_tW_5f_top_powheg-pythia8_os2lana_v1_'+ch+'.root')
+f_ST_tW_antitop = TFile(path+'ST_tW_5f_antitop_powheg-pythia8_os2lana_v1_'+ch+'.root')
+f_ST_t          = TFile(path+'ST_t_4f_amcatnlo-pythia8_os2lana_v1_'+ch+'.root')
+f_ST_t_ex1      = TFile(path+'ST_t_4f_amcatnlo-pythia8_ext1_os2lana_v1_'+ch+'.root')
+f_ST_s          = TFile(path+'ST_s_4f_amcatnlo-pythia8_os2lana_v1_'+ch+'.root')
+
+f_ttbar         = TFile(path+'TT-powheg-pythia8-ext3_os2lana_v1_'+ch+'.root')
 
 f_TpTp_tZtZ_800 = TFile(path+'TpTp_tZtZ_M-800_os2lana_v1_'+ch+'.root')
 f_TpTp_tZbW_800 = TFile(path+'TpTp_tZbW_M-800_os2lana_v1_'+ch+'.root')
@@ -28,30 +46,53 @@ f_TpTp_tZtH_1000 = TFile(path+'TpTp_tZtH_M-1000_os2lana_v1_'+ch+'.root')
 
 #===== cross sections (pb)==========
 
-Top_xs            = 831.76    *gSF
-DY100to200_xs     = 139.4     *gSF
-DY200to400_xs     = 42.75     *gSF
-DY400to600_xs     = 5.497     *gSF
-DY600toInf_xs     = 2.21      *gSF
-TpTp800_xs        = 0.196     *gSF  
-TpTp900_xs        = 0.0903    *gSF
-TpTp1000_xs       = 0.0440    *gSF
-TpTp1200_xs       = 0.0118    *gSF
-TpTp1500_xs       = 0.00200   *gSF
+Top_xs            = 831.76  *gSF
+DY100to200_xs     = 147.4   *gSF *1.23
+DY200to400_xs     = 40.99   *gSF *1.23
+DY400to600_xs     = 5.678   *gSF *1.23
+DY600toInf_xs     = 2.198   *gSF *1.23
+WJ100to200_xs     = 1345.0  *gSF *1.21 
+WJ200to400_xs     = 359.7   *gSF *1.21
+WJ400to600_xs     = 48.9    *gSF *1.21
+WJ600to800_xs     = 12.05   *gSF *1.21
+WJ800to1200_xs    = 5.501   *gSF *1.21
+WJ1200to2500_xs   = 1.329   *gSF *1.21
+WJ2500toInf_xs    = 0.03216 *gSF *1.21
+ST_tW_top_xs      = 35.6    *gSF
+ST_tW_antitop_xs  = 35.6    *gSF 
+ST_t_xs           = 70.69   *gSF
+ST_s_xs           = 3.36    *gSF 
+TpTp800_xs        = 0.196   *gSF  
+TpTp900_xs        = 0.0903  *gSF
+TpTp1000_xs       = 0.044   *gSF
+TpTp1200_xs       = 0.0118  *gSF
+TpTp1500_xs       = 0.00200 *gSF
 
 
 #===== Number of generated events ======
 
-Top_num        =  96834559.
-DY100to200_num =  2725655.
-DY200to400_num =  973937.
-DY400to600_num =  1067758.
-DY600toInf_num =  998912.
-TpTp800_num    =  815600./3.
-TpTp900_num    =  832800./3.
-TpTp1000_num   =  822800./3.
-TpTp1200_num   =  832800./3.
-TpTp1500_num   =  812800./3.
+Top_num          =  96834559.
+DY100to200_num   =  2725655.
+DY200to400_num   =  973937.
+DY400to600_num   =  1067758.
+DY600toInf_num   =  998912.
+WJ100to200_num   =  10152718.
+WJ200to400_num   =  5221599.
+WJ400to600_num   =  1745914.
+WJ600to800_num   =  4041997.
+WJ800to1200_num  =  1574633.
+WJ1200to2500_num =  255637.
+WJ2500toInf_num  =  253036.
+ST_tW_top_num    =  995600.
+ST_tW_antitop_num=  988500.
+ST_t_num         =  19904330.
+ST_t_ex1_num     =  29954054. 
+ST_s_num         =  984400.  
+TpTp800_num      =  815600./3.
+TpTp900_num      =  832800./3.
+TpTp1000_num     =  822800./3.
+TpTp1200_num     =  832800./3.
+TpTp1500_num     =  812800./3.
 
 
 # Legend
@@ -131,7 +172,8 @@ def setCosmetics(hist, legname, hname, color):
     hist.SetLineColor(color)
     hist.SetName(hname)
     if 'Data' in hname:
-        hist.AddEntry(hist, legname, 'pl')
+        leg.AddEntry(hist, legname, 'pl')
+        hist.SetMarkerStyle(8)
     elif 'tZ' in hname:          
         hist.SetLineWidth(2)
         leg.AddEntry(hist, legname, 'l')
