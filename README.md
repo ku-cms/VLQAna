@@ -19,7 +19,10 @@ scram b -j20
 
 # To run
 cd Analysis/VLQAna/test
+
 cmsRun vlqAna_cfg.py 
 
 #To run OS2L analysis 
+cd Analysis/VLQAna/test
+
 cmsRun os2lana_cfg.py
