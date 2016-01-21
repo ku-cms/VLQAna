@@ -106,6 +106,7 @@ class JetMaker {
     edm::InputTag l_tjetsjIdx1         ; 
     edm::InputTag l_tjetsjIdx2         ; 
     edm::InputTag l_tjetsjIdx3         ; 
+    edm::InputTag l_ak8sjHadFl         ; 
     edm::InputTag l_ak8sjPt            ; 
     edm::InputTag l_ak8sjEta           ; 
     edm::InputTag l_ak8sjPhi           ; 

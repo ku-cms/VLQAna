@@ -47,7 +47,7 @@ process.evtcleaner.isData = options.isData
 process.load('Analysis.VLQAna.HH4b_cff') 
 process.hh4b.jetHTaggedselParams.scaleJetP4 = cms.bool(False)
 process.hh4b.jetHTaggedselParams.jettau2Bytau1Max = cms.double(0.75)
-process.hh4b.jetHTaggedselParams.subjetCSVMin = cms.double(0.0) 
+process.hh4b.jetHTaggedselParams.subjetCSVMin = cms.double(-1000.) 
 
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)

@@ -63,6 +63,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
     l_tjetsjIdx1         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx3Label") ; 
     l_tjetsjIdx2         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx2Label") ; 
     l_tjetsjIdx3         = JetSubstrParams_.getParameter<edm::InputTag> ("tjetsjIdx3Label") ; 
+    l_ak8sjHadFl         = SubjetParams_.getParameter<edm::InputTag> ("jetHadronFlavourLabel") ; 
     l_ak8sjPt            = SubjetParams_.getParameter<edm::InputTag> ("jetPtLabel") ; 
     l_ak8sjEta           = SubjetParams_.getParameter<edm::InputTag> ("jetEtaLabel") ; 
     l_ak8sjPhi           = SubjetParams_.getParameter<edm::InputTag> ("jetEtaLabel") ; 
@@ -154,6 +155,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
   Handle <vector<float>>  h_jettopMass        ; 
   Handle <vector<float>>  h_jetminMass        ; 
   Handle <vector<float>>  h_jetnSubJets       ; 
+  Handle <vector<float>>  h_ak8sjHadFl        ; 
   Handle <vector<float>>  h_ak8sjPt           ; 
   Handle <vector<float>>  h_ak8sjEta          ; 
   Handle <vector<float>>  h_ak8sjPhi          ; 
@@ -177,6 +179,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     evt.getByLabel (l_jettopMass          , h_jettopMass     );
     evt.getByLabel (l_jetminMass          , h_jetminMass     );
     evt.getByLabel (l_jetnSubJets         , h_jetnSubJets    );
+    evt.getByLabel (l_ak8sjHadFl          , h_ak8sjHadFl     );
     evt.getByLabel (l_ak8sjPt             , h_ak8sjPt        );
     evt.getByLabel (l_ak8sjEta            , h_ak8sjEta       );
     evt.getByLabel (l_ak8sjPhi            , h_ak8sjPhi       );
@@ -216,11 +219,15 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     int    jetnSubJets   (-1000); 
     int    vjetsjIdx0    (-1000); 
     int    vjetsjIdx1    (-1000); 
+
+    double vjetssj0HadFl (-1000) ; 
     double vjetssj0Pt    (-1000) ;
     double vjetssj0Eta   (-1000) ;
     double vjetssj0Phi   (-1000) ;
     double vjetssj0Mass  (-1000) ;
     double vjetssj0CSV   (-1000) ;
+
+    double vjetssj1HadFl (-1000) ; 
     double vjetssj1Pt    (-1000) ;
     double vjetssj1Eta   (-1000) ;
     double vjetssj1Phi   (-1000) ;
@@ -240,6 +247,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
       vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
       if (vjetsjIdx0 >= 0 ) {
+        vjetssj0HadFl   = (h_ak8sjHadFl.product())->at(vjetsjIdx0) ; 
         vjetssj0Pt      = (h_ak8sjPt.product())->at(vjetsjIdx0) ; 
         vjetssj0Eta     = (h_ak8sjEta.product())->at(vjetsjIdx0) ; 
         vjetssj0Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx0) ; 
@@ -247,6 +255,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         vjetssj0CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx0) ; 
       }
       if (vjetsjIdx1 >= 0) {
+        vjetssj1HadFl   = (h_ak8sjHadFl.product())->at(vjetsjIdx1) ; 
         vjetssj1Pt      = (h_ak8sjPt.product())->at(vjetsjIdx1) ; 
         vjetssj1Eta     = (h_ak8sjEta.product())->at(vjetsjIdx1) ; 
         vjetssj1Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx1) ; 
@@ -395,6 +404,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         jet.setPrunedMass   ( prunedcorr*(h_jetPrunedMass.product())->at(ijet) ) ; 
         jet.setSoftDropMass ( prunedcorr*(h_jetSoftDropMass.product())->at(ijet) ) ; 
         jet.setNSubjets     ( jetnSubJets ) ; 
+        jet.setHadronFlavourSubjet0   ( vjetssj0HadFl ) ;
+        jet.setHadronFlavourSubjet1   ( vjetssj1HadFl ) ;
+        jet.setPtSubjet0    ( vjetssj0Pt ) ;
+        jet.setPtSubjet1    ( vjetssj1Pt ) ;
+        jet.setEtaSubjet0   ( vjetssj0Eta ) ;
+        jet.setEtaSubjet1   ( vjetssj1Eta ) ;
         jet.setCSVSubjet0   ( vjetssj0CSV ) ;
         jet.setCSVSubjet1   ( vjetssj1CSV ) ;
         jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
