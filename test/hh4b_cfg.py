@@ -29,8 +29,8 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    #FileNames_Radion1200
-    FileNames
+    FileNames_BG1000
+    #FileNames
     ) 
     )
 

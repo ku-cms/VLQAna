@@ -38,7 +38,7 @@ class JetMaker {
 
     bool         scaleJetP4_     ;
     double       scaledJetMass_  ; 
-    std::vector<std::string>  jecAK8GroomedPayloadNames_;
+    std::vector<std::string>  jecUncPayloadNames_;
 
     double idxjetPtMin_          ;
     double idxjetPtMax_          ;
@@ -89,6 +89,9 @@ class JetMaker {
     edm::InputTag l_jetcMultip         ;
     edm::InputTag l_jetY               ;
     edm::InputTag l_jetArea            ; 
+    edm::InputTag l_jetGenJetPt        ; 
+    edm::InputTag l_jetGenJetEta       ; 
+    edm::InputTag l_jetGenJetPhi       ; 
     edm::InputTag l_jettau1            ; 
     edm::InputTag l_jettau2            ; 
     edm::InputTag l_jettau3            ; 
@@ -112,8 +115,14 @@ class JetMaker {
     edm::InputTag l_ak8sjPhi           ; 
     edm::InputTag l_ak8sjMass          ; 
     edm::InputTag l_ak8sjCSV           ; 
+    edm::InputTag l_ak8sjGenJetPt      ; 
+    edm::InputTag l_ak8sjGenJetEta     ; 
+    edm::InputTag l_ak8sjGenJetPhi     ; 
     boost::shared_ptr<FactorizedJetCorrector> jecAK8Groomed_ ;    
+    double jecShift_ ; 
+    int    jerShift_ ; 
     bool doGroomedMassCorr_;
+    boost::shared_ptr<JetCorrectionUncertainty> ptr_jecUnc ; 
 
 };
 

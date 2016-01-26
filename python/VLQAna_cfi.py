@@ -14,5 +14,6 @@ ana = cms.EDFilter("VLQAna",
     jetWTaggedselParams        = defaultWJetSelectionParameters,
     jetTopTaggedselParams      = defaultTJetSelectionParameters, 
     HTMin                      = cms.double  (1000.), 
+    doBTagSFUnc                = cms.bool(False), 
     )
 

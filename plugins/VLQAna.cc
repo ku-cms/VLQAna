@@ -39,6 +39,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
 
+#include <TF1.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TTree.h>
@@ -57,6 +58,9 @@ class VLQAna : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
+    double getBTagEff_CSVv2L (double pt, double hadFl) ; 
+    double getBTagSF_CSVv2L (double pt, double hadFl, double err_bc, double err_l) ; 
+
     // ----------member data ---------------------------
     edm::InputTag l_evttype                      ;
     edm::InputTag l_evtwtGen                     ;
@@ -71,6 +75,7 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetTopTaggedmaker                   ; 
 
     double HTMin_                                ; 
+    bool   doBTagSFUnc_                          ; 
 
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
@@ -91,7 +96,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
   jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams")), 
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams")),  
-  HTMin_                  (iConfig.getParameter<double>            ("HTMin"))
+  HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
+  doBTagSFUnc_            (iConfig.getParameter<bool>              ("doBTagSFUnc")) 
 {
 
 }
@@ -154,6 +160,69 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["mtprime"] -> Fill(Mtprime, evtwt) ; 
   h1_["mtprime_scaled"] -> Fill(Mtprime_scaled, evtwt) ; 
   h1_["mtprime_corr"] -> Fill(Mtprime_corr, evtwt) ; 
+
+  double btagsf(1) ; 
+  double btagsf_bcUp(1) ; 
+  double btagsf_bcDown(1) ; 
+  double btagsf_lUp(1) ; 
+  double btagsf_lDown(1) ; 
+
+  double sj0csv((goodHTaggedJets.at(0)).getCSVSubjet0()) ; 
+  double sj0pt ((goodHTaggedJets.at(0)).getPtSubjet0()) ; 
+  double sj0fl ((goodHTaggedJets.at(0)).getHadronFlavourSubjet0()) ; 
+  double sj1csv((goodHTaggedJets.at(0)).getCSVSubjet1()) ; 
+  double sj1pt ((goodHTaggedJets.at(0)).getPtSubjet1()) ; 
+  double sj1fl ((goodHTaggedJets.at(0)).getHadronFlavourSubjet1()) ; 
+
+  if ( sj0csv > 0.605 ) btagsf *= getBTagSF_CSVv2L(sj0pt, sj0fl, 0, 0) ; 
+  else btagsf *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,0,0)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+  if ( sj1csv > 0.605 ) btagsf *= getBTagSF_CSVv2L(sj1pt, sj1fl, 0, 0) ; 
+  else btagsf *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+  //// Get btag SFs
+  //// Get btag SF up bc err
+  if ( sj0csv > 0.605 ) btagsf_bcUp *= getBTagSF_CSVv2L(sj0pt, sj0fl,1,0) ; 
+  else btagsf_bcUp *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,1,0)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+  if ( sj1csv > 0.605 ) btagsf_bcUp *= getBTagSF_CSVv2L(sj1pt, sj1fl,1,0) ; 
+  else btagsf_bcUp *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,1,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+  if ( sj0csv > 0.605 ) btagsf_bcDown *= getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0) ; 
+  else btagsf_bcDown *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+  if ( sj1csv > 0.605 ) btagsf_bcDown *= getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0) ; 
+  else btagsf_bcDown *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+  h1_["mtprime_btagsf"] -> Fill(Mtprime, evtwt*btagsf) ; 
+  h1_["mtprime_scaled_btagsf"] -> Fill(Mtprime_scaled, evtwt*btagsf) ; 
+  h1_["mtprime_corr_btagsf"] -> Fill(Mtprime_corr, evtwt*btagsf) ; 
+
+  if (doBTagSFUnc_) {
+    //// Get btag SF up light err
+    if ( sj0csv > 0.605 ) btagsf_lUp *= getBTagSF_CSVv2L(sj0pt, sj0fl,0,1) ; 
+    else btagsf_lUp *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,0,1)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+    if ( sj1csv > 0.605 ) btagsf_lUp *= getBTagSF_CSVv2L(sj1pt, sj1fl,0,1) ; 
+    else btagsf_lUp *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,1)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+    if ( sj0csv > 0.605 ) btagsf_lDown *= getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1) ; 
+    else btagsf_lDown *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+    if ( sj1csv > 0.605 ) btagsf_lDown *= getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1) ; 
+    else btagsf_lDown *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+    h1_["mtprime_btagsf_bcUp"] -> Fill(Mtprime, evtwt*btagsf_bcUp) ; 
+    h1_["mtprime_scaled_btagsf_bcUp"] -> Fill(Mtprime_scaled, evtwt*btagsf_bcUp) ; 
+    h1_["mtprime_corr_btagsf_bcUp"] -> Fill(Mtprime_corr, evtwt*btagsf_bcUp) ; 
+
+    h1_["mtprime_btagsf_bcDown"] -> Fill(Mtprime, evtwt*btagsf_bcDown) ; 
+    h1_["mtprime_scaled_btagsf_bcDown"] -> Fill(Mtprime_scaled, evtwt*btagsf_bcDown) ; 
+    h1_["mtprime_corr_btagsf_bcDown"] -> Fill(Mtprime_corr, evtwt*btagsf_bcDown) ; 
+
+    h1_["mtprime_btagsf_lUp"] -> Fill(Mtprime, evtwt*btagsf_lUp) ; 
+    h1_["mtprime_scaled_btagsf_lUp"] -> Fill(Mtprime_scaled, evtwt*btagsf_lUp) ; 
+    h1_["mtprime_corr_btagsf_lUp"] -> Fill(Mtprime_corr, evtwt*btagsf_lUp) ; 
+
+    h1_["mtprime_btagsf_lDown"] -> Fill(Mtprime, evtwt*btagsf_lDown) ; 
+    h1_["mtprime_scaled_btagsf_lDown"] -> Fill(Mtprime_scaled, evtwt*btagsf_lDown) ; 
+    h1_["mtprime_corr_btagsf_lDown"] -> Fill(Mtprime_corr, evtwt*btagsf_lDown) ; 
+  }
 
   return true ; 
 
@@ -567,10 +636,30 @@ void VLQAna::beginJob() {
 
   h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
-  
+
   h1_["mtprime"] = fs->make<TH1D>("mtprime", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
   h1_["mtprime_scaled"] = fs->make<TH1D>("mtprime_scaled", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
   h1_["mtprime_corr"] = fs->make<TH1D>("mtprime_corr", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+
+  h1_["mtprime_btagsf"] = fs->make<TH1D>("mtprime_btagsf", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_scaled_btagsf"] = fs->make<TH1D>("mtprime_scaled_btagsf", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_corr_btagsf"] = fs->make<TH1D>("mtprime_corr_btagsf", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+
+  h1_["mtprime_btagsf_bcUp"] = fs->make<TH1D>("mtprime_btagsf_bcUp", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_scaled_btagsf_bcUp"] = fs->make<TH1D>("mtprime_scaled_btagsf_bcUp", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_corr_btagsf_bcUp"] = fs->make<TH1D>("mtprime_corr_btagsf_bcUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+
+  h1_["mtprime_btagsf_bcDown"] = fs->make<TH1D>("mtprime_btagsf_bcDown", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_scaled_btagsf_bcDown"] = fs->make<TH1D>("mtprime_scaled_btagsf_bcDown", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_corr_btagsf_bcDown"] = fs->make<TH1D>("mtprime_corr_btagsf_bcDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+
+  h1_["mtprime_btagsf_lUp"] = fs->make<TH1D>("mtprime_btagsf_lUp", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_scaled_btagsf_lUp"] = fs->make<TH1D>("mtprime_scaled_btagsf_lUp", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_corr_btagsf_lUp"] = fs->make<TH1D>("mtprime_corr_btagsf_lUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+
+  h1_["mtprime_btagsf_lDown"] = fs->make<TH1D>("mtprime_btagsf_lDown", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_scaled_btagsf_lDown"] = fs->make<TH1D>("mtprime_scaled_btagsf_lDown", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["mtprime_corr_btagsf_lDown"] = fs->make<TH1D>("mtprime_corr_btagsf_lDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
 
   //h1_["ptak8leading"]  = fs->make<TH1D>("ptak8leading"  ,";p_T(leading AK8 jet) [GeV];;"      , 40, 0., 2000.) ; 
   //h1_["ptak4leading"]  = fs->make<TH1D>("ptak4leading"  ,";p_T(leading AK4 jet) [GeV];;"      , 40, 0., 2000.) ; 
@@ -674,6 +763,59 @@ void VLQAna::beginJob() {
 // ------------ method called once each job just after ending the event loop  ------------
 void VLQAna::endJob() {
   return ; 
+}
+
+double VLQAna::getBTagEff_CSVv2L (double pt, double jetFl) {
+  double eff(1) ; 
+  if (jetFl == 5) eff = 0.8 ; 
+  else if (jetFl == 4) eff = 0.3 ; 
+  else if (jetFl == 0) eff = 0.1 ; 
+  return eff ;
+}
+
+double VLQAna::getBTagSF_CSVv2L (double pt, double jetFl, double errbc, double errl) {
+  double btagsf(1);
+
+  TF1* SFb_CSVv2L = new TF1("SFb_CSVv2L", "0.908299+(2.70877e-06*(log(x+370.144)*(log(x+370.144)*(3-(-(104.614*log(x+370.144)))))))",0,2000) ;
+
+  std::map<std::pair<double,double>,double> SFb_CSVv2L_err = { 
+    {std::make_pair(30,50)  , 0.022327613085508347}, 
+    {std::make_pair(50,70)  , 0.015330483205616474}, 
+    {std::make_pair(70,100) , 0.024493992328643799}, 
+    {std::make_pair(100,140), 0.020933238789439201}, 
+    {std::make_pair(140,200), 0.029219608753919601}, 
+    {std::make_pair(200,300), 0.039571482688188553}, 
+    {std::make_pair(300,670), 0.047329759448766708}  
+  } ;
+
+  TF1* SFc_CSVv2L = new TF1("SFc_CSVv2L", "0.908299+(2.70877e-06*(log(x+370.144)*(log(x+370.144)*(3-(-(104.614*log(x+370.144)))))))",0,2000) ;
+
+  std::map<std::pair<double,double>,double> SFc_CSVv2L_err = { 
+    {std::make_pair(30,50)  , 0.044655226171016693}, 
+    {std::make_pair(50,70)  , 0.030660966411232948}, 
+    {std::make_pair(70,100) , 0.048987984657287598}, 
+    {std::make_pair(100,140), 0.041866477578878403}, 
+    {std::make_pair(140,200), 0.058439217507839203}, 
+    {std::make_pair(200,300), 0.079142965376377106}, 
+    {std::make_pair(300,670), 0.094659518897533417}  
+  } ;
+
+  TF1* SFl_CSVv2L = new TF1("SFl_CSVv2L", "((1.07278+(0.000535714*x))+(-1.14886e-06*(x*x)))+(7.0636e-10*(x*(x*x)))",0,2000) ;
+  TF1* SFl_CSVv2L_errUp = new TF1("SFl_CSVv2L_errUp", "((1.12921+(0.000804962*x))+(-1.87332e-06*(x*x)))+(1.18864e-09*(x*(x*x)))",0,2000) ; 
+  TF1* SFl_CSVv2L_errDown = new TF1("SFl_CSVv2L_errDown", "((1.01637+(0.000265653*x))+(-4.22531e-07*(x*x)))+(2.23396e-10*(x*(x*x)))",0,2000) ;
+
+  double errb(0), errc(0) ; 
+  for ( auto const& ent : SFb_CSVv2L_err ) if (pt >= (ent.first).first && pt < (ent.first).second ) errb = ent.second ; 
+  for ( auto const& ent : SFc_CSVv2L_err ) if (pt >= (ent.first).first && pt < (ent.first).second ) errc = ent.second ; 
+
+  if (jetFl == 5) btagsf = SFb_CSVv2L->Eval(pt) + errb*errbc; 
+  else if (jetFl == 4) btagsf = SFc_CSVv2L->Eval(pt) + errc*errbc; 
+  else if (jetFl == 0) btagsf = (
+      SFl_CSVv2L->Eval(pt)*(1 - abs(errl)) + 
+      (SFl_CSVv2L_errUp->Eval(pt)*abs(errl)*(1+errl)/2) + 
+      (SFl_CSVv2L_errDown->Eval(pt)*abs(errl)*(1-errl)/2) ) ;  
+
+  return btagsf ; 
 }
 
 DEFINE_FWK_MODULE(VLQAna);

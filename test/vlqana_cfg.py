@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('outFileName', 'singleT.root',
+options.register('outFileName', 'singleT',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Output file name"
@@ -18,6 +18,22 @@ options.register('doPUReweightingOfficial', False,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
+options.register('doBTagSFUnc', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Apply b-tag SF uncertainties"
+    )
+options.register('jecShift', 0,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "JEC shift"
+    )
+options.register('jerShift', 1,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.int,
+    "JER shift"
+    )
+
 options.setDefault('maxEvents', 1000)
 options.parseArguments()
 
@@ -26,6 +42,8 @@ if options.isData:
     hltpaths = [
         "HLT_PFHT800_v"
         ]
+    options.doBTagSFUnc = False 
+    options.jerShift = 0 
 
 process = cms.Process("VLQAna")
 
@@ -40,12 +58,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
-      options.outFileName
+      options.outFileName+".root"
       )
     )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("SingleTEvts.root"),
+    fileName = cms.untracked.string(options.outFileName+"_Events.root"),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring('p')
       ),
@@ -65,6 +83,10 @@ process.evtcleaner.hltPaths = cms.vstring (hltpaths)
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
+process.ana.jetAK4selParams.jecShift = options.jecShift 
+process.ana.jetAK4selParams.jerShift = options.jerShift 
+process.ana.jetAK8selParams.jecShift = options.jecShift 
+process.ana.jetAK8selParams.jerShift = options.jerShift 
 
 process.p = cms.Path(
     process.allEvents
