@@ -408,7 +408,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           double eta_reco = (h_jetEta.product())->at(ijet) ; 
           double jerscale = ApplyJER(eta_reco, jerShift_) ; 
           jetP4 *= std::max( 0.0, pt_gen + jerscale*(pt_reco - pt_gen) )/pt_reco ;
-          std::cout << " jerShift_ " << jerShift_ << " pt_reco " << pt_reco << " pt_reco_shift " << std::max(pt_gen + jerscale*(pt_reco - pt_gen)) << " from p4 " << jetP4.Pt() << std::endl ; 
         }
 
         //// Apply correction on jet groomed mass

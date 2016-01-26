@@ -83,6 +83,7 @@ process.evtcleaner.hltPaths = cms.vstring (hltpaths)
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
+process.ana.doBTagSFUnc = options.doBTagSFUnc
 process.ana.jetAK4selParams.jecShift = options.jecShift 
 process.ana.jetAK4selParams.jerShift = options.jerShift 
 process.ana.jetAK8selParams.jecShift = options.jecShift 
