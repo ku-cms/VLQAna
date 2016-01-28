@@ -209,8 +209,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
 
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
-  boostedzllfilter(dielectrons, zmumuBoosted) ; 
-  boostedzllfilter(dimuons, zelelBoosted) ; 
+  boostedzllfilter(dielectrons, zelelBoosted) ; 
+  boostedzllfilter(dimuons, zmumuBoosted) ; 
 
   if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
