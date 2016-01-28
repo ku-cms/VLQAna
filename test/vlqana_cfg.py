@@ -13,7 +13,7 @@ options.register('outFileName', 'singleT',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('doPUReweightingOfficial', False,
+options.register('doPUReweightingOfficial', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
@@ -34,7 +34,7 @@ options.register('jerShift', 1,
     "JER shift"
     )
 
-options.setDefault('maxEvents', 1000)
+options.setDefault('maxEvents', -1000)
 options.parseArguments()
 
 hltpaths = []
@@ -44,13 +44,14 @@ if options.isData:
         ]
     options.doBTagSFUnc = False 
     options.jerShift = 0 
+    options.doPUReweightingOfficial=False 
 
 process = cms.Process("VLQAna")
 
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      FileNames_TprimeBToTH_M1200
+      FileNames_TprimeBToTH_M1800
       )
     )
 
@@ -63,7 +64,7 @@ process.TFileService = cms.Service("TFileService",
     )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(options.outFileName+"_Events.root"),
+    fileName = cms.untracked.string("Events_"+options.outFileName+".root"),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring('p')
       ),
@@ -84,6 +85,7 @@ process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOff
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
 process.ana.doBTagSFUnc = options.doBTagSFUnc
+process.ana.jetAK4selParams.jecUncPayloadNames = cms.vstring('Summer15_25nsV6_MC_Uncertainty_AK4PFchs.txt')
 process.ana.jetAK4selParams.jecShift = options.jecShift 
 process.ana.jetAK4selParams.jerShift = options.jerShift 
 process.ana.jetAK8selParams.jecShift = options.jecShift 

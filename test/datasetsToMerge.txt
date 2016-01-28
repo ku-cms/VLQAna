@@ -46,6 +46,8 @@
 #HH4b_05Nov2015/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 6802 1 
 #HH4b_05Nov2015/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 1206 1
 #HH4b_05Nov2015/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 120.4 1 
+#HH4b_05Nov2015/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root 25.25 1 
+#
 #
 #RadionTohhTohbbhbb_narrow_M1200:
 #HH4b_05Nov2015/RadionTohhTohbbhbb_narrow_M-1200_13TeV-madgraph.root 1000 1 
