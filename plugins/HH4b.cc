@@ -12,6 +12,7 @@
 #include "Analysis/VLQAna/interface/HH4bTree.h"
 #include <TH1D.h>
 #include <TTree.h>
+#include <TF1.h>
 
 class HH4b : public edm::EDFilter {
   public:
