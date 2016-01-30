@@ -10,7 +10,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/HH4bTree.h"
-#include "Analysis/VLQAna/interface/ApplyBTagSF.h"
 #include <TH1D.h>
 #include <TTree.h>
 
