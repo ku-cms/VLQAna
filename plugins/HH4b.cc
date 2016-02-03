@@ -29,6 +29,7 @@ class HH4b : public edm::EDFilter {
     // ----------member data ---------------------------
     edm::InputTag l_evtwtGen                     ;
     edm::InputTag l_evtwtPV                      ;
+    edm::InputTag l_partonBin                    ;
     edm::InputTag l_npv                          ;
     JetMaker     jetAK8maker                     ; 
     JetMaker     jetHTaggedmaker                 ; 
@@ -89,6 +90,7 @@ Indexer<T> index(T& t) { return Indexer<T>(t); }
 HH4b::HH4b(const edm::ParameterSet& iConfig) :
   l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
   l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
+  l_partonBin             (iConfig.getParameter<edm::InputTag>     ("partonBin")),
   l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"))   
@@ -102,9 +104,11 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
   Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
+  Handle<double>h_partonBin; evt.getByLabel(l_partonBin,  h_partonBin ) ; 
   Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
+  double partonBin((*h_partonBin.product()) * (*h_partonBin.product())) ; 
 
   h1_["cutflow"] -> Fill(1, evtwt) ; 
   h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
@@ -123,7 +127,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     ak8jets.Phi[ijet.first] = (ijet.second).getPhi() ;
     ak8jets.Mass[ijet.first] = (ijet.second).getMass() ;
     ak8jets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
-    ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getPrunedMass() ;
+    ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
     ak8jets.tau1[ijet.first] = (ijet.second).getTau1() ;
     ak8jets.tau2[ijet.first] = (ijet.second).getTau2() ;
     ak8jets.tau3[ijet.first] = (ijet.second).getTau3() ;
@@ -242,6 +246,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   }
 
+  selectedevt.partonBin_ = partonBin ; 
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
   selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 

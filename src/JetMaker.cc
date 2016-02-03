@@ -14,10 +14,12 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
   SubjetParams_             (iConfig.getParameter<edm::ParameterSet>       ("SubjetParams")), 
   scaleJetP4_               (iConfig.getParameter<bool>                    ("scaleJetP4")), 
   scaledJetMass_            (iConfig.getParameter<double>                  ("scaledJetMass")), 
-  jecUncPayloadNames_       (iConfig.getParameter<std::vector<std::string>>("jecUncPayloadNames")),
   jecShift_                 (iConfig.getParameter<double>                  ("jecShift")), 
   jerShift_                 (iConfig.getParameter<int>                     ("jerShift")), 
-  doGroomedMassCorr_        (jecUncPayloadNames_.size()>0 ? true : false)  
+  newJECPayloadNames_       (iConfig.getParameter<std::vector<std::string>>("newJECPayloadNames")),
+  jecUncPayloadName_        (iConfig.getParameter<std::string>             ("jecUncPayloadName")),
+  jecAK8GroomedPayloadNames_(iConfig.getParameter<std::vector<std::string>>("jecAK8GroomedPayloadNames")), 
+  doGroomedMassCorr_        (jecAK8GroomedPayloadNames_.size()>0 ? true : false)  
 {
 
   std::string jettypeStr = iConfig.getParameter<std::string>("jettype") ;
@@ -115,19 +117,25 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
   else if (iConfig.getParameter<bool>("IsJetIDTight") == true && iConfig.getParameter<bool>("IsJetIDLoose") == false) quality_ = JetID::TIGHT ; 
   else edm::LogError("JetMaker::JetMaker") << "Ambiguous JetID: Please select only one (LOOSE or TIGHT) as True!!!" ; 
 
-  if (jecShift_ != 0 ) {
-    ptr_jecUnc = boost::shared_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jecUncPayloadNames_.at(0)) ) ; 
-  }
   if (doGroomedMassCorr_) { 
-    //  std::vector<JetCorrectorParameters> vPar;
-    //  vPar.clear();
-    //  for ( std::vector<std::string>::const_iterator payloadBegin = jecUncPayloadNames_.begin(), payloadEnd = jecUncPayloadNames_.end(), ipayload = payloadBegin; ipayload != payloadEnd; ++ipayload ) {
-    //    JetCorrectorParameters pars(*ipayload);
-    //    vPar.push_back(pars);
-    //  }
+    jecAK8UncName_ = jecAK8GroomedPayloadNames_.back();
+    std::vector<JetCorrectorParameters> vPar;
+    for ( std::vector<std::string>::const_iterator it = jecAK8GroomedPayloadNames_.begin(); it != jecAK8GroomedPayloadNames_.end(); ++it) {
+      JetCorrectorParameters pars(*it);
+    }
+    ptr_jecAK8_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
+  }
 
-    //  // Make the FactorizedJetCorrector
-    //  jecAK8Groomed_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
+  if (jecShift_ != 0 ) {
+    ptr_jecUnc = boost::shared_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jecUncPayloadName_) ) ; 
+  }
+
+  if ( newJECPayloadNames_.size() > 0 ) {
+    std::vector<JetCorrectorParameters> vPar;  
+    for ( std::vector<std::string>::const_iterator it = newJECPayloadNames_.begin(); it != newJECPayloadNames_.end(); ++it) {
+      JetCorrectorParameters pars(*it);
+    }
+    ptr_newJEC_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) ); 
   }
 
 
@@ -214,13 +222,65 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
   for (unsigned ijet = 0; ijet < (h_jetPt.product())->size(); ++ijet) { 
 
+    TLorentzVector  jetP4, uncorrJetP4, newJetP4;
+    jetP4.SetPtEtaPhiM( (h_jetPt.product())->at(ijet), (h_jetEta.product())->at(ijet), (h_jetPhi.product())->at(ijet), (h_jetMass.product())->at(ijet) ) ;
+    uncorrJetP4 = jetP4 * (h_jetJEC.product())->at(ijet) ; 
+    double newJEC(1.0); 
+    if ( newJECPayloadNames_.size() > 0 ) {
+      ptr_newJEC_->setJetPt ( uncorrJetP4.Pt()     );
+      ptr_newJEC_->setJetEta( uncorrJetP4.Eta()    );
+      ptr_newJEC_->setJetE  ( uncorrJetP4.Energy() );
+      ptr_newJEC_->setJetA  ( (h_jetArea.product())->at(ijet) );
+      ptr_newJEC_->setRho   ( rho ) ;  
+      ptr_newJEC_->setNPV   ( npv );
+      newJEC = ptr_newJEC_->getCorrection();
+    }
+    newJetP4 = uncorrJetP4*newJEC ; 
+
+    double ptsmear(1.) ;
+    if ( jerShift_ != 0 ) {
+      double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
+      double pt_reco   = uncorrJetP4.Pt() ;
+      double eta_reco = uncorrJetP4.Eta() ; 
+      double jerscale = ApplyJER(eta_reco, jerShift_) ; 
+      ptsmear = std::max( 0.0, pt_gen + jerscale*(pt_reco - pt_gen) )/pt_reco ; 
+    }
+    newJetP4 *= ptsmear ; 
+
+    double unc(0);
+    if (jecShift_ != 0 ) {
+      ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
+      ptr_jecUnc->setJetPt ( uncorrJetP4.Pt()     );
+      unc = ptr_jecUnc->getUncertainty(true);
+      double pt_shifted = (newJetP4.Pt())*(1+jecShift_*unc) ; // shift = +1(up), or -1(down)
+    }
+    newJetP4 *= (1 + jecShift_*unc) ; 
+
+    //// Apply correction on jet groomed mass
+    double massCorr(1.); 
+    if ( doGroomedMassCorr_ ) {
+      ptr_jecAK8_->setJetPt ( uncorrJetP4.Pt()     );
+      ptr_jecAK8_->setJetEta( uncorrJetP4.Eta()    );
+      ptr_jecAK8_->setJetE  ( uncorrJetP4.Energy() );
+      ptr_jecAK8_->setJetA  ( (h_jetArea.product())->at(ijet) );
+      ptr_jecAK8_->setRho   ( rho ) ;  
+      ptr_jecAK8_->setNPV   ( npv );
+      massCorr = ptr_jecAK8_->getCorrection();
+    }
+
+    if (scaleJetP4_) {
+      if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) 
+        newJetP4 *= scaledJetMass_/( massCorr*(h_jetPrunedMass.product())->at(ijet) ) ;  
+      else newJetP4 *= scaledJetMass_/newJetP4.Mag() ; 
+    }
+
     JetID jetID(JetIDParams_) ; 
     pat::strbitset retjetid = jetID.getBitTemplate() ;
     retjetid.set(false) ;
     if (jetID(evt, ijet, retjetid) == false) continue ;
 
-    double jetPt      = (h_jetPt.product())->at(ijet);
-    double jetAbsEta  = std::abs((h_jetEta.product())->at(ijet)) ; 
+    double jetPt      = newJetP4.Pt();
+    double jetAbsEta  = std::abs(newJetP4.Eta()) ; 
     double jetCSVDisc = (h_jetCSV.product())->at(ijet); 
     if (jetPt      < idxjetPtMin_       || 
         jetPt      >= idxjetPtMax_      ||
@@ -256,14 +316,15 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     double vjetssj1CSV   (-1000) ;
 
     int nsubjetsbtaggedcsvl(0) ; 
+    TLorentzVector p4sj0, p4sj1; 
 
     if ( type_ == AK8JET || type_ == HTAGGEDAK8JET ) { //|| type_ == CMSTOPTAGGEDAK8JET ) {
       jettau1         = (h_jettau1.product())->at(ijet) ; 
       jettau2         = (h_jettau2.product())->at(ijet) ; 
       jettau3         = (h_jettau3.product())->at(ijet) ; 
-      jetMass         = (h_jetMass.product())->at(ijet) ;
-      jetPrunedMass   = (h_jetPrunedMass.product())->at(ijet) ;
-      jetTrimmedMass  = (h_jetTrimmedMass.product())->at(ijet) ;
+      jetMass         = newJetP4.Mag();
+      jetPrunedMass   = ptsmear * massCorr * (1 + jecShift_*unc) * (h_jetPrunedMass.product())->at(ijet) ;
+      jetTrimmedMass  = ptsmear * massCorr * (1 + jecShift_*unc) * (h_jetTrimmedMass.product())->at(ijet) ;
       jetnSubJets     = int((h_jetnSubJets.product())->at(ijet)) ;
       vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
       vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
@@ -329,9 +390,10 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       if (type_ == HTAGGEDAK8JET) {
         edm::LogInfo("JetMaker") << " jetnSubJets = " << jetnSubJets << " min = " << idxjetnSubJetsMin_  << " max = " << idxjetnSubJetsMax_ << endl ; 
         if (vjetsjIdx0 >= 0 && vjetsjIdx1 >= 0) {
-          TLorentzVector p4sj0, p4sj1; 
           p4sj0.SetPtEtaPhiM(vjetssj0Pt, vjetssj0Eta, vjetssj0Phi, vjetssj0Mass) ; 
           p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
+          p4sj0 *= ptsmear * newJEC  * (1 + jecShift_*unc);
+          p4sj1 *= ptsmear * newJEC  * (1 + jecShift_*unc);
           if (jetnSubJets >= idxjetnSubJetsMin_
               && jetnSubJets <= idxjetnSubJetsMax_
               && p4sj0.Mag() > idxsjMassMin_ 
@@ -369,8 +431,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         //double tjetssj2Mass    = (h_ak8sjMass.product())->at(tjetsjIdx2) ; 
         //double tjetssj3Mass    = (h_ak8sjMass.product())->at(tjetsjIdx3) ; 
         //double jetMinMass      = (h_jetnSubJets.product())->at(ijet) ;
-        double jetWMass        = (h_jetwMass.product())->at(ijet) ;
-        double jetTopMass      = (h_jettopMass.product())->at(ijet) ;
+        double jetWMass        = ptsmear * massCorr * (1 + jecShift_*unc) * (h_jetwMass.product())->at(ijet) ;
+        double jetTopMass      = ptsmear * massCorr * (1 + jecShift_*unc) * (h_jettopMass.product())->at(ijet) ;
         if (jetnSubJets >= idxjetnSubJetsMin_
             && jetnSubJets <= idxjetnSubJetsMax_ 
             && jetTopMass > idxjetTopMassMin_ 
@@ -390,46 +452,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       if (passflag)  {
         vlq::Jet jet ; 
 
-        TLorentzVector  jetP4;
-        jetP4.SetPtEtaPhiE( (h_jetPt.product())->at(ijet), (h_jetEta.product())->at(ijet), (h_jetPhi.product())->at(ijet), (h_jetEnergy.product())->at(ijet) ) ;
+        //std::cout << "pruned corr = " << massCorr << " ptsmear = " << ptsmear << std::endl;
 
-        jetP4 *= (h_jetJEC.product())->at(ijet) ; 
-        if (jecShift_ != 0 ) {
-          ptr_jecUnc->setJetEta( jetP4.Eta()    );
-          ptr_jecUnc->setJetPt ( jetP4.Pt()     );
-          double unc = ptr_jecUnc->getUncertainty(true);
-          double pt_shifted = (jetP4.Pt())*(1+jecShift_*unc) ; // shift = +1(up), or -1(down)
-          jetP4 *= (1 + jecShift_*unc) ; 
-        }
-
-        if ( jerShift_ != 0 ) {
-          double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
-          double pt_reco   = (h_jetPt.product())->at(ijet) ;  
-          double eta_reco = (h_jetEta.product())->at(ijet) ; 
-          double jerscale = ApplyJER(eta_reco, jerShift_) ; 
-          jetP4 *= std::max( 0.0, pt_gen + jerscale*(pt_reco - pt_gen) )/pt_reco ;
-        }
-
-        //// Apply correction on jet groomed mass
-        double prunedcorr(1.); 
-        if ( doGroomedMassCorr_ ) {
-          //jecAK8Groomed_->setJetEta( jetP4.Eta()    );
-          //jecAK8Groomed_->setJetPt ( jetP4.Pt()     );
-          //jecAK8Groomed_->setJetEta( jetP4.Eta()    );
-          //jecAK8Groomed_->setJetPt ( jetP4.Pt()     );
-          //jecAK8Groomed_->setJetE  ( jetP4.Energy() );
-          //jecAK8Groomed_->setJetA  ( (h_jetArea.product())->at(ijet) );
-          //jecAK8Groomed_->setRho   ( rho ) ;  
-          //jecAK8Groomed_->setNPV   ( npv );
-          //prunedcorr = jecAK8Groomed_->getCorrection();
-        }
-
-        if (scaleJetP4_) {
-          if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) jetP4 *= scaledJetMass_/(h_jetPrunedMass.product())->at(ijet) ;  
-          else jetP4 *= scaledJetMass_/jetP4.Mag() ; 
-        }
-
-        jet.setP4           (jetP4) ; 
+        jet.setP4           (newJetP4) ; 
         jet.setIndex        (ijet)  ;
         jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
         jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
@@ -438,21 +463,21 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           jet.setTau1         ( (h_jettau1.product())->at(ijet) ) ; 
           jet.setTau2         ( (h_jettau2.product())->at(ijet) ) ; 
           jet.setTau3         ( (h_jettau3.product())->at(ijet) ) ; 
-          jet.setFilteredMass ( prunedcorr*(h_jetFilteredMass.product())->at(ijet) ) ; 
-          jet.setTrimmedMass  ( prunedcorr*(h_jetTrimmedMass.product())->at(ijet) ) ; 
-          jet.setPrunedMass   ( prunedcorr*(h_jetPrunedMass.product())->at(ijet) ) ; 
-          jet.setSoftDropMass ( prunedcorr*(h_jetSoftDropMass.product())->at(ijet) ) ; 
+          jet.setFilteredMass ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetFilteredMass.product()->at(ijet) ) ; 
+          jet.setTrimmedMass  ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetTrimmedMass.product()->at(ijet) ) ; 
+          jet.setPrunedMass   ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetPrunedMass.product()->at(ijet) ) ; 
+          jet.setSoftDropMass ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetSoftDropMass.product()->at(ijet) ) ; 
           jet.setNSubjets     ( jetnSubJets ) ; 
           jet.setHadronFlavourSubjet0   ( vjetssj0HadFl ) ;
           jet.setHadronFlavourSubjet1   ( vjetssj1HadFl ) ;
-          jet.setPtSubjet0    ( vjetssj0Pt ) ;
-          jet.setPtSubjet1    ( vjetssj1Pt ) ;
-          jet.setEtaSubjet0   ( vjetssj0Eta ) ;
-          jet.setEtaSubjet1   ( vjetssj1Eta ) ;
+          jet.setPtSubjet0    ( p4sj0.Pt() ) ;
+          jet.setPtSubjet1    ( p4sj1.Pt() ) ;
+          jet.setEtaSubjet0   ( p4sj0.Eta() ) ;
+          jet.setEtaSubjet1   ( p4sj1.Eta() ) ;
           jet.setCSVSubjet0   ( vjetssj0CSV ) ;
           jet.setCSVSubjet1   ( vjetssj1CSV ) ;
           jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
-          jet.setGroomedMassCorr (prunedcorr) ; 
+          jet.setGroomedMassCorr (ptsmear * massCorr * (1 + jecShift_*unc) ) ; 
           jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ; 
         }
         jets.push_back(jet) ; 

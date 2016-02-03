@@ -3,11 +3,13 @@ import FWCore.ParameterSet.Config as cms
 from Analysis.VLQAna.VLQParams_cfi import * 
 
 evtcleaner = cms.EDFilter("EventCleaner",
+    generatorLabel             = cms.InputTag("generator"), 
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
     trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
     metFiltersNameLabel        = cms.InputTag("METUserData", "triggerNameTree"), 
     metFiltersBitLabel         = cms.InputTag("METUserData", "triggerBitTree"), 
     hbheNoiseFilterLabel       = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun1"), 
+    lheProdName                = cms.string("externalLHEProducer"), 
     genEvtInfoProdName         = cms.string('generator'),
     vtxRhoLabel                = cms.InputTag("vertexInfo", "rho"),
     vtxZLabel                  = cms.InputTag("vertexInfo", "z"),
