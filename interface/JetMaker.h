@@ -123,9 +123,10 @@ class JetMaker {
     std::string               jecUncPayloadName_;
     std::vector<std::string>  jecAK8GroomedPayloadNames_;
     bool                      doGroomedMassCorr_;
-    boost::shared_ptr<FactorizedJetCorrector> ptr_newJEC_  ;
+    bool                      doNewJEC_;
     boost::shared_ptr<FactorizedJetCorrector> ptr_jecAK8_  ;
     boost::shared_ptr<JetCorrectionUncertainty> ptr_jecUnc ; 
+    boost::shared_ptr<FactorizedJetCorrector> ptr_newJEC_  ;
     std::string jecAK8UncName_  ;
 
 };

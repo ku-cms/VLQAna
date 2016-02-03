@@ -122,6 +122,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
     std::vector<JetCorrectorParameters> vPar;
     for ( std::vector<std::string>::const_iterator it = jecAK8GroomedPayloadNames_.begin(); it != jecAK8GroomedPayloadNames_.end(); ++it) {
       JetCorrectorParameters pars(*it);
+      vPar.push_back(pars) ; 
     }
     ptr_jecAK8_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
   }
@@ -134,6 +135,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
     std::vector<JetCorrectorParameters> vPar;  
     for ( std::vector<std::string>::const_iterator it = newJECPayloadNames_.begin(); it != newJECPayloadNames_.end(); ++it) {
       JetCorrectorParameters pars(*it);
+      vPar.push_back(pars) ; 
     }
     ptr_newJEC_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) ); 
   }

@@ -70,9 +70,9 @@ process.hh4b.jetHTaggedselParams.subjetCSVMin = cms.double(-1000.)
 process.hh4b.jetHTaggedselParams.jecShift = options.jecShift 
 process.hh4b.jetHTaggedselParams.jerShift = options.jerShift 
 if options.isData:
-  process.hh4b.jetHTaggedselParams.jetAK8selParams.newJECPayloadNames.append("Summer15_25nsV7_DATA/Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt")
-  process.hh4b.jetHTaggedselParams.jetAK8selParams.jecUncPayloadName = cms.string("Summer15_25nsV7_DATA/Summer15_25nsV7_DATA_Uncertainty_AK8PFchs.txt")
-  process.hh4b.jetHTaggedselParams.jecAK8GroomedPayloadNames.append("Summer15_25nsV7_DATA/Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt") 
+  process.hh4b.jetHTaggedselParams.jetAK8selParams.newJECPayloadNames.append("Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt")
+  process.hh4b.jetHTaggedselParams.jetAK8selParams.jecUncPayloadName = cms.string("Summer15_25nsV7_DATA_Uncertainty_AK8PFchs.txt")
+  process.hh4b.jetHTaggedselParams.jecAK8GroomedPayloadNames.append("Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt") 
 
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
