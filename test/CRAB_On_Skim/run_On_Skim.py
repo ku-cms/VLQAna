@@ -16,7 +16,7 @@ parser.add_option('--inputCfg', metavar='C', type='string', action='store',
                   help='input config tag to be used')
 
 parser.add_option('--outLabel', metavar='L', type='string', action='store',
-                  default='os2lana_v1',
+                  default='os2lana_v2',
                   dest='outLabel',
                   help='output tag to be used')
 
@@ -26,7 +26,7 @@ parser.add_option('--skimType', metavar='S', type='string', action='store',
                   help='Skim type: CR_Zelel, CR_Zmumu, SR_Zelel, SR_Zmumu')
     
 parser.add_option('--isData', metavar='I', type='int', action='store',
-                  default=0,
+                  default=1,
                   dest='isData',
                   help='run on data or MC')
 
@@ -106,5 +106,5 @@ for job in jobList:
      s = 'crab submit -c ' + options.skimType+'/'+crabName
      print s
      # and submit:
-     #subprocess.call( [s], shell=True )
+     subprocess.call( [s], shell=True )
     
