@@ -16,7 +16,7 @@ gStyle.SetOptStat(0)
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('--Lumi', metavar='D', type='float', action='store',
-                  default= 2200.,
+                  default= 538.134,#2200.,
                   dest='Lumi',
                   help='Data Luminosity in pb-1')
 
@@ -84,26 +84,30 @@ topLabel      = 'Top_'
 dyLabel       = 'DY_'
 wjLabel       = 'WJets_'
 sTLabel       = 'ST_'
+vvLabel       = 'VV_'
 
 dataLeg       = 'Data'
 topLeg        = 't#bar{t}'
 dyLeg         = 'Drell-Yan'
 wjLeg         = 'W+Jets'
 sTLeg         = 'Single top'
+vvLeg         = 'Diboson'
 # === create structure ============
 data     = [
-            [f_Data_Oct2015, 1., 1., 1.],
-            [f_Data_PromptReco, 1., 1., 1.],    
+            [f_Data_Oct2015, 1., 1., 1.], # this corresponds to .53 fb-1
+            #[f_Data_PromptReco, 1., 1., 1.],  #addign this should give 2.2 fb-1  
            ]
 
 top      = [[f_ttbar,         Top_xs,            Top_num,            lumi]]
 
-dy       = [
-            [f_DY100to200,    DY100to200_xs,      DY100to200_num,    lumi],
-            [f_DY200to400,    DY200to400_xs,      DY200to400_num,    lumi],
-            [f_DY400to600,    DY400to600_xs,      DY400to600_num,    lumi],
-            [f_DY600toInf,    DY600toInf_xs,      DY600toInf_num,    lumi],    
-           ]
+dy       = [[f_DYmcnlo,       DY_xs,             DYmcnlo_num,        lumi]]
+
+#dy       = [
+#            [f_DY100to200,    DY100to200_xs,      DY100to200_num,    lumi],
+#            [f_DY200to400,    DY200to400_xs,      DY200to400_num,    lumi],
+#            [f_DY400to600,    DY400to600_xs,      DY400to600_num,    lumi],
+#            [f_DY600toInf,    DY600toInf_xs,      DY600toInf_num,    lumi],    
+#           ]
 
 wjets    = [
             [f_WJ100to200,    WJ100to200_xs,      WJ100to200_num,    lumi],
@@ -123,6 +127,12 @@ st       = [
             [f_ST_s,          ST_s_xs,            ST_s_num,          lumi], 
            ]
 
+vv       = [
+            [f_ZZTo2L2Nu,     ZZTo2L2Nu_xs,       ZZTo2L2Nu_num,    lumi],
+            [f_WZTo2L2Q,      WZTo2L2Q_xs,        WZTo2L2Q_num,     lumi],
+            [f_WWTo2L2Nu,     WWTo2L2Nu_xs,       WWTo2L2Nu_num,    lumi],
+           ]
+
 tZtZ_800 = [[f_TpTp_tZtZ_800, TpTp800_xs,         TpTp800_num,       lumi]]
 tZbW_800 = [[f_TpTp_tZbW_800, TpTp800_xs,         TpTp800_num,       lumi]]
 tZtH_800 = [[f_TpTp_tZtH_800, TpTp800_xs,         TpTp800_num,       lumi]]
@@ -132,6 +142,7 @@ h_top      = getHisto(topLabel,        topLeg,         pDir, var,  top,      8, 
 h_dy       = getHisto(dyLabel,         dyLeg,          pDir, var,  dy,       90,         verbose)
 h_wjets    = getHisto(wjLabel,         wjLeg,          pDir, var,  wjets,    kBlue,      verbose)
 h_st       = getHisto(sTLabel,         sTLeg,          pDir, var,  st,       kCyan,      verbose)
+h_vv       = getHisto(vvLabel,         vvLeg,          pDir, var,  vv,       kRed,       verbose)
 h_tZtZ_800 = getHisto('TT_tZtZ_M800_', 'TT_tZtZ_M800', pDir, var,  tZtZ_800, kBlue-9,    verbose)
 h_tZbW_800 = getHisto('TT_tZbW_M800_', 'TT_tZbW_M800', pDir, var,  tZbW_800, kOrange-9,  verbose)
 h_tZtH_800 = getHisto('TT_tZtH_M800_', 'TT_tZtH_M800', pDir, var,  tZtH_800, kMagenta+1, verbose)
@@ -139,6 +150,7 @@ h_tZtH_800 = getHisto('TT_tZtH_M800_', 'TT_tZtH_M800', pDir, var,  tZtH_800, kMa
 templates = []
 templates.append(h_dy)
 templates.append(h_top)
+templates.append(h_vv)
 templates.append(h_st)
 templates.append(h_wjets)
 templates.append(h_tZtZ_800)
@@ -156,6 +168,7 @@ h_bkg.Reset()
 h_bkg.SetName("total bkg")
 h_bkg.Add(h_dy)
 h_bkg.Add(h_top)
+h_bkg.Add(h_vv)
 h_bkg.Add(h_wjets)
 h_bkg.Add(h_st)
 
@@ -170,6 +183,7 @@ for ibin in range(0,nBins+1):
     iTop     = h_top.GetBinContent(ibin)
     iDY      = h_dy.GetBinContent(ibin)
     iWJ      = h_wjets.GetBinContent(ibin)
+    iVV      = h_vv.GetBinContent(ibin)
     # stat error
     stat_err = (h_bkg.GetBinError(ibin))**2 
     # add approximate systematic uncertainty to each bin
@@ -181,8 +195,9 @@ for ibin in range(0,nBins+1):
     top_err  = (0.2*iTop)**2
     st_err   = (0.3*iTop)**2
     wjet_err = (0.1*iWJ)**2
-    
-    new_err = stat_err + lumi_err + btag_err + ID_err + JES_err + dy_err + top_err + wjet_err +st_err
+    vv_err   = (0.3*iVV)**2
+
+    new_err = stat_err + lumi_err + btag_err + ID_err + JES_err + dy_err + top_err + wjet_err +st_err + vv_err
     if h_bkg.GetBinError(ibin) != 0: h_bkg.SetBinError(ibin, TMath.Sqrt(new_err))
 
 h_bkg.SetMarkerSize(0)
@@ -265,7 +280,7 @@ hs.Draw("Hist")
 h_bkg.Draw("e2 same")
 h_data.Draw("same")
 
-for ihist in reversed(templates[4:7]):
+for ihist in reversed(templates[5:8]):
     print 'overlaying, ', ihist.GetName() 
     ihist.Draw("ehist same")
 
@@ -277,7 +292,7 @@ gPad.RedrawAxis()
 ll = TLatex()
 ll.SetNDC(kTRUE)
 ll.SetTextSize(0.05)
-ll.DrawLatex(0.78,0.92, "2.2 fb^{-1} (13 TeV)");
+ll.DrawLatex(0.78,0.92, "0.53 fb^{-1} (13 TeV)");#2.2
 
 cms = TLatex()
 cms.SetNDC(kTRUE)
