@@ -247,7 +247,7 @@ print '\end{tabular}'
 
 hs = THStack("","")
 
-for ihist in reversed(templates[0:4]):
+for ihist in reversed(templates[0:5]):
     hs.Add(ihist)
     print 'histo added', ihist.GetName()
 
