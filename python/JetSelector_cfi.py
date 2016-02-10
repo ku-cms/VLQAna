@@ -18,7 +18,7 @@ defaultAK4JetSelectionParameters = cms.PSet(
     jetPtMax                  = cms.double(1000000),
     jetAbsEtaMax              = cms.double(5.0),
     jetCSVDiscMin             = cms.double(-10000),
-    jetCSVDiscMax             = cms.double(1.000),
+    jetCSVDiscMax             = cms.double(10000),
     btaggedcsvlOP             = cms.double(0.605) , 
     btaggedcsvmOP             = cms.double(0.890) , 
     btaggedcsvtOP             = cms.double(0.970) , 
@@ -46,7 +46,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jettype                   = cms.string('AK8JET'),
-    jetPtMin                  = cms.double(300),
+    jetPtMin                  = cms.double(200),
     jetAbsEtaMax              = cms.double(2.4),
     jetPtMax                  = cms.double(1000000),
     jettau2Bytau1Min          = cms.double(0.0) ,
@@ -114,7 +114,7 @@ defaultWJetSelectionParameters = defaultHJetSelectionParameters.clone(
     )
 
 defaultBTaggedAK8JetSelectionParameters = defaultAK8JetSelectionParameters.clone(
-    jetCSVDiscMin       = cms.double(0.814),
+    jetCSVDiscMin       = cms.double(0.889),
     jetCSVDiscMax       = cms.double(1.000),
     )
 

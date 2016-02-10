@@ -285,10 +285,10 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     double jetAbsEta  = std::abs(newJetP4.Eta()) ; 
     double jetCSVDisc = (h_jetCSV.product())->at(ijet); 
     if (jetPt      < idxjetPtMin_       || 
-        jetPt      >= idxjetPtMax_      ||
-        jetAbsEta  >= idxjetAbsEtaMax_  ||
+        jetPt      >  idxjetPtMax_      ||
+        jetAbsEta  >  idxjetAbsEtaMax_  ||
         jetCSVDisc < idxjetCSVDiscMin_  ||
-        jetCSVDisc >= idxjetCSVDiscMax_ 
+        jetCSVDisc >  idxjetCSVDiscMax_ 
        ) continue ; 
 
     bool passflag(false) ; 
