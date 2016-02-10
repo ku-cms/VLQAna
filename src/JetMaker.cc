@@ -140,7 +140,6 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig) :
     ptr_newJEC_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) ); 
   }
 
-
 }
 
 void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
@@ -239,13 +238,16 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     }
     newJetP4 = uncorrJetP4*newJEC ; 
 
+    double masssmear(1.) ;
     double ptsmear(1.) ;
     if ( jerShift_ != 0 ) {
       double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
       double pt_reco   = uncorrJetP4.Pt() ;
       double eta_reco = uncorrJetP4.Eta() ; 
-      double jerscale = ApplyJER(eta_reco, jerShift_) ; 
-      ptsmear = std::max( 0.0, pt_gen + jerscale*(pt_reco - pt_gen) )/pt_reco ; 
+      double jerscalep4 = ApplyJERp4(eta_reco, jerShift_) ; 
+      ptsmear = std::max( 0.0, pt_gen + jerscalep4*(pt_reco - pt_gen) )/pt_reco ; 
+      double jerscalemass = ApplyJERMass() ; 
+      masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
     }
     newJetP4 *= ptsmear ; 
 
@@ -254,7 +256,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
       ptr_jecUnc->setJetPt ( uncorrJetP4.Pt()     );
       unc = ptr_jecUnc->getUncertainty(true);
-      double pt_shifted = (newJetP4.Pt())*(1+jecShift_*unc) ; // shift = +1(up), or -1(down)
+      //double pt_shifted = (newJetP4.Pt())*(1+jecShift_*unc) ; // shift = +1(up), or -1(down)
     }
     newJetP4 *= (1 + jecShift_*unc) ; 
 
@@ -289,7 +291,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         jetAbsEta  >  idxjetAbsEtaMax_  ||
         jetCSVDisc < idxjetCSVDiscMin_  ||
         jetCSVDisc >  idxjetCSVDiscMax_ 
-       ) continue ; 
+      ) continue ; 
 
     bool passflag(false) ; 
 
@@ -320,13 +322,13 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     int nsubjetsbtaggedcsvl(0) ; 
     TLorentzVector p4sj0, p4sj1; 
 
-    if ( type_ == AK8JET || type_ == HTAGGEDAK8JET ) { //|| type_ == CMSTOPTAGGEDAK8JET ) {
+    if ( type_ == AK8JET || type_ == HTAGGEDAK8JET ) { 
       jettau1         = (h_jettau1.product())->at(ijet) ; 
       jettau2         = (h_jettau2.product())->at(ijet) ; 
       jettau3         = (h_jettau3.product())->at(ijet) ; 
       jetMass         = newJetP4.Mag();
-      jetPrunedMass   = ptsmear * massCorr * (1 + jecShift_*unc) * (h_jetPrunedMass.product())->at(ijet) ;
-      jetTrimmedMass  = ptsmear * massCorr * (1 + jecShift_*unc) * (h_jetTrimmedMass.product())->at(ijet) ;
+      jetPrunedMass   = masssmear * massCorr * (1 + jecShift_*unc) * (h_jetPrunedMass.product())->at(ijet) ;
+      jetTrimmedMass  = masssmear * massCorr * (1 + jecShift_*unc) * (h_jetTrimmedMass.product())->at(ijet) ;
       jetnSubJets     = int((h_jetnSubJets.product())->at(ijet)) ;
       vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
       vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
@@ -449,42 +451,42 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       else passflag = true ; 
 
     } //// if fatjets 
-      else passflag = true ; 
+    else passflag = true ; 
 
-      if (passflag)  {
-        vlq::Jet jet ; 
+    if (passflag)  {
+      vlq::Jet jet ; 
 
-        //std::cout << "pruned corr = " << massCorr << " ptsmear = " << ptsmear << std::endl;
+      //std::cout << "pruned corr = " << massCorr << " ptsmear = " << ptsmear << std::endl;
 
-        jet.setP4           (newJetP4) ; 
-        jet.setIndex        (ijet)  ;
-        jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
-        jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
-        jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
-        if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
-          jet.setTau1         ( (h_jettau1.product())->at(ijet) ) ; 
-          jet.setTau2         ( (h_jettau2.product())->at(ijet) ) ; 
-          jet.setTau3         ( (h_jettau3.product())->at(ijet) ) ; 
-          jet.setFilteredMass ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetFilteredMass.product()->at(ijet) ) ; 
-          jet.setTrimmedMass  ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetTrimmedMass.product()->at(ijet) ) ; 
-          jet.setPrunedMass   ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetPrunedMass.product()->at(ijet) ) ; 
-          jet.setSoftDropMass ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetSoftDropMass.product()->at(ijet) ) ; 
-          jet.setNSubjets     ( jetnSubJets ) ; 
-          jet.setHadronFlavourSubjet0   ( vjetssj0HadFl ) ;
-          jet.setHadronFlavourSubjet1   ( vjetssj1HadFl ) ;
-          jet.setPtSubjet0    ( p4sj0.Pt() ) ;
-          jet.setPtSubjet1    ( p4sj1.Pt() ) ;
-          jet.setEtaSubjet0   ( p4sj0.Eta() ) ;
-          jet.setEtaSubjet1   ( p4sj1.Eta() ) ;
-          jet.setCSVSubjet0   ( vjetssj0CSV ) ;
-          jet.setCSVSubjet1   ( vjetssj1CSV ) ;
-          jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
-          jet.setGroomedMassCorr (ptsmear * massCorr * (1 + jecShift_*unc) ) ; 
-          jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ; 
-        }
-        jets.push_back(jet) ; 
+      jet.setP4           (newJetP4) ; 
+      jet.setIndex        (ijet)  ;
+      jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
+      jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
+      jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
+      if ( type_ == AK8JET || type_ == HTAGGEDAK8JET || type_ == CMSTOPTAGGEDAK8JET ) {
+        jet.setTau1         ( (h_jettau1.product())->at(ijet) ) ; 
+        jet.setTau2         ( (h_jettau2.product())->at(ijet) ) ; 
+        jet.setTau3         ( (h_jettau3.product())->at(ijet) ) ; 
+        jet.setFilteredMass ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetFilteredMass.product()->at(ijet) ) ; 
+        jet.setTrimmedMass  ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetTrimmedMass.product()->at(ijet) ) ; 
+        jet.setPrunedMass   ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetPrunedMass.product()->at(ijet) ) ; 
+        jet.setSoftDropMass ( ptsmear * massCorr * (1 + jecShift_*unc) * h_jetSoftDropMass.product()->at(ijet) ) ; 
+        jet.setNSubjets     ( jetnSubJets ) ; 
+        jet.setHadronFlavourSubjet0   ( vjetssj0HadFl ) ;
+        jet.setHadronFlavourSubjet1   ( vjetssj1HadFl ) ;
+        jet.setPtSubjet0    ( p4sj0.Pt() ) ;
+        jet.setPtSubjet1    ( p4sj1.Pt() ) ;
+        jet.setEtaSubjet0   ( p4sj0.Eta() ) ;
+        jet.setEtaSubjet1   ( p4sj1.Eta() ) ;
+        jet.setCSVSubjet0   ( vjetssj0CSV ) ;
+        jet.setCSVSubjet1   ( vjetssj1CSV ) ;
+        jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
+        jet.setGroomedMassCorr (ptsmear * massCorr * (1 + jecShift_*unc) ) ; 
+        jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ; 
       }
+      jets.push_back(jet) ; 
+    }
 
-    } //// loop over jets 
+  } //// loop over jets 
 
-  }
+}
