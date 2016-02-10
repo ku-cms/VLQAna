@@ -1,7 +1,12 @@
 #ifndef ANALYSIS_INTERFACE_APPLYJER_H
 #define ANALYSIS_INTERFACE_APPLYJER_H
 
-double ApplyJER (double eta, int jerShift) {
+double ApplyJERMass() {
+  double massjerscale(1.12) ; 
+  return massjerscale ; 
+}
+
+double ApplyJERp4 (double eta, int jerShift) {
 
   eta = abs(eta) ;
   double jerscale(0) ; 
