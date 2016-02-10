@@ -22,14 +22,23 @@ FileNames_TprimeBToTH_M1800=[
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1800_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003802/0000/B2GEDMNtuple_3.root',
     ]
 
+FileNames_BG2000 = [ 
+    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-2000_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_220044/0000/B2GEDMNtuple_1.root'
+    ]
+
 FileNames_BG1000 = [ 
    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_215940/0000/B2GEDMNtuple_1.root',
    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_215940/0000/B2GEDMNtuple_2.root',
    ]
 
 FileNames_BG1200 = [ 
-    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_215950/0000/B2GEDMNtuple_1.root',
-    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_215950/0000/B2GEDMNtuple_2.root',
+    'file:/afs/cern.ch/user/d/devdatta//eos/cms/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_215950/0000/B2GEDMNtuple_1.root',
+    'file:/afs/cern.ch/user/d/devdatta//eos/cms/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_215950/0000/B2GEDMNtuple_2.root',
+    ]
+
+FileNames_BG1400 = [
+    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1400_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_220002/0000/B2GEDMNtuple_1.root',
+    '/store/group/phys_b2g/B2GAnaFW/BulkGravTohhTohbbhbb_narrow_M-1400_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_B2GAnaFW_v74x_v8p4/160121_220002/0000/B2GEDMNtuple_2.root',
     ]
 
 FileNames_Radion1200 = [ 
