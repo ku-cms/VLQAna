@@ -481,7 +481,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         jet.setCSVSubjet0   ( vjetssj0CSV ) ;
         jet.setCSVSubjet1   ( vjetssj1CSV ) ;
         jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
-        jet.setGroomedMassCorr (ptsmear * massCorr * (1 + jecShift_*unc) ) ; 
+        jet.setGroomedMassCorr (masssmear * massCorr * (1 + jecShift_*unc) ) ; 
         jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ; 
       }
       jets.push_back(jet) ; 
