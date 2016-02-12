@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('zdecaymode', '',
+options.register('zdecaymode', 'zmumu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
@@ -33,17 +33,17 @@ options.register('filterSignal', False,
     VarParsing.varType.bool,
     "Select only tZtt or bZbZ modes"
     )
-options.register('signalType', "EvtType_MC_tZtZ",
+options.register('signalType', '',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
     )
-options.register('applyLeptonSFs', True,
+options.register('applyLeptonSFs', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.setDefault('maxEvents', 1000)
+options.setDefault('maxEvents', 50)
 options.parseArguments()
 print options
 
@@ -77,12 +77,15 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
+   '/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_1.root',
     #FileNames
-    FileNames_TT_M1200
-    #'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151111_093347/0000/B2GEDMNtuple_14.root'
+    #FileNames_TT_M1200
+    #'root://grid143.kfki.hu//store/group/phys_b2g/B2GAnaFW/Skims/CR_Zelel/DoubleEG/Run2015D-05Oct2015-v1_B2GAnaFW_v74x_v8p4_Skim_CR_Zelel_24Nov2015/151124_141440/0000/SkimmedB2GEdmNtuples_1.root'
     ) 
     )
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.load("Analysis.VLQAna.EventCleaner_cff") 
@@ -138,7 +141,7 @@ process.p = cms.Path(
     *process.cleanedEvents
     *cms.ignore(process.ana)
     #*cms.ignore(process.anaBoosted+process.vlqcands)
-    *process.anaBoosted
+    #*process.anaBoosted ##comment it
     #*process.vlqcands
     * process.finalEvents
     )
