@@ -175,11 +175,21 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double evtwtGen(1.0) ; 
   double partonBin(0.0);
   if ( !isData_ ) {
-    Handle<GenEventInfoProduct> h_genEvtInfoProd; 
+    edm::Handle<GenEventInfoProduct> h_genEvtInfoProd; 
     evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
     evtwtGen = h_genEvtInfoProd->weight() ; 
     evtwtGen /= abs(evtwtGen) ; 
-    if (h_genEvtInfoProd->binningValues().size()>0) partonBin = h_genEvtInfoProd->binningValues()[0];
+    //if (h_genEvtInfoProd->binningValues().size()>0) partonBin = h_genEvtInfoProd->binningValues()[0];
+    const std::vector<double>& binningValues = h_genEvtInfoProd->binningValues();
+    double qScale = h_genEvtInfoProd->qScale();
+    //std::cout << " binningValues size = " << binningValues.size() << " q scale " << qScale << " evtwt = " << evtwtGen << std::endl ;
+    //for (double val : binningValues) {
+    //  std::cout << " binning value = " << val << std::endl ; 
+    //}
+
+    //edm::Handle<LHEEventProduct> h_lheInfoProd ; 
+    //evt.getByToken( t_lheProd, h_lheInfoProd );
+
   }
 
   double evtwtPV(1.0) ;
@@ -242,6 +252,16 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 }
 
 void EventCleaner::beginJob() {
+
+    //typedef std::vector<LHEEventProduct::Header>::const_iterator headers_const_iterator;
+    //LHEEventProduct myLHEEventProduct = *(h_lheInfoProd.product());
+    //for (headers_const_iterator iter=myLHEEventProduct.headers_begin(); iter!=myLHEEventProduct.headers_end(); iter++){
+    //  std::cout << iter->tag() << std::endl;
+    //  std::vector<std::string> lines = iter->lines();
+    //  for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+    //    std::cout << lines.at(iLine) << std::endl ;
+    //  }
+    //}
 }
 
 void EventCleaner::endJob() {
