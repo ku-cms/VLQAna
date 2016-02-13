@@ -23,6 +23,7 @@ class HH4b : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
+    bool passHiggsTagging(vlq::Jet jet) ; 
     double getBTagEff_CSVv2L (double pt, double hadFl) ; 
     double getBTagSF_CSVv2L (double pt, double hadFl, double err_bc, double err_l) ; 
 
@@ -104,105 +105,112 @@ HH4b::~HH4b() {}
 bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
-  Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
-  Handle<double>h_partonBin; evt.getByLabel(l_partonBin,  h_partonBin ) ; 
-  Handle<bool>h_hltdecision; evt.getByLabel(l_hltdecision,  h_hltdecision ) ; 
-  Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
+  Handle<double>  h_evtwtGen   ; evt.getByLabel(l_evtwtGen   , h_evtwtGen   ) ; 
+  Handle<double>  h_evtwtPV    ; evt.getByLabel(l_evtwtPV    , h_evtwtPV    ) ; 
+  Handle<double>  h_partonBin  ; evt.getByLabel(l_partonBin  , h_partonBin  ) ; 
+  Handle<bool>    h_hltdecision; evt.getByLabel(l_hltdecision, h_hltdecision) ; 
+  Handle<unsigned>h_npv        ; evt.getByLabel(l_npv        , h_npv        ) ; 
 
-  double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
+  const double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
   const double partonBin((*h_partonBin.product())) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
+  const unsigned npv(*h_npv.product()) ; 
 
-  evtwt=1;
+  vlq::JetCollection  goodAK8Jets ;  
+  jetAK8maker(evt, goodAK8Jets); 
 
+  double cosThetaStar(goodAK8Jets.size()>=2 ? abs(goodAK8Jets.at(0).getEta() -  goodAK8Jets.at(1).getEta()) : 999999) ; 
+  TLorentzVector p4null; p4null.SetPtEtaPhiE(0,0,0,0); 
+  TLorentzVector p4_jet0 = goodAK8Jets.size()>=1 ? goodAK8Jets.at(0).getP4() : p4null ;
+  TLorentzVector p4_jet1 = goodAK8Jets.size()>=2 ? goodAK8Jets.at(1).getP4() : p4null ;
+  double invm(goodAK8Jets.size()>=2 ? (p4_jet0 + p4_jet1).Mag() : -999999) ; 
+  double mj_0(goodAK8Jets.size()>=2 ? goodAK8Jets.at(0).getPrunedMass() : -999999) ;
+  double mj_1(goodAK8Jets.size()>=2 ? goodAK8Jets.at(1).getPrunedMass() : -999999) ;
+  double t21_0(goodAK8Jets.size()>=2 ? 
+      ( goodAK8Jets.at(0).getTau1() != 0 ? goodAK8Jets.at(0).getTau2() / goodAK8Jets.at(0).getTau1() : 999999 ) 
+      : 999999) ; 
+  double t21_1(goodAK8Jets.size()>=2 ? 
+      ( goodAK8Jets.at(1).getTau1() != 0 ? goodAK8Jets.at(1).getTau2() / goodAK8Jets.at(1).getTau1() : 999999 ) 
+      : 999999) ; 
+  int nsjBTagged(goodAK8Jets.size()>=2 ? 
+      goodAK8Jets.at(0).getNSubjetsBTaggedCSVL() + goodAK8Jets.at(1).getNSubjetsBTaggedCSVL() : -999999 ) ; 
+
+  //// Event flags for cut flows
+  const bool hltNPV   (hltdecision && (npv > 0)) ; 
+  const bool ak8Pt    (goodAK8Jets.size()>=2) ; 
+  const bool ak8eta   (goodAK8Jets.size()>=2 && ( abs(goodAK8Jets.at(0).getEta()) <= 2.4 && abs(goodAK8Jets.at(1).getEta()) <= 2.4) ); 
+  const bool ak8DEta  (cosThetaStar < 1.3);
+  const bool ak8Mjj   (invm > 1000.);
+  const bool ak8Mj    ((mj_0 >= 105 && mj_0 <= 135) && (mj_1 >= 105 && mj_1 <= 135) ) ; 
+  const bool ak8t21   ((t21_0 < 0.75 && t21_1 < 0.75) && (t21_0 < 0.6 || t21_1 < 0.6)); 
+  const bool evt0b    (nsjBTagged == 0) ; 
+  const bool evt1b    (nsjBTagged == 1) ; 
+  const bool evt2b    (nsjBTagged == 2) ; 
+  const bool evt3b    (nsjBTagged == 3) ; 
+  const bool evt4b    (nsjBTagged == 4) ; 
+  const bool evt3bHPHP(nsjBTagged == 3 && (t21_0 < 0.6 && t21_1 < 0.6));
+
+  //// Cut flow
   h1_["cutflow"] -> Fill(1) ; 
+  if ( hltNPV  ) h1_["cutflow"] -> Fill(2) ; 
+  if ( hltNPV && ak8Pt  ) h1_["cutflow"] -> Fill(3) ; 
+  if ( hltNPV && ak8Pt && ak8eta  ) h1_["cutflow"] -> Fill(4) ; 
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta ) h1_["cutflow"] -> Fill(5) ; 
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj  ) h1_["cutflow"] -> Fill(6) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj  ) h1_["cutflow"] -> Fill(7) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21  ) h1_["cutflow"] -> Fill(8) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt0b  ) h1_["cutflow"] -> Fill( 9) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt1b  ) h1_["cutflow"] -> Fill(10) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt2b  ) h1_["cutflow"] -> Fill(11) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3b  ) h1_["cutflow"] -> Fill(12) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt4b  ) h1_["cutflow"] -> Fill(13) ;
+  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3bHPHP) h1_["cutflow"] -> Fill(14) ;
 
-  if ( !hltdecision ) return false; 
-  
-  h1_["cutflow"] -> Fill(2) ; 
+
+  //// Event selection
+  if ( !hltNPV || !ak8Pt ) return false; 
 
   h1_["npv"] -> Fill(*h_npv.product()); 
 
-  vlq::JetCollection  goodAK8Jets , goodHTaggedJets ; 
+  //// Leading 2 jets pass Higgs tagging
+  if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
 
-  jetAK8maker(evt, goodAK8Jets); 
-  if (goodAK8Jets.size() < 2) return false;
+  vlq::JetCollection goodHTaggedJets ;
+  goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
+  goodHTaggedJets.push_back(goodAK8Jets.at(1)); 
 
-  h1_["cutflow"] -> Fill(3) ; 
-
-  if  ( abs(goodAK8Jets.at(0).getEta()) > 2.4 || abs(goodAK8Jets.at(1).getEta()) > 2.4 ) return false ;
-   
-  h1_["cutflow"] -> Fill(4) ; 
-  
-  double cosThetaStar = abs(goodAK8Jets.at(0).getEta() -  goodAK8Jets.at(1).getEta()) ; 
-  if (cosThetaStar > 1.3) return false ; 
-
-  h1_["cutflow"] -> Fill(5) ; 
-
-  TLorentzVector p4_jet0 = goodAK8Jets.at(0).getP4() ;
-  TLorentzVector p4_jet1 = goodAK8Jets.at(1).getP4() ;
-  double invm = (p4_jet0 + p4_jet1).Mag() ; 
-  if ( invm < 1000. ) return false ;
-  
-  h1_["cutflow"] -> Fill(6) ;
-
-  double mj_0(goodAK8Jets.at(0).getPrunedMass()), mj_1(goodAK8Jets.at(1).getPrunedMass()) ;
-  if ( !( (mj_0 >= 105 && mj_0 <= 135) && (mj_1 >= 105 && mj_1 <= 135) ) ) return false ; 
-
-  h1_["cutflow"] -> Fill(7) ;
-
-  double t21_0 = goodAK8Jets.at(0).getTau1() != 0 ? goodAK8Jets.at(0).getTau2() / goodAK8Jets.at(0).getTau1() : 0 ; 
-  double t21_1 = goodAK8Jets.at(1).getTau1() != 0 ? goodAK8Jets.at(1).getTau2() / goodAK8Jets.at(1).getTau1() : 0 ; 
-   
-  if ( !( (t21_0 < 0.75 && t21_1 < 0.75) && (t21_0 < 0.6 || t21_1 < 0.6) ) ) return false ; 
-
-  h1_["cutflow"] -> Fill(8) ;
-
-  int nsjBTagged( goodAK8Jets.at(0).getNSubjetsBTaggedCSVL() + goodAK8Jets.at(1).getNSubjetsBTaggedCSVL() ) ; 
-
-  if (nsjBTagged == 0) h1_["cutflow"] -> Fill( 9) ;
-  if (nsjBTagged == 1) h1_["cutflow"] -> Fill(10) ;
-  if (nsjBTagged == 2) h1_["cutflow"] -> Fill(11) ;
-  if (nsjBTagged == 3) h1_["cutflow"] -> Fill(12) ;
-  if (nsjBTagged == 4) h1_["cutflow"] -> Fill(13) ;
-
-  if ( nsjBTagged == 3 && t21_0 < 0.6 && t21_1 < 0.6 ) h1_["cutflow"] -> Fill(14) ;
-
-  return true;
-
-  for (auto ijet : index(goodAK8Jets) ) {
-    ak8jets.Index[ijet.first] = (ijet.second).getIndex() ;
-    ak8jets.ParentIndex[ijet.first] = -1 ;
-    ak8jets.Pt[ijet.first] = (ijet.second).getPt() ;
-    ak8jets.Eta[ijet.first] = (ijet.second).getEta() ;
-    ak8jets.Phi[ijet.first] = (ijet.second).getPhi() ;
-    ak8jets.Mass[ijet.first] = (ijet.second).getMass() ;
-    ak8jets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
-    ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
-    ak8jets.tau1[ijet.first] = (ijet.second).getTau1() ;
-    ak8jets.tau2[ijet.first] = (ijet.second).getTau2() ;
-    ak8jets.tau3[ijet.first] = (ijet.second).getTau3() ;
-    ak8jets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
-    ak8jets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
-    ak8jets.nhf[ijet.first] = (ijet.second).getNHF() ;
-    ak8jets.chf[ijet.first] = (ijet.second).getCHF() ;
-    ak8jets.emf[ijet.first] = (ijet.second).getEMF() ;
-    ak8jets.phf[ijet.first] = (ijet.second).getPHF() ;
-    ak8jets.muf[ijet.first] = (ijet.second).getMUF() ;
-    ak8jets.nconsts[ijet.first] = (ijet.second).getNConsts() ;
-    ak8jets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
-    ak8jets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
-    ak8jets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
-    ak8jets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
-    ak8jets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
-    ak8jets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
-    ak8jets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
-    ak8jets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
-    ak8jets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
-    ak8jets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
-    ak8jets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
-  }
+  //for (auto ijet : index(goodAK8Jets) ) {
+  //  ak8jets.Index[ijet.first] = (ijet.second).getIndex() ;
+  //  ak8jets.ParentIndex[ijet.first] = -1 ;
+  //  ak8jets.Pt[ijet.first] = (ijet.second).getPt() ;
+  //  ak8jets.Eta[ijet.first] = (ijet.second).getEta() ;
+  //  ak8jets.Phi[ijet.first] = (ijet.second).getPhi() ;
+  //  ak8jets.Mass[ijet.first] = (ijet.second).getMass() ;
+  //  ak8jets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
+  //  ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
+  //  ak8jets.tau1[ijet.first] = (ijet.second).getTau1() ;
+  //  ak8jets.tau2[ijet.first] = (ijet.second).getTau2() ;
+  //  ak8jets.tau3[ijet.first] = (ijet.second).getTau3() ;
+  //  ak8jets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
+  //  ak8jets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
+  //  ak8jets.nhf[ijet.first] = (ijet.second).getNHF() ;
+  //  ak8jets.chf[ijet.first] = (ijet.second).getCHF() ;
+  //  ak8jets.emf[ijet.first] = (ijet.second).getEMF() ;
+  //  ak8jets.phf[ijet.first] = (ijet.second).getPHF() ;
+  //  ak8jets.muf[ijet.first] = (ijet.second).getMUF() ;
+  //  ak8jets.nconsts[ijet.first] = (ijet.second).getNConsts() ;
+  //  ak8jets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
+  //  ak8jets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
+  //  ak8jets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
+  //  ak8jets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
+  //  ak8jets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
+  //  ak8jets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
+  //  ak8jets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
+  //  ak8jets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
+  //  ak8jets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
+  //  ak8jets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
+  //  ak8jets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
+  //}
 
   double btagsf(1) ;
   double btagsf_bcUp(1) ; 
@@ -210,8 +218,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double btagsf_lUp(1) ; 
   double btagsf_lDown(1) ; 
 
-  jetHTaggedmaker(evt, goodHTaggedJets);
-  if (goodHTaggedJets.size() >= 2) { 
+  //if (goodHTaggedJets.size() >= 2) { 
 
     TLorentzVector p4_hjet0 = goodHTaggedJets.at(0).getP4() ; 
     TLorentzVector p4_hjet1 = goodHTaggedJets.at(1).getP4() ; 
@@ -295,9 +302,10 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     } /// Loop over all Higgs jets
 
-  } //// If N(H jets) >= 2
+  //} //// If N(H jets) >= 2
 
   selectedevt.partonBin_ = partonBin ; 
+  selectedevt.evtwt_ = evtwt ; 
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
   selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 
@@ -307,6 +315,16 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   tree_->Fill();
 
   return true ; 
+}
+
+bool HH4b::passHiggsTagging(vlq::Jet jet) {
+  bool passHiggsTagging(0);
+  if (jet.getPt() > 200. 
+      && abs(jet.getEta() <= 2.4)
+      && abs(jet.getPrunedMass()) >= 90 
+      && (jet.getTau1() == 0. || jet.getTau2()/jet.getTau1() < 0.75)
+     ) passHiggsTagging = true ; 
+  return passHiggsTagging;
 }
 
 double HH4b::getBTagEff_CSVv2L (double pt, double jetFl) {
@@ -358,6 +376,11 @@ double HH4b::getBTagSF_CSVv2L (double pt, double jetFl, double errbc, double err
       SFl_CSVv2L->Eval(pt)*(1 - abs(errl)) + 
       (SFl_CSVv2L_errUp->Eval(pt)*abs(errl)*(1+errl)/2) + 
       (SFl_CSVv2L_errDown->Eval(pt)*abs(errl)*(1-errl)/2) ) ;  
+
+  delete SFb_CSVv2L;
+  delete SFl_CSVv2L ; 
+  delete SFl_CSVv2L_errUp ; 
+  delete SFl_CSVv2L_errDown ;
 
   return btagsf ; 
 }
