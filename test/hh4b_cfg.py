@@ -49,8 +49,8 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    'root://cmsxrootd-site.fnal.gov//store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_73.root'
-    #FileNames_BG1200
+    #'root://cmsxrootd-site.fnal.gov//store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_73.root'
+    FileNames_BG1200
     #FileNames
     ) 
     )
