@@ -9,6 +9,7 @@ class EventInfoBranches {
   public:
 
     double partonBin_; 
+    double evtwt_ ;
     double deta_leading2hjets_;
     double minv_leading2hjets_;
     double minv_leading2hjets_subtr_;
@@ -25,6 +26,7 @@ class EventInfoBranches {
 
     void RegisterTree(TTree* tree, std::string name="SelectedEvents") {
       tree->Branch((name+"_partonBin").c_str(), &partonBin_, (name+"partonBin/D").c_str()) ; 
+      tree->Branch((name+"_evtwt").c_str(), &evtwt_, (name+"evtwt/D").c_str()) ; 
       tree->Branch((name+"_deta_leading2hjets").c_str(), &deta_leading2hjets_, (name+"deta_leading2hjets/D").c_str()) ; 
       tree->Branch((name+"_minv_leading2hjets").c_str(), &minv_leading2hjets_, (name+"minv_leading2hjets/D").c_str()) ; 
       tree->Branch((name+"_minv_leading2hjets_subtr").c_str(), &minv_leading2hjets_subtr_, (name+"minv_leading2hjets_subtr/D").c_str()) ; 
@@ -42,6 +44,7 @@ class EventInfoBranches {
 
     void ReadTree(TTree* tree, std::string name="SelectedEvents") {
       tree->SetBranchAddress((name+"_partonBin").c_str(), &partonBin_) ; 
+      tree->SetBranchAddress((name+"_evtwt").c_str(), &evtwt_) ; 
       tree->SetBranchAddress((name+"_deta_leading2hjets").c_str(), &deta_leading2hjets_) ; 
       tree->SetBranchAddress((name+"_minv_leading2hjets").c_str(), &minv_leading2hjets_) ; 
       tree->SetBranchAddress((name+"_minv_leading2hjets_subtr").c_str(), &minv_leading2hjets_subtr_) ; 
