@@ -11,6 +11,7 @@ hh4b = cms.EDFilter("HH4b",
       JetIDParams         = defaultAK8JetIDParameters.clone(
         quality = cms.string("TIGHT"),       
         ),
+      jettype      = cms.string('HTAGGEDAK8JET'),
       jetPtMin     = cms.double(200),
       jetAbsEtaMax = cms.double(100), 
       jerShift     = cms.int32(1), 
