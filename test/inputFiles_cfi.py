@@ -1,3 +1,16 @@
+FileName_QCD_HT500to2000 = [
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_1.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_10.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_100.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_101.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_102.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_103.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_104.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_105.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_106.root',
+    '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_107.root',
+    ]
+
 FileNames_TprimeBToTH_M1000=[
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003704/0000/B2GEDMNtuple_1.root',
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003704/0000/B2GEDMNtuple_2.root',
@@ -5,9 +18,9 @@ FileNames_TprimeBToTH_M1000=[
     ]
 
 FileNames_TprimeBToTH_M1200=[
-    '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003718/0000/B2GEDMNtuple_1.root',
-    '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003718/0000/B2GEDMNtuple_2.root',
-    '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003718/0000/B2GEDMNtuple_3.root',
+    '/store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_1.root',
+    '/store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_2.root',
+    '/store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_3.root',
     ]
 
 FileNames_TprimeBToTH_M1500=[
@@ -1072,4 +1085,5 @@ Filenames_DoubleEle_CR_Zelel = [
 ### Do not change or remove the following lines
 FileNames=[
     ]
+
 

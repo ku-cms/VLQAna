@@ -33,6 +33,16 @@ options.register('jerShift', 1,
     VarParsing.varType.int,
     "JER shift"
     )
+options.register('topTagtau32', 0.69,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "Top-tagging tau32 cut"
+    )
+options.register('topTagBDisc', 0.66,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "Top-tagging b-discriminator cut"
+    )
 
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
@@ -51,7 +61,8 @@ process = cms.Process("VLQAna")
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      FileNames_TprimeBToTH_M1800
+      #FileNames_TprimeBToTH_M1200
+      FileName_QCD_HT500to2000
       )
     )
 
@@ -80,16 +91,24 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.isData = options.isData 
+process.evtcleaner.cleanEvents = cms.bool(True)
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
 process.ana.doBTagSFUnc = options.doBTagSFUnc
-process.ana.jetAK4selParams.jecUncPayloadNames = cms.vstring('Summer15_25nsV6_MC_Uncertainty_AK4PFchs.txt')
 process.ana.jetAK4selParams.jecShift = options.jecShift 
 process.ana.jetAK4selParams.jerShift = options.jerShift 
 process.ana.jetAK8selParams.jecShift = options.jecShift 
 process.ana.jetAK8selParams.jerShift = options.jerShift 
+process.ana.jetHTaggedselParams.jecShift = options.jecShift 
+process.ana.jetHTaggedselParams.jerShift = options.jerShift 
+process.ana.jetTopTaggedselParams.jecShift = options.jecShift 
+process.ana.jetTopTaggedselParams.jerShift = options.jerShift 
+process.ana.jetAntiHTaggedselParams.jecShift = options.jecShift 
+process.ana.jetAntiHTaggedselParams.jerShift = options.jerShift 
+process.ana.jetTopTaggedselParams.jettau3Bytau2Max = options.topTagtau32
+process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
 
 process.p = cms.Path(
     process.allEvents
@@ -101,4 +120,4 @@ process.p = cms.Path(
 
 process.outpath = cms.EndPath(process.out)
 
-#open('dump.py','w').write(process.dumpPython())
+open('dump.py','w').write(process.dumpPython())

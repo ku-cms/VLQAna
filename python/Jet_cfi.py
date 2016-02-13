@@ -64,16 +64,8 @@ defaultJetSubstructureParameters = cms.PSet(
     jetTrimmedMassLabel     = cms.InputTag("jetsAK8", "jetAK8trimmedMass"),
     jetFilteredMassLabel    = cms.InputTag("jetsAK8", "jetAK8filteredMass"),
     jetSoftDropMassLabel    = cms.InputTag("jetsAK8", "jetAK8softDropMass"),
-    jettopMassLabel         = cms.InputTag("jetsAK8", "jetAK8topMass"),
-    jetWMassLabel           = cms.InputTag("jetsAK8", "jetAK8wMass"),
-    jetminMassLabel         = cms.InputTag("jetsAK8", "jetAK8minmass"),  
-    jetnSubJetsLabel        = cms.InputTag("jetsAK8", "jetAK8nSubJets"),  
     vjetsjIdx0Label         = cms.InputTag("jetsAK8", "jetAK8vSubjetIndex0"),  
     vjetsjIdx1Label         = cms.InputTag("jetsAK8", "jetAK8vSubjetIndex1"),  
-    tjetsjIdx0Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex0"),  
-    tjetsjIdx1Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex1"),  
-    tjetsjIdx2Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex2"),  
-    tjetsjIdx3Label         = cms.InputTag("jetsAK8", "jetAK8topSubjetIndex3"),  
     )
 
 defaultSubjetParameters = cms.PSet(
@@ -87,17 +79,4 @@ defaultSubjetParameters = cms.PSet(
     jetGenJetPtLabel        = cms.InputTag("subjetsAK8", "subjetAK8GenJetPt"),
     jetGenJetEtaLabel       = cms.InputTag("subjetsAK8", "subjetAK8GenJetEta"),
     jetGenJetPhiLabel       = cms.InputTag("subjetsAK8", "subjetAK8GenJetPhi"),
-    )
-
-defaultTopTaggedSubjetParameters = cms.PSet(
-    jetPtLabel              = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPt"),
-    jetEtaLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagEta"),
-    jetPhiLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPhi"),
-    jetMassLabel            = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagMass"),
-    jetCSVLabel             = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagCSV"),
-    jetPartonFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagPartonFlavour"),
-    jetHadronFlavourLabel   = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagHadronFlavour"),
-    jetGenJetPtLabel        = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagGenJetPt"),
-    jetGenJetEtaLabel       = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagGenJetEta"),
-    jetGenJetPhiLabel       = cms.InputTag("subjetsCmsTopTag", "subjetCmsTopTagGenJetPhi"),
     )

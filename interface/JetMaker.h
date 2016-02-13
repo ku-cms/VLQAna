@@ -21,11 +21,12 @@ using namespace edm ;
 
 class JetMaker { 
   public:
-    enum JETTYPES_t { AK4JET, AK8JET, HTAGGEDAK8JET, CMSTOPTAGGEDAK8JET, PRUNEDSUBJET, N_JETTYPES} ; 
+    enum JETTYPES_t { AK4JET, AK8JET, N_JETTYPES} ; 
     JetMaker () ; 
     ~JetMaker () ; 
     JetMaker (edm::ParameterSet const&) ;
-    void operator()(edm::Event&, vlq::JetCollection&) ;
+    void operator()(edm::Event& evt, vlq::JetCollection& jetOut) ;
+    void operator()(vlq::JetCollection jetsIn, vlq::JetCollection& jetsOut) ;
 
   private:
     JETTYPES_t type_ ; 
@@ -54,16 +55,15 @@ class JetMaker {
     double idxjetPrunedMassMax_  ; 
     double idxjetTrimmedMassMin_ ; 
     double idxjetTrimmedMassMax_ ; 
-    double idxjetWMassMin_       ; 
-    double idxjetWMassMax_       ; 
-    double idxjetTopMassMin_     ; 
-    double idxjetTopMassMax_     ; 
-    double idxjetMinMassMin_     ; 
-    double idxjetMinMassMax_     ; 
+    double idxjetSoftDropMassMin_; 
+    double idxjetSoftDropMassMax_; 
     double idxjetnSubJetsMin_    ; 
     double idxjetnSubJetsMax_    ; 
     double idxsjMassMin_         ; 
     double idxsjCSVMin_          ; 
+    double idxsjCSVMax_          ; 
+    double idxsjHighestCSVMin_   ; 
+    double idxsjHighestCSVMax_   ; 
     double btaggedcsvlOP_        ; 
     double btaggedcsvmOP_        ; 
     double btaggedcsvtOP_        ; 
@@ -98,16 +98,9 @@ class JetMaker {
     edm::InputTag l_jetTrimmedMass     ; 
     edm::InputTag l_jetFilteredMass    ; 
     edm::InputTag l_jetSoftDropMass    ; 
-    edm::InputTag l_jetwMass           ; 
-    edm::InputTag l_jettopMass         ; 
-    edm::InputTag l_jetminMass         ; 
     edm::InputTag l_jetnSubJets        ; 
     edm::InputTag l_vjetsjIdx0         ; 
     edm::InputTag l_vjetsjIdx1         ; 
-    edm::InputTag l_tjetsjIdx0         ; 
-    edm::InputTag l_tjetsjIdx1         ; 
-    edm::InputTag l_tjetsjIdx2         ; 
-    edm::InputTag l_tjetsjIdx3         ; 
     edm::InputTag l_ak8sjHadFl         ; 
     edm::InputTag l_ak8sjPt            ; 
     edm::InputTag l_ak8sjEta           ; 
