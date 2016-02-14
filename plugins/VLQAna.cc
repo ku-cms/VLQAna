@@ -59,6 +59,7 @@ class VLQAna : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
+    double getHTReweightingSF(double ht, double err); 
     double getBTagEff_CSVv2L (double pt, double hadFl) ; 
     double getBTagSF_CSVv2L (double pt, double hadFl, double err_bc, double err_l) ; 
 
@@ -125,6 +126,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const bool isData(*h_isData.product()) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
+  int npv(*h_npv.product()) ; 
 
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
@@ -220,34 +222,35 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (isOneOfABCD == false) edm::LogInfo("ERROR ABCD") << ">>>> Check ABCD logic: Only one of A, B C, D should be true\n" ; 
 
   if ( theHiggs != nullptr ) h1_["cutflow"] -> Fill(6, evtwt) ; 
-  if ( theHiggs != nullptr && theTop != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
+  if ( theTop != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
+  if ( isRegionA ) h1_["cutflow"] -> Fill(8, evtwt) ; 
+  if ( isRegionB ) h1_["cutflow"] -> Fill(9, evtwt) ; 
+  if ( isRegionC ) h1_["cutflow"] -> Fill(10, evtwt) ; 
+  if ( isRegionD ) h1_["cutflow"] -> Fill(11, evtwt) ; 
 
   TLorentzVector p4_tprime, p4_TprimeDummy ; 
-  double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0) ; 
+  double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0), MtprimeDummy_corr(0) ; 
 
   if (isRegionD) {
     p4_tprime = theTop->getP4() + theHiggs->getP4() ; 
-    double Mtprime = p4_tprime.Mag();
-    double Mtprime_corr = Mtprime - theTop->getSoftDropMass() - theHiggs->getPrunedMass() + 172.5 + 125. ; 
-    h1_["mtprime"] -> Fill(Mtprime, evtwt) ; 
-    h1_["mtprime_corr"] -> Fill(Mtprime_corr, evtwt) ; 
+    Mtprime = p4_tprime.Mag();
+    Mtprime_corr = Mtprime - theTop->getSoftDropMass() - theHiggs->getPrunedMass() + 172.5 + 125. ; 
   }
   else if (isRegionB) {
     p4_TprimeDummy = theTop->getP4() + theAntiHiggs->getP4() ; 
     MtprimeDummy = p4_TprimeDummy.Mag() ; 
+    MtprimeDummy_corr = MtprimeDummy - theTop->getSoftDropMass() - theAntiHiggs->getPrunedMass() + 172.5 + 125. ; 
   }
 
-  double toptagsf(1);
-  double toptagsfUp(1);
-  double toptagsfDown(1);
-
-  double btagsf(1) ; 
-  double btagsf_bcUp(1) ; 
-  double btagsf_bcDown(1) ; 
-  double btagsf_lUp(1) ; 
-  double btagsf_lDown(1) ; 
+  double evtwtHT(1), evtwtHTUp(1), evtwtHTDown(1);
+  double toptagsf(1), toptagsfUp(1), toptagsfDown(1);
+  double btagsf(1), btagsf_bcUp(1), btagsf_bcDown(1), btagsf_lUp(1), btagsf_lDown(1) ; 
 
   if ( !isData ) { 
+
+    evtwtHT = getHTReweightingSF(htak4.getHT(), 0) ; 
+    evtwtHTUp = getHTReweightingSF(htak4.getHT(), 1) ; 
+    evtwtHTDown = getHTReweightingSF(htak4.getHT(), -1) ; 
 
     if ( theTop != nullptr && theTop->getPt() >= 400. && theTop->getPt() < 550.) {
       toptagsf = 0.88 ;
@@ -275,9 +278,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       if ( sj1csv > 0.605 ) btagsf *= getBTagSF_CSVv2L(sj1pt, sj1fl, 0, 0) ; 
       else btagsf *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
 
-      h1_["mtprime_btagsf"] -> Fill(Mtprime, evtwt*btagsf) ; 
-      h1_["mtprime_corr_btagsf"] -> Fill(Mtprime_corr, evtwt*btagsf) ; 
-
       if (doBTagSFUnc_) {
         //// Get btag SF up bc err
         if ( sj0csv > 0.605 ) btagsf_bcUp *= getBTagSF_CSVv2L(sj0pt, sj0fl,1,0) ; 
@@ -301,23 +301,86 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         if ( sj1csv > 0.605 ) btagsf_lDown *= getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1) ; 
         else btagsf_lDown *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
 
-        //  h1_["mtprime_btagsf_bcUp"] -> Fill(Mtprime, evtwt*btagsf_bcUp) ; 
-        //  h1_["mtprime_corr_btagsf_bcUp"] -> Fill(Mtprime_corr, evtwt*btagsf_bcUp) ; 
-
-        //  h1_["mtprime_btagsf_bcDown"] -> Fill(Mtprime, evtwt*btagsf_bcDown) ; 
-        //  h1_["mtprime_corr_btagsf_bcDown"] -> Fill(Mtprime_corr, evtwt*btagsf_bcDown) ; 
-
-        //  h1_["mtprime_btagsf_lUp"] -> Fill(Mtprime, evtwt*btagsf_lUp) ; 
-        //  h1_["mtprime_corr_btagsf_lUp"] -> Fill(Mtprime_corr, evtwt*btagsf_lUp) ; 
-
-        //  h1_["mtprime_btagsf_lDown"] -> Fill(Mtprime, evtwt*btagsf_lDown) ; 
-        //  h1_["mtprime_corr_btagsf_lDown"] -> Fill(Mtprime_corr, evtwt*btagsf_lDown) ; 
       }
     }
   }
 
-  selectedevt_.EvtWeight_ = evtwt;
-  selectedevt_.npv_ = *h_npv.product() ; 
+  if ( isRegionB ) {
+    h1_["RegB_HT"] -> Fill(htak4.getHT(), evtwt) ; 
+    h1_["RegB_HT_wts"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf) ; 
+    h1_["RegB_HT_btagsf_bcUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
+    h1_["RegB_HT_btagsf_bcDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
+    h1_["RegB_HT_btagsf_lUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
+    h1_["RegB_HT_btagsf_lDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
+    h1_["RegB_HT_toptagsfUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*evtwtHT*btagsf) ; 
+    h1_["RegB_HT_toptagsfDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*evtwtHT*btagsf) ; 
+    h1_["RegB_HT_htwtUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTUp*btagsf) ; 
+    h1_["RegB_HT_htwtDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+
+    h1_["RegB_mtprime"] -> Fill(MtprimeDummy, evtwt) ; 
+    h1_["RegB_mtprime_wts"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf) ; 
+    h1_["RegB_mtprime_btagsf_bcUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
+    h1_["RegB_mtprime_btagsf_bcDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
+    h1_["RegB_mtprime_btagsf_lUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
+    h1_["RegB_mtprime_btagsf_lDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
+    h1_["RegB_mtprime_toptagsfUp"] -> Fill(MtprimeDummy, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
+    h1_["RegB_mtprime_toptagsfDown"] -> Fill(MtprimeDummy, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
+    h1_["RegB_mtprime_htwtUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
+    h1_["RegB_mtprime_htwtDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+
+    h1_["RegB_mtprime_corr"] -> Fill(MtprimeDummy_corr, evtwt) ; 
+    h1_["RegB_mtprime_corr_wts"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf) ; 
+    h1_["RegB_mtprime_corr_btagsf_bcUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
+    h1_["RegB_mtprime_corr_btagsf_bcDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
+    h1_["RegB_mtprime_corr_btagsf_lUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
+    h1_["RegB_mtprime_corr_btagsf_lDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
+    h1_["RegB_mtprime_corr_toptagsfUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
+    h1_["RegB_mtprime_corr_toptagsfDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
+    h1_["RegB_mtprime_corr_htwtUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
+    h1_["RegB_mtprime_corr_htwtDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+  }
+
+  if ( isRegionD ) {
+    h1_["RegD_HT"] -> Fill(htak4.getHT(), evtwt) ; 
+    h1_["RegD_HT_wts"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf) ; 
+    h1_["RegD_HT_btagsf_bcUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
+    h1_["RegD_HT_btagsf_bcDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
+    h1_["RegD_HT_btagsf_lUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
+    h1_["RegD_HT_btagsf_lDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
+    h1_["RegD_HT_toptagsfUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*evtwtHT*btagsf) ; 
+    h1_["RegD_HT_toptagsfDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*evtwtHT*btagsf) ; 
+    h1_["RegD_HT_htwtUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTUp*btagsf) ; 
+    h1_["RegD_HT_htwtDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+
+    h1_["RegD_mtprime"] -> Fill(Mtprime, evtwt) ; 
+    h1_["RegD_mtprime_wts"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf) ; 
+    h1_["RegD_mtprime_btagsf_bcUp"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
+    h1_["RegD_mtprime_btagsf_bcDown"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
+    h1_["RegD_mtprime_btagsf_lUp"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
+    h1_["RegD_mtprime_btagsf_lDown"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
+    h1_["RegD_mtprime_toptagsfUp"] -> Fill(Mtprime, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
+    h1_["RegD_mtprime_toptagsfDown"] -> Fill(Mtprime, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
+    h1_["RegD_mtprime_htwtUp"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
+    h1_["RegD_mtprime_htwtDown"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+
+    h1_["RegD_mtprime_corr"] -> Fill(Mtprime_corr, evtwt) ; 
+    h1_["RegD_mtprime_corr_wts"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf) ; 
+    h1_["RegD_mtprime_corr_btagsf_bcUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
+    h1_["RegD_mtprime_corr_btagsf_bcDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
+    h1_["RegD_mtprime_corr_btagsf_lUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
+    h1_["RegD_mtprime_corr_btagsf_lDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
+    h1_["RegD_mtprime_corr_toptagsfUp"] -> Fill(Mtprime_corr, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
+    h1_["RegD_mtprime_corr_toptagsfDown"] -> Fill(Mtprime_corr, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
+    h1_["RegD_mtprime_corr_htwtUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
+    h1_["RegD_mtprime_corr_htwtDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+  }
+
+  selectedevt_.EvtWeight_ = double(*h_evtwtGen.product());
+  selectedevt_.EvtWtPV_ = double(*h_evtwtPV.product()) ; 
+  selectedevt_.EvtWtHT_ = evtwtHT;
+  selectedevt_.EvtWtHTUp_ = evtwtHTUp;
+  selectedevt_.EvtWtHTDown_ = evtwtHTDown;
+  selectedevt_.npv_ = npv ; 
   selectedevt_.toptagsf_ = toptagsf ; 
   selectedevt_.toptagsf_Up_ = toptagsfUp ; 
   selectedevt_.toptagsf_Down_ = toptagsfDown ; 
@@ -329,6 +392,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.mtprime_ = Mtprime ;
   selectedevt_.mtprimeDummy_ = MtprimeDummy ;
   selectedevt_.ht_ = htak4.getHT();
+  selectedevt_.nAK4_ = int(nAK4);
+  selectedevt_.nAK8_ = int(nAK8);
   selectedevt_.isRegionA_ = isRegionA ; 
   selectedevt_.isRegionB_ = isRegionB ; 
   selectedevt_.isRegionC_ = isRegionC ; 
@@ -520,7 +585,7 @@ void VLQAna::beginJob() {
   selectedevt_.RegisterTree(tree_,"SelectedEvent") ; 
   jets_.RegisterTree(tree_,"JetInfo") ; 
 
-  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 7, 0.5, 7.5) ;  
+  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 11, 0.5, 11.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1,  "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2,  "Trig.+PV") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3,  "N(AK4)>=4") ; 
@@ -528,33 +593,81 @@ void VLQAna::beginJob() {
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5,  "N(AK8)>=1") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6,  "N(H)>0") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7,  "N(top)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8,  "RegionA") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9,  "RegionB") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "RegionC") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "RegionD") ; 
 
   h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
 
-  h1_["mtprime"] = fs->make<TH1D>("mtprime", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_scaled"] = fs->make<TH1D>("mtprime_scaled", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_corr"] = fs->make<TH1D>("mtprime_corr", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["RegD_HT"] = fs->make<TH1D>("RegD_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_wts"] = fs->make<TH1D>("RegD_HT_wts", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_btagsf_bcUp"] = fs->make<TH1D>("RegD_HT_btagsf_bcUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_btagsf_bcDown"] = fs->make<TH1D>("RegD_HT_btagsf_bcDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_btagsf_lUp"] = fs->make<TH1D>("RegD_HT_btagsf_lUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_btagsf_lDown"] = fs->make<TH1D>("RegD_HT_btagsf_lDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_toptagsfUp"] = fs->make<TH1D>("RegD_HT_toptagsfUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_toptagsfDown"] = fs->make<TH1D>("RegD_HT_toptagsfDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_htwtUp"] = fs->make<TH1D>("RegD_HT_htwtUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegD_HT_htwtDown"] = fs->make<TH1D>("RegD_HT_htwtDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
 
-  h1_["mtprime_btagsf"] = fs->make<TH1D>("mtprime_btagsf", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_scaled_btagsf"] = fs->make<TH1D>("mtprime_scaled_btagsf", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_corr_btagsf"] = fs->make<TH1D>("mtprime_corr_btagsf", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["RegB_HT"] = fs->make<TH1D>("RegB_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_wts"] = fs->make<TH1D>("RegB_HT_wts", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_btagsf_bcUp"] = fs->make<TH1D>("RegB_HT_btagsf_bcUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_btagsf_bcDown"] = fs->make<TH1D>("RegB_HT_btagsf_bcDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_btagsf_lUp"] = fs->make<TH1D>("RegB_HT_btagsf_lUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_btagsf_lDown"] = fs->make<TH1D>("RegB_HT_btagsf_lDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_toptagsfUp"] = fs->make<TH1D>("RegB_HT_toptagsfUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_toptagsfDown"] = fs->make<TH1D>("RegB_HT_toptagsfDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_htwtUp"] = fs->make<TH1D>("RegB_HT_htwtUp", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+  h1_["RegB_HT_htwtDown"] = fs->make<TH1D>("RegB_HT_htwtDown", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
 
-  h1_["mtprime_btagsf_bcUp"] = fs->make<TH1D>("mtprime_btagsf_bcUp", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_scaled_btagsf_bcUp"] = fs->make<TH1D>("mtprime_scaled_btagsf_bcUp", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_corr_btagsf_bcUp"] = fs->make<TH1D>("mtprime_corr_btagsf_bcUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+  //////////
 
-  h1_["mtprime_btagsf_bcDown"] = fs->make<TH1D>("mtprime_btagsf_bcDown", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_scaled_btagsf_bcDown"] = fs->make<TH1D>("mtprime_scaled_btagsf_bcDown", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_corr_btagsf_bcDown"] = fs->make<TH1D>("mtprime_corr_btagsf_bcDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["RegD_mtprime"] = fs->make<TH1D>("RegD_mtprime", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_wts"] = fs->make<TH1D>("RegD_mtprime_wts", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_btagsf_bcUp"] = fs->make<TH1D>("RegD_mtprime_btagsf_bcUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_btagsf_bcDown"] = fs->make<TH1D>("RegD_mtprime_btagsf_bcDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_btagsf_lUp"] = fs->make<TH1D>("RegD_mtprime_btagsf_lUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_btagsf_lDown"] = fs->make<TH1D>("RegD_mtprime_btagsf_lDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_toptagsfUp"] = fs->make<TH1D>("RegD_mtprime_toptagsfUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_toptagsfDown"] = fs->make<TH1D>("RegD_mtprime_toptagsfDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_htwtUp"] = fs->make<TH1D>("RegD_mtprime_htwtUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_htwtDown"] = fs->make<TH1D>("RegD_mtprime_htwtDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
 
-  h1_["mtprime_btagsf_lUp"] = fs->make<TH1D>("mtprime_btagsf_lUp", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_scaled_btagsf_lUp"] = fs->make<TH1D>("mtprime_scaled_btagsf_lUp", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_corr_btagsf_lUp"] = fs->make<TH1D>("mtprime_corr_btagsf_lUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["RegD_mtprime_corr"] = fs->make<TH1D>("RegD_mtprime_corr", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_wts"] = fs->make<TH1D>("RegD_mtprime_corr_wts", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_btagsf_bcUp"] = fs->make<TH1D>("RegD_mtprime_corr_btagsf_bcUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_btagsf_bcDown"] = fs->make<TH1D>("RegD_mtprime_corr_btagsf_bcDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_btagsf_lUp"] = fs->make<TH1D>("RegD_mtprime_corr_btagsf_lUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_btagsf_lDown"] = fs->make<TH1D>("RegD_mtprime_corr_btagsf_lDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_toptagsfUp"] = fs->make<TH1D>("RegD_mtprime_corr_toptagsfUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_toptagsfDown"] = fs->make<TH1D>("RegD_mtprime_corr_toptagsfDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegD_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegD_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegD_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
 
-  h1_["mtprime_btagsf_lDown"] = fs->make<TH1D>("mtprime_btagsf_lDown", "M(T) without any correction;M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_scaled_btagsf_lDown"] = fs->make<TH1D>("mtprime_scaled_btagsf_lDown", "M(T) with Higgs and top p4 scaled to M(H) and M(top);M(T) [GeV];;",40,500,2500) ; 
-  h1_["mtprime_corr_btagsf_lDown"] = fs->make<TH1D>("mtprime_corr_btagsf_lDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",40,500,2500) ; 
+  h1_["RegB_mtprime"] = fs->make<TH1D>("RegB_mtprime", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_wts"] = fs->make<TH1D>("RegB_mtprime_wts", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_btagsf_bcUp"] = fs->make<TH1D>("RegB_mtprime_btagsf_bcUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_btagsf_bcDown"] = fs->make<TH1D>("RegB_mtprime_btagsf_bcDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_btagsf_lUp"] = fs->make<TH1D>("RegB_mtprime_btagsf_lUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_btagsf_lDown"] = fs->make<TH1D>("RegB_mtprime_btagsf_lDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_toptagsfUp"] = fs->make<TH1D>("RegB_mtprime_toptagsfUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_toptagsfDown"] = fs->make<TH1D>("RegB_mtprime_toptagsfDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_htwtUp"] = fs->make<TH1D>("RegB_mtprime_htwtUp", "M(T);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_htwtDown"] = fs->make<TH1D>("RegB_mtprime_htwtDown", "M(T);M(T) [GeV];;",80,500,2500) ; 
+
+  h1_["RegB_mtprime_corr"] = fs->make<TH1D>("RegB_mtprime_corr", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_wts"] = fs->make<TH1D>("RegB_mtprime_corr_wts", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_btagsf_bcUp"] = fs->make<TH1D>("RegB_mtprime_corr_btagsf_bcUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_btagsf_bcDown"] = fs->make<TH1D>("RegB_mtprime_corr_btagsf_bcDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_btagsf_lUp"] = fs->make<TH1D>("RegB_mtprime_corr_btagsf_lUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_btagsf_lDown"] = fs->make<TH1D>("RegB_mtprime_corr_btagsf_lDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_toptagsfUp"] = fs->make<TH1D>("RegB_mtprime_corr_toptagsfUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_toptagsfDown"] = fs->make<TH1D>("RegB_mtprime_corr_toptagsfDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegB_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+  h1_["RegB_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegB_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
 
   //h1_["ptak8leading"]  = fs->make<TH1D>("ptak8leading"  ,";p_T(leading AK8 jet) [GeV];;"      , 40, 0., 2000.) ; 
   //h1_["ptak4leading"]  = fs->make<TH1D>("ptak4leading"  ,";p_T(leading AK4 jet) [GeV];;"      , 40, 0., 2000.) ; 
@@ -658,6 +771,16 @@ void VLQAna::beginJob() {
 // ------------ method called once each job just after ending the event loop  ------------
 void VLQAna::endJob() {
   return ; 
+}
+
+double VLQAna::getHTReweightingSF(double ht, double err) {
+  double wt(1);
+  std::unique_ptr<TF1> htReweightFun     = std::unique_ptr<TF1>(new TF1("htReweightFun", "1.4568 - (2.793*x/10000)",1000, 10000)) ; 
+  std::unique_ptr<TF1> htReweightFunErr  = std::unique_ptr<TF1>(new TF1("htReweightFunErr", 
+        "TMath::Sqrt((0.04508*0.04508) + ((0.2349*x/10000)*(0.2349*x/10000)) + 2*0.04508*(0.2349*x/10000))", 
+        1000, 10000)) ;
+  wt = htReweightFun->Eval(ht) + (err*htReweightFunErr->Eval(ht)) ; 
+  return wt;
 }
 
 double VLQAna::getBTagEff_CSVv2L (double pt, double jetFl) {
