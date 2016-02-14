@@ -92,6 +92,7 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.isData = options.isData 
+process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
 process.ana.doBTagSFUnc = options.doBTagSFUnc
