@@ -33,12 +33,12 @@ options.register('jerShift', 1,
     VarParsing.varType.int,
     "JER shift"
     )
-options.register('topTagtau32', 0.69,
+options.register('topTagtau32', 0.54,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.float,
     "Top-tagging tau32 cut"
     )
-options.register('topTagBDisc', 0.66,
+options.register('topTagBDisc', 0.79,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.float,
     "Top-tagging b-discriminator cut"
@@ -61,8 +61,8 @@ process = cms.Process("VLQAna")
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      #FileNames_TprimeBToTH_M1200
-      FileName_QCD_HT500to2000
+      FileNames_TprimeBToTH_M1200
+      #FileName_QCD_HT500to2000
       )
     )
 
@@ -74,15 +74,15 @@ process.TFileService = cms.Service("TFileService",
       )
     )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("Events_"+options.outFileName+".root"),
-    SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('p')
-      ),
-    outputCommands = cms.untracked.vstring(
-      "drop *",
-      )
-    )
+#process.out = cms.OutputModule("PoolOutputModule",
+#    fileName = cms.untracked.string("Events_"+options.outFileName+".root"),
+#    SelectEvents = cms.untracked.PSet(
+#      SelectEvents = cms.vstring('p')
+#      ),
+#    outputCommands = cms.untracked.vstring(
+#      "drop *",
+#      )
+#    )
 
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
@@ -90,10 +90,8 @@ process.cleanedEvents = eventCounter.clone(isData=options.isData)
 process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.load("Analysis.VLQAna.EventCleaner_cff") 
-process.evtcleaner.isData = options.isData 
-process.evtcleaner.cleanEvents = cms.bool(True)
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
-process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
+process.evtcleaner.isData = options.isData 
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
 process.ana.doBTagSFUnc = options.doBTagSFUnc
@@ -118,6 +116,6 @@ process.p = cms.Path(
     *process.finalEvents
     )
 
-process.outpath = cms.EndPath(process.out)
+#process.outpath = cms.EndPath(process.out)
 
 open('dump.py','w').write(process.dumpPython())
