@@ -184,10 +184,12 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   double evtwtPV(1.0) ;
-  if ( !isData_ && doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
-  else if ( !isData_ && doPUReweightingOfficial_ ) { 
-    int npuTrue(*h_puNtrueInt) ; 
-    evtwtPV *= LumiWeights_.weight(npuTrue) ; 
+  if ( !isData_ ) {
+    if ( doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
+    else if ( doPUReweightingOfficial_ ) { 
+      int npuTrue(*h_puNtrueInt) ; 
+      evtwtPV *= LumiWeights_.weight(npuTrue) ; 
+    }
   }
 
   string evttype(isData_ ? "EvtType_Data" : "EvtType_MC");
