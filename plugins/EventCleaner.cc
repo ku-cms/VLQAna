@@ -103,6 +103,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   if (doPUReweightingOfficial_) LumiWeights_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_, hist_PUDistMC_, hist_PUDistData_) ;
   t_lheProd = consumes<LHEEventProduct>(l_lheProd) ; 
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
+  produces<bool>("isData");
   produces<bool>("hltdecision");
   produces<std::string>("evttype"); 
   produces<double>("evtwtGen");
@@ -223,6 +224,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     if ( vlqBbH.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bHtW" ; 
   }
 
+  auto_ptr<bool>ptr_isData(new bool(isData_)); 
   auto_ptr<bool>ptr_hltdecision(new bool(hltdecision)); 
   auto_ptr<string>ptr_evttype(new string(evttype)); 
   auto_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
@@ -230,6 +232,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   auto_ptr<unsigned>ptr_npv(new unsigned(npv)); 
   auto_ptr<double>ptr_partonBin(new double(partonBin)); 
 
+  evt.put(ptr_isData, "isData");
   evt.put(ptr_hltdecision, "hltdecision");
   evt.put(ptr_evttype, "evttype");
   evt.put(ptr_evtwtGen, "evtwtGen");
