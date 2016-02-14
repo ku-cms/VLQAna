@@ -8,7 +8,11 @@ class TtHEventInfoBranches {
   public:
 
     double EvtWeight_ ; 
-    double npv_;
+    double EvtWtPV_;
+    double EvtWtHT_;
+    double EvtWtHTUp_;
+    double EvtWtHTDown_;
+    int    npv_;
     double toptagsf_;
     double toptagsf_Up_;
     double toptagsf_Down_;
@@ -20,6 +24,8 @@ class TtHEventInfoBranches {
     double mtprime_;
     double mtprimeDummy_;
     double ht_ ; 
+    int    nAK4_;
+    int    nAK8_;
     bool   isRegionA_;
     bool   isRegionB_;
     bool   isRegionC_;
@@ -27,8 +33,11 @@ class TtHEventInfoBranches {
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
       cutTree->Branch("EvtWeight", &EvtWeight_, "EvtWeight/D");
+      cutTree->Branch("EvtWtPV", &EvtWtPV_, "EvtWtPV/D");
+      cutTree->Branch("EvtWtHT", &EvtWtHT_, "EvtWtHT/D");
+      cutTree->Branch("EvtWtHTUp", &EvtWtHTUp_, "EvtWtHTUp/D");
+      cutTree->Branch("EvtWtHTDown", &EvtWtHTDown_, "EvtWtHTDown/D");
       cutTree->Branch("npv",&npv_, "npv/I");
-      cutTree->Branch("mtprime",&mtprime_, "mtprime/D");
       cutTree->Branch("toptagsf",&toptagsf_, "toptagsf/D");
       cutTree->Branch("toptagsf_Up",&toptagsf_Up_, "toptagsf_Up/D");
       cutTree->Branch("toptagsf_Down",&toptagsf_Down_, "toptagsf_Down/D");
@@ -40,6 +49,8 @@ class TtHEventInfoBranches {
       cutTree->Branch("mtprime",&mtprime_, "mtprime/D");
       cutTree->Branch("mtprimeDummy",&mtprimeDummy_, "mtprimeDummy/D");
       cutTree->Branch("ht",&ht_, "ht/D");
+      cutTree->Branch("nAK4",&nAK4_, "nAK4/I");
+      cutTree->Branch("nAK8",&nAK8_, "nAK8/I");
       cutTree->Branch("isRegionA",&isRegionA_, "isRegionA/O");
       cutTree->Branch("isRegionB",&isRegionB_, "isRegionB/O");
       cutTree->Branch("isRegionC",&isRegionC_, "isRegionC/O");
