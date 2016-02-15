@@ -43,6 +43,11 @@ options.register('topTagBDisc', 0.79,
     VarParsing.varType.float,
     "Top-tagging b-discriminator cut"
     )
+options.register('doPreselOnly', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Only run pre-selections"
+    )
 
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
@@ -108,6 +113,7 @@ process.ana.jetAntiHTaggedselParams.jecShift = options.jecShift
 process.ana.jetAntiHTaggedselParams.jerShift = options.jerShift 
 process.ana.jetTopTaggedselParams.jettau3Bytau2Max = options.topTagtau32
 process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
+process.ana.doPreselOnly = options.doPreselOnly
 
 process.p = cms.Path(
     process.allEvents

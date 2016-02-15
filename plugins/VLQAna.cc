@@ -79,6 +79,7 @@ class VLQAna : public edm::EDFilter {
 
     double HTMin_                                ; 
     bool   doBTagSFUnc_                          ; 
+    bool   doPreselOnly_                         ; 
 
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
@@ -105,7 +106,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams")),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedselParams")), 
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
-  doBTagSFUnc_            (iConfig.getParameter<bool>              ("doBTagSFUnc")) 
+  doBTagSFUnc_            (iConfig.getParameter<bool>              ("doBTagSFUnc")),
+  doPreselOnly_           (iConfig.getParameter<bool>              ("doPreselOnly")) 
 {
 
 }
@@ -153,6 +155,27 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
   h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
+
+  if ( doPreselOnly_ ) { 
+    h1_["Presel_HT"] -> Fill(htak4.getHT(), evtwt) ; 
+
+    h1_["Presel_ptAK4_0"] -> Fill (goodAK4Jets.at(0).getPt(),evtwt) ;  
+    h1_["Presel_ptAK4_1"] -> Fill (goodAK4Jets.at(1).getPt(),evtwt) ;  
+    h1_["Presel_ptAK4_2"] -> Fill (goodAK4Jets.at(2).getPt(),evtwt) ;  
+    h1_["Presel_ptAK4_3"] -> Fill (goodAK4Jets.at(3).getPt(),evtwt) ;  
+    h1_["Presel_ptAK8_0"] -> Fill (goodAK8Jets.at(0).getPt(),evtwt) ;  
+
+    h1_["Presel_etaAK4_0"] -> Fill (goodAK4Jets.at(0).getEta(),evtwt) ;  
+    h1_["Presel_etaAK4_1"] -> Fill (goodAK4Jets.at(1).getEta(),evtwt) ;  
+    h1_["Presel_etaAK4_2"] -> Fill (goodAK4Jets.at(2).getEta(),evtwt) ;  
+    h1_["Presel_etaAK4_3"] -> Fill (goodAK4Jets.at(3).getEta(),evtwt) ;  
+    h1_["Presel_etaAK8_0"] -> Fill (goodAK8Jets.at(0).getEta(),evtwt) ;  
+
+    h1_["Presel_NAK4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
+    h1_["Presel_NAK8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
+
+    return true;
+  }
 
   vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets ; 
 
@@ -581,6 +604,37 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 // ------------ method called once each job just before starting event loop  ------------
 void VLQAna::beginJob() {
 
+  h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
+  h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
+
+  if (doPreselOnly_) {
+    h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 5, 0.5, 5.5) ;  
+    h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1,  "All") ; 
+    h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2,  "Trig.+PV") ; 
+    h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3,  "N(AK4)>=4") ; 
+    h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4,  "H_{T}>1000GeV") ; 
+    h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5,  "N(AK8)>=1") ; 
+
+    h1_["Presel_HT"] = fs->make<TH1D>("Presel_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+
+    h1_["Presel_ptAK4_0"] = fs->make<TH1D>("Presel_ptAK4_0", "p_{T} AK4;p_{T} (1st AK4 jet) [GeV];;",50,0,2000) ; 
+    h1_["Presel_ptAK4_1"] = fs->make<TH1D>("Presel_ptAK4_1", "p_{T} AK4;p_{T} (2nd AK4 jet) [GeV];;",50,0,2000) ; 
+    h1_["Presel_ptAK4_2"] = fs->make<TH1D>("Presel_ptAK4_2", "p_{T} AK4;p_{T} (3rd AK4 jet) [GeV];;",50,0,2000) ; 
+    h1_["Presel_ptAK4_3"] = fs->make<TH1D>("Presel_ptAK4_3", "p_{T} AK4;p_{T} (4th AK4 jet) [GeV];;",50,0,2000) ; 
+    h1_["Presel_ptAK8_0"] = fs->make<TH1D>("Presel_ptAK8_0", "p_{T} AK8;p_{T} (1st AK8 jet) [GeV];;",50,0,2000) ; 
+
+    h1_["Presel_etaAK4_0"] = fs->make<TH1D>("Presel_etaAK4_0", "#eta AK4;#eta (1st AK4 jet) [GeV];;",60,-6.,6.) ; 
+    h1_["Presel_etaAK4_1"] = fs->make<TH1D>("Presel_etaAK4_1", "#eta AK4;#eta (2nd AK4 jet) [GeV];;",60,-6.,6.) ; 
+    h1_["Presel_etaAK4_2"] = fs->make<TH1D>("Presel_etaAK4_2", "#eta AK4;#eta (3rd AK4 jet) [GeV];;",60,-6.,6.) ; 
+    h1_["Presel_etaAK4_3"] = fs->make<TH1D>("Presel_etaAK4_3", "#eta AK4;#eta (4th AK4 jet) [GeV];;",60,-6.,6.) ; 
+    h1_["Presel_etaAK8_0"] = fs->make<TH1D>("Presel_etaAK8_0", "#eta AK8;#eta (1st AK8 jet) [GeV];;",60,-6.,6.) ; 
+
+    h1_["Presel_NAK4"] = fs->make<TH1D>("Presel_NAK4", ";N(AK4 jets);;", 21, -0.5, 20.5) ; 
+    h1_["Presel_NAK8"] = fs->make<TH1D>("Presel_NAK8", ";N(AK4 jets);;", 11, -0.5, 10.5) ; 
+
+    return ; 
+  }
+
   tree_ = fs->make<TTree>("tree", "TtHT") ; 
   selectedevt_.RegisterTree(tree_,"SelectedEvent") ; 
   jets_.RegisterTree(tree_,"JetInfo") ; 
@@ -597,9 +651,6 @@ void VLQAna::beginJob() {
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9,  "RegionB") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "RegionC") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "RegionD") ; 
-
-  h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
-  h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
 
   h1_["RegD_HT"] = fs->make<TH1D>("RegD_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
   h1_["RegD_HT_wts"] = fs->make<TH1D>("RegD_HT_wts", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
