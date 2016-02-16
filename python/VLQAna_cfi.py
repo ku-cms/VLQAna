@@ -22,6 +22,7 @@ ana = cms.EDFilter("VLQAna",
       ), 
     HTMin                      = cms.double  (1000.), 
     doBTagSFUnc                = cms.bool(False), 
+    storePreselEvts            = cms.bool(False), 
     doPreselOnly               = cms.bool(False), 
     )
 
