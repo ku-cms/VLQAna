@@ -834,10 +834,10 @@ void VLQAna::endJob() {
 
 double VLQAna::getHTReweightingSF(double ht, double err) {
   double wt(1);
-  std::unique_ptr<TF1> htReweightFun     = std::unique_ptr<TF1>(new TF1("htReweightFun", "1.4568 - (2.793*x/10000)",1000, 10000)) ; 
-  std::unique_ptr<TF1> htReweightFunErr  = std::unique_ptr<TF1>(new TF1("htReweightFunErr", 
-        "TMath::Sqrt((0.04508*0.04508) + ((0.2349*x/10000)*(0.2349*x/10000)) + 2*0.04508*(0.2349*x/10000))", 
-        1000, 10000)) ;
+  std::unique_ptr<TF1> htReweightFun     = std::unique_ptr<TF1>( new TF1("htReweightFun", "1.24781 - (0.000201882*x)",1000, 10000) ) ; 
+  std::unique_ptr<TF1> htReweightFunErr  = std::unique_ptr<TF1>( new TF1("htReweightFunErr", 
+        "TMath::Sqrt( (0.0047059*0.0047059) + ((3.57686*x/1000000)*(3.57686*x/1000000)) - (2*x*0.0047059*3.57686*0.97403/1000000) )", 
+        1000, 10000) ) ;
   wt = htReweightFun->Eval(ht) + (err*htReweightFunErr->Eval(ht)) ; 
   return wt;
 }
