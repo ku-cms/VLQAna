@@ -93,10 +93,12 @@ def main():
     for ijob, job in enumerate(jobs) :
 
         print "-->  ", job
-        ptbin = job.split('/')[1]
-        cond = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] #for MC
-        #cond = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] + (job.split('/')[2]).split('-')[2] + (job.split('/')[2]).split('-')[3] #for data
-        config.General.requestName = ptbin #+ '_' + cond
+        pd = job.split('/')[1]
+        processing = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] + (job.split('/')[2]).split('-')[2] + (job.split('/')[2]).split('-')[3] #for data
+        if (len(pd + '_' + processing)<=100): 
+          config.General.requestName = pd + '_' + processing
+        else:
+          config.General.requestName = pd 
         config.Data.inputDataset = job
         print 'Submitting ' + config.General.requestName + ', dataset = ' + job
         print 'Configuration :'
