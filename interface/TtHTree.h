@@ -30,6 +30,7 @@ class TtHEventInfoBranches {
     bool   isRegionB_;
     bool   isRegionC_;
     bool   isRegionD_;
+    bool   isRegionNotABCD_;
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
       cutTree->Branch("EvtWeight", &EvtWeight_, "EvtWeight/D");
@@ -55,6 +56,7 @@ class TtHEventInfoBranches {
       cutTree->Branch("isRegionB",&isRegionB_, "isRegionB/O");
       cutTree->Branch("isRegionC",&isRegionC_, "isRegionC/O");
       cutTree->Branch("isRegionD",&isRegionD_, "isRegionD/O");
+      cutTree->Branch("isRegionNotABCD",&isRegionNotABCD_, "isRegionNotABCD/O");
     }
 
     //void ReadTree(TTree* tree, std::string name="SelectedEvents") {
