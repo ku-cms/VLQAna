@@ -79,6 +79,7 @@ class VLQAna : public edm::EDFilter {
 
     double HTMin_                                ; 
     bool   doBTagSFUnc_                          ; 
+    bool   storePreselEvts_                      ; 
     bool   doPreselOnly_                         ; 
 
     edm::Service<TFileService> fs                ; 
@@ -107,6 +108,7 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedselParams")), 
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   doBTagSFUnc_            (iConfig.getParameter<bool>              ("doBTagSFUnc")),
+  storePreselEvts_        (iConfig.getParameter<bool>              ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>              ("doPreselOnly")) 
 {
 
@@ -156,7 +158,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
   h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
 
-  if ( doPreselOnly_ ) { 
+  if ( storePreselEvts_ || doPreselOnly_ ) { 
     h1_["Presel_HT"] -> Fill(htak4.getHT(), evtwt) ; 
 
     h1_["Presel_ptAK4_0"] -> Fill (goodAK4Jets.at(0).getPt(),evtwt) ;  
@@ -174,7 +176,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["Presel_NAK4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
     h1_["Presel_NAK8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
 
-    return true;
+    if ( !storePreselEvts_ && doPreselOnly_ ) return true;
   }
 
   vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets ; 
@@ -193,7 +195,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
   //// | C: Good H Anti-top | D: Good H Good top | 
 
-  bool isRegionA(false), isRegionB(false), isRegionC(false), isRegionD(false) ; 
+  bool isRegionA(false), isRegionB(false), isRegionC(false), isRegionD(false), isRegionNotABCD(false); 
 
   std::unique_ptr<vlq::Jet> theHiggs ;  
   std::unique_ptr<vlq::Jet> theTop ;
@@ -213,6 +215,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         }
       }
     } //// isRegionD 
+    else isRegionD = false ; 
 
     if (isRegionD == false && nAntiHiggs > 0) {
       for (vlq::Jet& antihjet : antiHTaggedJets) {
@@ -224,6 +227,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         }
       }
     } //// isRegionB
+    else isRegionNotABCD = true ;
 
   }
   else {
@@ -236,13 +240,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antiHTaggedJets.at(0))) ; 
       isRegionA = true;
     } //// isRegionA 
+    else isRegionNotABCD = true ;
 
   }
 
-  if ( !isRegionA && !isRegionB && !isRegionC && !isRegionD ) return false ; 
+  if ( !storePreselEvts_ && !isRegionA && !isRegionB && !isRegionC && !isRegionD ) return false ; 
 
   bool isOneOfABCD(isRegionA ^ isRegionB ^ isRegionC ^ isRegionD) ;
-  if (isOneOfABCD == false) edm::LogInfo("ERROR ABCD") << ">>>> Check ABCD logic: Only one of A, B C, D should be true\n" ; 
+  if ( !storePreselEvts_ && isOneOfABCD == false) edm::LogInfo("ERROR ABCD") << ">>>> Check ABCD logic: Only one of A, B C, D should be true\n" ; 
 
   if ( theHiggs != nullptr ) h1_["cutflow"] -> Fill(6, evtwt) ; 
   if ( theTop != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
@@ -421,6 +426,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.isRegionB_ = isRegionB ; 
   selectedevt_.isRegionC_ = isRegionC ; 
   selectedevt_.isRegionD_ = isRegionD ; 
+  selectedevt_.isRegionNotABCD_ = isRegionNotABCD;
 
   jets_.idxAK4             .clear() ; jets_.idxAK4             .reserve(goodAK4Jets.size()) ;   
   jets_.ptAK4              .clear() ; jets_.ptAK4              .reserve(goodAK4Jets.size()) ; 
@@ -607,7 +613,13 @@ void VLQAna::beginJob() {
   h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
 
-  if (doPreselOnly_) {
+  if ( !doPreselOnly_ ) {
+    tree_ = fs->make<TTree>("tree", "TtHT") ; 
+    selectedevt_.RegisterTree(tree_,"SelectedEvent") ; 
+    jets_.RegisterTree(tree_,"JetInfo") ; 
+  }
+
+  if (storePreselEvts_ || doPreselOnly_) {
     h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 5, 0.5, 5.5) ;  
     h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1,  "All") ; 
     h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2,  "Trig.+PV") ; 
@@ -632,12 +644,8 @@ void VLQAna::beginJob() {
     h1_["Presel_NAK4"] = fs->make<TH1D>("Presel_NAK4", ";N(AK4 jets);;", 21, -0.5, 20.5) ; 
     h1_["Presel_NAK8"] = fs->make<TH1D>("Presel_NAK8", ";N(AK4 jets);;", 11, -0.5, 10.5) ; 
 
-    return ; 
+    if ( doPreselOnly_ ) return ; 
   }
-
-  tree_ = fs->make<TTree>("tree", "TtHT") ; 
-  selectedevt_.RegisterTree(tree_,"SelectedEvent") ; 
-  jets_.RegisterTree(tree_,"JetInfo") ; 
 
   h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 11, 0.5, 11.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1,  "All") ; 
