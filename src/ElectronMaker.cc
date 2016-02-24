@@ -42,12 +42,11 @@ ElectronMaker::ElectronMaker (edm::ParameterSet const& pars) :
   elIsoMax_ (pars.getParameter<double>("elIsoMax")), 
   useVID_   (pars.getParameter<bool>("useVID")) 
 {
-  std::string elidtypestr = pars.getParameter<std::string>("elidtype") ; 
+  std::string elidtypestr = pars.getParameter<std::string>("elidtype") ;
   if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
   else if ( elidtypestr == "MEDIUM" ) type_ = MEDIUM ; 
   else if ( elidtypestr == "TIGHT" ) type_ = TIGHT ; 
   else if ( elidtypestr == "VETO" ) type_ = VETO ; 
-  else if ( elidtypestr == "HEEP" ) type_ = HEEP ; 
   else edm::LogError("ElectronMaker::ElectronMaker") << " >>>> WrongElectronIdType: " << type_<< " Check electron id type !!!" ; 
 }
 
@@ -88,37 +87,32 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
 
     double elPt = (h_elPt.product())->at(iel) ; 
-    //double eleEta = (h_elEta.product())->at(iel) ;
     double elAbsEta  = std::abs((h_elEta.product())->at(iel)) ; 
     double elIso = (h_elIso03.product())->at(iel) ; 
-
-    bool passElId(false) ; 
-    if ( useVID_ ) {
-      if (type_ == LOOSE && (h_elvidLoose.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == MEDIUM && (h_elvidMedium.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == TIGHT && (h_elvidTight.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == VETO && (h_elvidVeto.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == HEEP && (h_elvidHEEP.product())->at(iel) > 0) passElId = true ;
-    }
-    else {
-      if (type_ == LOOSE && (h_elisLoose.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == MEDIUM && (h_elisMedium.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == TIGHT && (h_elisTight.product())->at(iel) > 0) passElId = true ;
-      else if (type_ == VETO && (h_elisVeto.product())->at(iel) > 0) passElId = true ;
-    }
-
-    if ( elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ 
-        && passElId 
-        && ( useVID_ || (elIso > elIsoMin_ && elIso < elIsoMax_) ) 
-       ) {
+    double dEtaIn =(h_eldEtaIn.product())->at(iel);
+    double dPhiIn =(h_eldPhiIn.product())->at(iel);
+    double full5x5siee =(h_elfull5x5siee.product())->at(iel);
+    double HoE =(h_elHoE.product())->at(iel);
+    double D0 =(h_elD0.product())->at(iel);
+    double Dz =(h_elDz.product())->at(iel);
+    double ooEmooP =(h_elooEmooP.product())->at(iel);
+    double hasMatchedConVeto=(h_elhasMatchedConVeto.product())->at(iel);
+    double missHits=(h_elmissHits.product())->at(iel);
+    bool   isEB = (h_elisEB.product())->at(iel);
+  
+    std::string elIdWP = "";
+    if (type_ == LOOSE)       elIdWP = "LOOSE";
+    else if (type_ == MEDIUM) elIdWP = "MEDIUM";  
+    else if (type_ == TIGHT)  elIdWP = "TIGHT";
+    else if (type_ == VETO)   elIdWP = "VETO";
+    bool   passId = passElId(elIdWP, isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits); 
+    
+    if (elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ && passId ){
       vlq::Electron electron ; 
-      //double idSF = getEleSF(elPt, eleEta);
-
       TLorentzVector  elP4;
       elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
       electron.setP4                (elP4)                                      ;
       electron.setIndex             (iel)                                       ; 
-      //electron.setIDSF              (idSF)                                      ;  
       electron.setCharge            (h_elCharge            .product()->at(iel)) ; 
       electron.setD0                (h_elD0                .product()->at(iel)) ; 
       electron.setDz                (h_elDz                .product()->at(iel)) ; 
@@ -151,3 +145,41 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
 
 }
 
+
+bool ElectronMaker::passElId(string WP, bool isEB, float dEtaIn, float dPhiIn, float full5x5, float hoe, float d0, float dz, float ooemoop,float Iso03,bool conv,int missHits){ 
+   
+   bool pass = false;
+   if(WP == "VETO"){
+      if(isEB){
+         pass = (fabs(dEtaIn) < 0.0152) && (fabs(dPhiIn) < 0.216) && (full5x5 < 0.0114) && (hoe < 0.181) && (fabs(d0) < 0.0564) && (fabs(dz) < 0.472) && (ooemoop < 0.207) && (Iso03 < 0.126)  && !conv && (missHits <= 2);
+      }
+      else{
+         pass = (fabs(dEtaIn) < 0.0113) && (fabs(dPhiIn) < 0.237) && (full5x5 < 0.0352) && (hoe < 0.116) && (fabs(d0) < 0.222) && (fabs(dz) < 0.921) && (ooemoop < 0.174) && (Iso03 < 0.144) && !conv && (missHits <= 3);
+      }
+   }
+   else if(WP == "LOOSE"){
+      if(isEB){
+         pass = (fabs(dEtaIn) < 0.0105) && (fabs(dPhiIn) < 0.115) && (full5x5 <  0.0103) && (hoe < 0.104) && (fabs(d0) < 0.0261) && (fabs(dz) < 0.41) && (ooemoop <  0.102) && (Iso03 < 0.0893)  && !conv && (missHits <= 2);
+      }
+      else{
+         pass = (fabs(dEtaIn) < 0.00814) && (fabs(dPhiIn) < 0.182) && (full5x5 < 0.0301) && (hoe < 0.0897) && (fabs(d0) < 0.118) && (fabs(dz) < 0.822) && (ooemoop < 0.126) && (Iso03 < 0.121)  && !conv && (missHits <= 1);
+      }
+   }
+   else if(WP == "MEDIUM"){
+      if(isEB){
+         pass = (fabs(dEtaIn) < 0.0103) && (fabs(dPhiIn) < 0.0336) && (full5x5 < 0.0101) && (hoe < 0.0876) && (fabs(d0) < 0.0118) && (fabs(dz) < 0.373) && (ooemoop < 0.0174) && (Iso03 < 0.0766)  && !conv && (missHits <= 2);
+      }
+      else{
+         pass = (fabs(dEtaIn) < 0.00773) && (fabs(dPhiIn) < 0.114) && (full5x5 <  0.0283) && (hoe < 0.0678) && (fabs(d0) < 0.0739) && (fabs(dz) < 0.602) && (ooemoop < 0.0898) && (Iso03 < 0.0678) && !conv && (missHits <= 1);
+      }
+   }
+   else if(WP == "TIGHT"){
+      if(isEB){
+         pass = (fabs(dEtaIn) < 0.00926) && (fabs(dPhiIn) < 0.0336) && (full5x5 < 0.0101) && (hoe < 0.0597) && (fabs(d0) < 0.0111) && (fabs(dz) <  0.466) && (ooemoop <  0.012) && (Iso03 < 0.0354)  && !conv && (missHits <= 2);
+      }
+      else{
+         pass = (fabs(dEtaIn) < 0.00724) && (fabs(dPhiIn) < 0.0918) && (full5x5 < 0.0279) && (hoe < 0.0615) && (fabs(d0) < 0.0351) && (fabs(dz) < 0.417) && (ooemoop <  0.00999)  && (Iso03 < 0.0646) && !conv && (missHits <= 1);
+      }
+   }
+   return pass;
+} 

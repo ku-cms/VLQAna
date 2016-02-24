@@ -139,8 +139,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (filterSignal_ && *h_evttype.product()!=signalType_) return false ;
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
-  //cout << "printing the run, event, and lumi block ----->" << endl;
-  cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl; 
+  
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
@@ -148,17 +147,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   vlq::MuonCollection goodMuons; 
   muonmaker(evt, goodMuons) ; 
-
+  
   vlq::ElectronCollection goodElectrons; 
   electronmaker(evt, goodElectrons) ; 
-
+  
   vlq::CandidateCollection dimuons, zmumu, zmumuBoosted, dielectrons, zelel, zelelBoosted ; 
   DileptonCandsProducer dileptonsprod(DilepCandParams_) ; 
   dileptonsprod.operator()<vlq::ElectronCollection>(dielectrons, goodElectrons) ; 
   dileptonsprod.operator()<vlq::MuonCollection>(dimuons, goodMuons); 
 
   if (dimuons.size() < 1 && dielectrons.size() < 1) return false ; 
-  
+
   if (dimuons.size() >= 1) {
     h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 
     h1_["eta_leading_mu"] -> Fill(goodMuons.at(0).getEta(), evtwt) ; 
@@ -177,9 +176,33 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["eta_2nd_el"] -> Fill(goodElectrons.at(1).getEta(), evtwt) ; 
     h1_["dr_elel"] -> Fill ( (goodElectrons.at(0).getP4()).DeltaR(goodElectrons.at(1).getP4()) ,evtwt) ; 
     for (auto idielectrons : dielectrons) h1_["mass_elel"] -> Fill(idielectrons.getMass(), evtwt) ; 
-
+    
+    for  (unsigned int iele=0; iele<goodElectrons.size(); ++iele){
+       float scEta = goodElectrons.at(iele).getscEta();
+       
+       if(fabs(scEta) <= 1.479){              
+          h1_["Eta_EB_el"]-> Fill(goodElectrons.at(iele).getEta(), evtwt);            
+          h1_["Iso03_EB_el"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
+          h1_["dEtaIn_EB_el"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
+          h1_["dPhiIn_EB_el"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
+          h1_["Dz_EB_el"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
+          h1_["D0_EB_el"]->Fill(goodElectrons.at(iele).getD0(), evtwt);
+          //float iso = goodElectrons.at(iele).getIso03();
+          //cout << "iso in barrel  = " << iso << endl;
+       }
+       else if  (fabs(scEta > 1.479) && fabs(scEta < 2.5)){
+          h1_["Eta_EE_el"]->Fill(goodElectrons.at(iele).getEta(), evtwt);
+          h1_["Iso03_EE_el"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
+          h1_["dEtaIn_EE_el"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
+          h1_["dPhiIn_EE_el"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
+          h1_["Dz_EE_el"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
+          h1_["D0_EE_el"]->Fill(goodElectrons.at(iele).getD0(), evtwt);
+          //float iso = goodElectrons.at(iele).getIso03();
+          //cout << "iso in endcap  = " << iso << endl;
+       }
+    }
+   
   }
-
   CandidateFilter zllfilter(ZCandParams_) ; 
   zllfilter(dielectrons, zelel) ; 
   zllfilter(dimuons, zmumu) ; 
@@ -215,6 +238,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
+
+  //cout << "printing the run, event, and lumi block ----->" << endl;
+  //cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl; 
 
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   jetAK8maker(evt, goodAK8Jets); 
@@ -376,6 +402,20 @@ void OS2LAna::beginJob() {
   h1_["pt_zelel"] = fs->make<TH1D>("pt_zelel", ";p_{T} (Z#rightarrow e^{+}e^{-}) [GeV]", 50, 0., 1000.) ; 
   h1_["y_zelel"] = fs->make<TH1D>("y_zelel", ";y (Z#rightarrow e^{+}e^{-}) [GeV]", 80, -4., 4.) ; 
   h1_["nzelel"] = fs->make<TH1D>("nzelel", ";N (Z#rightarrow e^{+}e^{-});;", 5, -0.5, 4.5) ; 
+  
+  //varaibles on EE and EB
+  h1_["Eta_EB_el"] = fs->make<TH1D>("Eta_EB_el", ";Eta (EB);;", 100,-4,4) ;
+  h1_["Eta_EE_el"] = fs->make<TH1D>("Eta_EE_el", ";Eta (EE);;", 100,-4,4) ;
+  h1_["Iso03_EB_el"] = fs->make<TH1D>("Iso03_EB_el", ";Iso03 (EB);;", 100,0,0.3) ;
+  h1_["Iso03_EE_el"] = fs->make<TH1D>("Iso03_EE_el", ";Iso03 (EE);;", 100,0,0.3) ;
+  h1_["dEtaIn_EB_el"] = fs->make<TH1D>("dEtaIn_EB_el", ";dEtaIn (EB);;", 200,-0.05,0.05) ;
+  h1_["dEtaIn_EE_el"] = fs->make<TH1D>("dEtaIn_EE_el", ";dEtaIn (EE);;", 200,-0.05,0.05) ;
+  h1_["dPhiIn_EB_el"] = fs->make<TH1D>("dPhiIn_EB_el", ";dPhiIn (EB);;", 100,-0.2,0.2) ;
+  h1_["dPhiIn_EE_el"] = fs->make<TH1D>("dPhiIn_EE_el", ";dPhiIn (EE);;", 100,-0.2,0.2);
+  h1_["Dz_EB_el"] = fs->make<TH1D>("Dz_EB",";dZ (EB);;", 200,-0.1,0.1) ;
+  h1_["Dz_EE_el"] = fs->make<TH1D>("Dz_EE", ";dZ (EE);;", 200,-0.4,0.4) ;
+  h1_["D0_EB_el"] = fs->make<TH1D>("D0_EB", ";d0 (EB);;", 100,-0.1,0.1) ;
+  h1_["D0_EE_el"] = fs->make<TH1D>("D0_EE", ";d0 (EE);;", 100,-0.1,0.1) ;
 
   h1_["nak8"] = fs->make<TH1D>("nak8", ";N(AK8 jets);;" , 11, -0.5,10.5) ; 
   h1_["nak4"] = fs->make<TH1D>("nak4", ";N(AK4 jets);;" , 21, -0.5,20.5) ; 
