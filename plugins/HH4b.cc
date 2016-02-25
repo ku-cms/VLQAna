@@ -320,7 +320,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 bool HH4b::passHiggsTagging(vlq::Jet jet) {
   bool passHiggsTagging(0);
   if (jet.getPt() > 200. 
-      && abs(jet.getEta() <= 2.4)
+      && abs(jet.getEta()) <= 2.4
       && abs(jet.getPrunedMass()) >= 90 
       && (jet.getTau1() == 0. || jet.getTau2()/jet.getTau1() < 0.75)
      ) passHiggsTagging = true ; 
@@ -335,8 +335,30 @@ double HH4b::getBTagEff_CSVv2L (double pt, double jetFl) {
   return eff ;
 }
 
-double HH4b::getBTagSF_CSVv2L (double pt, double jetFl, double errbc, double errl) {
+double HH4b::getBTagSF_CSVv2L (double jetPt, double jetFl, double errbc, double errl) {
   double btagsf(1);
+
+  double pt(jetPt) ; 
+  if ((jetFl == 5 || jetFl == 4)) {
+    if (jetPt < 30.) {
+      pt = 30; 
+      errbc *= 2;
+    }
+    if (jetPt > 670.) {
+      pt = 670. ;
+      errbc *= 2;
+    }
+  }
+  else {
+    if (jetPt < 20.) {
+      pt= 20; 
+      errl *= 2;
+    }
+    if (jetPt > 1000.) {
+      pt = 1000. ;
+      errl *= 2; 
+    }
+  }
 
   TF1* SFb_CSVv2L = new TF1("SFb_CSVv2L", "0.908299+(2.70877e-06*(log(x+370.144)*(log(x+370.144)*(3-(-(104.614*log(x+370.144)))))))",0,2000) ;
 

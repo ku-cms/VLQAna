@@ -35,7 +35,7 @@ options.parseArguments()
 
 hltpaths = ['HLT_PFHT650']
 if options.isData: 
-    hltpaths = ['HLT_PFHT650', 'HLT_PFHT800', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50', 'HLT_AK8PFJet360_TrimMass30']
+    hltpaths = ['HLT_PFHT650','HLT_PFHT800', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50', 'HLT_AK8PFJet360_TrimMass30']
     options.doBTagSFUnc = False 
     options.jerShift = 0 
 else: 
@@ -50,8 +50,10 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
     #'root://cmsxrootd-site.fnal.gov//store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_73.root'
-    FileNames_BG1200
+    #FileNames_BG1200
     #FileNames
+    FileName_JetHT_PromptRecov4
+    #FileName_QCD_HT1000to1500
     ) 
     )
 
@@ -73,9 +75,9 @@ process.hh4b.jetHTaggedselParams.subjetCSVMin = cms.double(-1000.)
 process.hh4b.jetHTaggedselParams.jecShift = options.jecShift 
 process.hh4b.jetHTaggedselParams.jerShift = options.jerShift 
 if options.isData:
-  process.hh4b.jetHTaggedselParams.newJECPayloadNames.append("Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt")
-  process.hh4b.jetHTaggedselParams.jecUncPayloadName = cms.string("Summer15_25nsV7_DATA_Uncertainty_AK8PFchs.txt")
-  process.hh4b.jetHTaggedselParams.jecAK8GroomedPayloadNames.append("Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt") 
+  process.hh4b.jetAK8selParams.newJECPayloadNames = cms.vstring("Summer15_25nsV7_DATA_L1FastJet_AK8PFchs.txt", "Summer15_25nsV7_DATA_L2Relative_AK8PFchs.txt", "Summer15_25nsV7_DATA_L3Absolute_AK8PFchs.txt", "Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt")
+  process.hh4b.jetAK8selParams.jecUncPayloadName = cms.string("Summer15_25nsV7_DATA_Uncertainty_AK8PFchs.txt")
+  process.hh4b.jetAK8selParams.jecAK8GroomedPayloadNames = cms.vstring("Summer15_25nsV7_DATA_L2Relative_AK8PFchs.txt", "Summer15_25nsV7_DATA_L3Absolute_AK8PFchs.txt", "Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt") 
 
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
