@@ -69,7 +69,10 @@ class VLQAna : public edm::EDFilter {
     edm::InputTag l_evttype                      ;
     edm::InputTag l_evtwtGen                     ;
     edm::InputTag l_evtwtPV                      ;
+    edm::InputTag l_evtwtPVLow                   ;
+    edm::InputTag l_evtwtPVHigh                  ;
     edm::InputTag l_npv                          ;
+    edm::InputTag l_npuTrue                      ;
 
     JetMaker jetAK4maker                         ; 
     JetMaker jetAK8maker                         ; 
@@ -100,7 +103,10 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   l_evttype               (iConfig.getParameter<edm::InputTag>     ("evttype")),
   l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
   l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
+  l_evtwtPVLow            (iConfig.getParameter<edm::InputTag>     ("evtwtPVLow")),
+  l_evtwtPVHigh           (iConfig.getParameter<edm::InputTag>     ("evtwtPVHigh")),
   l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
+  l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
@@ -120,12 +126,15 @@ VLQAna::~VLQAna() {
 bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<bool>h_isData     ; evt.getByLabel(l_isData     ,  h_isData) ; 
-  Handle<bool>h_hltdecision; evt.getByLabel(l_hltdecision,  h_hltdecision) ; 
-  Handle<string>h_evttype  ; evt.getByLabel(l_evttype    , h_evttype) ; 
-  Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen   , h_evtwtGen) ; 
-  Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV    ,  h_evtwtPV) ; 
-  Handle<unsigned>h_npv    ; evt.getByLabel(l_npv        , h_npv) ; 
+  Handle<bool>h_isData         ; evt.getByLabel(l_isData     ,  h_isData) ; 
+  Handle<bool>h_hltdecision    ; evt.getByLabel(l_hltdecision,  h_hltdecision) ; 
+  Handle<string>h_evttype      ; evt.getByLabel(l_evttype    , h_evttype) ; 
+  Handle<double>h_evtwtGen     ; evt.getByLabel(l_evtwtGen   , h_evtwtGen) ; 
+  Handle<double>h_evtwtPV      ; evt.getByLabel(l_evtwtPV    ,  h_evtwtPV) ; 
+  Handle<double>h_evtwtPVLow   ; evt.getByLabel(l_evtwtPVLow ,  h_evtwtPVLow) ; 
+  Handle<double>h_evtwtPVHigh  ; evt.getByLabel(l_evtwtPVHigh,  h_evtwtPVHigh) ; 
+  Handle<unsigned>h_npv        ; evt.getByLabel(l_npv        , h_npv) ; 
+  Handle<int>h_npuTrue         ; evt.getByLabel(l_npuTrue    , h_npuTrue) ; 
 
   const bool isData(*h_isData.product()) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
@@ -405,10 +414,13 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   selectedevt_.EvtWeight_ = double(*h_evtwtGen.product());
   selectedevt_.EvtWtPV_ = double(*h_evtwtPV.product()) ; 
+  selectedevt_.EvtWtPVLow_ = double(*h_evtwtPVLow.product()) ; 
+  selectedevt_.EvtWtPVHigh_ = double(*h_evtwtPVHigh.product()) ; 
   selectedevt_.EvtWtHT_ = evtwtHT;
   selectedevt_.EvtWtHTUp_ = evtwtHTUp;
   selectedevt_.EvtWtHTDown_ = evtwtHTDown;
   selectedevt_.npv_ = npv ; 
+  selectedevt_.npuTrue_ = int(*h_npuTrue.product()) ; 
   selectedevt_.toptagsf_ = toptagsf ; 
   selectedevt_.toptagsf_Up_ = toptagsfUp ; 
   selectedevt_.toptagsf_Down_ = toptagsfDown ; 
