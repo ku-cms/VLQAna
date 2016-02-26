@@ -40,7 +40,7 @@ class EventCleaner : public edm::EDFilter {
     edm::InputTag l_trigBit                                ; 
     edm::InputTag l_metFiltersName                         ; 
     edm::InputTag l_metFiltersBit                          ; 
-    edm::InputTag l_lheProd                                ; 
+    edm::InputTag l_lheEvtProd                             ; 
     std::string   l_genEvtInfoProd                         ; 
     edm::InputTag l_vtxRho                                 ; 
     edm::InputTag l_vtxZ                                   ; 
@@ -61,8 +61,8 @@ class EventCleaner : public edm::EDFilter {
     const std::string hist_PUDistData_                     ;
     const std::string hist_PUDistMC_                       ;
     const bool cleanEvents_                                ; 
-    edm::EDGetTokenT<LHEEventProduct> t_lheProd            ; 
     edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
+    edm::EDGetTokenT<LHEEventProduct> t_lheEvtProd         ; 
     std::vector<std::string> lhe_weight_labels_            ;
 
     edm::ParameterSet TtZParams_                           ;
@@ -79,7 +79,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   l_trigBit               (iConfig.getParameter<edm::InputTag>            ("trigBitLabel")),
   l_metFiltersName        (iConfig.getParameter<edm::InputTag>            ("metFiltersNameLabel")),
   l_metFiltersBit         (iConfig.getParameter<edm::InputTag>            ("metFiltersBitLabel")),
-  l_lheProd               (iConfig.getParameter<std::string>              ("lheProdName")),
+  l_lheEvtProd            (iConfig.getParameter<std::string>              ("lheProdName")),
   l_genEvtInfoProd        (iConfig.getParameter<std::string>              ("genEvtInfoProdName")),
   l_vtxRho                (iConfig.getParameter<edm::InputTag>            ("vtxRhoLabel")),  
   l_vtxZ                  (iConfig.getParameter<edm::InputTag>            ("vtxZLabel")),  
@@ -113,8 +113,8 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
     LumiWeightsHigh_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataHigh_, hist_PUDistMC_, hist_PUDistData_) ;
   }
   consumes<LHERunInfoProduct>({"externalLHEProducer"});
-  t_lheProd = consumes<LHEEventProduct>(l_lheProd) ; 
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
+  t_lheEvtProd = consumes<LHEEventProduct>(l_lheEvtProd) ; 
   produces<bool>("isData");
   produces<bool>("hltdecision");
   produces<std::string>("evttype"); 
@@ -124,7 +124,9 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   produces<double>("evtwtPVHigh");
   produces<unsigned>("npv");
   produces<int>("npuTrue");
-  produces<double>("partonBin");
+  produces<double>("htHat");
+  produces<std::vector<int>>("lhewtids") ; 
+  produces<std::vector<double>>("lhewts") ; 
 }
 
 EventCleaner::~EventCleaner() {}
@@ -186,13 +188,36 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   ////if ( npv < 1 ) return false ; 
 
   double evtwtGen(1.0) ; 
-  double partonBin(0.0);
+  double htHat(0.0);
+  std::vector<int> lhewtids;
+  std::vector<double> lhewts;
   if ( !isData_ ) {
-    Handle<GenEventInfoProduct> h_genEvtInfoProd; 
-    evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
-    evtwtGen = h_genEvtInfoProd->weight() ; 
-    evtwtGen /= abs(evtwtGen) ; 
-    if (h_genEvtInfoProd->binningValues().size()>0) partonBin = h_genEvtInfoProd->binningValues()[0];
+    //Handle<GenEventInfoProduct> h_genEvtInfoProd; 
+    //evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
+    //evtwtGen = h_genEvtInfoProd->weight() ; 
+    //evtwtGen /= abs(evtwtGen) ; 
+    //if (h_genEvtInfoProd->binningValues().size()>0) htHat = h_genEvtInfoProd->binningValues()[0];
+    
+    Handle<LHEEventProduct> h_lheEvtProd;
+    evt.getByToken(t_lheEvtProd, h_lheEvtProd); 
+    double nominal_wt = h_lheEvtProd->weights()[0].wgt ; // h_lheEvtProd->hepeup().XWGTUP ; //h_lheEvtProd->originalXWGTUP();
+    lhewtids.reserve(h_lheEvtProd->weights().size()) ;
+    lhewts.reserve(h_lheEvtProd->weights().size()) ; 
+    for (unsigned iwt = 0; iwt < h_lheEvtProd->weights().size(); ++iwt) {
+      lhewtids.push_back(std::stoi(h_lheEvtProd->weights()[iwt].id)) ;
+      lhewts.push_back(h_lheEvtProd->weights()[iwt].wgt / nominal_wt) ; 
+      //cout << "weight id = " << h_lheEvtProd->weights()[iwt].id << " weight = " << h_lheEvtProd->weights()[iwt].wgt / nominal_wt << endl ; 
+    }
+    
+    std::vector<lhef::HEPEUP::FiveVector> lheParticles = h_lheEvtProd->hepeup().PUP;
+    for(size_t idxPart = 0; idxPart < lheParticles.size();++idxPart){
+      unsigned absPdgId = TMath::Abs(h_lheEvtProd->hepeup().IDUP[idxPart]);
+      unsigned status = h_lheEvtProd->hepeup().ISTUP[idxPart];
+      if(status==1 &&((absPdgId >=1 &&absPdgId<=6) || absPdgId == 21)){
+        htHat += sqrt(pow(lheParticles[idxPart][0],2.) + pow(lheParticles[idxPart][1],2.));
+      }
+    }
+
   }
 
   int npuTrue(-1);
@@ -252,7 +277,9 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   auto_ptr<double>ptr_evtwtPVHigh(new double(evtwtPVHigh)); 
   auto_ptr<unsigned>ptr_npv(new unsigned(npv)); 
   auto_ptr<int>ptr_npuTrue(new int(npuTrue)); 
-  auto_ptr<double>ptr_partonBin(new double(partonBin)); 
+  auto_ptr<double>ptr_htHat(new double(htHat)); 
+  auto_ptr<std::vector<int>> ptr_lhewtids(new std::vector<int>(lhewtids));
+  auto_ptr<std::vector<double>> ptr_lhewts(new std::vector<double>(lhewts));
 
   evt.put(ptr_isData, "isData");
   evt.put(ptr_hltdecision, "hltdecision");
@@ -263,7 +290,9 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(ptr_evtwtPVHigh, "evtwtPVHigh");
   evt.put(ptr_npv, "npv");
   evt.put(ptr_npuTrue, "npuTrue");
-  evt.put(ptr_partonBin, "partonBin");
+  evt.put(ptr_htHat, "htHat");
+  evt.put(ptr_lhewtids, "lhewtids") ;
+  evt.put(ptr_lhewts, "lhewts") ;
 
   return true ; 
 
@@ -290,7 +319,7 @@ void EventCleaner::endRun(edm::Run const& run, edm::EventSetup const& es) {
   LHERunInfoProduct myLHERunInfoProduct = *(lhe_info.product());
   typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
   for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
-    std::cout << iter->tag() << std::endl;
+    //std::cout << iter->tag() << std::endl;
     std::vector<std::string> lines = iter->lines();
     for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
       lhe_weight_labels_.push_back(lines.at(iLine));
