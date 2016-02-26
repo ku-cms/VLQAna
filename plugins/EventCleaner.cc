@@ -273,13 +273,13 @@ void EventCleaner::beginJob() {
 }
 
 void EventCleaner::endJob() {
-  if (lhe_weight_labels_.size()) {
-    std::cout << std::string(78, '-') << "\n";
-    std::cout << "LHE event weights\n";
-    for (unsigned l = 0; l < lhe_weight_labels_.size(); ++l) {
-      std::cout << lhe_weight_labels_[l];
-    }
-  }
+  //if (lhe_weight_labels_.size()) {
+  //  std::cout << std::string(78, '-') << "\n";
+  //  std::cout << "LHE event weights\n";
+  //  for (unsigned l = 0; l < lhe_weight_labels_.size(); ++l) {
+  //    std::cout << lhe_weight_labels_[l];
+  //  }
+  //}
 }
 
 void EventCleaner::endRun(edm::Run const& run, edm::EventSetup const& es) {
