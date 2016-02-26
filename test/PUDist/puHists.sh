@@ -1,0 +1,3 @@
+pileupCalc.py -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt --inputLumiJSON pileup_JSON_11-19-2015.txt  --calcMode true --minBiasXsec 69000 --maxPileupBin 50 --numPileupBins 50  RunII2015_25ns_PUXsec69000nb.root
+pileupCalc.py -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt --inputLumiJSON pileup_JSON_11-19-2015.txt  --calcMode true --minBiasXsec 72450 --maxPileupBin 50 --numPileupBins 50  RunII2015_25ns_PUXsec72450nb.root
+pileupCalc.py -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt --inputLumiJSON pileup_JSON_11-19-2015.txt  --calcMode true --minBiasXsec 65550 --maxPileupBin 50 --numPileupBins 50  RunII2015_25ns_PUXsec65550nb.root
