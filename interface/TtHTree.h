@@ -67,7 +67,7 @@ class TtHEventInfoBranches {
       cutTree->Branch("isRegionD",&isRegionD_, "isRegionD/O");
       cutTree->Branch("isRegionNotABCD",&isRegionNotABCD_, "isRegionNotABCD/O");
       cutTree->Branch("lhewts", &lhewts_) ;  
-      cutTree->SetBranchAddress("htHat", &htHat_) ; 
+      cutTree->Branch("htHat", &htHat_) ; 
     }
 
     //void ReadTree(TTree* tree, std::string name="SelectedEvents") {
