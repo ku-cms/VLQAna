@@ -73,6 +73,9 @@ class VLQAna : public edm::EDFilter {
     edm::InputTag l_evtwtPVHigh                  ;
     edm::InputTag l_npv                          ;
     edm::InputTag l_npuTrue                      ;
+    edm::InputTag l_htHat                        ;
+    edm::InputTag l_lhewtids                     ;
+    edm::InputTag l_lhewts                       ;
 
     JetMaker jetAK4maker                         ; 
     JetMaker jetAK8maker                         ; 
@@ -97,6 +100,50 @@ class VLQAna : public edm::EDFilter {
 
 using namespace std; 
 
+template <typename T>
+struct iterator_extractor { typedef typename T::iterator type; };
+
+template <typename T>
+struct iterator_extractor<T const> { typedef typename T::const_iterator type; };
+
+
+template <typename T>
+class Indexer {
+  public:
+    class iterator {
+      typedef typename iterator_extractor<T>::type inner_iterator;
+
+      typedef typename std::iterator_traits<inner_iterator>::reference inner_reference;
+      public:
+      typedef std::pair<size_t, inner_reference> reference;
+
+      iterator(inner_iterator it): _pos(0), _it(it) {}
+
+      reference operator*() const { return reference(_pos, *_it); }
+
+      iterator& operator++() { ++_pos; ++_it; return *this; }
+      iterator operator++(int) { iterator tmp(*this); ++*this; return tmp; }
+
+      bool operator==(iterator const& it) const { return _it == it._it; }
+      bool operator!=(iterator const& it) const { return !(*this == it); }
+
+      private:
+      size_t _pos;
+      inner_iterator _it;
+    };
+
+    Indexer(T& t): _container(t) {}
+
+    iterator begin() const { return iterator(_container.begin()); }
+    iterator end() const { return iterator(_container.end()); }
+
+  private:
+    T& _container;
+}; // class Indexer
+
+template <typename T>
+Indexer<T> index(T& t) { return Indexer<T>(t); }
+
 VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   l_isData                (iConfig.getParameter<edm::InputTag>     ("isData")),
   l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
@@ -107,6 +154,9 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   l_evtwtPVHigh           (iConfig.getParameter<edm::InputTag>     ("evtwtPVHigh")),
   l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
   l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
+  l_htHat                 (iConfig.getParameter<edm::InputTag>     ("htHat")),
+  l_lhewtids              (iConfig.getParameter<edm::InputTag>     ("lhewtids")),
+  l_lhewts                (iConfig.getParameter<edm::InputTag>     ("lhewts")),
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
@@ -126,20 +176,24 @@ VLQAna::~VLQAna() {
 bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<bool>h_isData         ; evt.getByLabel(l_isData     ,  h_isData) ; 
-  Handle<bool>h_hltdecision    ; evt.getByLabel(l_hltdecision,  h_hltdecision) ; 
-  Handle<string>h_evttype      ; evt.getByLabel(l_evttype    , h_evttype) ; 
-  Handle<double>h_evtwtGen     ; evt.getByLabel(l_evtwtGen   , h_evtwtGen) ; 
-  Handle<double>h_evtwtPV      ; evt.getByLabel(l_evtwtPV    ,  h_evtwtPV) ; 
-  Handle<double>h_evtwtPVLow   ; evt.getByLabel(l_evtwtPVLow ,  h_evtwtPVLow) ; 
-  Handle<double>h_evtwtPVHigh  ; evt.getByLabel(l_evtwtPVHigh,  h_evtwtPVHigh) ; 
-  Handle<unsigned>h_npv        ; evt.getByLabel(l_npv        , h_npv) ; 
-  Handle<int>h_npuTrue         ; evt.getByLabel(l_npuTrue    , h_npuTrue) ; 
+  Handle<bool>h_isData            ; evt.getByLabel(l_isData     ,  h_isData) ; 
+  Handle<bool>h_hltdecision       ; evt.getByLabel(l_hltdecision,  h_hltdecision) ; 
+  Handle<string>h_evttype         ; evt.getByLabel(l_evttype    , h_evttype) ; 
+  Handle<double>h_evtwtGen        ; evt.getByLabel(l_evtwtGen   , h_evtwtGen) ; 
+  Handle<double>h_evtwtPV         ; evt.getByLabel(l_evtwtPV    ,  h_evtwtPV) ; 
+  Handle<double>h_evtwtPVLow      ; evt.getByLabel(l_evtwtPVLow ,  h_evtwtPVLow) ; 
+  Handle<double>h_evtwtPVHigh     ; evt.getByLabel(l_evtwtPVHigh,  h_evtwtPVHigh) ; 
+  Handle<unsigned>h_npv           ; evt.getByLabel(l_npv        , h_npv) ; 
+  Handle<int>h_npuTrue            ; evt.getByLabel(l_npuTrue    , h_npuTrue) ; 
+  Handle<int>h_htHat              ; evt.getByLabel(l_htHat      , h_htHat) ; 
+  Handle<vector<int>>h_lhewtids   ; evt.getByLabel(l_lhewtids   , h_lhewtids) ; 
+  Handle<vector<double>>h_lhewts  ; evt.getByLabel(l_lhewts     , h_lhewts) ; 
 
   const bool isData(*h_isData.product()) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
   int npv(*h_npv.product()) ; 
+  const double htHat((*h_htHat.product())) ; 
 
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
@@ -412,6 +466,13 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["RegD_mtprime_corr_htwtDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
   }
 
+  std::vector<std::pair<int, double>> lhe_ids_wts;
+  for (auto idx : index(*h_lhewtids.product()) ) {
+    int id = (*h_lhewtids.product()).at(idx.first) ; 
+    double wt = (*h_lhewts.product()).at(idx.first) ; 
+    lhe_ids_wts.push_back(std::make_pair(id, wt)) ; 
+  }
+
   selectedevt_.EvtWeight_ = double(*h_evtwtGen.product());
   selectedevt_.EvtWtPV_ = double(*h_evtwtPV.product()) ; 
   selectedevt_.EvtWtPVLow_ = double(*h_evtwtPVLow.product()) ; 
@@ -439,6 +500,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.isRegionC_ = isRegionC ; 
   selectedevt_.isRegionD_ = isRegionD ; 
   selectedevt_.isRegionNotABCD_ = isRegionNotABCD;
+  selectedevt_.lhewts_ = lhe_ids_wts;
+  selectedevt_.htHat_ = htHat ; 
 
   jets_.idxAK4             .clear() ; jets_.idxAK4             .reserve(goodAK4Jets.size()) ;   
   jets_.ptAK4              .clear() ; jets_.ptAK4              .reserve(goodAK4Jets.size()) ; 

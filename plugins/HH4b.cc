@@ -29,7 +29,7 @@ class HH4b : public edm::EDFilter {
     // ----------member data ---------------------------
     edm::InputTag l_evtwtGen                     ;
     edm::InputTag l_evtwtPV                      ;
-    edm::InputTag l_partonBin                    ;
+    edm::InputTag l_htHat                        ;
     edm::InputTag l_hltdecision                  ;
     edm::InputTag l_npv                          ;
     JetMaker     jetAK8maker                     ; 
@@ -91,7 +91,7 @@ Indexer<T> index(T& t) { return Indexer<T>(t); }
 HH4b::HH4b(const edm::ParameterSet& iConfig) :
   l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
   l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
-  l_partonBin             (iConfig.getParameter<edm::InputTag>     ("partonBin")),
+  l_htHat                 (iConfig.getParameter<edm::InputTag>     ("htHat")),
   l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
   l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
@@ -106,12 +106,12 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
   Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
-  Handle<double>h_partonBin; evt.getByLabel(l_partonBin,  h_partonBin ) ; 
+  Handle<double>h_htHat    ; evt.getByLabel(l_htHat,  h_htHat ) ; 
   Handle<bool>h_hltdecision; evt.getByLabel(l_hltdecision,  h_hltdecision ) ; 
   Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
-  const double partonBin((*h_partonBin.product())) ; 
+  const double htHat((*h_htHat.product())) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
 
   evtwt=1;
@@ -297,7 +297,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   } //// If N(H jets) >= 2
 
-  selectedevt.partonBin_ = partonBin ; 
+  selectedevt.htHat_ = htHat ; 
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
   selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 
