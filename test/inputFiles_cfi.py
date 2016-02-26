@@ -1,4 +1,4 @@
-FileName_QCD_HT500to2000 = [
+FileName_QCD_HT1500to2000 = [
     '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_1.root',
     '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_10.root',
     '/store/user/decosa/ttDM/CMSSW_7_4_15/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/QCD_HT1500to2000/151111_113826/0000/B2GEDMNtuple_100.root',
