@@ -4,7 +4,7 @@ from Analysis.VLQAna.JetSelector_cfi import *
 hh4b = cms.EDFilter("HH4b",
     evtwtGen            = cms.InputTag("evtcleaner","evtwtGen"),
     evtwtPV             = cms.InputTag("evtcleaner","evtwtPV"),
-    partonBin           = cms.InputTag("evtcleaner","partonBin"),
+    htHat               = cms.InputTag("evtcleaner","htHat"),
     hltdecision         = cms.InputTag("evtcleaner","hltdecision"), 
     npv                 = cms.InputTag("evtcleaner","npv"),
     jetAK8selParams     = defaultAK8JetSelectionParameters.clone(
