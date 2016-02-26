@@ -185,7 +185,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>h_evtwtPVHigh     ; evt.getByLabel(l_evtwtPVHigh,  h_evtwtPVHigh) ; 
   Handle<unsigned>h_npv           ; evt.getByLabel(l_npv        , h_npv) ; 
   Handle<int>h_npuTrue            ; evt.getByLabel(l_npuTrue    , h_npuTrue) ; 
-  Handle<int>h_htHat              ; evt.getByLabel(l_htHat      , h_htHat) ; 
+  Handle<double>h_htHat           ; evt.getByLabel(l_htHat      , h_htHat) ; 
   Handle<vector<int>>h_lhewtids   ; evt.getByLabel(l_lhewtids   , h_lhewtids) ; 
   Handle<vector<double>>h_lhewts  ; evt.getByLabel(l_lhewts     , h_lhewts) ; 
 
