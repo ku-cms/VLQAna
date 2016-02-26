@@ -2,16 +2,17 @@
 #include <memory>
 #include <vector>
 #include <string>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h" 
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
 #include "Analysis/VLQAna/interface/PickGenPart.h"
 
@@ -28,15 +29,17 @@ class EventCleaner : public edm::EDFilter {
     virtual void beginJob() override;
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
+    virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
     double GetLumiWeightsPVBased (const std::string file, const std::string hist, const unsigned npv) ; 
 
     edm::LumiReWeighting LumiWeights_;
+    edm::LumiReWeighting LumiWeightsLow_;
+    edm::LumiReWeighting LumiWeightsHigh_;
 
     edm::InputTag l_trigName                               ; 
     edm::InputTag l_trigBit                                ; 
     edm::InputTag l_metFiltersName                         ; 
     edm::InputTag l_metFiltersBit                          ; 
-    edm::InputTag l_hbheNoiseFilter                        ; 
     edm::InputTag l_lheProd                                ; 
     std::string   l_genEvtInfoProd                         ; 
     edm::InputTag l_vtxRho                                 ; 
@@ -51,6 +54,8 @@ class EventCleaner : public edm::EDFilter {
     const bool doPUReweightingNPV_                         ;
     const std::string file_PVWt_                           ; 
     const std::string file_PUDistData_                     ;
+    const std::string file_PUDistDataLow_                  ;
+    const std::string file_PUDistDataHigh_                 ;
     const std::string file_PUDistMC_                       ;
     const std::string hist_PVWt_                           ; 
     const std::string hist_PUDistData_                     ;
@@ -58,6 +63,7 @@ class EventCleaner : public edm::EDFilter {
     const bool cleanEvents_                                ; 
     edm::EDGetTokenT<LHEEventProduct> t_lheProd            ; 
     edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
+    std::vector<std::string> lhe_weight_labels_            ;
 
     edm::ParameterSet TtZParams_                           ;
     edm::ParameterSet TtHParams_                           ;
@@ -73,7 +79,6 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   l_trigBit               (iConfig.getParameter<edm::InputTag>            ("trigBitLabel")),
   l_metFiltersName        (iConfig.getParameter<edm::InputTag>            ("metFiltersNameLabel")),
   l_metFiltersBit         (iConfig.getParameter<edm::InputTag>            ("metFiltersBitLabel")),
-  l_hbheNoiseFilter       (iConfig.getParameter<edm::InputTag>            ("hbheNoiseFilterLabel")),
   l_lheProd               (iConfig.getParameter<std::string>              ("lheProdName")),
   l_genEvtInfoProd        (iConfig.getParameter<std::string>              ("genEvtInfoProdName")),
   l_vtxRho                (iConfig.getParameter<edm::InputTag>            ("vtxRhoLabel")),  
@@ -88,6 +93,8 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   doPUReweightingNPV_     (iConfig.getParameter<bool>                     ("DoPUReweightingNPV")),
   file_PVWt_              (iConfig.getParameter<std::string>              ("File_PVWt")),
   file_PUDistData_        (iConfig.getParameter<std::string>              ("File_PUDistData")),
+  file_PUDistDataLow_     (iConfig.getParameter<std::string>              ("File_PUDistDataLow")),
+  file_PUDistDataHigh_    (iConfig.getParameter<std::string>              ("File_PUDistDataHigh")),
   file_PUDistMC_          (iConfig.getParameter<std::string>              ("File_PUDistMC")),
   hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt")),
   hist_PUDistData_        (iConfig.getParameter<std::string>              ("Hist_PUDistData")),
@@ -100,7 +107,12 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   BbHParams_              (iConfig.getParameter<edm::ParameterSet>        ("BbHParams")),  
   BtWParams_              (iConfig.getParameter<edm::ParameterSet>        ("BtWParams")) 
 {
-  if (doPUReweightingOfficial_) LumiWeights_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_, hist_PUDistMC_, hist_PUDistData_) ;
+  if (doPUReweightingOfficial_) {
+    LumiWeights_     = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_    , hist_PUDistMC_, hist_PUDistData_) ;
+    LumiWeightsLow_  = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataLow_ , hist_PUDistMC_, hist_PUDistData_) ;
+    LumiWeightsHigh_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataHigh_, hist_PUDistMC_, hist_PUDistData_) ;
+  }
+  consumes<LHERunInfoProduct>({"externalLHEProducer"});
   t_lheProd = consumes<LHEEventProduct>(l_lheProd) ; 
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
   produces<bool>("isData");
@@ -108,7 +120,10 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   produces<std::string>("evttype"); 
   produces<double>("evtwtGen");
   produces<double>("evtwtPV");
+  produces<double>("evtwtPVLow");
+  produces<double>("evtwtPVHigh");
   produces<unsigned>("npv");
+  produces<int>("npuTrue");
   produces<double>("partonBin");
 }
 
@@ -132,7 +147,6 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   hint    h_vtxNdf                ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
   Handle<int>   h_npv             ; evt.getByLabel (l_npv                    , h_npv                  );
   Handle<int>   h_puNtrueInt      ; evt.getByLabel (l_puNtrueInt             , h_puNtrueInt           );
-  Handle <bool> h_hbheNoiseFilter ; evt.getByLabel (l_hbheNoiseFilter        , h_hbheNoiseFilter      );
 
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
@@ -149,8 +163,6 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   ////if ( cleanEvents_ && hltdecision==false ) return false ; 
 
-  bool hbheNoiseFilter(h_hbheNoiseFilter.product()) ; 
-  ////if ( !hbheNoiseFilter ) return false ; 
   if ( isData_ ) {
     bool metfilterdecision(1) ; 
     for ( const string& metfilter : metFilters_ ) {
@@ -183,12 +195,17 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     if (h_genEvtInfoProd->binningValues().size()>0) partonBin = h_genEvtInfoProd->binningValues()[0];
   }
 
+  int npuTrue(-1);
   double evtwtPV(1.0) ;
+  double evtwtPVLow(1.0) ;
+  double evtwtPVHigh(1.0) ;
   if ( !isData_ ) {
     if ( doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
     else if ( doPUReweightingOfficial_ ) { 
-      int npuTrue(*h_puNtrueInt) ; 
+      npuTrue = *h_puNtrueInt ; 
       evtwtPV *= LumiWeights_.weight(npuTrue) ; 
+      evtwtPVLow *= LumiWeightsLow_.weight(npuTrue) ; 
+      evtwtPVHigh *= LumiWeightsHigh_.weight(npuTrue) ; 
     }
   }
 
@@ -231,7 +248,10 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   auto_ptr<string>ptr_evttype(new string(evttype)); 
   auto_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
   auto_ptr<double>ptr_evtwtPV(new double(evtwtPV)); 
+  auto_ptr<double>ptr_evtwtPVLow(new double(evtwtPVLow)); 
+  auto_ptr<double>ptr_evtwtPVHigh(new double(evtwtPVHigh)); 
   auto_ptr<unsigned>ptr_npv(new unsigned(npv)); 
+  auto_ptr<int>ptr_npuTrue(new int(npuTrue)); 
   auto_ptr<double>ptr_partonBin(new double(partonBin)); 
 
   evt.put(ptr_isData, "isData");
@@ -239,7 +259,10 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(ptr_evttype, "evttype");
   evt.put(ptr_evtwtGen, "evtwtGen");
   evt.put(ptr_evtwtPV, "evtwtPV");
+  evt.put(ptr_evtwtPVLow, "evtwtPVLow");
+  evt.put(ptr_evtwtPVHigh, "evtwtPVHigh");
   evt.put(ptr_npv, "npv");
+  evt.put(ptr_npuTrue, "npuTrue");
   evt.put(ptr_partonBin, "partonBin");
 
   return true ; 
@@ -250,6 +273,40 @@ void EventCleaner::beginJob() {
 }
 
 void EventCleaner::endJob() {
+  if (lhe_weight_labels_.size()) {
+    std::cout << std::string(78, '-') << "\n";
+    std::cout << "LHE event weights\n";
+    for (unsigned l = 0; l < lhe_weight_labels_.size(); ++l) {
+      std::cout << lhe_weight_labels_[l];
+    }
+  }
+}
+
+void EventCleaner::endRun(edm::Run const& run, edm::EventSetup const& es) {
+
+  if (lhe_weight_labels_.size()) return;
+  edm::Handle<LHERunInfoProduct> lhe_info;
+  run.getByLabel("externalLHEProducer", lhe_info);
+  LHERunInfoProduct myLHERunInfoProduct = *(lhe_info.product());
+  typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
+  for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
+    std::cout << iter->tag() << std::endl;
+    std::vector<std::string> lines = iter->lines();
+    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+      lhe_weight_labels_.push_back(lines.at(iLine));
+    }
+  }
+
+  //bool record = false;
+  //for (auto it = lhe_info->headers_begin(); it != lhe_info->headers_end(); ++it) {
+  //std::vector<std::string>::const_iterator iLt = it->begin();
+  //for (; iLt != it->end(); ++iLt) {
+  //  std::string const& line = *iLt;
+  //  if (line.find("<weightgroup")  != std::string::npos) record = true;
+  //  if (line.find("</weightgroup") != std::string::npos) record = false;
+  //  if (record) lhe_weight_labels_.push_back(line);
+  //}
+
 }
 
 double EventCleaner::GetLumiWeightsPVBased (const std::string file, const std::string hist, const unsigned npv) { 
