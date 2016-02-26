@@ -3,6 +3,7 @@
 #include <string>
 #include <TTree.h>
 #include <vector>
+#include <utility>  
 
 class TtHEventInfoBranches {
   public:
@@ -34,6 +35,8 @@ class TtHEventInfoBranches {
     bool   isRegionC_;
     bool   isRegionD_;
     bool   isRegionNotABCD_;
+    std::vector<std::pair<int, double> > lhewts_ ; 
+    double htHat_ ; 
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
       cutTree->Branch("EvtWeight", &EvtWeight_, "EvtWeight/D");
@@ -63,6 +66,8 @@ class TtHEventInfoBranches {
       cutTree->Branch("isRegionC",&isRegionC_, "isRegionC/O");
       cutTree->Branch("isRegionD",&isRegionD_, "isRegionD/O");
       cutTree->Branch("isRegionNotABCD",&isRegionNotABCD_, "isRegionNotABCD/O");
+      cutTree->Branch("lhewts", &lhewts_) ;  
+      cutTree->SetBranchAddress("htHat", &htHat_) ; 
     }
 
     //void ReadTree(TTree* tree, std::string name="SelectedEvents") {
