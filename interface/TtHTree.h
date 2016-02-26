@@ -9,10 +9,13 @@ class TtHEventInfoBranches {
 
     double EvtWeight_ ; 
     double EvtWtPV_;
+    double EvtWtPVLow_;
+    double EvtWtPVHigh_;
     double EvtWtHT_;
     double EvtWtHTUp_;
     double EvtWtHTDown_;
     int    npv_;
+    int    npuTrue_;
     double toptagsf_;
     double toptagsf_Up_;
     double toptagsf_Down_;
@@ -35,10 +38,13 @@ class TtHEventInfoBranches {
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
       cutTree->Branch("EvtWeight", &EvtWeight_, "EvtWeight/D");
       cutTree->Branch("EvtWtPV", &EvtWtPV_, "EvtWtPV/D");
+      cutTree->Branch("EvtWtPVLow", &EvtWtPVLow_, "EvtWtPVLow/D");
+      cutTree->Branch("EvtWtPVHigh", &EvtWtPVHigh_, "EvtWtPVHigh/D");
       cutTree->Branch("EvtWtHT", &EvtWtHT_, "EvtWtHT/D");
       cutTree->Branch("EvtWtHTUp", &EvtWtHTUp_, "EvtWtHTUp/D");
       cutTree->Branch("EvtWtHTDown", &EvtWtHTDown_, "EvtWtHTDown/D");
       cutTree->Branch("npv",&npv_, "npv/I");
+      cutTree->Branch("npuTrue",&npuTrue_, "npuTrue/I");
       cutTree->Branch("toptagsf",&toptagsf_, "toptagsf/D");
       cutTree->Branch("toptagsf_Up",&toptagsf_Up_, "toptagsf_Up/D");
       cutTree->Branch("toptagsf_Down",&toptagsf_Down_, "toptagsf_Down/D");
