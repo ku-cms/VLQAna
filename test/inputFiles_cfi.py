@@ -18,9 +18,9 @@ FileNames_TprimeBToTH_M1000=[
     ]
 
 FileNames_TprimeBToTH_M1200=[
-    '/store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_1.root',
-    '/store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_2.root',
-    '/store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_3.root',
+    'root://cms-xrd-global///store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_1.root',
+    'root://cms-xrd-global///store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_2.root',
+    'root://cms-xrd-global///store/user/eschmitz/B2G/25ns/ReMiniAOD_v2/TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_ReMiniAOD-b2ganafw74x_v8-4_25ns_TprimeBToTH_M-1200_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/160128_214155/0000/B2GEDMNtuple_3.root',
     ]
 
 FileNames_TprimeBToTH_M1500=[
