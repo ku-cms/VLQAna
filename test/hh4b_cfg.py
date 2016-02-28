@@ -29,6 +29,11 @@ options.register('jerShift', 1,
     VarParsing.varType.int,
     "JER shift"
     )
+options.register('doPUReweightingOfficial', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Do pileup reweighting using official recipe"
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -38,6 +43,7 @@ if options.isData:
     hltpaths = ['HLT_PFHT650', 'HLT_PFHT800', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50', 'HLT_AK8PFJet360_TrimMass30']
     options.doBTagSFUnc = False 
     options.jerShift = 0 
+    options.doPUReweightingOfficial=False 
 else: 
   hltpaths = []
 
@@ -51,9 +57,9 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
     #'root://cmsxrootd-site.fnal.gov//store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_73.root'
     #FileNames_BG1200
-    FileName_JetHT_PromptRecov4
+    #FileName_JetHT_PromptRecov4
     #FileName_QCD_HT1000to1500
-    #FileNames
+    FileNames
     ) 
     )
 
@@ -66,6 +72,7 @@ process.TFileService = cms.Service("TFileService",
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.isData = options.isData 
+process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 
 process.load('Analysis.VLQAna.HH4b_cff') 
 process.hh4b.jetAK8selParams.scaleJetP4 = cms.bool(False)
