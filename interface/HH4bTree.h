@@ -8,8 +8,18 @@ static const int MAX_JETS = 128 ;
 class EventInfoBranches {
   public:
 
+    int    runno_ ;
+    int    lumisec_ ; 
+    int    evtno_;    
+    int    bcno_;
+    int    time_;
     double htHat_; 
     double evtwt_ ;
+    double evtwtPV_;
+    double evtwtPVLow_;
+    double evtwtPVHigh_;
+    int    npv_;
+    int    npuTrue_;
     double deta_leading2hjets_;
     double minv_leading2hjets_;
     double minv_leading2hjets_subtr_;
@@ -23,28 +33,52 @@ class EventInfoBranches {
     double btagsf_bcDown_;
     double btagsf_lUp_;
     double btagsf_lDown_;
+    double ht_ ; 
+    std::vector<std::pair<int, double> > lhewts_ ; 
 
     void RegisterTree(TTree* tree, std::string name="SelectedEvents") {
-      tree->Branch((name+"_htHat").c_str(), &htHat_, (name+"htHat/D").c_str()) ; 
-      tree->Branch((name+"_evtwt").c_str(), &evtwt_, (name+"evtwt/D").c_str()) ; 
-      tree->Branch((name+"_deta_leading2hjets").c_str(), &deta_leading2hjets_, (name+"deta_leading2hjets/D").c_str()) ; 
-      tree->Branch((name+"_minv_leading2hjets").c_str(), &minv_leading2hjets_, (name+"minv_leading2hjets/D").c_str()) ; 
-      tree->Branch((name+"_minv_leading2hjets_subtr").c_str(), &minv_leading2hjets_subtr_, (name+"minv_leading2hjets_subtr/D").c_str()) ; 
-      tree->Branch((name+"_pt_leading2hjets").c_str(), &pt_leading2hjets_, (name+"pt_leading2hjets/D").c_str()) ; 
-      tree->Branch((name+"_eta_leading2hjets").c_str(), &eta_leading2hjets_, (name+"eta_leading2hjets/D").c_str()) ; 
-      tree->Branch((name+"_y_leading2hjets").c_str(), &y_leading2hjets_, (name+"y_leading2hjets/D").c_str()) ; 
-      tree->Branch((name+"_phi_leading2hjets").c_str(), &phi_leading2hjets_, (name+"phi_leading2hjets/D").c_str()) ; 
-      tree->Branch((name+"_nsubjetsBTaggedCSVL").c_str(), &nsubjetsBTaggedCSVL_, (name+"nsubjetsBTaggedCSVL/I").c_str()) ; 
-      tree->Branch((name+"_btagsf").c_str(), &btagsf_, (name+"btagsf/D").c_str()) ; 
-      tree->Branch((name+"_btagsf_bcUp").c_str(), &btagsf_bcUp_, (name+"btagsf_bcUp/D").c_str()) ; 
-      tree->Branch((name+"_btagsf_bcDown").c_str(), &btagsf_bcDown_, (name+"btagsf_bcDown/D").c_str()) ; 
-      tree->Branch((name+"_btagsf_lUp").c_str(), &btagsf_lUp_, (name+"btagsf_lUp/D").c_str()) ; 
-      tree->Branch((name+"_btagsf_lDown").c_str(), &btagsf_lDown_, (name+"btagsf_lDown/D").c_str()) ; 
+      tree->Branch((name+"_runno").c_str(),&runno_, (name+"_runno/I").c_str());
+      tree->Branch((name+"_lumisec").c_str(),&lumisec_, (name+"_lumisec/I").c_str());
+      tree->Branch((name+"_evtno").c_str(),&evtno_, (name+"_evtno/I").c_str());
+      tree->Branch((name+"_bcno").c_str(),&bcno_, (name+"_bcno/I").c_str());
+      tree->Branch((name+"_time").c_str(),&time_, (name+"_time/I").c_str());
+      tree->Branch((name+"_htHat").c_str(), &htHat_, (name+"_htHat/D").c_str()) ; 
+      tree->Branch((name+"_evtwt").c_str(), &evtwt_, (name+"_evtwt/D").c_str()) ; 
+      tree->Branch((name+"_evtwtPV").c_str(), &evtwtPV_, (name+"_evtwtPV/D").c_str()) ; 
+      tree->Branch((name+"_evtwtPVLow").c_str(), &evtwtPVLow_, (name+"_evtwtPVLow/D").c_str()) ; 
+      tree->Branch((name+"_evtwtPVHigh").c_str(), &evtwtPVHigh_, (name+"_evtwtPVHigh/D").c_str()) ; 
+      tree->Branch((name+"_npv").c_str(),&npv_, (name+"_npv/I").c_str());
+      tree->Branch((name+"_npuTrue").c_str(),&npuTrue_, (name+"_npuTrue/I").c_str());
+      tree->Branch((name+"_deta_leading2hjets").c_str(), &deta_leading2hjets_, (name+"_deta_leading2hjets/D").c_str()) ; 
+      tree->Branch((name+"_minv_leading2hjets").c_str(), &minv_leading2hjets_, (name+"_minv_leading2hjets/D").c_str()) ; 
+      tree->Branch((name+"_minv_leading2hjets_subtr").c_str(), &minv_leading2hjets_subtr_, (name+"_minv_leading2hjets_subtr/D").c_str()) ; 
+      tree->Branch((name+"_pt_leading2hjets").c_str(), &pt_leading2hjets_, (name+"_pt_leading2hjets/D").c_str()) ; 
+      tree->Branch((name+"_eta_leading2hjets").c_str(), &eta_leading2hjets_, (name+"_eta_leading2hjets/D").c_str()) ; 
+      tree->Branch((name+"_y_leading2hjets").c_str(), &y_leading2hjets_, (name+"_y_leading2hjets/D").c_str()) ; 
+      tree->Branch((name+"_phi_leading2hjets").c_str(), &phi_leading2hjets_, (name+"_phi_leading2hjets/D").c_str()) ; 
+      tree->Branch((name+"_nsubjetsBTaggedCSVL").c_str(), &nsubjetsBTaggedCSVL_, (name+"_nsubjetsBTaggedCSVL/I").c_str()) ; 
+      tree->Branch((name+"_btagsf").c_str(), &btagsf_, (name+"_btagsf/D").c_str()) ; 
+      tree->Branch((name+"_btagsf_bcUp").c_str(), &btagsf_bcUp_, (name+"_btagsf_bcUp/D").c_str()) ; 
+      tree->Branch((name+"_btagsf_bcDown").c_str(), &btagsf_bcDown_, (name+"_btagsf_bcDown/D").c_str()) ; 
+      tree->Branch((name+"_btagsf_lUp").c_str(), &btagsf_lUp_, (name+"_btagsf_lUp/D").c_str()) ; 
+      tree->Branch((name+"_btagsf_lDown").c_str(), &btagsf_lDown_, (name+"_btagsf_lDown/D").c_str()) ; 
+      tree->Branch((name+"_lhewts").c_str(), &lhewts_) ;  
+      tree->Branch((name+"_ht").c_str(),&ht_, (name+"_ht/I").c_str());
     }
 
     void ReadTree(TTree* tree, std::string name="SelectedEvents") {
+      tree->SetBranchAddress((name+"_runno").c_str(), &runno_) ; 
+      tree->SetBranchAddress((name+"_lumisec").c_str(), &lumisec_) ; 
+      tree->SetBranchAddress((name+"_evtno").c_str(), &evtno_) ; 
+      tree->SetBranchAddress((name+"_bcno").c_str(), &bcno_) ; 
+      tree->SetBranchAddress((name+"_time").c_str(), &time_) ; 
       tree->SetBranchAddress((name+"_htHat").c_str(), &htHat_) ; 
       tree->SetBranchAddress((name+"_evtwt").c_str(), &evtwt_) ; 
+      tree->SetBranchAddress((name+"_evtwtPV").c_str(), &evtwtPV_) ; 
+      tree->SetBranchAddress((name+"_evtwtPVLow").c_str(), &evtwtPVLow_) ; 
+      tree->SetBranchAddress((name+"_evtwtPVHigh").c_str(), &evtwtPVHigh_) ; 
+      tree->SetBranchAddress((name+"_npv").c_str(), &npv_) ; 
+      tree->SetBranchAddress((name+"_npuTrue").c_str(), &npuTrue_) ; 
       tree->SetBranchAddress((name+"_deta_leading2hjets").c_str(), &deta_leading2hjets_) ; 
       tree->SetBranchAddress((name+"_minv_leading2hjets").c_str(), &minv_leading2hjets_) ; 
       tree->SetBranchAddress((name+"_minv_leading2hjets_subtr").c_str(), &minv_leading2hjets_subtr_) ; 
@@ -58,6 +92,8 @@ class EventInfoBranches {
       tree->SetBranchAddress((name+"_btagsf_bcDown").c_str(), &btagsf_bcDown_) ; 
       tree->SetBranchAddress((name+"_btagsf_lUp").c_str(), &btagsf_lUp_) ; 
       tree->SetBranchAddress((name+"_btagsf_lDown").c_str(), &btagsf_lDown_) ; 
+      tree->SetBranchAddress((name+"_lhewts").c_str(), &lhewts_) ; 
+      tree->SetBranchAddress((name+"_ht").c_str(), &ht_) ; 
     }
 
 };
