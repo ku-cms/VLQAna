@@ -241,9 +241,9 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double evtwtPVLow(1.0) ;
   double evtwtPVHigh(1.0) ;
   if ( !isData_ ) {
+    npuTrue = *h_puNtrueInt ; 
     if ( doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
     else if ( doPUReweightingOfficial_ ) { 
-      npuTrue = *h_puNtrueInt ; 
       evtwtPV *= LumiWeights_.weight(npuTrue) ; 
       evtwtPVLow *= LumiWeightsLow_.weight(npuTrue) ; 
       evtwtPVHigh *= LumiWeightsHigh_.weight(npuTrue) ; 
