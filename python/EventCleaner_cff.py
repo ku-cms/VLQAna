@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from Analysis.VLQAna.VLQParams_cfi import * 
 
 evtcleaner = cms.EDFilter("EventCleaner",
-    generatorLabel             = cms.InputTag("generator"), 
+    runnoLabel                 = cms.InputTag("eventInfo", "evtInfoRunNumber"),
+    lumisecLabel               = cms.InputTag("eventInfo", "evtInfoLumiBlock"),
+    evtnoLabel                 = cms.InputTag("eventInfo", "evtInfoEventNumber"),
     trigNameLabel              = cms.InputTag("TriggerUserData", "triggerNameTree"), 
     trigBitLabel               = cms.InputTag("TriggerUserData", "triggerBitTree"), 
     metFiltersNameLabel        = cms.InputTag("METUserData", "triggerNameTree"), 
