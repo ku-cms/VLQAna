@@ -298,6 +298,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   } //// If N(H jets) >= 2
 
   selectedevt.htHat_ = htHat ; 
+  selectedevt.evtwt_ = evtwt ; 
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
   selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 
