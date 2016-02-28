@@ -36,6 +36,9 @@ class EventCleaner : public edm::EDFilter {
     edm::LumiReWeighting LumiWeightsLow_;
     edm::LumiReWeighting LumiWeightsHigh_;
 
+    edm::InputTag l_runno                                  ; 
+    edm::InputTag l_lumisec                                ; 
+    edm::InputTag l_evtno                                  ; 
     edm::InputTag l_trigName                               ; 
     edm::InputTag l_trigBit                                ; 
     edm::InputTag l_metFiltersName                         ; 
@@ -75,6 +78,9 @@ class EventCleaner : public edm::EDFilter {
 };
 
 EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
+  l_runno                 (iConfig.getParameter<edm::InputTag>            ("runnoLabel")),
+  l_lumisec               (iConfig.getParameter<edm::InputTag>            ("lumisecLabel")),
+  l_evtno                 (iConfig.getParameter<edm::InputTag>            ("evtnoLabel")),
   l_trigName              (iConfig.getParameter<edm::InputTag>            ("trigNameLabel")),
   l_trigBit               (iConfig.getParameter<edm::InputTag>            ("trigBitLabel")),
   l_metFiltersName        (iConfig.getParameter<edm::InputTag>            ("metFiltersNameLabel")),
@@ -115,6 +121,9 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   consumes<LHERunInfoProduct>({"externalLHEProducer"});
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
   t_lheEvtProd = consumes<LHEEventProduct>(l_lheEvtProd) ; 
+  produces<int>("evtno");
+  produces<int>("lumisec");
+  produces<int>("runno");
   produces<bool>("isData");
   produces<bool>("hltdecision");
   produces<std::string>("evttype"); 
@@ -140,6 +149,9 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   typedef Handle <vector<int>> hint ; 
 
   //hstring h_generator             ; evt.getByLabel (l_generator              , h_generator            );
+  Handle<unsigned int> h_runno    ; evt.getByLabel (l_runno                  , h_runno                );
+  Handle<unsigned int> h_lumisec  ; evt.getByLabel (l_lumisec                , h_lumisec              );
+  Handle<ULong64_t> h_evtno       ; evt.getByLabel (l_evtno                  , h_evtno                );
   hstring h_trigName              ; evt.getByLabel (l_trigName               , h_trigName             );
   hfloat  h_trigBit               ; evt.getByLabel (l_trigBit                , h_trigBit              ); 
   hstring h_metFiltersName        ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
@@ -149,6 +161,10 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   hint    h_vtxNdf                ; evt.getByLabel (l_vtxNdf                 , h_vtxNdf               );
   Handle<int>   h_npv             ; evt.getByLabel (l_npv                    , h_npv                  );
   Handle<int>   h_puNtrueInt      ; evt.getByLabel (l_puNtrueInt             , h_puNtrueInt           );
+
+  const int runno  ( (2*isData_ - 1) * (*h_runno) )   ; //// If MC, -ve sign for runno  
+  const int lumisec( (2*isData_ - 1) * (*h_lumisec) ) ; //// If MC, -ve sign for lumisec
+  const int evtno  ( (2*isData_ - 1) * (*h_evtno) )   ; //// If MC, -ve sign for evtno  
 
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
@@ -268,6 +284,9 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     if ( vlqBbH.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bHtW" ; 
   }
 
+  auto_ptr<int>ptr_evtno(new int(evtno)); 
+  auto_ptr<int>ptr_lumisec(new int(lumisec)); 
+  auto_ptr<int>ptr_runno(new int(runno)); 
   auto_ptr<bool>ptr_isData(new bool(isData_)); 
   auto_ptr<bool>ptr_hltdecision(new bool(hltdecision)); 
   auto_ptr<string>ptr_evttype(new string(evttype)); 
@@ -281,6 +300,9 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   auto_ptr<std::vector<int>> ptr_lhewtids(new std::vector<int>(lhewtids));
   auto_ptr<std::vector<double>> ptr_lhewts(new std::vector<double>(lhewts));
 
+  evt.put(ptr_evtno, "evtno");
+  evt.put(ptr_lumisec, "lumisec");
+  evt.put(ptr_runno, "runno");
   evt.put(ptr_isData, "isData");
   evt.put(ptr_hltdecision, "hltdecision");
   evt.put(ptr_evttype, "evttype");
@@ -313,16 +335,18 @@ void EventCleaner::endJob() {
 
 void EventCleaner::endRun(edm::Run const& run, edm::EventSetup const& es) {
 
-  if (lhe_weight_labels_.size()) return;
-  edm::Handle<LHERunInfoProduct> lhe_info;
-  run.getByLabel("externalLHEProducer", lhe_info);
-  LHERunInfoProduct myLHERunInfoProduct = *(lhe_info.product());
-  typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
-  for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
-    //std::cout << iter->tag() << std::endl;
-    std::vector<std::string> lines = iter->lines();
-    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-      lhe_weight_labels_.push_back(lines.at(iLine));
+  if ( !isData_ ) {
+    if (lhe_weight_labels_.size()) return;
+    edm::Handle<LHERunInfoProduct> lhe_info;
+    run.getByLabel("externalLHEProducer", lhe_info);
+    LHERunInfoProduct myLHERunInfoProduct = *(lhe_info.product());
+    typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
+    for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
+      //std::cout << iter->tag() << std::endl;
+      std::vector<std::string> lines = iter->lines();
+      for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+        lhe_weight_labels_.push_back(lines.at(iLine));
+      }
     }
   }
 
