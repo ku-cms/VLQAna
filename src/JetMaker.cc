@@ -1,5 +1,8 @@
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/ApplyJER.h"
+#include "Analysis/VLQAna/interface/Utilities.h"
+
+#define DEBUG false
 
 using namespace std;
 using namespace edm ; 
@@ -182,6 +185,19 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
       newJetP4 = uncorrJetP4*newJEC ; 
 
+#if DEBUG
+      cout 
+        << " \nold jec = " << 1./(h_jetJEC.product())->at(ijet) 
+        << " \nnew jec = " << newJEC 
+        << " \njet pt uncorrected   = " << uncorrJetP4.Pt() 
+        << " \njet mass uncorrected = " << uncorrJetP4.Mag() 
+        << " \njet pt before        = " << jetP4.Pt() 
+        << " \njet mass before      = " << jetP4.Mag() 
+        << " \njet pt newJec        = " << newJetP4.Pt() 
+        << " \njet mass newJEC      = " << newJetP4.Mag() 
+        << endl ; 
+#endif 
+
       double ptsmear(1.) ;
       if ( jerShift_ != 0 ) {
         double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
@@ -192,6 +208,13 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
       newJetP4 *= ptsmear ; 
 
+#if DEBUG
+      cout 
+        << " \njet pt ptsmear       = " << newJetP4.Pt() 
+        << " \njet mass ptsmear     = " << newJetP4.Mag() 
+        << endl ; 
+#endif 
+
       double unc(0);
       if (jecShift_ != 0 ) {
         ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
@@ -199,7 +222,13 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         unc = ptr_jecUnc->getUncertainty(true);
       }
       newJetP4 *= (1 + jecShift_*unc) ; 
-      newJetP4 = jetP4 ; 
+
+#if DEBUG
+      cout 
+        << " \njet pt jecshift      = " << newJetP4.Pt() 
+        << " \njet mass jecshift    = " << newJetP4.Mag() 
+        << endl ; 
+#endif 
 
       JetID jetID(JetIDParams_) ; 
       pat::strbitset retjetid = jetID.getBitTemplate() ;
@@ -286,9 +315,23 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
         }
 
-        newJetP4 *= massCorr * masssmear ; 
+        newJetP4.SetVectM(newJetP4.Vect(), newJetP4.Mag()*massCorr*masssmear) ; 
+
+#if DEBUG
+        cout 
+          << " \njet pt massCorrSmear = " << newJetP4.Pt() 
+          << " \njet mass massCorrSmear " << newJetP4.Mag() 
+          << endl ; 
+#endif 
 
         if (scaleJetP4_ ) newJetP4 *= scaledJetMass_/newJetP4.Mag() ; 
+
+#if DEBUG
+        cout 
+          << " \njet pt scaleJetP4    = " << newJetP4.Pt() 
+          << " \njet mass scaleJetP4  = " << newJetP4.Mag() 
+          << endl ; 
+#endif 
 
         jettau1         = (h_jettau1.product())->at(ijet) ; 
         jettau2         = (h_jettau2.product())->at(ijet) ; 
@@ -378,6 +421,15 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
       jets.push_back(jet) ; 
 
+#if DEBUG
+      cout 
+        << " \njet pt finally       = " << jet.getPt() 
+        << " \njet mass finally     = " << jet.getMass() 
+        << endl ; 
+#endif 
+
   } //// loop over jets 
+
+  std::sort(jets.begin(), jets.end(), Utilities::sortByPt<vlq::Jet>) ; 
 
 }
