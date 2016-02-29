@@ -53,6 +53,11 @@ options.register('doPreselOnly', False,
     VarParsing.varType.bool,
     "Only run pre-selections"
     )
+options.register('storeLHEWts', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Store LHE wts?"
+    )
 
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
@@ -65,6 +70,7 @@ if options.isData:
     options.doBTagSFUnc = False 
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
+    options.storeLHEWts=False
 
 process = cms.Process("VLQAna")
 
@@ -94,15 +100,11 @@ process.TFileService = cms.Service("TFileService",
 #      )
 #    )
 
-from Analysis.EventCounter.eventcounter_cfi import eventCounter
-process.allEvents = eventCounter.clone(isData=options.isData)
-process.cleanedEvents = eventCounter.clone(isData=options.isData)
-process.finalEvents = eventCounter.clone(isData=options.isData)
-
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
+process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
 process.ana.doBTagSFUnc = options.doBTagSFUnc
@@ -120,6 +122,11 @@ process.ana.jetTopTaggedselParams.jettau3Bytau2Max = options.topTagtau32
 process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
 process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
+
+from Analysis.EventCounter.eventcounter_cfi import eventCounter
+process.allEvents = eventCounter.clone(isData=options.isData)
+process.cleanedEvents = eventCounter.clone(isData=options.isData)
+process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.p = cms.Path(
     process.allEvents

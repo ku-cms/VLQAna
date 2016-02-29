@@ -34,6 +34,11 @@ options.register('doPUReweightingOfficial', True,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
+options.register('storeLHEWts', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Store LHE wts?"
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -44,6 +49,7 @@ if options.isData:
     options.doBTagSFUnc = False 
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
+    options.storeLHEWts=False
 else: 
   hltpaths = []
 
@@ -73,6 +79,7 @@ process.load("Analysis.VLQAna.EventCleaner_cff")
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
+process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 process.load('Analysis.VLQAna.HH4b_cff') 
 process.hh4b.jetAK8selParams.scaleJetP4 = cms.bool(False)
