@@ -44,6 +44,7 @@ class HH4b : public edm::EDFilter {
     edm::InputTag l_npuTrue                      ;
     JetMaker     jetAK8maker                     ; 
     JetMaker     jetHTaggedmaker                 ; 
+    const std::string  btageffFile_              ;
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
     EventInfoBranches selectedevt; 
@@ -114,7 +115,8 @@ HH4b::HH4b(const edm::ParameterSet& iConfig) :
   l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
   l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
-  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"))   
+  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")),
+  btageffFile_            (iConfig.getParameter<std::string>       ("btageffFile"))
 {
 }
 
@@ -378,9 +380,27 @@ bool HH4b::passHiggsTagging(vlq::Jet jet) {
 
 double HH4b::getBTagEff_CSVv2L (double pt, double jetFl) {
   double eff(1) ; 
-  if (jetFl == 5) eff = 0.8 ; 
+  int bin(1);
+  //std::string hname="";
+  //if (jetFl == 5) hname="b_sub1And2PtR";
+  //else if (jetFl == 4) hname="c_sub1And2PtR";
+  //else if (jetFl == 0) hname="light_sub1And2PtR"; 
+  //TFile f(btageffFile_.c_str());
+  //TH1D* heff = dynamic_cast<TH1D*>( f.Get(hname.c_str()) ) ; 
+  //int bin = heff->FindBin(pt) ;
+  //if ( bin < 1 ) eff = 0; 
+  //else  { 
+  //  if ( bin > heff->GetNbinsX() ) bin = heff->GetNbinsX(); 
+  //  eff = heff->GetBinContent( bin ) ; 
+  //}
+  //delete heff ;
+  //f.Close();
+
+  if (jetFl == 5) eff = 0.7 ; 
   else if (jetFl == 4) eff = 0.3 ; 
   else if (jetFl == 0) eff = 0.1 ; 
+  //cout << " jet pt = " << pt << "  flavour = " << jetFl << " btag eff bin = " << bin << " eff = " << eff << endl;
+
   return eff ;
 }
 
