@@ -23,4 +23,5 @@ hh4b = cms.EDFilter("HH4b",
       jetPrunedMassMin    = cms.double(90) ,
       jetPrunedMassMax    = cms.double(145) ,
       ),
+    btageffFile         = cms.string("btag-eff-subjet.root"), 
     )
