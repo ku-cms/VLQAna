@@ -43,6 +43,11 @@ options.register('topTagBDisc', 0.79,
     VarParsing.varType.float,
     "Top-tagging b-discriminator cut"
     )
+options.register('HTMin', 1000,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "Minimum HT"
+    )
 options.register('storePreselEvts', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -71,6 +76,10 @@ if options.isData:
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
+
+HTMin=1000
+if options.storePreselEvts:
+  HTMin = options.HTMin
 
 process = cms.Process("VLQAna")
 
@@ -122,6 +131,7 @@ process.ana.jetTopTaggedselParams.jettau3Bytau2Max = options.topTagtau32
 process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
 process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
+process.ana.HTMin = HTMin
 
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
