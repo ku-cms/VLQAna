@@ -355,8 +355,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     if ( theHiggs != nullptr || theAntiHiggs != nullptr ) {
 
-      cout << " getting btag sf \n" ; 
-
       double sj0csv(0) ; 
       double sj0pt (0) ; 
       double sj0fl (0) ; 
@@ -370,12 +368,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         sj1csv=(theHiggs->getCSVSubjet1()) ; 
         sj1pt =(theHiggs->getPtSubjet1()) ; 
         sj1fl =(theHiggs->getHadronFlavourSubjet1()) ; 
-
-        cout << " theHiggs "
-          << " sj0csv = " << sj0csv
-          << " sj1csv = " << sj1csv
-          << endl ;
-
       }
       else if ( theAntiHiggs != nullptr ) {
         sj0csv=(theAntiHiggs->getCSVSubjet0()) ; 
@@ -384,18 +376,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         sj1csv=(theAntiHiggs->getCSVSubjet1()) ; 
         sj1pt =(theAntiHiggs->getPtSubjet1()) ; 
         sj1fl =(theAntiHiggs->getHadronFlavourSubjet1()) ; 
-
-        cout << " theAntiHiggs "
-          << " sj0csv = " << sj0csv
-          << " sj1csv = " << sj1csv
-          << endl ;
-
       }
-
-      cout << " theHiggs "
-        << " sj0csv = " << sj0csv
-        << " sj1csv = " << sj1csv
-        << endl ;
 
       ////// Get btag SFs
       if ( sj0csv > 0.605 ) btagsf *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl, 0, 0) ; 
