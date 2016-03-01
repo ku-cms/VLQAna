@@ -39,6 +39,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
 #include "Analysis/VLQAna/interface/TtHTree.h"
+#include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
 #include <TF1.h>
 #include <TH1D.h>
@@ -60,8 +61,6 @@ class VLQAna : public edm::EDFilter {
     virtual void endJob() override;
 
     double getHTReweightingSF(double ht, double err); 
-    double getBTagEff_CSVv2L (double pt, double hadFl) ; 
-    double getBTagSF_CSVv2L (double pt, double hadFl, double err_bc, double err_l) ; 
 
     // ----------member data ---------------------------
     edm::InputTag l_isData                       ;
@@ -198,7 +197,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
   if ( !hltdecision ) return false; 
-  
+
   h1_["cutflow"] -> Fill(2, evtwt) ; 
 
   vlq::JetCollection goodAK4Jets;
@@ -354,47 +353,81 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       toptagsfDown = 0.94-0.29;
     }
 
-    if ( theHiggs != nullptr ) {
+    if ( theHiggs != nullptr || theAntiHiggs != nullptr ) {
 
-      double sj0csv(theHiggs->getCSVSubjet0()) ; 
-      double sj0pt (theHiggs->getPtSubjet0()) ; 
-      double sj0fl (theHiggs->getHadronFlavourSubjet0()) ; 
-      double sj1csv(theHiggs->getCSVSubjet1()) ; 
-      double sj1pt (theHiggs->getPtSubjet1()) ; 
-      double sj1fl (theHiggs->getHadronFlavourSubjet1()) ; 
+      cout << " getting btag sf \n" ; 
 
-      ////// Get btag SFs
-      if ( sj0csv > 0.605 ) btagsf *= getBTagSF_CSVv2L(sj0pt, sj0fl, 0, 0) ; 
-      else btagsf *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,0,0)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-      if ( sj1csv > 0.605 ) btagsf *= getBTagSF_CSVv2L(sj1pt, sj1fl, 0, 0) ; 
-      else btagsf *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+      double sj0csv(0) ; 
+      double sj0pt (0) ; 
+      double sj0fl (0) ; 
+      double sj1csv(0) ; 
+      double sj1pt (0) ; 
+      double sj1fl (0) ; 
+      if ( theHiggs != nullptr ) {
+        sj0csv=(theHiggs->getCSVSubjet0()) ; 
+        sj0pt =(theHiggs->getPtSubjet0()) ; 
+        sj0fl =(theHiggs->getHadronFlavourSubjet0()) ; 
+        sj1csv=(theHiggs->getCSVSubjet1()) ; 
+        sj1pt =(theHiggs->getPtSubjet1()) ; 
+        sj1fl =(theHiggs->getHadronFlavourSubjet1()) ; 
 
-      if (doBTagSFUnc_) {
-        //// Get btag SF up bc err
-        if ( sj0csv > 0.605 ) btagsf_bcUp *= getBTagSF_CSVv2L(sj0pt, sj0fl,1,0) ; 
-        else btagsf_bcUp *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,1,0)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-        if ( sj1csv > 0.605 ) btagsf_bcUp *= getBTagSF_CSVv2L(sj1pt, sj1fl,1,0) ; 
-        else btagsf_bcUp *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,1,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-        if ( sj0csv > 0.605 ) btagsf_bcDown *= getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0) ; 
-        else btagsf_bcDown *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-        if ( sj1csv > 0.605 ) btagsf_bcDown *= getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0) ; 
-        else btagsf_bcDown *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-        //// Get btag SF up light err
-        if ( sj0csv > 0.605 ) btagsf_lUp *= getBTagSF_CSVv2L(sj0pt, sj0fl,0,1) ; 
-        else btagsf_lUp *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,0,1)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-        if ( sj1csv > 0.605 ) btagsf_lUp *= getBTagSF_CSVv2L(sj1pt, sj1fl,0,1) ; 
-        else btagsf_lUp *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,1)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-        if ( sj0csv > 0.605 ) btagsf_lDown *= getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1) ; 
-        else btagsf_lDown *= ( 1 - getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1)*getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-        if ( sj1csv > 0.605 ) btagsf_lDown *= getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1) ; 
-        else btagsf_lDown *= ( 1 - getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1)*getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+        cout << " theHiggs "
+          << " sj0csv = " << sj0csv
+          << " sj1csv = " << sj1csv
+          << endl ;
 
       }
-    }
-  }
+      else if ( theAntiHiggs != nullptr ) {
+        sj0csv=(theAntiHiggs->getCSVSubjet0()) ; 
+        sj0pt =(theAntiHiggs->getPtSubjet0()) ; 
+        sj0fl =(theAntiHiggs->getHadronFlavourSubjet0()) ; 
+        sj1csv=(theAntiHiggs->getCSVSubjet1()) ; 
+        sj1pt =(theAntiHiggs->getPtSubjet1()) ; 
+        sj1fl =(theAntiHiggs->getHadronFlavourSubjet1()) ; 
+
+        cout << " theAntiHiggs "
+          << " sj0csv = " << sj0csv
+          << " sj1csv = " << sj1csv
+          << endl ;
+
+      }
+
+      cout << " theHiggs "
+        << " sj0csv = " << sj0csv
+        << " sj1csv = " << sj1csv
+        << endl ;
+
+      ////// Get btag SFs
+      if ( sj0csv > 0.605 ) btagsf *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl, 0, 0) ; 
+      else btagsf *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,0)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+      if ( sj1csv > 0.605 ) btagsf *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl, 0, 0) ; 
+      else btagsf *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,0)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+      //// Get btag SF up bc err
+      if ( sj0csv > 0.605 ) btagsf_bcUp *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,1,0) ; 
+      else btagsf_bcUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+      if ( sj1csv > 0.605 ) btagsf_bcUp *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,1,0) ; 
+      else btagsf_bcUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+      if ( sj0csv > 0.605 ) btagsf_bcDown *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0) ; 
+      else btagsf_bcDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+      if ( sj1csv > 0.605 ) btagsf_bcDown *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0) ; 
+      else btagsf_bcDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+      //// Get btag SF up light err
+      if ( sj0csv > 0.605 ) btagsf_lUp *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,1) ; 
+      else btagsf_lUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,1)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+      if ( sj1csv > 0.605 ) btagsf_lUp *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,1) ; 
+      else btagsf_lUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,1)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+      if ( sj0csv > 0.605 ) btagsf_lDown *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1) ; 
+      else btagsf_lDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
+      if ( sj1csv > 0.605 ) btagsf_lDown *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1) ; 
+      else btagsf_lDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+
+    } //// Do b-tag SFs
+
+  } //// if !isData
 
   if ( isRegionB ) {
     h1_["RegB_HT"] -> Fill(htak4.getHT(), evtwt) ; 
@@ -918,59 +951,6 @@ double VLQAna::getHTReweightingSF(double ht, double err) {
         1000, 10000) ) ;
   wt = htReweightFun->Eval(ht) + (err*htReweightFunErr->Eval(ht)) ; 
   return wt;
-}
-
-double VLQAna::getBTagEff_CSVv2L (double pt, double jetFl) {
-  double eff(1) ; 
-  if (jetFl == 5) eff = 0.8 ; 
-  else if (jetFl == 4) eff = 0.3 ; 
-  else if (jetFl == 0) eff = 0.1 ; 
-  return eff ;
-}
-
-double VLQAna::getBTagSF_CSVv2L (double pt, double jetFl, double errbc, double errl) {
-  double btagsf(1);
-
-  TF1* SFb_CSVv2L = new TF1("SFb_CSVv2L", "0.908299+(2.70877e-06*(log(x+370.144)*(log(x+370.144)*(3-(-(104.614*log(x+370.144)))))))",0,2000) ;
-
-  std::map<std::pair<double,double>,double> SFb_CSVv2L_err = { 
-    {std::make_pair(30,50)  , 0.022327613085508347}, 
-    {std::make_pair(50,70)  , 0.015330483205616474}, 
-    {std::make_pair(70,100) , 0.024493992328643799}, 
-    {std::make_pair(100,140), 0.020933238789439201}, 
-    {std::make_pair(140,200), 0.029219608753919601}, 
-    {std::make_pair(200,300), 0.039571482688188553}, 
-    {std::make_pair(300,670), 0.047329759448766708}  
-  } ;
-
-  TF1* SFc_CSVv2L = new TF1("SFc_CSVv2L", "0.908299+(2.70877e-06*(log(x+370.144)*(log(x+370.144)*(3-(-(104.614*log(x+370.144)))))))",0,2000) ;
-
-  std::map<std::pair<double,double>,double> SFc_CSVv2L_err = { 
-    {std::make_pair(30,50)  , 0.044655226171016693}, 
-    {std::make_pair(50,70)  , 0.030660966411232948}, 
-    {std::make_pair(70,100) , 0.048987984657287598}, 
-    {std::make_pair(100,140), 0.041866477578878403}, 
-    {std::make_pair(140,200), 0.058439217507839203}, 
-    {std::make_pair(200,300), 0.079142965376377106}, 
-    {std::make_pair(300,670), 0.094659518897533417}  
-  } ;
-
-  TF1* SFl_CSVv2L = new TF1("SFl_CSVv2L", "((1.07278+(0.000535714*x))+(-1.14886e-06*(x*x)))+(7.0636e-10*(x*(x*x)))",0,2000) ;
-  TF1* SFl_CSVv2L_errUp = new TF1("SFl_CSVv2L_errUp", "((1.12921+(0.000804962*x))+(-1.87332e-06*(x*x)))+(1.18864e-09*(x*(x*x)))",0,2000) ; 
-  TF1* SFl_CSVv2L_errDown = new TF1("SFl_CSVv2L_errDown", "((1.01637+(0.000265653*x))+(-4.22531e-07*(x*x)))+(2.23396e-10*(x*(x*x)))",0,2000) ;
-
-  double errb(0), errc(0) ; 
-  for ( auto const& ent : SFb_CSVv2L_err ) if (pt >= (ent.first).first && pt < (ent.first).second ) errb = ent.second ; 
-  for ( auto const& ent : SFc_CSVv2L_err ) if (pt >= (ent.first).first && pt < (ent.first).second ) errc = ent.second ; 
-
-  if (jetFl == 5) btagsf = SFb_CSVv2L->Eval(pt) + errb*errbc; 
-  else if (jetFl == 4) btagsf = SFc_CSVv2L->Eval(pt) + errc*errbc; 
-  else if (jetFl == 0) btagsf = (
-      SFl_CSVv2L->Eval(pt)*(1 - abs(errl)) + 
-      (SFl_CSVv2L_errUp->Eval(pt)*abs(errl)*(1+errl)/2) + 
-      (SFl_CSVv2L_errDown->Eval(pt)*abs(errl)*(1-errl)/2) ) ;  
-
-  return btagsf ; 
 }
 
 DEFINE_FWK_MODULE(VLQAna);
