@@ -85,7 +85,7 @@ def main():
     #config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
     #config.Data.splitting = 'FileBased'
     config.Data.splitting = 'LumiBased'
-    config.Data.unitsPerJob = 5
+    config.Data.unitsPerJob = 2
     config.Data.ignoreLocality = False
     config.Data.publication = False     
     config.Data.outLFNDirBase = '/store/group/phys_b2g/devdatta/TpToTH_PreselTrees_01Mar2016/'
