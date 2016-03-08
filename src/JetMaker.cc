@@ -2,6 +2,8 @@
 #include "Analysis/VLQAna/interface/ApplyJER.h"
 #include "Analysis/VLQAna/interface/Utilities.h"
 
+#include <TRandom.h>
+
 #define DEBUG false
 
 using namespace std;
@@ -204,12 +206,29 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         double pt_reco   = uncorrJetP4.Pt() ;
         double eta_reco = uncorrJetP4.Eta() ; 
         double jerscalep4 = ApplyJERp4(eta_reco, jerShift_) ; 
-        ptsmear = std::max( 0.0, pt_gen + jerscalep4*(pt_reco - pt_gen) )/pt_reco ; 
+        if (pt_gen > 0.) ptsmear = std::max( 0.0, pt_gen + jerscalep4*(pt_reco - pt_gen) )/pt_reco ; 
+        else {
+          TRandom* rand = new TRandom();
+          ptsmear = rand->Gaus(pt_reco, sqrt( (jerscalep4*jerscalep4 - 1)*0.1 ))/pt_reco ; //// Assuming 10% JER
+          delete rand; 
+        }
+        newJetP4 *= ptsmear ; 
+#if DEBUG
+        cout 
+          << " \n pt reco             = " << pt_reco
+          << " \n pt gen              = " << pt_gen
+          << " \n eta_reco            = " << eta_reco
+          << " \n jerscalep4          = " << jerscalep4
+          << " \n jer smear           = " << ptsmear 
+          << " \njet pt ptsmear       = " << newJetP4.Pt() 
+          << " \njet mass ptsmear     = " << newJetP4.Mag() 
+          << endl ; 
+#endif 
       }
-      newJetP4 *= ptsmear ; 
 
 #if DEBUG
       cout 
+        << " \n jer smear           = " << ptsmear 
         << " \njet pt ptsmear       = " << newJetP4.Pt() 
         << " \njet mass ptsmear     = " << newJetP4.Mag() 
         << endl ; 
