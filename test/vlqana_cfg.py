@@ -86,8 +86,8 @@ process = cms.Process("VLQAna")
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      FileNames_TprimeBToTH_M1200
-      #FileName_QCD_HT500to2000
+      #FileNames_TprimeBToTH_M1200
+      FileName_QCD_HT1000to1500
       )
     )
 
