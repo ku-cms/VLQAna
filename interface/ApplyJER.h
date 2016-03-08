@@ -9,6 +9,7 @@ double ApplyJERMass() {
 double ApplyJERp4 (double eta, int jerShift) {
 
   eta = abs(eta) ;
+  if (eta >= 4.7) eta = 4.699 ;
   double jerscale(0) ; 
 
   if (eta >= 3.2 && eta < 4.7) {
