@@ -4,7 +4,8 @@
 
 #include <TRandom.h>
 
-#define DEBUG false
+#define DEBUGMORE false
+#define DEBUG true
 
 using namespace std;
 using namespace edm ; 
@@ -187,7 +188,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
       newJetP4 = uncorrJetP4*newJEC ; 
 
-#if DEBUG
+#if DEBUGMORE
       cout 
         << " \nold jec = " << 1./(h_jetJEC.product())->at(ijet) 
         << " \nnew jec = " << newJEC 
@@ -209,7 +210,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         if (pt_gen > 0.) ptsmear = std::max( 0.0, pt_gen + jerscalep4*(pt_reco - pt_gen) )/pt_reco ; 
         else {
           TRandom* rand = new TRandom();
-          ptsmear = rand->Gaus(pt_reco, sqrt( (jerscalep4*jerscalep4 - 1)*0.1 ))/pt_reco ; //// Assuming 10% JER
+          ptsmear = rand->Gaus(pt_reco, sqrt(jerscalep4*jerscalep4 - 1)*0.2)/pt_reco ; //// Assuming 20% JER
           delete rand; 
         }
         newJetP4 *= ptsmear ; 
@@ -226,7 +227,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 #endif 
       }
 
-#if DEBUG
+#if DEBUGMORE
       cout 
         << " \n jer smear           = " << ptsmear 
         << " \njet pt ptsmear       = " << newJetP4.Pt() 
@@ -242,7 +243,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
       newJetP4 *= (1 + jecShift_*unc) ; 
 
-#if DEBUG
+#if DEBUGMORE
       cout 
         << " \njet pt jecshift      = " << newJetP4.Pt() 
         << " \njet mass jecshift    = " << newJetP4.Mag() 
@@ -336,7 +337,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
         newJetP4.SetVectM(newJetP4.Vect(), newJetP4.Mag()*massCorr*masssmear) ; 
 
-#if DEBUG
+#if DEBUGMORE
         cout 
           << " \njet pt massCorrSmear = " << newJetP4.Pt() 
           << " \njet mass massCorrSmear " << newJetP4.Mag() 
@@ -345,7 +346,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
         if (scaleJetP4_ ) newJetP4 *= scaledJetMass_/newJetP4.Mag() ; 
 
-#if DEBUG
+#if DEBUGMORE
         cout 
           << " \njet pt scaleJetP4    = " << newJetP4.Pt() 
           << " \njet mass scaleJetP4  = " << newJetP4.Mag() 
@@ -440,7 +441,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
       jets.push_back(jet) ; 
 
-#if DEBUG
+#if DEBUGMORE
       cout 
         << " \njet pt finally       = " << jet.getPt() 
         << " \njet mass finally     = " << jet.getMass() 
