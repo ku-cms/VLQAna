@@ -24,9 +24,14 @@ struct BTagSFUtils {
       //f.Close();
 
       double eff(1) ; 
-      if (jetFl == 5) eff = 0.8 ; 
-      else if (jetFl == 4) eff = 0.3 ; 
-      else if (jetFl == 0) eff = 0.1 ; 
+      jetFl = abs(jetFl) ; 
+      if ( pt > 0 ) {
+        if (jetFl == 5) eff = 0.8 ; 
+        else if (jetFl == 4) eff = 0.3 ; 
+        else if (jetFl == 0) eff = 0.1 ; 
+        else eff = 0.; 
+      }
+      else eff = 0.; 
       return eff ;
     }
 
@@ -34,6 +39,7 @@ struct BTagSFUtils {
       double btagsf(1);
 
       double pt(jetPt) ; 
+      jetFl = abs(jetFl) ; 
       if ((jetFl == 5 || jetFl == 4)) {
         if (jetPt < 30.) {
           pt = 30; 
