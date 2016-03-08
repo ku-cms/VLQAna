@@ -49,8 +49,8 @@ def main():
     config.section_("JobType")
     config.JobType.pluginName = 'Analysis'
     config.JobType.psetName = 'vlqana_cfg.py' 
-    #config.JobType.pyCfgParams = ['isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=800', 'storePreselEvts=True'] 
-    config.JobType.pyCfgParams = ['isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=800', 'storePreselEvts=True'] 
+    config.JobType.pyCfgParams = ['isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=800', 'storePreselEvts=True'] 
+    #config.JobType.pyCfgParams = ['isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=800', 'storePreselEvts=True'] 
     config.JobType.inputFiles = [
          'hnpv_data_Run2015D_mc_RunIISpring15DR74-Asympt25ns_pvwt.root'
         ,'PUDistData_Run2015ABCD.root'
@@ -83,8 +83,8 @@ def main():
     config.Data.inputDataset = None
     config.Data.inputDBS = 'phys03'
     #config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
-    #config.Data.splitting = 'FileBased'
-    config.Data.splitting = 'LumiBased'
+    config.Data.splitting = 'FileBased'
+    #config.Data.splitting = 'LumiBased'
     config.Data.unitsPerJob = 2
     config.Data.ignoreLocality = False
     config.Data.publication = False     
