@@ -4,8 +4,8 @@
 
 #include <TRandom.h>
 
-#define DEBUGMORE false
-#define DEBUG true
+#define DEBUGMORE false 
+#define DEBUG false
 
 using namespace std;
 using namespace edm ; 
@@ -167,6 +167,11 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
   for (unsigned ijet = 0; ijet < (h_jetPt.product())->size(); ++ijet) { 
 
+      double jetPt = (h_jetPt.product())->at(ijet) ; 
+      if (jetPt == 0.) continue; 
+      double jetAbsEta = abs((h_jetEta.product())->at(ijet)) ;
+      if (jetAbsEta  > idxjetAbsEtaMax_) continue ; 
+
       TLorentzVector  jetP4, uncorrJetP4, newJetP4;
 
       jetP4.SetPtEtaPhiM( (h_jetPt.product())->at(ijet), 
@@ -227,14 +232,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 #endif 
       }
 
-#if DEBUGMORE
-      cout 
-        << " \n jer smear           = " << ptsmear 
-        << " \njet pt ptsmear       = " << newJetP4.Pt() 
-        << " \njet mass ptsmear     = " << newJetP4.Mag() 
-        << endl ; 
-#endif 
-
       double unc(0);
       if (jecShift_ != 0 ) {
         ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
@@ -255,12 +252,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       retjetid.set(false) ;
       if (jetID(evt, ijet, retjetid) == false) continue ;
 
-      double jetPt      = newJetP4.Pt();
-      double jetAbsEta  = std::abs(newJetP4.Eta()) ; 
       double jetCSVDisc = (h_jetCSV.product())->at(ijet); 
       if (jetPt      < idxjetPtMin_       || 
           jetPt      >  idxjetPtMax_      ||
-          jetAbsEta  >  idxjetAbsEtaMax_  ||
           jetCSVDisc < idxjetCSVDiscMin_  ||
           jetCSVDisc >  idxjetCSVDiscMax_ 
          ) continue ; 
