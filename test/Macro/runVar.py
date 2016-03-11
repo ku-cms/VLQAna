@@ -15,7 +15,7 @@ options = [
            #['ptak82nd'],
            #['etaak82nd'],
            #['nzelel'],
-           #['pt_leading_el'],
+           ['pt_leading_el'],
            #['pt_2nd_el'],
            #['dr_elel'],
            #['mass_elel'],
@@ -25,8 +25,8 @@ options = [
            #['nak4'],
            #['nak8'],
            #['nbjets'],
-            ['ptbjetleading'],
-            ['etabjetleading'],
+           #['ptbjetleading'],
+           #['etabjetleading'],
            #['mTprime'],
     ]
 

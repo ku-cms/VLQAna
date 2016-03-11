@@ -4,10 +4,11 @@
 #  INPUTS		
 # =====================================================
 path = '/uscms_data/d2/skhalil/MyVLQAna2/CMSSW_7_4_15_patch1/src/Analysis/VLQAna/test/CRAB_On_Skim/Histo/'
+pathR = '/uscms_data/d3/dmendis/Rachitha2/CMSSW_7_4_16_patch2/src/Analysis/VLQAna/test/CRAB_0n_Skim/Histo/'
 #path = '/Users/skhalil/Desktop/Analysis/OSDL/Macro/Analysis/Histo/'
 ch = 'CR_Zelel'
 
-f_Data_Oct2015 = TFile(path+'DoubleEG-Run2015D-05Oct2015-v1_os2lana_v1_'+ch+'.root')
+f_Data_Oct2015 = TFile(path+'DoubleEG-Run2015D-05Oct2015-v1_os2lana_v0_'+ch+'.root')
 f_Data_PromptReco = TFile(path+'DoubleEG-Run2015D-PromptReco-v4_os2lana_v1_'+ch+'.root')
 
 f_DY100to200 = TFile(path+'DY_HT100to200_os2lana_v1_'+ch+'.root')

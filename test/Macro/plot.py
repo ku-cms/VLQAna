@@ -51,7 +51,7 @@ parser.add_option('--sys', metavar='T', type='string', action='store',
                   help='nominal, BTagSFup, BTagSFdown, ScaleUp, ScaleDown, MatchUp, MatchDown')
 
 parser.add_option('--verbose',action='store_true',
-                  default=False,
+                  default=True,
                   dest='verbose',
                   help='verbose switch')
 
