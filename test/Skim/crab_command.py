@@ -1,3 +1,4 @@
+
 #!/bin/python
 
 from string import *
@@ -13,7 +14,7 @@ parser.add_option('--command', metavar='C', type='string', action='store',
                   help='crab command to execute')
 
 parser.add_option('--skimType', metavar='S', type='string', action='store',
-                  default='CR_Zelel',
+                  default='SR_Zmumu',
                   dest='skimType',
                   help='skim type')
 
@@ -43,14 +44,17 @@ if options.signal:
 else:
     dir = 'B2GEDMNtuplesSkim_'+options.skimType+'_20Nov/'  
     sigSamples = [
-          'TT_powheg-pythia8_ext3_25ns_'+options.skimType,
-          'TTJets_MG_pythia8_asymptotic_25ns_'+options.skimType,
-          'TTJets_HT-600to800_25ns_'+options.skimType,
-          'TTJets_HT-800to1200_25ns_'+options.skimType,
-          'TTJets_HT-1200to2500_25ns_'+options.skimType,  
-          'TTJets_HT-2500toInf_25ns_'+options.skimType, 
-          'ST_t-channel_antitop_powheg-pythia8_25ns_'+options.skimType, 
- 
+          #'TT_powheg-pythia8_ext3_25ns_'+options.skimType,
+          #'TTJets_MG_pythia8_asymptotic_25ns_'+options.skimType,
+          #'TTJets_HT-600to800_25ns_'+options.skimType,
+          #'TTJets_HT-800to1200_25ns_'+options.skimType,
+          #'TTJets_HT-1200to2500_25ns_'+options.skimType,  
+          #'TTJets_HT-2500toInf_25ns_'+options.skimType, 
+         # 'ST_t-channel_antitop_powheg-pythia8_25ns_'+options.skimType, 
+         'ST_t-channel_25ns_'+options.skimType,
+         #'ST_t-channel_ext1_25ns_'+options.skimType,
+         #'ST_tW-channel_25ns_'+options.skimType,
+         #'ST_tW_antitop_channel_25ns_'+options.skimType,
          #'WJets_HT_100to200_25ns_'+options.skimType,
          #'WJets_HT_200to400_25ns_'+options.skimType,
          #'WJets_HT_400to600_25ns_'+options.skimType,
@@ -66,7 +70,7 @@ else:
      
 for sig in sigSamples:
     sample = 'crab_'+sig
-    exe = 'crab '+options.command+' -d '+path+'/'+dir+sample
+    exe = 'crab '+options.command+' -d '+path+'/'+dir+sample +' --dbs=yes'
     print '--------------->'
     print exe
     subprocess.call( [exe], shell=True )

@@ -16,17 +16,17 @@ parser.add_option('--inputCfg', metavar='C', type='string', action='store',
                   help='input config tag to be used')
 
 parser.add_option('--outLabel', metavar='L', type='string', action='store',
-                  default='os2lana_v1',
+                  default='os2lana_v2',
                   dest='outLabel',
                   help='output tag to be used')
 
 parser.add_option('--channelType', metavar='S', type='string', action='store',
-                  default='Zelel',
+                  default='Zmumu',
                   dest='channelType',
                   help='Channel type: Zelel, Zmumu')
     
 parser.add_option('--isData', metavar='I', type='int', action='store',
-                  default=1,
+                  default=0,
                   dest='isData',
                   help='run on data or MC')
 
@@ -65,9 +65,7 @@ for job in jobList:
      f = open(options.inputCfg, 'r')
      instring = f.read()
      baseList = job[0].split('/')
-     #print baseList
      outname = job[1] + '_' + options.outLabel
-
      a0 = instring.replace( 'DUMMY_WORKDIR', "'"+options.outLabel+"'")
      a1 = a0.replace( 'DUMMY_DATASET', "'"+job[0]+"'" )
      a2 = a1.replace( 'DATA', "'"+isData+"'") 
@@ -106,5 +104,5 @@ for job in jobList:
      s = 'crab submit -c ' + options.channelType+'/'+crabName
      print s
      # and submit:
-     #subprocess.call( [s], shell=True )
+     subprocess.call( [s], shell=True )
     

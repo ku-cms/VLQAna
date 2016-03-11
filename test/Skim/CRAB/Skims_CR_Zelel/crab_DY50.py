@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'DYamcnlo_25ns'
+config.General.requestName = 'DYamcnlo_25ns_CR_Zelel'
 config.General.workArea = 'B2GEDMNtuplesSkim_CR_Zelel_20Nov/'
 config.General.transferLogs = True
 

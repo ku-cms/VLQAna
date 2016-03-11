@@ -9,15 +9,16 @@ def getTask(crab):
             if "Task name:" in line:
                 return line.split(':')[4].strip()
 
-prefix = 'os2lana_v1'
+prefix = 'os2lana_v2'
 path = '/store/user/lpcbprime/noreplica/skhalil/Histo_B2GEDM/'
 crabPath = '/uscms_data/d2/skhalil/MyVLQAna2/CMSSW_7_4_15_patch1/src/Analysis/VLQAna/test/CRAB_On_B2GEDM/'+prefix+'/'
-dir = 'Zelel'
+dir = 'Zmumu'
 
-samples = [
+samples = [ 
+           [dir, '/DoubleMuon', 'crab_DoubleMuon-Run2015D-05Oct2015-v1_os2lana_v2'],
            #[dir,'/DoubleEG', 'crab_DoubleEG-Run2015D-05Oct2015-v1_os2lana_v1'],
-           #[dir,'/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8', 'crab_DY_amcatnlo_os2lana_v1'],
-           [dir,'/TT_TuneCUETP8M1_13TeV-powheg-pythia8','crab_TT-powheg-pythia8-ext3_os2lana_v1'],          
+           [dir,'/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8', 'crab_DY_amcatnlo_os2lana_v2'],
+           [dir,'/TT_TuneCUETP8M1_13TeV-powheg-pythia8','crab_TT-powheg-pythia8-ext3_os2lana_v2'],          
         ]
                
 #add them
