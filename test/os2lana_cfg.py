@@ -18,7 +18,7 @@ options.register('outFileName', 'os2lana.root',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('doPUReweightingOfficial', True,
+options.register('doPUReweightingOfficial', True,#
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
@@ -43,7 +43,7 @@ options.register('applyLeptonSFs', False,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.setDefault('maxEvents', 50)
+options.setDefault('maxEvents', 500)
 options.parseArguments()
 print options
 
@@ -77,6 +77,10 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
+    #'root://eoscms.cern.ch//eos/cms/store/group/phys_b2g/B2GAnaFW/DoubleEG/Run2015D-05Oct2015-v1_B2GAnaFW_v74x_v8p4/151122_201800/0000/B2GEDMNtuple_1.root',
+    #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zelel_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zelel/151126_082906/0000/SkimmedB2GEdmNtuples_1.root',
+    #'store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TT_TuneCUETP8M1_13TeV-powheg-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2_ext3-v1/151111_093135/0000/B2GEDMNtuple_1.root',
+    
    '/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_1.root',
     #FileNames
     #FileNames_TT_M1200

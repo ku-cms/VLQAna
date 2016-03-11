@@ -230,24 +230,29 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   HT htak4(goodAK4Jets) ; 
 
+  if ( ( evt.id().event() == 70132149 && evt.id().luminosityBlock() == 352110) ||
+       ( evt.id().event() == 72564404 && evt.id().luminosityBlock() == 364321)
+     ){
+     cout << "HT = " << htak4.getHT() << 
+        ", lst jet pt = " << goodAK4Jets.at(0).getPt() <<
+        ", 2nd jet pt = " << goodAK4Jets.at(1).getPt() <<
+        ", 3rd jet pt = " << goodAK4Jets.at(1).getPt() << endl;
+  }
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
 
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
   boostedzllfilter(dielectrons, zelelBoosted) ; 
   boostedzllfilter(dimuons, zmumuBoosted) ; 
-
+    
   if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
-
-  //cout << "printing the run, event, and lumi block ----->" << endl;
-  //cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl; 
 
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   jetAK8maker(evt, goodAK8Jets); 
   jetWTaggedmaker(evt, goodWTaggedJets);
   jetHTaggedmaker(evt, goodHTaggedJets);
   jetTopTaggedmaker(evt, goodTopTaggedJets);
-
+  
   h1_["nak8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
   h1_["nak4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
   h1_["nbjets"] -> Fill(goodBTaggedAK4Jets.size(), evtwt) ; 
@@ -298,7 +303,16 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
   }
 
+
   double ST = htak4.getHT() ;
+//  if ( ( evt.id().event() == 70132149 && evt.id().luminosityBlock() == 352110) ||
+//       ( evt.id().event() == 72564404 && evt.id().luminosityBlock() == 364321)
+//     ){
+//     cout << "ST before adding Z pt = " << ST << 
+//        ", boosted Z cand size = " << zmumuBoosted.size() <<
+//        ", Zmumu leading pt = " << zmumuBoosted.at(0).getPt() <<
+//        ", evtWt = " << evtwt << endl;
+//  }
   if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
   else if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
 
@@ -308,6 +322,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( ST > STMin_ ) h1_["cutflow"] -> Fill(5, evtwt) ;  
   else return false ; 
 
+ //cout << "printing the run, event, and lumi block ----->" << endl;
+  cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl; 
   if ( goodBTaggedAK4Jets.size() > 0 ) h1_["cutflow"] -> Fill(6, evtwt) ;  
   if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(7, evtwt) ;  
   if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
