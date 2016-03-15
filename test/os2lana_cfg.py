@@ -43,6 +43,7 @@ options.register('applyLeptonSFs', False,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
+
 options.setDefault('maxEvents', 500)
 options.parseArguments()
 print options
@@ -110,8 +111,8 @@ process.ana.elselParams.useVID = cms.bool(options.isData)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(100)
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
-if not options.isData:
-  process.ana.jetAK8selParams.groomedPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
+#if not options.isData:
+#  process.ana.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
 
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
@@ -120,8 +121,8 @@ process.anaBoosted = ana.clone(
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
 process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
-if not options.isData:
-  process.anaBoosted.jetAK8selParams.groomedPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
+#if not options.isData:
+#  process.anaBoosted.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
 
 
 

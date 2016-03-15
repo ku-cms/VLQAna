@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h" 
 
 #include "Analysis/VLQAna/interface/PickGenPart.h"
 
@@ -36,6 +37,7 @@ class EventCleaner : public edm::EDFilter {
     edm::InputTag l_metFiltersName                         ; 
     edm::InputTag l_metFiltersBit                          ; 
     edm::InputTag l_hbheNoiseFilter                        ; 
+    edm::InputTag l_lheProd                                ; 
     std::string   l_genEvtInfoProd                         ; 
     edm::InputTag l_vtxRho                                 ; 
     edm::InputTag l_vtxZ                                   ; 
@@ -53,6 +55,8 @@ class EventCleaner : public edm::EDFilter {
     const std::string hist_PVWt_                           ; 
     const std::string hist_PUDistData_                     ;
     const std::string hist_PUDistMC_                       ;
+    const bool cleanEvents_                                ; 
+    edm::EDGetTokenT<LHEEventProduct> t_lheProd            ; 
     edm::EDGetTokenT<GenEventInfoProduct> t_genEvtInfoProd ; 
 
     edm::ParameterSet TtZParams_                           ;
@@ -70,6 +74,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   l_metFiltersName        (iConfig.getParameter<edm::InputTag>            ("metFiltersNameLabel")),
   l_metFiltersBit         (iConfig.getParameter<edm::InputTag>            ("metFiltersBitLabel")),
   l_hbheNoiseFilter       (iConfig.getParameter<edm::InputTag>            ("hbheNoiseFilterLabel")),
+  l_lheProd               (iConfig.getParameter<std::string>              ("lheProdName")),
   l_genEvtInfoProd        (iConfig.getParameter<std::string>              ("genEvtInfoProdName")),
   l_vtxRho                (iConfig.getParameter<edm::InputTag>            ("vtxRhoLabel")),  
   l_vtxZ                  (iConfig.getParameter<edm::InputTag>            ("vtxZLabel")),  
@@ -87,6 +92,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   hist_PVWt_              (iConfig.getParameter<std::string>              ("Hist_PVWt")),
   hist_PUDistData_        (iConfig.getParameter<std::string>              ("Hist_PUDistData")),
   hist_PUDistMC_          (iConfig.getParameter<std::string>              ("Hist_PUDistMC")),
+  cleanEvents_            (iConfig.getParameter<bool>                     ("cleanEvents")),
   TtZParams_              (iConfig.getParameter<edm::ParameterSet>        ("TtZParams")),  
   TtHParams_              (iConfig.getParameter<edm::ParameterSet>        ("TtHParams")),  
   TbWParams_              (iConfig.getParameter<edm::ParameterSet>        ("TbWParams")),  
@@ -95,11 +101,14 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   BtWParams_              (iConfig.getParameter<edm::ParameterSet>        ("BtWParams")) 
 {
   if (doPUReweightingOfficial_) LumiWeights_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_, hist_PUDistMC_, hist_PUDistData_) ;
+  t_lheProd = consumes<LHEEventProduct>(l_lheProd) ; 
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
+  produces<bool>("hltdecision");
   produces<std::string>("evttype"); 
   produces<double>("evtwtGen");
   produces<double>("evtwtPV");
   produces<unsigned>("npv");
+  produces<double>("partonBin");
 }
 
 EventCleaner::~EventCleaner() {}
@@ -112,6 +121,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   typedef Handle <vector<float>> hfloat ; 
   typedef Handle <vector<int>> hint ; 
 
+  //hstring h_generator             ; evt.getByLabel (l_generator              , h_generator            );
   hstring h_trigName              ; evt.getByLabel (l_trigName               , h_trigName             );
   hfloat  h_trigBit               ; evt.getByLabel (l_trigBit                , h_trigBit              ); 
   hstring h_metFiltersName        ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
@@ -132,10 +142,14 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       }
     }
   }
-  if ( hltPaths_.size() > 0 && !hltdecisions) return false ; 
+  bool hltdecision(false) ; 
+  if ( hltPaths_.size() > 0 && !hltdecisions) hltdecision=false;
+  else hltdecision=true;
+
+  ////if ( cleanEvents_ && hltdecision==false ) return false ; 
 
   bool hbheNoiseFilter(h_hbheNoiseFilter.product()) ; 
-  if ( !hbheNoiseFilter ) return false ; 
+  ////if ( !hbheNoiseFilter ) return false ; 
   if ( isData_ ) {
     bool metfilterdecision(1) ; 
     for ( const string& metfilter : metFilters_ ) {
@@ -156,14 +170,26 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //  double vtxNdf = (h_vtxNdf.product())->at(ipv) ; 
   //  if ( abs(vtxRho) < 2. && abs(vtxZ) <= 24. && vtxNdf > 4 ) ++npv ; 
   //}
-  if ( npv < 1 ) return false ; 
+  ////if ( npv < 1 ) return false ; 
 
   double evtwtGen(1.0) ; 
+  double partonBin(0.0);
   if ( !isData_ ) {
-    Handle<GenEventInfoProduct> h_genEvtInfoProd; 
+    edm::Handle<GenEventInfoProduct> h_genEvtInfoProd; 
     evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
     evtwtGen = h_genEvtInfoProd->weight() ; 
     evtwtGen /= abs(evtwtGen) ; 
+    //if (h_genEvtInfoProd->binningValues().size()>0) partonBin = h_genEvtInfoProd->binningValues()[0];
+    const std::vector<double>& binningValues = h_genEvtInfoProd->binningValues();
+    double qScale = h_genEvtInfoProd->qScale();
+    //std::cout << " binningValues size = " << binningValues.size() << " q scale " << qScale << " evtwt = " << evtwtGen << std::endl ;
+    //for (double val : binningValues) {
+    //  std::cout << " binning value = " << val << std::endl ; 
+    //}
+
+    //edm::Handle<LHEEventProduct> h_lheInfoProd ; 
+    //evt.getByToken( t_lheProd, h_lheInfoProd );
+
   }
 
   double evtwtPV(1.0) ;
@@ -207,21 +233,35 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     if ( vlqBbH.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bHtW" ; 
   }
 
+  auto_ptr<bool>ptr_hltdecision(new bool(hltdecision)); 
   auto_ptr<string>ptr_evttype(new string(evttype)); 
   auto_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
   auto_ptr<double>ptr_evtwtPV(new double(evtwtPV)); 
   auto_ptr<unsigned>ptr_npv(new unsigned(npv)); 
+  auto_ptr<double>ptr_partonBin(new double(partonBin)); 
 
+  evt.put(ptr_hltdecision, "hltdecision");
   evt.put(ptr_evttype, "evttype");
   evt.put(ptr_evtwtGen, "evtwtGen");
   evt.put(ptr_evtwtPV, "evtwtPV");
   evt.put(ptr_npv, "npv");
+  evt.put(ptr_partonBin, "partonBin");
 
   return true ; 
 
 }
 
 void EventCleaner::beginJob() {
+
+    //typedef std::vector<LHEEventProduct::Header>::const_iterator headers_const_iterator;
+    //LHEEventProduct myLHEEventProduct = *(h_lheInfoProd.product());
+    //for (headers_const_iterator iter=myLHEEventProduct.headers_begin(); iter!=myLHEEventProduct.headers_end(); iter++){
+    //  std::cout << iter->tag() << std::endl;
+    //  std::vector<std::string> lines = iter->lines();
+    //  for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+    //    std::cout << lines.at(iLine) << std::endl ;
+    //  }
+    //}
 }
 
 void EventCleaner::endJob() {
