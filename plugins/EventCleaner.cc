@@ -148,7 +148,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   ////if ( cleanEvents_ && hltdecision==false ) return false ; 
 
-  bool hbheNoiseFilter(h_hbheNoiseFilter.product()) ; 
+  //bool hbheNoiseFilter(h_hbheNoiseFilter.product()) ; 
   ////if ( !hbheNoiseFilter ) return false ; 
   if ( isData_ ) {
     bool metfilterdecision(1) ; 
@@ -181,7 +181,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     evtwtGen /= abs(evtwtGen) ; 
     //if (h_genEvtInfoProd->binningValues().size()>0) partonBin = h_genEvtInfoProd->binningValues()[0];
     const std::vector<double>& binningValues = h_genEvtInfoProd->binningValues();
-    double qScale = h_genEvtInfoProd->qScale();
+    //double qScale = h_genEvtInfoProd->qScale();
     //std::cout << " binningValues size = " << binningValues.size() << " q scale " << qScale << " evtwt = " << evtwtGen << std::endl ;
     //for (double val : binningValues) {
     //  std::cout << " binning value = " << val << std::endl ; 
