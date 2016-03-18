@@ -76,6 +76,7 @@ class OS2LAna : public edm::EDFilter {
     const double STMin_                          ; 
     const bool filterSignal_                     ;
     const std::string signalType_                ;
+    const std::string zdecayMode_                ;
     const bool applyLeptonSFs_                   ;
     ApplyLeptonSFs lepsfs                        ; 
     MuonMaker muonmaker                          ; 
@@ -107,6 +108,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
+  zdecayMode_             (iConfig.getParameter<std::string>       ("zdecayMode")), 
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
   lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
@@ -141,7 +143,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
   
   h1_["cutflow"] -> Fill(1, evtwt) ; 
-
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
   h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
 
@@ -158,7 +159,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if (dimuons.size() < 1 && dielectrons.size() < 1) return false ; 
 
-  if (dimuons.size() >= 1) {
+  if (dimuons.size() >= 1 && zdecayMode_ == "zmumu" ) {
     h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 
     h1_["eta_leading_mu"] -> Fill(goodMuons.at(0).getEta(), evtwt) ; 
     h1_["pt_2nd_mu"] -> Fill(goodMuons.at(1).getPt(), evtwt) ; 
@@ -167,7 +168,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     for (auto idimuons : dimuons) h1_["mass_mumu"] -> Fill(idimuons.getMass(), evtwt) ; 
   }
 
-  if (dielectrons.size() >= 1) {
+  if (dielectrons.size() >= 1 && zdecayMode_ == "zelel" ) {
     if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") 
       evtwt *= lepsfs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepsfs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ; 
     h1_["pt_leading_el"] -> Fill(goodElectrons.at(0).getPt(), evtwt) ; 
@@ -210,7 +211,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; 
   h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; 
 
-  if ( zmumu.size() > 0 || zelel.size() > 0 ) h1_["cutflow"] -> Fill(2, evtwt) ; 
+  //if ( zmumu.size() > 0 || zelel.size() > 0 ) h1_["cutflow"] -> Fill(2, evtwt) ; 
+  if (zdecayMode_ == "zmumu" &&  zmumu.size() > 0 ) h1_["cutflow"] -> Fill(2, evtwt) ;
+  else if (zdecayMode_ == "zelel" &&  zelel.size() > 0 ) h1_["cutflow"] -> Fill(2, evtwt) ;
   else return false ; 
 
   for (auto izmumu : zmumu) {
@@ -229,7 +232,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetAK4maker(evt, goodAK4Jets) ;
 
   HT htak4(goodAK4Jets) ; 
-
+/*
   if ( ( evt.id().event() == 70132149 && evt.id().luminosityBlock() == 352110) ||
        ( evt.id().event() == 72564404 && evt.id().luminosityBlock() == 364321)
      ){
@@ -238,13 +241,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         ", 2nd jet pt = " << goodAK4Jets.at(1).getPt() <<
         ", 3rd jet pt = " << goodAK4Jets.at(1).getPt() << endl;
   }
+  cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl;
+*/
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
 
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
   boostedzllfilter(dielectrons, zelelBoosted) ; 
   boostedzllfilter(dimuons, zmumuBoosted) ; 
 
-  if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
+  // if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
+  if (zdecayMode_ == "zmumu" &&  zmumuBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
+  else if (zdecayMode_ == "zelel" &&  zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
 
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
@@ -260,8 +267,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nhjet"] -> Fill(goodHTaggedJets.size(), evtwt) ; 
   h1_["ntjet"] -> Fill(goodTopTaggedJets.size(), evtwt) ; 
 
-  if ( goodAK4Jets.size() > 2 && goodAK8Jets.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ; 
-  else return false ;
+  if ( goodAK4Jets.size() > 2 ) h1_["cutflow"] -> Fill(4, evtwt) ; 
+  else return false;
 
   h1_["ptak4leading"] -> Fill(goodAK4Jets.at(0).getPt(), evtwt) ; 
   h1_["etaak4leading"] -> Fill(goodAK4Jets.at(0).getEta(), evtwt) ;
@@ -272,6 +279,41 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["ptak43rd"] -> Fill(goodAK4Jets.at(2).getPt(), evtwt) ; 
   h1_["etaak43rd"] -> Fill(goodAK4Jets.at(2).getEta(), evtwt) ;
   h1_["csvak43rd"] -> Fill(goodAK4Jets.at(2).getCSV(), evtwt) ; 
+
+  for (vlq::Jet jet : goodAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
+  if ( goodBTaggedAK4Jets.size() > 0 ) {
+    h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
+    h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
+  }
+
+  for (vlq::Jet jet : goodBTaggedAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
+  if ( goodBTaggedAK4Jets.size() > 0 ) h1_["cutflow"] -> Fill(5, evtwt) ;
+  else return false; 
+
+  double ST = htak4.getHT() ;
+  if (zdecayMode_ == "zmumu" && zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
+  else if (zdecayMode_ == "zelel" && zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
+
+  h1_["ht"] ->Fill(htak4.getHT(), evtwt) ; 
+  h1_["st"] ->Fill(ST, evtwt) ; 
+
+  if ( ST > STMin_ ) h1_["cutflow"] -> Fill(6, evtwt) ;  
+  else return false ; 
+  
+  //require at lease one ak8 jet now  
+  if ( goodAK8Jets.size() > 0 ) h1_["cutflow"] -> Fill(7, evtwt) ; 
+  else return false ;
+
   h1_["ptak8leading"] -> Fill((goodAK8Jets.at(0)).getPt(), evtwt) ; 
   h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta(), evtwt) ;
   h1_["mak8leading"] -> Fill((goodAK8Jets.at(0)).getMass(), evtwt) ; 
@@ -286,48 +328,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
     h1_["softdropmak82nd"] -> Fill((goodAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
   }
-  if ( goodBTaggedAK4Jets.size() > 0 ) {
-    h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
-    h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
-  }
-
-  for (vlq::Jet jet : goodAK4Jets) {
-    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-  }
-
-  for (vlq::Jet jet : goodBTaggedAK4Jets) {
-    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-  }
-
-
-  double ST = htak4.getHT() ;
-//  if ( ( evt.id().event() == 70132149 && evt.id().luminosityBlock() == 352110) ||
-//       ( evt.id().event() == 72564404 && evt.id().luminosityBlock() == 364321)
-//     ){
-//     cout << "ST before adding Z pt = " << ST << 
-//        ", boosted Z cand size = " << zmumuBoosted.size() <<
-//        ", Zmumu leading pt = " << zmumuBoosted.at(0).getPt() <<
-//        ", evtWt = " << evtwt << endl;
-//  }
-  if (zmumuBoosted.size() > 0) ST += zmumuBoosted.at(0).getPt() ; 
-  else if (zelelBoosted.size() > 0) ST += zelelBoosted.at(0).getPt() ; 
-
-  h1_["ht"] ->Fill(htak4.getHT(), evtwt) ; 
-  h1_["st"] ->Fill(ST, evtwt) ; 
-
-  if ( ST > STMin_ ) h1_["cutflow"] -> Fill(5, evtwt) ;  
-  else return false ; 
-
- //cout << "printing the run, event, and lumi block ----->" << endl;
-  cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl; 
-  if ( goodBTaggedAK4Jets.size() > 0 ) h1_["cutflow"] -> Fill(6, evtwt) ;  
-  if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(7, evtwt) ;  
-  if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
-  if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
+  
+  if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
+  if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
+  if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(10, evtwt) ;  
 
   //// Make B->bZ and T->tZ->bWZ candidates
   TLorentzVector tp_p4, bp_p4;
@@ -386,13 +390,14 @@ void OS2LAna::beginJob() {
   h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 12, 0.5, 12.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "Z(l^{+}l^{-})") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "p_{T}(Z)") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4)>2&N(AK8)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "S_{T}") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "N(b jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(W jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(H jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(top jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "p_{T}(Z)") ;
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4)>2") ;
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "N(b jet)>0") ;  
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "S_{T}") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(AK8)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(W jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(H jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10,"N(top jet)>0") ; 
 
   h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
