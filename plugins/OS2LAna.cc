@@ -280,24 +280,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["etaak43rd"] -> Fill(goodAK4Jets.at(2).getEta(), evtwt) ;
   h1_["csvak43rd"] -> Fill(goodAK4Jets.at(2).getCSV(), evtwt) ; 
 
-  for (vlq::Jet jet : goodAK4Jets) {
-    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-  }
-
   if ( goodBTaggedAK4Jets.size() > 0 ) {
     h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
     h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
+    h1_["cutflow"] -> Fill(5, evtwt) ;
   }
-
-  for (vlq::Jet jet : goodBTaggedAK4Jets) {
-    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-  }
-
-  if ( goodBTaggedAK4Jets.size() > 0 ) h1_["cutflow"] -> Fill(5, evtwt) ;
   else return false; 
 
   double ST = htak4.getHT() ;
@@ -328,10 +315,31 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
     h1_["softdropmak82nd"] -> Fill((goodAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
   }
+
+  //fill the b-tag efficiency plots after full event selection  
+  for (vlq::Jet jet : goodAK4Jets) {
+     if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+     else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+     else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
+
+  for (vlq::Jet jet : goodBTaggedAK4Jets) {
+    if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+    else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+  }
   
+  // additional cut flow bins to give an idea of boson and top tagged objects
   if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
   if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
   if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(10, evtwt) ;  
+
+  //Lets fill more histogram after final selection for optimization
+  h1_["htSigR"] ->Fill(htak4.getHT(), evtwt) ; 
+  h1_["stSigR"] ->Fill(ST, evtwt) ;   
+  h1_["nwjetSigR"] -> Fill(goodWTaggedJets.size(), evtwt) ; 
+  h1_["nhjetSigR"] -> Fill(goodHTaggedJets.size(), evtwt) ;   
+  h1_["ntjetSigR"] -> Fill(goodTopTaggedJets.size(), evtwt) ;   
 
   //// Make B->bZ and T->tZ->bWZ candidates
   TLorentzVector tp_p4, bp_p4;
@@ -472,6 +480,12 @@ void OS2LAna::beginJob() {
   h1_["ht_zsel"] = fs->make<TH1D>("ht_zsel" ,";H_{T} (AK4 jets) [GeV]", 400, 0., 8000.) ; 
   h1_["ht"] = fs->make<TH1D>("ht" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
   h1_["st"] = fs->make<TH1D>("st" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
+
+  h1_["htSigR"] = fs->make<TH1D>("htSigR" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ;
+  h1_["stSigR"] = fs->make<TH1D>("stSigR" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
+  h1_["nwjetSigR"] = fs->make<TH1D>("nwjetSigR", ";N(W jets );;" , 6, -0.5,5.5) ; 
+  h1_["nhjetSigR"] = fs->make<TH1D>("nhjetSigR", ";N(H jets );;" , 6, -0.5,5.5) ; 
+  h1_["ntjetSigR"] = fs->make<TH1D>("ntjetSigR", ";N(top jets);;" , 6, -0.5,5.5) ; 
 
   h1_["ptTprime"]  = fs->make<TH1D>("ptTprime", ";p_{T}(T quark) [GeV];;" , 100, 0., 2000.) ; 
   h1_["yTprime"] = fs->make<TH1D>("yTprime", ";y(T quark);;" , 40 ,-4. ,4.) ; 

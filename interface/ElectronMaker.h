@@ -52,8 +52,8 @@ class ElectronMaker {
     double elPtMin_ ; 
     double elPtMax_ ; 
     double elAbsEtaMax_ ; 
-    double elIsoMin_ ; 
-    double elIsoMax_ ; 
-    bool   useVID_ ; 
+   //double elIsoMin_ ; 
+   //double elIsoMax_ ; 
+   //bool   useVID_ ; 
 };
 #endif

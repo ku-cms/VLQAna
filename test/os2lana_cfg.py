@@ -109,7 +109,10 @@ process.ana = ana.clone(
     zdecayMode = cms.string(options.zdecaymode),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-process.ana.elselParams.useVID = cms.bool(options.isData)
+#process.ana.elselParams.useVID = cms.bool(options.isData)
+process.ana.elselParams.elidtype = cms.string("TIGHT")
+process.ana.muselParams.muidtype = cms.string("TIGHT")
+process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(100)
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
@@ -122,7 +125,7 @@ process.anaBoosted = ana.clone(
     signalType = cms.string(options.signalType),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
+#process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
 #if not options.isData:
 #  process.anaBoosted.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
 
@@ -148,7 +151,7 @@ process.p = cms.Path(
     *process.cleanedEvents
     *cms.ignore(process.ana)
     #*cms.ignore(process.anaBoosted+process.vlqcands)
-    #*process.anaBoosted ##comment it
+    *process.anaBoosted ##comment it
     #*process.vlqcands
     * process.finalEvents
     )

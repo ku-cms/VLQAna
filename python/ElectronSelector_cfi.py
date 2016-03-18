@@ -4,13 +4,13 @@ from Analysis.VLQAna.Electron_cfi import *
 
 defaultElectronSelectionParameters = cms.PSet(
     defaultElectronParameters, 
-    elidtype = cms.string("LOOSE"), #Using electron ID coded in VID tool
+    elidtype = cms.string("LOOSE"), 
     elPtMin = cms.double(5),
     elPtMax = cms.double(10000),
     elAbsEtaMax = cms.double(5),
     elCharge = cms.double(0), 
     elIsoMin = cms.double(0.00),
-    elIsoMax = cms.double(0.2), # No need to set electron isolation by hand
+    elIsoMax = cms.double(0.2),
     useVID = cms.bool(True), 
     )
 

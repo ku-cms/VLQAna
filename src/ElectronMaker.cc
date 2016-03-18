@@ -37,10 +37,10 @@ ElectronMaker::ElectronMaker (edm::ParameterSet const& pars) :
   l_elscEta             (pars.getParameter<edm::InputTag>("elscEtaLabel")),
   elPtMin_ (pars.getParameter<double>("elPtMin")), 
   elPtMax_ (pars.getParameter<double>("elPtMax")), 
-  elAbsEtaMax_ (pars.getParameter<double>("elAbsEtaMax")), 
-  elIsoMin_ (pars.getParameter<double>("elIsoMin")), 
-  elIsoMax_ (pars.getParameter<double>("elIsoMax")), 
-  useVID_   (pars.getParameter<bool>("useVID")) 
+  elAbsEtaMax_ (pars.getParameter<double>("elAbsEtaMax"))
+  //elIsoMin_ (pars.getParameter<double>("elIsoMin")), 
+  //elIsoMax_ (pars.getParameter<double>("elIsoMax")), 
+  //useVID_   (pars.getParameter<bool>("useVID")) 
 {
   std::string elidtypestr = pars.getParameter<std::string>("elidtype") ;
   if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
