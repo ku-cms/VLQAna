@@ -11,7 +11,7 @@ double ApplyJERp4 (double eta, int jerShift) {
   eta = abs(eta) ;
   double jerscale(0) ; 
 
-  if (eta >= 3.2 && eta < 4.7) {
+  if (eta >= 3.2 && eta < 5.0) {
     if (jerShift == 1) jerscale = 1.320 ;  
     else if (jerShift == 2) jerscale = 1.606 ;  
     else if (jerShift == -1) jerscale = 1.034 ;  

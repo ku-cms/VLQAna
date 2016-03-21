@@ -1,11 +1,14 @@
 #ifndef ANALYSIS_VLQANA_APPLYLEPTONSFS_HH
 #define ANALYSIS_VLQANA_APPLYLEPTONSFS_HH
+//#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ApplyLeptonSFs {
   public:
     enum ELECTRONIDTYPES_t {LOOSE, MEDIUM, TIGHT, VETO, HEEP} ; 
     ApplyLeptonSFs (edm::ParameterSet const& pars) : 
-      sf_(1) 
+      sf_(1),
+      zdecayMode_(pars.getParameter<std::string>("zdecayMode")) 
   {
      std::string elidtypestr = pars.getParameter<std::string>("elidtype") ; 
      if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
@@ -158,7 +161,8 @@ class ApplyLeptonSFs {
       return sf_ ; 
     }
   private: 
-    double sf_ ; 
+    double sf_ ;
+    const std::string zdecayMode_ ; 
     ELECTRONIDTYPES_t type_ ; 
 };
 #endif 

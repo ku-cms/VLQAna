@@ -21,7 +21,7 @@ parser.add_option('--outLabel', metavar='L', type='string', action='store',
                   help='output tag to be used')
 
 parser.add_option('--channelType', metavar='S', type='string', action='store',
-                  default='Zmumu',
+                  default='Zelel',
                   dest='channelType',
                   help='Channel type: Zelel, Zmumu')
     
@@ -78,7 +78,7 @@ for job in jobList:
          a8 = a7.replace('SIGNALTYPE', "'signalType="+job[3]+"'")  
      else:
          a7 = a6.replace( ', FILTERSIGNAL', '')
-         a8 = a7.replace( ', SIGNALTYPE', '')         
+         a8 = a7.replace( ', SIGNALTYPE', '')      
      a9 = a8.replace( 'DUMMY_NAME', "'"+outname+"'" )
      a10 = a9.replace( 'DUMMY_SITE',"'"+'T3_US_FNALLPC'+"'")
      a11 = a10.replace( 'DUMMY_OUTPUT_PATH', "'"+'/store/group/lpcbprime/noreplica/skhalil/Histo_B2GEDM/'+options.channelType+"'") 
