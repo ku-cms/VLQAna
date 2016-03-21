@@ -202,9 +202,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         << " \njet pt before        = " << jetP4.Pt() 
         << " \njet mass before      = " << jetP4.Mag() 
         << " \njet pt newJec        = " << newJetP4.Pt() 
-        << " \njet mass newJEC      = " << newJetP4.Mag() 
-        << endl ; 
-#endif 
+        << " \njet mass newJEC      = " << newJetP4.Mag()
+        << endl ;
+#endif
 
       double ptsmear(1.) ;
       if ( jerShift_ != 0 ) {
@@ -219,6 +219,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           delete rand; 
         }
         newJetP4 *= ptsmear ; 
+
 #if DEBUG
         cout 
           << " \n pt reco             = " << pt_reco
@@ -229,7 +230,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           << " \njet pt ptsmear       = " << newJetP4.Pt() 
           << " \njet mass ptsmear     = " << newJetP4.Mag() 
           << endl ; 
-#endif 
+#endif    
       }
 
       double unc(0);
@@ -240,7 +241,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
       newJetP4 *= (1 + jecShift_*unc) ; 
 
-#if DEBUGMORE
+#if DEBUGMORE      
       cout 
         << " \njet pt jecshift      = " << newJetP4.Pt() 
         << " \njet mass jecshift    = " << newJetP4.Mag() 
@@ -445,5 +446,4 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
   } //// loop over jets 
 
   std::sort(jets.begin(), jets.end(), Utilities::sortByPt<vlq::Jet>) ; 
-
 }
