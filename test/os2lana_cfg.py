@@ -13,6 +13,11 @@ options.register('zdecaymode', 'zelel',
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
     )
+options.register('lepID', 'TIGHT',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "lepton ID? Choose: 'TIGHT' or 'LOOSE'"
+    )
 options.register('outFileName', 'os2lana.root',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
@@ -111,12 +116,14 @@ process.ana = ana.clone(
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
 #process.ana.elselParams.useVID = cms.bool(options.isData)
-process.ana.elselParams.elidtype = cms.string("TIGHT")
-process.ana.muselParams.muidtype = cms.string("TIGHT")
+process.ana.elselParams.elidtype = cms.string(options.lepID)
+process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
+process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
+process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
-process.ana.jetAK8selParams.jetPtMin = cms.double(100)
-process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
+process.ana.jetAK8selParams.jetPtMin = cms.double(100) #200?
+process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40) #why 40?
 #if not options.isData:
 #  process.ana.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
 

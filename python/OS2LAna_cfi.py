@@ -29,9 +29,12 @@ ana = cms.EDFilter("OS2LAna",
         ptMin = cms.double(200.),
         ), 
     GenHSelParams              = genPartParams.clone(), 
-    HTMin                      = cms.double  (800.), #dummy varaible not used in analysis
+    #HTMin                      = cms.double  (800.), #dummy varaible not used in analysis
     STMin                      = cms.double  (400.), 
-    lepsfsParams               = defaultWP,
+    lepsfsParams               = defaultWP.clone(
+        lepidtype = cms.string("TIGHT"),
+        zdecayMode = cms.string("zelel"),
+        ),
     muselParams                = defaultMuonMakerParameters, 
     elselParams                = defaultElectronMakerParameters, 
     jetAK4selParams            = defaultAK4JetSelectionParameters,
