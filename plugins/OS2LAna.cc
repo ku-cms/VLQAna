@@ -13,7 +13,8 @@ Implementation:
 //
 // Original Author:  Devdatta Majumder
 //         Created:  Fri, 27 Feb 2015 16:09:10 GMT
-//
+// Modified: Sadia Khalil
+//           21 Mar 2016 17:11 CDT
 //
 
 #include <iostream>
@@ -64,6 +65,7 @@ class OS2LAna : public edm::EDFilter {
     virtual void endJob() override;
 
     // ----------member data ---------------------------
+    edm::InputTag l_hltdecision                  ;
     edm::InputTag l_evttype                      ;
     edm::InputTag l_evtwtGen                     ;
     edm::InputTag l_evtwtPV                      ;
@@ -72,7 +74,7 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet ZCandParams_               ; 
     edm::ParameterSet BoostedZCandParams_        ; 
     edm::ParameterSet GenHSelParams_             ; 
-    const double HTMin_                          ; 
+   //const double HTMin_                          ; 
     const double STMin_                          ; 
     const bool filterSignal_                     ;
     const std::string signalType_                ;
@@ -96,6 +98,7 @@ class OS2LAna : public edm::EDFilter {
 using namespace std; 
 
 OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
+  l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
   l_evttype               (iConfig.getParameter<edm::InputTag>     ("evttype")),
   l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
   l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
@@ -104,7 +107,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   BoostedZCandParams_     (iConfig.getParameter<edm::ParameterSet> ("BoostedZCandParams")),
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
-  HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
+  //HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
@@ -133,18 +136,23 @@ OS2LAna::~OS2LAna() {}
 bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<string>h_evttype  ; evt.getByLabel(l_evttype  , h_evttype  ) ; 
-  Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
-  Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
-  Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
+  Handle<bool>h_hltdecision ; evt.getByLabel(l_hltdecision, h_hltdecision) ; 
+  Handle<string>h_evttype   ; evt.getByLabel(l_evttype  , h_evttype  ) ; 
+  Handle<double>h_evtwtGen  ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
+  Handle<double>h_evtwtPV   ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
+  Handle<unsigned>h_npv     ; evt.getByLabel(l_npv, h_npv) ; 
   
   if (filterSignal_ && *h_evttype.product()!=signalType_) return false ;
-
+  const bool hltdecision(*h_hltdecision.product()) ; 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
     
   h1_["cutflow"] -> Fill(1, evtwt) ; 
+
+  if ( !hltdecision ) return false; 
+  
+  h1_["cutflow"] -> Fill(2, evtwt) ; 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
-  h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
+  h1_["npv"] -> Fill(*h_npv.product(), evtwt);
   
   vlq::MuonCollection goodMuons; 
   muonmaker(evt, goodMuons) ; 
@@ -157,9 +165,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   dileptonsprod.operator()<vlq::ElectronCollection>(dielectrons, goodElectrons) ; 
   dileptonsprod.operator()<vlq::MuonCollection>(dimuons, goodMuons); 
 
-  if (dimuons.size() < 1 && dielectrons.size() < 1) return false ; 
-  
+  if (dimuons.size() < 1 && zdecayMode_ == "zmumu") return false;
+  else if (dielectrons.size() < 1 && zdecayMode_ == "zelel") return false ; 
+     
   if (dimuons.size() >= 1 && zdecayMode_ == "zmumu" ) {
+    if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") 
+      evtwt *= lepsfs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepsfs(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) ; 
     h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 
     h1_["eta_leading_mu"] -> Fill(goodMuons.at(0).getEta(), evtwt) ; 
     h1_["pt_2nd_mu"] -> Fill(goodMuons.at(1).getPt(), evtwt) ; 
@@ -200,53 +211,45 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
    
   }
-
   CandidateFilter zllfilter(ZCandParams_) ; 
   zllfilter(dielectrons, zelel) ; 
   zllfilter(dimuons, zmumu) ; 
 
-  h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; 
-  h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; 
+  if (zdecayMode_ == "zmumu") {h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; }
+  else if (zdecayMode_ == "zelel") {h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; }
 
-  if (zdecayMode_ == "zmumu" &&  zmumu.size() > 0 ) h1_["cutflow"] -> Fill(2, evtwt) ;
-  else if (zdecayMode_ == "zelel" &&  zelel.size() > 0 ) h1_["cutflow"] -> Fill(2, evtwt) ;
+  if (zdecayMode_ == "zmumu" &&  zmumu.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
+  else if (zdecayMode_ == "zelel" &&  zelel.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
-
-  for (auto izmumu : zmumu) {
-    h1_["mass_zmumu"] -> Fill(izmumu.getMass(), evtwt) ; 
-    h1_["pt_zmumu"] -> Fill(izmumu.getPt(), evtwt) ; 
-    h1_["y_zmumu"] -> Fill(izmumu.getP4().Rapidity(), evtwt) ; 
+  
+  if (zdecayMode_ == "zmumu") {
+     for (auto izmumu : zmumu) {
+        h1_["mass_zmumu"] -> Fill(izmumu.getMass(), evtwt) ; 
+        h1_["pt_zmumu"] -> Fill(izmumu.getPt(), evtwt) ; 
+        h1_["y_zmumu"] -> Fill(izmumu.getP4().Rapidity(), evtwt) ; 
+     }
   }
-
-  for (auto izelel : zelel) {
-    h1_["mass_zelel"] -> Fill(izelel.getMass(), evtwt) ; 
-    h1_["pt_zelel"] -> Fill(izelel.getPt(), evtwt) ; 
-    h1_["y_zelel"] -> Fill(izelel.getP4().Rapidity(), evtwt) ; 
+  else if (zdecayMode_ == "zelel"){ 
+     for (auto izelel : zelel) {
+        h1_["mass_zelel"] -> Fill(izelel.getMass(), evtwt) ; 
+        h1_["pt_zelel"] -> Fill(izelel.getPt(), evtwt) ; 
+        h1_["y_zelel"] -> Fill(izelel.getP4().Rapidity(), evtwt) ; 
+     }
   }
 
   vlq::JetCollection goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
   jetAK4maker(evt, goodAK4Jets) ;
 
   HT htak4(goodAK4Jets) ; 
-/*
-  if ( ( evt.id().event() == 70132149 && evt.id().lumcdinosityBlock() == 352110) ||
-       ( evt.id().event() == 72564404 && evt.id().luminosityBlock() == 364321)
-     ){
-     cout << "HT = " << htak4.getHT() << 
-        ", lst jet pt = " << goodAK4Jets.at(0).getPt() <<
-        ", 2nd jet pt = " << goodAK4Jets.at(1).getPt() <<
-        ", 3rd jet pt = " << goodAK4Jets.at(1).getPt() << endl;
-  }
-  cout << evt.id().run() << ", " << evt.id().event() << ", " << evt.id().luminosityBlock() << endl;
-*/
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
-
+  h1_["npv_zsel"] -> Fill(*h_npv.product(), evtwt);
+  
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
   boostedzllfilter(dielectrons, zelelBoosted) ; 
   boostedzllfilter(dimuons, zmumuBoosted) ; 
 
-  if (zdecayMode_ == "zmumu" &&  zmumuBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
-  else if (zdecayMode_ == "zelel" &&  zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
+  if (zdecayMode_ == "zmumu" &&  zmumuBoosted.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ;
+  else if (zdecayMode_ == "zelel" &&  zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ;
   else return false ; 
  
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
@@ -262,7 +265,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["nhjet"] -> Fill(goodHTaggedJets.size(), evtwt) ; 
   h1_["ntjet"] -> Fill(goodTopTaggedJets.size(), evtwt) ; 
 
-  if ( goodAK4Jets.size() > 2 ) h1_["cutflow"] -> Fill(4, evtwt) ; 
+  if ( goodAK4Jets.size() > 2 ) h1_["cutflow"] -> Fill(5, evtwt) ; 
   else return false;
  
   h1_["ptak4leading"] -> Fill(goodAK4Jets.at(0).getPt(), evtwt) ; 
@@ -278,7 +281,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 if ( goodBTaggedAK4Jets.size() > 0 ) {
     h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
     h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
-    h1_["cutflow"] -> Fill(5, evtwt) ;
+    h1_["cutflow"] -> Fill(6, evtwt) ;
   }
   else return false; 
  
@@ -289,11 +292,11 @@ if ( goodBTaggedAK4Jets.size() > 0 ) {
   h1_["ht"] ->Fill(htak4.getHT(), evtwt) ; 
   h1_["st"] ->Fill(ST, evtwt) ; 
 
-  if ( ST > STMin_ ) h1_["cutflow"] -> Fill(6, evtwt) ;  
+  if ( ST > STMin_ ) h1_["cutflow"] -> Fill(7, evtwt) ;  
   else return false ; 
   
   //require at lease one ak8 jet now  
-  if ( goodAK8Jets.size() > 0 ) h1_["cutflow"] -> Fill(7, evtwt) ; 
+  if ( goodAK8Jets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ; 
   else return false ;
   
   h1_["ptak8leading"] -> Fill((goodAK8Jets.at(0)).getPt(), evtwt) ; 
@@ -325,9 +328,9 @@ if ( goodBTaggedAK4Jets.size() > 0 ) {
   }
   
   // additional cut flow bins to give an idea of boson and top tagged objects
-  if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(8, evtwt) ;  
-  if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
-  if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(10, evtwt) ;  
+  if ( goodWTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(9, evtwt) ;  
+  if ( goodHTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(10, evtwt) ;  
+  if ( goodTopTaggedJets.size() > 0 ) h1_["cutflow"] -> Fill(11, evtwt) ;  
 
   //Lets fill more histogram after final selection for optimization
   h1_["htSigR"] ->Fill(htak4.getHT(), evtwt) ; 
@@ -392,41 +395,44 @@ void OS2LAna::beginJob() {
 
   h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 12, 0.5, 12.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "Z(l^{+}l^{-})") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "p_{T}(Z)") ;
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4)>2") ;
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "N(b jet)>0") ;  
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "S_{T}") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(AK8)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(W jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(H jet)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10,"N(top jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "Trig.+PV") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "Z(l^{+}l^{-})") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "p_{T}(Z)") ;
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "N(AK4)>2") ;
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "N(b jet)>0") ;  
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "S_{T}") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "N(AK8)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(W jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10,"N(H jet)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11,"N(top jet)>0") ; 
 
   h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
-
-  h1_["pt_leading_mu"] = fs->make<TH1D>("pt_leading_mu", ";p_{T} (leading #mu^{#pm}) [GeV]", 50, 0., 500.) ;
-  h1_["eta_leading_mu"] = fs->make<TH1D>("eta_leading_mu", ";#eta (leading #mu^{#pm}) [GeV]", 80, -4., 4.) ;
-  h1_["pt_2nd_mu"] = fs->make<TH1D>("pt_2nd_mu", ";p_{T} (2nd #mu^{#pm}) [GeV]", 50, 0., 500.) ;
-  h1_["eta_2nd_mu"] = fs->make<TH1D>("eta_2nd_mu", ";#eta (2nd #mu^{#pm}) [GeV]", 80, -4., 4.) ;
-  h1_["dr_mumu"] = fs->make<TH1D>("dr_mumu", ";#DeltaR(#mu^{+}#mu^{-});;", 40, 0., 4.) ; 
-  h1_["mass_mumu"] = fs->make<TH1D>("mass_mumu", ";M(#mu^{+}#mu^{-}) [GeV]", 100, 20., 220.) ; 
-  h1_["mass_zmumu"] = fs->make<TH1D>("mass_zmumu", ";M(Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 100, 20., 220.) ; 
-  h1_["pt_zmumu"] = fs->make<TH1D>("pt_zmumu", ";p_{T} (Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 50, 0., 1000.) ; 
-  h1_["y_zmumu"] = fs->make<TH1D>("y_zmumu", ";y (Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 80, -4., 4.) ; 
-  h1_["nzmumu"] = fs->make<TH1D>("nzmumu", ";N (Z#rightarrow#mu^{+}#mu^{-});;", 5, -0.5, 4.5) ; 
-
-  h1_["pt_leading_el"] = fs->make<TH1D>("pt_leading_el", ";p_{T} (leading e^{#pm}) [GeV]", 50, 0., 500.) ;
-  h1_["eta_leading_el"] = fs->make<TH1D>("eta_leading_el", ";#eta (leading e^{#pm}) [GeV]", 80, -4., 4.) ;
-  h1_["pt_2nd_el"] = fs->make<TH1D>("pt_2nd_el", ";p_{T} (2nd e^{#pm}) [GeV]", 50, 0., 500.) ;
-  h1_["eta_2nd_el"] = fs->make<TH1D>("eta_2nd_el", ";#eta (2nd e^{#pm}) [GeV]", 80, -4., 4.) ;
-  h1_["dr_elel"] = fs->make<TH1D>("dr_elel", ";#DeltaR(e^{+}e^{-});;", 40, 0., 4.) ; 
-  h1_["mass_elel"] = fs->make<TH1D>("mass_elel", ";M(e^{+}e^{-}) [GeV]", 100, 20., 220.) ; 
-  h1_["mass_zelel"] = fs->make<TH1D>("mass_zelel", ";M(Z#rightarrow e^{+}e^{-}) [GeV]", 100, 20., 220.) ; 
-  h1_["pt_zelel"] = fs->make<TH1D>("pt_zelel", ";p_{T} (Z#rightarrow e^{+}e^{-}) [GeV]", 50, 0., 1000.) ; 
-  h1_["y_zelel"] = fs->make<TH1D>("y_zelel", ";y (Z#rightarrow e^{+}e^{-}) [GeV]", 80, -4., 4.) ; 
-  h1_["nzelel"] = fs->make<TH1D>("nzelel", ";N (Z#rightarrow e^{+}e^{-});;", 5, -0.5, 4.5) ; 
   
+  if (zdecayMode_ == "zmumu"){
+     h1_["pt_leading_mu"] = fs->make<TH1D>("pt_leading_mu", ";p_{T} (leading #mu^{#pm}) [GeV]", 50, 0., 500.) ;
+     h1_["eta_leading_mu"] = fs->make<TH1D>("eta_leading_mu", ";#eta (leading #mu^{#pm}) [GeV]", 80, -4., 4.) ;
+     h1_["pt_2nd_mu"] = fs->make<TH1D>("pt_2nd_mu", ";p_{T} (2nd #mu^{#pm}) [GeV]", 50, 0., 500.) ;
+     h1_["eta_2nd_mu"] = fs->make<TH1D>("eta_2nd_mu", ";#eta (2nd #mu^{#pm}) [GeV]", 80, -4., 4.) ;
+     h1_["dr_mumu"] = fs->make<TH1D>("dr_mumu", ";#DeltaR(#mu^{+}#mu^{-});;", 40, 0., 4.) ; 
+     h1_["mass_mumu"] = fs->make<TH1D>("mass_mumu", ";M(#mu^{+}#mu^{-}) [GeV]", 100, 20., 220.) ; 
+     h1_["mass_zmumu"] = fs->make<TH1D>("mass_zmumu", ";M(Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 100, 20., 220.) ; 
+     h1_["pt_zmumu"] = fs->make<TH1D>("pt_zmumu", ";p_{T} (Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 50, 0., 1000.) ; 
+     h1_["y_zmumu"] = fs->make<TH1D>("y_zmumu", ";y (Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 80, -4., 4.) ; 
+     h1_["nzmumu"] = fs->make<TH1D>("nzmumu", ";N (Z#rightarrow#mu^{+}#mu^{-});;", 5, -0.5, 4.5) ; 
+  }
+  else if (zdecayMode_ == "zelel"){
+     h1_["pt_leading_el"] = fs->make<TH1D>("pt_leading_el", ";p_{T} (leading e^{#pm}) [GeV]", 50, 0., 500.) ;
+     h1_["eta_leading_el"] = fs->make<TH1D>("eta_leading_el", ";#eta (leading e^{#pm}) [GeV]", 80, -4., 4.) ;
+     h1_["pt_2nd_el"] = fs->make<TH1D>("pt_2nd_el", ";p_{T} (2nd e^{#pm}) [GeV]", 50, 0., 500.) ;
+     h1_["eta_2nd_el"] = fs->make<TH1D>("eta_2nd_el", ";#eta (2nd e^{#pm}) [GeV]", 80, -4., 4.) ;
+     h1_["dr_elel"] = fs->make<TH1D>("dr_elel", ";#DeltaR(e^{+}e^{-});;", 40, 0., 4.) ; 
+     h1_["mass_elel"] = fs->make<TH1D>("mass_elel", ";M(e^{+}e^{-}) [GeV]", 100, 20., 220.) ; 
+     h1_["mass_zelel"] = fs->make<TH1D>("mass_zelel", ";M(Z#rightarrow e^{+}e^{-}) [GeV]", 100, 20., 220.) ; 
+     h1_["pt_zelel"] = fs->make<TH1D>("pt_zelel", ";p_{T} (Z#rightarrow e^{+}e^{-}) [GeV]", 50, 0., 1000.) ; 
+     h1_["y_zelel"] = fs->make<TH1D>("y_zelel", ";y (Z#rightarrow e^{+}e^{-}) [GeV]", 80, -4., 4.) ; 
+     h1_["nzelel"] = fs->make<TH1D>("nzelel", ";N (Z#rightarrow e^{+}e^{-});;", 5, -0.5, 4.5) ; 
+  }
   //varaibles on EE and EB
   if (zdecayMode_ == "zelel" ){
      h1_["Eta_EB_el"] = fs->make<TH1D>("Eta_EB_el", ";Eta (EB);;", 100,-4,4) ;
@@ -474,7 +480,8 @@ void OS2LAna::beginJob() {
   h1_["ptbjetleading"]  = fs->make<TH1D>("ptbjetleading", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ; 
   h1_["etabjetleading"] = fs->make<TH1D>("etabjetleading", ";#eta(leading b jet);;" , 80 ,-4. ,4.) ; 
 
-  h1_["ht_zsel"] = fs->make<TH1D>("ht_zsel" ,";H_{T} (AK4 jets) [GeV]", 400, 0., 8000.) ; 
+  h1_["ht_zsel"] = fs->make<TH1D>("ht_zsel" ,";H_{T} (AK4 jets) [GeV]", 100, 0., 2000.) ; 
+  h1_["npv_zsel"] = fs->make<TH1D>("npv_zsel", ";N(PV);;", 51, -0.5, 50.5) ;
   h1_["ht"] = fs->make<TH1D>("ht" ,";H_{T} (AK4 jets) [GeV]", 200, 0., 4000.) ; 
   h1_["st"] = fs->make<TH1D>("st" ,";S_{T} [GeV]", 200, 0., 4000.) ; 
 

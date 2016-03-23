@@ -7,7 +7,8 @@ from Analysis.VLQAna.MuonMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
 from Analysis.VLQAna.JetSelector_cfi import *
 
-ana = cms.EDFilter("OS2LAna", 
+ana = cms.EDFilter("OS2LAna",
+    hltdecision                = cms.InputTag("evtcleaner","hltdecision"),   
     evttype                    = cms.InputTag("evtcleaner","evttype"),
     evtwtGen                   = cms.InputTag("evtcleaner","evtwtGen"),
     evtwtPV                    = cms.InputTag("evtcleaner","evtwtPV"),
