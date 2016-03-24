@@ -237,13 +237,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
      }
   }
 
-  vlq::JetCollection goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
-  jetAK4maker(evt, goodAK4Jets) ;
-
-  HT htak4(goodAK4Jets) ; 
-  h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
-  h1_["npv_zsel"] -> Fill(*h_npv.product(), evtwt);
-  
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
   boostedzllfilter(dielectrons, zelelBoosted) ; 
   boostedzllfilter(dimuons, zmumuBoosted) ; 
@@ -251,7 +244,31 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (zdecayMode_ == "zmumu" &&  zmumuBoosted.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ;
   else if (zdecayMode_ == "zelel" &&  zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ;
   else return false ; 
- 
+  
+  // jets
+  vlq::JetCollection cleanAK4Jets, goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
+  jetAK4maker(evt, goodAK4Jets) ;
+  
+  //jet cleaning
+  double dR_ak4jl = -100; bool fakeJet = false;  
+  for (vlq::Jet& ijet : goodAK4Jets) {
+     if (zdecayMode_ == "zmumu") {
+        for  (unsigned int imu=0; imu<goodMuons.size(); ++imu){
+           dR_ak4jl = ijet.getP4().DeltaR(goodMuons.at(imu).getP4());
+           if (dR_ak4jl <= 0.3) {fakeJet = true; break;}
+        }
+     }
+     else if (zdecayMode_ == "zelel"){ 
+        // do the same
+     }
+     // fill a container of fake jet indices or fill the container of good jets
+     if (fakeJet) {cout << "lepton is too close to jet "<< ijet.getIndex() <<endl;}
+  }
+  cout << "------ next event ----> " << endl;   
+  HT htak4(goodAK4Jets) ; 
+  h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
+  h1_["npv_zsel"] -> Fill(*h_npv.product(), evtwt);
+   
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   jetAK8maker(evt, goodAK8Jets); 
   jetWTaggedmaker(evt, goodWTaggedJets);
