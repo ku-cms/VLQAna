@@ -74,7 +74,6 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet ZCandParams_               ; 
     edm::ParameterSet BoostedZCandParams_        ; 
     edm::ParameterSet GenHSelParams_             ; 
-   //const double HTMin_                          ; 
     const double STMin_                          ; 
     const bool filterSignal_                     ;
     const std::string signalType_                ;
@@ -92,7 +91,7 @@ class OS2LAna : public edm::EDFilter {
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
     std::map<std::string, TH2D*> h2_             ; 
-
+    std::string lep; 
 };
 
 using namespace std; 
@@ -107,7 +106,6 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   BoostedZCandParams_     (iConfig.getParameter<edm::ParameterSet> ("BoostedZCandParams")),
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
-  //HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
@@ -121,7 +119,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
   jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams")), 
-  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"))  
+  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams")),
+  lep                     (iConfig.getParameter<std::string>       ("lep"))
 {
   produces<vlq::JetCollection>("tjets") ; 
   produces<vlq::JetCollection>("wjets") ; 
@@ -142,6 +141,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>h_evtwtPV   ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
   Handle<unsigned>h_npv     ; evt.getByLabel(l_npv, h_npv) ; 
   
+  if(zdecayMode_ == "zmumu") {lep = "mu";}
+  else if ( zdecayMode_ == "zele") {lep = "el";}
+
   if (filterSignal_ && *h_evttype.product()!=signalType_) return false ;
   const bool hltdecision(*h_hltdecision.product()) ; 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
@@ -161,139 +163,140 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   electronmaker(evt, goodElectrons) ; 
   
   vlq::CandidateCollection dimuons, zmumu, zmumuBoosted, dielectrons, zelel, zelelBoosted ; 
+  vlq::CandidateCollection zll, zllBoosted, dileptons;//generic collections
+
   DileptonCandsProducer dileptonsprod(DilepCandParams_) ; 
   dileptonsprod.operator()<vlq::ElectronCollection>(dielectrons, goodElectrons) ; 
   dileptonsprod.operator()<vlq::MuonCollection>(dimuons, goodMuons); 
 
-  if (dimuons.size() < 1 && zdecayMode_ == "zmumu") return false;
-  else if (dielectrons.size() < 1 && zdecayMode_ == "zelel") return false ; 
+  if (zdecayMode_ == "zmumu") {dileptons = dimuons; }
+  else if (zdecayMode_ == "zelel") {dileptons = dielectrons;}
+  
+  if (dileptons.size() < 1) return false;  
+
+  //apply lepton ID and Iso SF
+  if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") {
+     if ( zdecayMode_ == "zmumu" ){
+        evtwt *= lepsfs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepsfs(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) ;}
+     else if ( zdecayMode_ == "zelel" ){ 
+        evtwt *= lepsfs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepsfs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ;}
+  }
+
+  //dilepton mass 
+  for (auto idilepton : dileptons) h1_["mass_"+lep+lep] -> Fill(idilepton.getMass(), evtwt) ; 
+  
+  //lepton specfic properties
+  if ( zdecayMode_ == "zmumu" ){       
+     h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 
+     h1_["eta_leading_mu"] -> Fill(goodMuons.at(0).getEta(), evtwt) ; 
+     h1_["pt_2nd_mu"] -> Fill(goodMuons.at(1).getPt(), evtwt) ; 
+     h1_["eta_2nd_mu"] -> Fill(goodMuons.at(1).getEta(), evtwt) ; 
+     h1_["dr_mumu"] -> Fill ( (goodMuons.at(0).getP4()).DeltaR(goodMuons.at(1).getP4()) ,evtwt) ;        
+  }
+  else if (zdecayMode_ == "zelel" ) {
+     h1_["pt_leading_el"] -> Fill(goodElectrons.at(0).getPt(), evtwt) ; 
+     h1_["eta_leading_el"] -> Fill(goodElectrons.at(0).getEta(), evtwt) ; 
+     h1_["pt_2nd_el"] -> Fill(goodElectrons.at(1).getPt(), evtwt) ; 
+     h1_["eta_2nd_el"] -> Fill(goodElectrons.at(1).getEta(), evtwt) ; 
+     h1_["dr_elel"] -> Fill ( (goodElectrons.at(0).getP4()).DeltaR(goodElectrons.at(1).getP4()) ,evtwt) ; 
      
-  if (dimuons.size() >= 1 && zdecayMode_ == "zmumu" ) {
-    if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") 
-      evtwt *= lepsfs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepsfs(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) ; 
-    h1_["pt_leading_mu"] -> Fill(goodMuons.at(0).getPt(), evtwt) ; 
-    h1_["eta_leading_mu"] -> Fill(goodMuons.at(0).getEta(), evtwt) ; 
-    h1_["pt_2nd_mu"] -> Fill(goodMuons.at(1).getPt(), evtwt) ; 
-    h1_["eta_2nd_mu"] -> Fill(goodMuons.at(1).getEta(), evtwt) ; 
-    h1_["dr_mumu"] -> Fill ( (goodMuons.at(0).getP4()).DeltaR(goodMuons.at(1).getP4()) ,evtwt) ; 
-    for (auto idimuons : dimuons) h1_["mass_mumu"] -> Fill(idimuons.getMass(), evtwt) ; 
+     for  (unsigned int iele=0; iele<goodElectrons.size(); ++iele){
+        float scEta = goodElectrons.at(iele).getscEta();
+        if(fabs(scEta) <= 1.479){              
+           h1_["Eta_EB_el"]-> Fill(goodElectrons.at(iele).getEta(), evtwt);            
+           h1_["Iso03_EB_el"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
+           h1_["dEtaIn_EB_el"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
+           h1_["dPhiIn_EB_el"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
+           h1_["Dz_EB_el"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
+           h1_["D0_EB_el"]->Fill(goodElectrons.at(iele).getD0(), evtwt);
+        }
+        else if  (fabs(scEta > 1.479) && fabs(scEta < 2.5)){
+           h1_["Eta_EE_el"]->Fill(goodElectrons.at(iele).getEta(), evtwt);
+           h1_["Iso03_EE_el"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
+           h1_["dEtaIn_EE_el"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
+           h1_["dPhiIn_EE_el"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
+           h1_["Dz_EE_el"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
+           h1_["D0_EE_el"]->Fill(goodElectrons.at(iele).getD0(), evtwt);
+        }
+     }
   }
-
-  if (dielectrons.size() >= 1 && zdecayMode_ == "zelel" ) {
-    if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") 
-      evtwt *= lepsfs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepsfs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ; 
-    h1_["pt_leading_el"] -> Fill(goodElectrons.at(0).getPt(), evtwt) ; 
-    h1_["eta_leading_el"] -> Fill(goodElectrons.at(0).getEta(), evtwt) ; 
-    h1_["pt_2nd_el"] -> Fill(goodElectrons.at(1).getPt(), evtwt) ; 
-    h1_["eta_2nd_el"] -> Fill(goodElectrons.at(1).getEta(), evtwt) ; 
-    h1_["dr_elel"] -> Fill ( (goodElectrons.at(0).getP4()).DeltaR(goodElectrons.at(1).getP4()) ,evtwt) ; 
-    for (auto idielectrons : dielectrons) h1_["mass_elel"] -> Fill(idielectrons.getMass(), evtwt) ; 
-    
-    for  (unsigned int iele=0; iele<goodElectrons.size(); ++iele){
-       float scEta = goodElectrons.at(iele).getscEta();
-       
-       if(fabs(scEta) <= 1.479){              
-          h1_["Eta_EB_el"]-> Fill(goodElectrons.at(iele).getEta(), evtwt);            
-          h1_["Iso03_EB_el"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
-          h1_["dEtaIn_EB_el"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
-          h1_["dPhiIn_EB_el"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
-          h1_["Dz_EB_el"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
-          h1_["D0_EB_el"]->Fill(goodElectrons.at(iele).getD0(), evtwt);
-       }
-       else if  (fabs(scEta > 1.479) && fabs(scEta < 2.5)){
-          h1_["Eta_EE_el"]->Fill(goodElectrons.at(iele).getEta(), evtwt);
-          h1_["Iso03_EE_el"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
-          h1_["dEtaIn_EE_el"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
-          h1_["dPhiIn_EE_el"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
-          h1_["Dz_EE_el"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
-          h1_["D0_EE_el"]->Fill(goodElectrons.at(iele).getD0(), evtwt);
-       }
-    }
-   
-  }
+  
   CandidateFilter zllfilter(ZCandParams_) ; 
-  zllfilter(dielectrons, zelel) ; 
-  zllfilter(dimuons, zmumu) ; 
+  zllfilter(dileptons, zll);
 
-  if (zdecayMode_ == "zmumu") {h1_["nzmumu"] -> Fill (zmumu.size(), evtwt) ; }
-  else if (zdecayMode_ == "zelel") {h1_["nzelel"] -> Fill (zelel.size(), evtwt) ; }
-
-  if (zdecayMode_ == "zmumu" &&  zmumu.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
-  else if (zdecayMode_ == "zelel" &&  zelel.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
+  //Z mass candidates
+  h1_["nz"+lep+lep] -> Fill (zll.size(), evtwt);
+  if(zll.size() > 0) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; 
   
-  if (zdecayMode_ == "zmumu") {
-     for (auto izmumu : zmumu) {
-        h1_["mass_zmumu"] -> Fill(izmumu.getMass(), evtwt) ; 
-        h1_["pt_zmumu"] -> Fill(izmumu.getPt(), evtwt) ; 
-        h1_["y_zmumu"] -> Fill(izmumu.getP4().Rapidity(), evtwt) ; 
-     }
+  //Properties of Z candidates
+  for (auto izll : zll) {
+     h1_["mass_z"+lep+lep] -> Fill(izll.getMass(), evtwt) ; 
+     h1_["pt_z"+lep+lep] -> Fill(izll.getPt(), evtwt) ; 
+     h1_["y_z"+lep+lep] -> Fill(izll.getP4().Rapidity(), evtwt) ; 
   }
-  else if (zdecayMode_ == "zelel"){ 
-     for (auto izelel : zelel) {
-        h1_["mass_zelel"] -> Fill(izelel.getMass(), evtwt) ; 
-        h1_["pt_zelel"] -> Fill(izelel.getPt(), evtwt) ; 
-        h1_["y_zelel"] -> Fill(izelel.getP4().Rapidity(), evtwt) ; 
-     }
-  }
-
+ 
+  //modify the Z pt to select only boosted Zs
   CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
-  boostedzllfilter(dielectrons, zelelBoosted) ; 
-  boostedzllfilter(dimuons, zmumuBoosted) ; 
-
-  if (zdecayMode_ == "zmumu" &&  zmumuBoosted.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ;
-  else if (zdecayMode_ == "zelel" &&  zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(4, evtwt) ;
+  boostedzllfilter(dileptons, zllBoosted) ; 
+  if(zllBoosted.size() > 0) h1_["cutflow"] -> Fill(4, evtwt) ;
   else return false ; 
   
   // jets
   vlq::JetCollection cleanAK4Jets, goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
   jetAK4maker(evt, goodAK4Jets) ;
   
-  //jet cleaning
+  //AK4 jet cleaning
   double dR_ak4jl = -100; bool fakeJet = false;  
   for (vlq::Jet& ijet : goodAK4Jets) {
      if (zdecayMode_ == "zmumu") {
         for  (unsigned int imu=0; imu<goodMuons.size(); ++imu){
            dR_ak4jl = ijet.getP4().DeltaR(goodMuons.at(imu).getP4());
+           h1_["dR_muj"] -> Fill(dR_ak4jl);
            if (dR_ak4jl <= 0.3) {fakeJet = true; break;}
         }
      }
      else if (zdecayMode_ == "zelel"){ 
-        // do the same
+        for  (unsigned int iel=0; iel<goodElectrons.size(); ++iel){
+           dR_ak4jl = ijet.getP4().DeltaR(goodElectrons.at(iel).getP4());
+           h1_["dR_elj"] -> Fill(dR_ak4jl);
+           if (dR_ak4jl <= 0.3) {fakeJet = true; break;}
+        }
      }
-     // fill a container of fake jet indices or fill the container of good jets
-     if (fakeJet) {cout << "lepton is too close to jet "<< ijet.getIndex() <<endl;}
+     if(!fakeJet){cleanAK4Jets.push_back(ijet);}
   }
-  cout << "------ next event ----> " << endl;   
-  HT htak4(goodAK4Jets) ; 
+  
+  HT htak4(cleanAK4Jets) ; 
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
   h1_["npv_zsel"] -> Fill(*h_npv.product(), evtwt);
    
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
+  //repeat the cleaning for b-jets?
+
   jetAK8maker(evt, goodAK8Jets); 
   jetWTaggedmaker(evt, goodWTaggedJets);
   jetHTaggedmaker(evt, goodHTaggedJets);
   jetTopTaggedmaker(evt, goodTopTaggedJets);
   
-  h1_["nak8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
-  h1_["nak4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
+  h1_["nak4"] -> Fill(cleanAK4Jets.size(), evtwt) ; 
   h1_["nbjets"] -> Fill(goodBTaggedAK4Jets.size(), evtwt) ; 
+  h1_["nak8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
   h1_["nwjet"] -> Fill(goodWTaggedJets.size(), evtwt) ; 
   h1_["nhjet"] -> Fill(goodHTaggedJets.size(), evtwt) ; 
   h1_["ntjet"] -> Fill(goodTopTaggedJets.size(), evtwt) ; 
 
-  if ( goodAK4Jets.size() > 2 ) h1_["cutflow"] -> Fill(5, evtwt) ; 
+  if (cleanAK4Jets.size() > 2 ) h1_["cutflow"] -> Fill(5, evtwt) ; 
   else return false;
  
-  h1_["ptak4leading"] -> Fill(goodAK4Jets.at(0).getPt(), evtwt) ; 
-  h1_["etaak4leading"] -> Fill(goodAK4Jets.at(0).getEta(), evtwt) ;
-  h1_["csvak4leading"] -> Fill(goodAK4Jets.at(0).getCSV(), evtwt) ; 
-  h1_["ptak42nd"] -> Fill(goodAK4Jets.at(1).getPt(), evtwt) ; 
-  h1_["etaak42nd"] -> Fill(goodAK4Jets.at(1).getEta(), evtwt) ;
-  h1_["csvak42nd"] -> Fill(goodAK4Jets.at(1).getCSV(), evtwt) ;
-  h1_["ptak43rd"] -> Fill(goodAK4Jets.at(2).getPt(), evtwt) ; 
-  h1_["etaak43rd"] -> Fill(goodAK4Jets.at(2).getEta(), evtwt) ;
-  h1_["csvak43rd"] -> Fill(goodAK4Jets.at(2).getCSV(), evtwt) ; 
+  h1_["ptak4leading"] -> Fill(cleanAK4Jets.at(0).getPt(), evtwt) ; 
+  h1_["etaak4leading"] -> Fill(cleanAK4Jets.at(0).getEta(), evtwt) ;
+  h1_["csvak4leading"] -> Fill(cleanAK4Jets.at(0).getCSV(), evtwt) ; 
+  h1_["ptak42nd"] -> Fill(cleanAK4Jets.at(1).getPt(), evtwt) ; 
+  h1_["etaak42nd"] -> Fill(cleanAK4Jets.at(1).getEta(), evtwt) ;
+  h1_["csvak42nd"] -> Fill(cleanAK4Jets.at(1).getCSV(), evtwt) ;
+  h1_["ptak43rd"] -> Fill(cleanAK4Jets.at(2).getPt(), evtwt) ; 
+  h1_["etaak43rd"] -> Fill(cleanAK4Jets.at(2).getEta(), evtwt) ;
+  h1_["csvak43rd"] -> Fill(cleanAK4Jets.at(2).getCSV(), evtwt) ; 
     
 if ( goodBTaggedAK4Jets.size() > 0 ) {
     h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
@@ -388,9 +391,9 @@ if ( goodBTaggedAK4Jets.size() > 0 ) {
   h1_["yBprime"] ->Fill(bp_p4.Rapidity(), evtwt) ; 
   h1_["mBprime"] ->Fill(bp_p4.Mag(), evtwt) ; 
 
-  vlq::CandidateCollection zllBoosted(zmumuBoosted.size()+zelelBoosted.size()) ;
-  for (vlq::Candidate cand : zmumuBoosted ) zllBoosted.push_back(cand) ; 
-  for (vlq::Candidate cand : zelelBoosted ) zllBoosted.push_back(cand) ; 
+  //vlq::CandidateCollection zllBoosted(zmumuBoosted.size()+zelelBoosted.size()) ;
+  //for (vlq::Candidate cand : zmumuBoosted ) zllBoosted.push_back(cand) ; 
+  //for (vlq::Candidate cand : zelelBoosted ) zllBoosted.push_back(cand) ; 
 
   std::auto_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
   std::auto_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
@@ -409,6 +412,8 @@ if ( goodBTaggedAK4Jets.size() > 0 ) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void OS2LAna::beginJob() {
+  if(zdecayMode_ == "zmumu") {lep = "mu";}
+  else if ( zdecayMode_ == "zele") {lep = "el";}
 
   h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 12, 0.5, 12.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "All") ; 
@@ -426,31 +431,19 @@ void OS2LAna::beginJob() {
   h1_["npv_noreweight"] = fs->make<TH1D>("npv_noreweight", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
   
-  if (zdecayMode_ == "zmumu"){
-     h1_["pt_leading_mu"] = fs->make<TH1D>("pt_leading_mu", ";p_{T} (leading #mu^{#pm}) [GeV]", 50, 0., 500.) ;
-     h1_["eta_leading_mu"] = fs->make<TH1D>("eta_leading_mu", ";#eta (leading #mu^{#pm}) [GeV]", 80, -4., 4.) ;
-     h1_["pt_2nd_mu"] = fs->make<TH1D>("pt_2nd_mu", ";p_{T} (2nd #mu^{#pm}) [GeV]", 50, 0., 500.) ;
-     h1_["eta_2nd_mu"] = fs->make<TH1D>("eta_2nd_mu", ";#eta (2nd #mu^{#pm}) [GeV]", 80, -4., 4.) ;
-     h1_["dr_mumu"] = fs->make<TH1D>("dr_mumu", ";#DeltaR(#mu^{+}#mu^{-});;", 40, 0., 4.) ; 
-     h1_["mass_mumu"] = fs->make<TH1D>("mass_mumu", ";M(#mu^{+}#mu^{-}) [GeV]", 100, 20., 220.) ; 
-     h1_["mass_zmumu"] = fs->make<TH1D>("mass_zmumu", ";M(Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 100, 20., 220.) ; 
-     h1_["pt_zmumu"] = fs->make<TH1D>("pt_zmumu", ";p_{T} (Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 50, 0., 1000.) ; 
-     h1_["y_zmumu"] = fs->make<TH1D>("y_zmumu", ";y (Z#rightarrow#mu^{+}#mu^{-}) [GeV]", 80, -4., 4.) ; 
-     h1_["nzmumu"] = fs->make<TH1D>("nzmumu", ";N (Z#rightarrow#mu^{+}#mu^{-});;", 5, -0.5, 4.5) ; 
-  }
-  else if (zdecayMode_ == "zelel"){
-     h1_["pt_leading_el"] = fs->make<TH1D>("pt_leading_el", ";p_{T} (leading e^{#pm}) [GeV]", 50, 0., 500.) ;
-     h1_["eta_leading_el"] = fs->make<TH1D>("eta_leading_el", ";#eta (leading e^{#pm}) [GeV]", 80, -4., 4.) ;
-     h1_["pt_2nd_el"] = fs->make<TH1D>("pt_2nd_el", ";p_{T} (2nd e^{#pm}) [GeV]", 50, 0., 500.) ;
-     h1_["eta_2nd_el"] = fs->make<TH1D>("eta_2nd_el", ";#eta (2nd e^{#pm}) [GeV]", 80, -4., 4.) ;
-     h1_["dr_elel"] = fs->make<TH1D>("dr_elel", ";#DeltaR(e^{+}e^{-});;", 40, 0., 4.) ; 
-     h1_["mass_elel"] = fs->make<TH1D>("mass_elel", ";M(e^{+}e^{-}) [GeV]", 100, 20., 220.) ; 
-     h1_["mass_zelel"] = fs->make<TH1D>("mass_zelel", ";M(Z#rightarrow e^{+}e^{-}) [GeV]", 100, 20., 220.) ; 
-     h1_["pt_zelel"] = fs->make<TH1D>("pt_zelel", ";p_{T} (Z#rightarrow e^{+}e^{-}) [GeV]", 50, 0., 1000.) ; 
-     h1_["y_zelel"] = fs->make<TH1D>("y_zelel", ";y (Z#rightarrow e^{+}e^{-}) [GeV]", 80, -4., 4.) ; 
-     h1_["nzelel"] = fs->make<TH1D>("nzelel", ";N (Z#rightarrow e^{+}e^{-});;", 5, -0.5, 4.5) ; 
-  }
-  //varaibles on EE and EB
+  h1_[("pt_leading_"+lep).c_str()] = fs->make<TH1D>(("pt_leading_"+lep).c_str(), ";p_{T} (leading #l^{#pm}) [GeV]", 50, 0., 500.) ;
+  h1_[("eta_leading_"+lep).c_str()] = fs->make<TH1D>(("eta_leading_"+lep).c_str(), ";#eta (leading #l^{#pm}) [GeV]", 80, -4., 4.) ;
+  h1_[("pt_2nd_"+lep).c_str()] = fs->make<TH1D>(("pt_2nd_"+lep).c_str(), ";p_{T} (2nd #l^{#pm}) [GeV]", 50, 0., 500.) ;
+  h1_[("eta_2nd_"+lep).c_str()] = fs->make<TH1D>(("eta_2nd_"+lep).c_str(), ";#eta (2nd #l^{#pm}) [GeV]", 80, -4., 4.) ;
+  h1_[("dr_"+lep+lep).c_str()] = fs->make<TH1D>(("dr_"+lep+lep).c_str(), ";#DeltaR(#l^{+}#l^{-});;", 40, 0., 4.) ; 
+  h1_[("mass_"+lep+lep).c_str()] = fs->make<TH1D>(("mass_"+lep+lep).c_str(), ";M(l^{+}l^{-}) [GeV]", 100, 20., 220.) ; 
+  h1_[("mass_z"+lep+lep).c_str()] = fs->make<TH1D>(("mass_z"+lep+lep).c_str(), ";M(Z#rightarrow l^{+}l^{-}) [GeV]", 100, 20., 220.) ; 
+  h1_[("pt_z"+lep+lep).c_str()] = fs->make<TH1D>(("pt_z"+lep+lep).c_str(), ";p_{T} (Z#rightarrow l^{+}l^{-}) [GeV]", 50, 0., 1000.) ; 
+  h1_[("y_z"+lep+lep).c_str()] = fs->make<TH1D>(("y_z"+lep+lep).c_str(), ";y (Z#rightarrow e^{+}e^{-}) [GeV]", 80, -4., 4.) ; 
+  h1_[("nz"+lep+lep).c_str()] = fs->make<TH1D>(("nz"+lep+lep).c_str(), ";N (Z#rightarrow l^{+}l^{-});;", 5, -0.5, 4.5) ; 
+  h1_[("dR_"+lep+"j").c_str()] = fs->make<TH1D>(("dR_"+lep+"j").c_str(), ";#DeltaR(l,jet);;", 40, 0., 4.) ; 
+  
+  //electrons specific varaibles in EE and EB
   if (zdecayMode_ == "zelel" ){
      h1_["Eta_EB_el"] = fs->make<TH1D>("Eta_EB_el", ";Eta (EB);;", 100,-4,4) ;
      h1_["Eta_EE_el"] = fs->make<TH1D>("Eta_EE_el", ";Eta (EE);;", 100,-4,4) ;

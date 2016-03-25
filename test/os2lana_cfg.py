@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('zdecaymode', 'zelel',
+options.register('zdecaymode', 'zmumu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
@@ -62,13 +62,13 @@ if options.isData:
     hltpaths = [
         "HLT_DoubleIsoMu17_eta2p1_v", 
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-        "HLT_DoubleMu8_Mass8_PFHT300_v",
+        #"HLT_DoubleMu8_Mass8_PFHT300_v",
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
         "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
-        "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
+        #"HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
         ]
   else:
     sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
@@ -151,7 +151,7 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *cms.ignore(process.ana)
-    *process.anaBoosted ##comment it
+    #*process.anaBoosted ##comment it
     * process.finalEvents
     )
 
