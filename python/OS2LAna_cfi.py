@@ -7,7 +7,8 @@ from Analysis.VLQAna.MuonMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
 from Analysis.VLQAna.JetSelector_cfi import *
 
-ana = cms.EDFilter("OS2LAna", 
+ana = cms.EDFilter("OS2LAna",
+    hltdecision                = cms.InputTag("evtcleaner","hltdecision"),   
     evttype                    = cms.InputTag("evtcleaner","evttype"),
     evtwtGen                   = cms.InputTag("evtcleaner","evtwtGen"),
     evtwtPV                    = cms.InputTag("evtcleaner","evtwtPV"),
@@ -15,6 +16,7 @@ ana = cms.EDFilter("OS2LAna",
     filterSignal               = cms.bool(False), 
     signalType                 = cms.string("EvtType_MC_tZtZ"), 
     zdecayMode                 = cms.string("zelele"),
+    lep                        = cms.string("lep"),
     applyLeptonSFs             = cms.bool(True),  
     DoPUReweightingNPV         = cms.bool(False),
     DilepCandParams            = defaultZCandSelectionParameters.clone(), 
@@ -29,9 +31,11 @@ ana = cms.EDFilter("OS2LAna",
         ptMin = cms.double(200.),
         ), 
     GenHSelParams              = genPartParams.clone(), 
-    HTMin                      = cms.double  (800.), #dummy varaible not used in analysis
     STMin                      = cms.double  (400.), 
-    lepsfsParams               = defaultWP,
+    lepsfsParams               = defaultWP.clone(
+        lepidtype = cms.string("TIGHT"),
+        zdecayMode = cms.string("zelel"),
+        ),
     muselParams                = defaultMuonMakerParameters, 
     elselParams                = defaultElectronMakerParameters, 
     jetAK4selParams            = defaultAK4JetSelectionParameters,

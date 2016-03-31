@@ -1,6 +1,6 @@
 setenv SCRAM_ARCH slc6_amd64_gcc491
 
-cmsrel CMSSW_7_4_15_patch1
+cmsrel CMSSW_7_4_16_patch2
 
 cd CMSSW_7_4_16_patch2/src/
 
@@ -29,11 +29,11 @@ Analysis/VLQAna/test/Skim/CRAB/Skims_CR_Zelel
 
 Modify the exisiting crab file, by changing the relvant parameters, like config.General.requestName, config.Data.inputDataset, config.Data.outLFNDirBase, config.Site.storageSite etc.
 
-condor submit -c crab_XX.py
+crab submit -c crab_XX.py
 
 This will create an output condor directory, through which you can check the status of the jobs.
 
-condor status -d MY_CONDOR_DIR
+crab status -d MY_CONDOR_DIR
 
 Please see more details https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial.
 

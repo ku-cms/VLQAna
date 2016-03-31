@@ -8,10 +8,15 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('zdecaymode', 'zelel',
+options.register('zdecaymode', 'zmumu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
+    )
+options.register('lepID', 'TIGHT',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "lepton ID? Choose: 'TIGHT' or 'LOOSE'"
     )
 options.register('outFileName', 'os2lana.root',
     VarParsing.multiplicity.singleton,
@@ -57,13 +62,13 @@ if options.isData:
     hltpaths = [
         "HLT_DoubleIsoMu17_eta2p1_v", 
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-        "HLT_DoubleMu8_Mass8_PFHT300_v",
+        #"HLT_DoubleMu8_Mass8_PFHT300_v",
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
         "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
-        "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
+        #"HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
         ]
   else:
     sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
@@ -79,12 +84,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring( 
    #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_1.root',
-   #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_10.root',
-   #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_100.root',
-   #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_101.root',
-   #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_102.root',
-    #FileNames
-    #FileNames_TT_M1200
+    #'/store/group/phys_b2g/B2GAnaFW/DoubleEG/Run2015D-05Oct2015-v1_B2GAnaFW_v74x_v8p4/151122_201800/0000/B2GEDMNtuple_1.root',
+    #'/store/group/phys_b2g/B2GAnaFW/DoubleEG/Run2015D-PromptReco-v4_B2GAnaFW_v74x_v8p4/151122_201819/0000/B2GEDMNtuple_10.root',
     FileNames_DYJetsToLL
     #'root://grid143.kfki.hu//store/group/phys_b2g/B2GAnaFW/Skims/CR_Zelel/DoubleEG/Run2015D-05Oct2015-v1_B2GAnaFW_v74x_v8p4_Skim_CR_Zelel_24Nov2015/151124_141440/0000/SkimmedB2GEdmNtuples_1.root'
     ) 
@@ -110,15 +111,14 @@ process.ana = ana.clone(
     zdecayMode = cms.string(options.zdecaymode),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-#process.ana.elselParams.useVID = cms.bool(options.isData)
-process.ana.elselParams.elidtype = cms.string("TIGHT")
-process.ana.muselParams.muidtype = cms.string("TIGHT")
+process.ana.elselParams.elidtype = cms.string(options.lepID)
+process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
+process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
+process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
-process.ana.jetAK8selParams.jetPtMin = cms.double(100)
-process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
-#if not options.isData:
-#  process.ana.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
+process.ana.jetAK8selParams.jetPtMin = cms.double(200) #100 compare to default?
+process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(30) #why 40 compare to default?
 
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
@@ -126,11 +126,11 @@ process.anaBoosted = ana.clone(
     signalType = cms.string(options.signalType),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-#process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
-#if not options.isData:
-#  process.anaBoosted.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
-
-
+process.anaBoosted.elselParams.elidtype = cms.string(options.lepID)
+process.anaBoosted.muselParams.muidtype = cms.string(options.lepID)
+process.anaBoosted.muselParams.muIsoMax = cms.double(0.15)
+process.anaBoosted.lepsfsParams.lepidtype = cms.string(options.lepID)
+process.anaBoosted.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
@@ -151,9 +151,7 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *cms.ignore(process.ana)
-    ##*cms.ignore(process.anaBoosted+process.vlqcands)
     #*process.anaBoosted ##comment it
-    ##*process.vlqcands
     * process.finalEvents
     )
 

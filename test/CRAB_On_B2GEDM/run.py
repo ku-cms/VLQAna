@@ -21,7 +21,7 @@ parser.add_option('--outLabel', metavar='L', type='string', action='store',
                   help='output tag to be used')
 
 parser.add_option('--channelType', metavar='S', type='string', action='store',
-                  default='Zelel',
+                  default='Zmumu',
                   dest='channelType',
                   help='Channel type: Zelel, Zmumu')
     
@@ -38,25 +38,28 @@ parser.add_option('--isData', metavar='I', type='int', action='store',
 if options.isData == 1:
     isData  = 'isData=True'
     puOfficial = 'doPUReweightingOfficial=False'
+    applySF = 'applyLeptonSFs=False'
 else: 
     isData = 'isData=False'
     puOfficial = 'doPUReweightingOfficial=True'
+    applySF = 'applyLeptonSFs=True'
 
-
-if 'Zmumu' in options.channelType:
-    mode = 'zdecaymode=zmumu'
-    applySF = 'applyLeptonSFs=False'
-elif 'Zelel' in options.channelType:
-    mode = 'zdecaymode=zelel'
-    if options.isData == 0: applySF = 'applyLeptonSFs=True'
-    else: applySF = 'applyLeptonSFs=False'
+#if 'Zmumu' in options.channelType:
+#    mode = 'zdecaymode=zmumu'
+    #applySF = 'applyLeptonSFs=False'
+#elif 'Zelel' in options.channelType:
+#    mode = 'zdecaymode=zelel'
+    #if options.isData == 0: applySF = 'applyLeptonSFs=True'
+    #else: applySF = 'applyLeptonSFs=False'
 
 # add all the datasets for particular skim
 if options.channelType=='Zelel':
+    mode = 'zdecaymode=zelel'
     print 'Submitting jobs for electron channel in control region -------->'
     jobList = list_Zelel(options.isData)
 
-if options.channelType=='Zmumu':
+elif options.channelType=='Zmumu':
+    mode = 'zdecaymode=zmumu'
     print 'Submitting jobs for muon channel in control region -------->'
     jobList = list_Zmumu(options.isData)
  
