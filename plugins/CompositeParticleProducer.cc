@@ -48,11 +48,11 @@ void CompositeParticleProducer::produce( edm::Event& evt, const edm::EventSetup&
   vlq::GenParticleCollection genPart ; 
   std::vector<vlq::GenParticleCollection> genDaus ; 
 
-  PickGenPart genpart(GenPartParams_) ; 
+  PickGenPart genpart(GenPartParams_,consumesCollector()) ; 
   genPart = genpart(evt) ; 
 
   for (std::vector<edm::ParameterSet>::iterator is = GenDauParams_.begin(); is != GenDauParams_.end(); ++is) {
-    PickGenPart gendau(*is) ;
+    PickGenPart gendau(*is,consumesCollector()) ;
     genDaus.push_back(gendau(evt)) ; 
   }
 
