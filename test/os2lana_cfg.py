@@ -23,11 +23,6 @@ options.register('doPUReweightingOfficial', True,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
-options.register('doPUReweightingNPV', False,
-    VarParsing.multiplicity.singleton,
-    VarParsing.varType.bool,
-    "Do pileup reweighting based on NPV"
-    )
 options.register('filterSignal', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -88,7 +83,6 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
-process.evtcleaner.DoPUReweightingNPV = cms.bool(options.doPUReweightingNPV)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
