@@ -39,19 +39,21 @@ options.register('storeLHEWts', True,
     VarParsing.varType.bool,
     "Store LHE wts?"
     )
+options.register('FileNames', 'FileNames_QCD_HT1000to1500',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Name of list of input files"
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
 
-hltpaths = ['HLT_PFHT650']
+hltpaths = ['HLT_PFHT650', 'HLT_PFHT800', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50', 'HLT_AK8PFJet360_TrimMass30']
 if options.isData: 
-    hltpaths = ['HLT_PFHT650', 'HLT_PFHT800', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50', 'HLT_AK8PFJet360_TrimMass30']
     options.doBTagSFUnc = False 
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
-else: 
-  hltpaths = []
 
 process = cms.Process("hh4b")
 
@@ -61,11 +63,7 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    #'root://cmsxrootd-site.fnal.gov//store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_73.root'
-    FileNames_BG1200
-    #FileName_JetHT_PromptRecov4
-    #FileName_QCD_HT1000to1500
-    #FileNames
+      FileNames[options.FileNames]
     ) 
     )
 
