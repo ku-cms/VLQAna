@@ -1,6 +1,7 @@
 #ifndef JETID_H
 #define JETID_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
@@ -20,7 +21,7 @@ class JetID : public Selector<int>  {
     JetID() {}
     JetID(JetID&) {} 
 
-    JetID( edm::ParameterSet const & params ) : 
+    JetID( edm::ParameterSet const & params, edm::ConsumesCollector & iC ) : 
       l_jetPt              (params.getParameter<edm::InputTag> ("jetPtLabel")),                   
       l_jetEta             (params.getParameter<edm::InputTag> ("jetEtaLabel")),                  
       l_jetPhi             (params.getParameter<edm::InputTag> ("jetPhiLabel")),                   
@@ -40,6 +41,26 @@ class JetID : public Selector<int>  {
       l_jetY               (params.getParameter<edm::InputTag> ("jetYLabel")),                      
       l_jetArea            (params.getParameter<edm::InputTag> ("jetAreaLabel"))                         
   {
+
+    iC.consumes<vector<float>> (l_jetPt             );
+    iC.consumes<vector<float>> (l_jetEta            );
+    iC.consumes<vector<float>> (l_jetPhi            );
+    iC.consumes<vector<float>> (l_jetMass           );
+    iC.consumes<vector<float>> (l_jetEnergy         );
+    iC.consumes<vector<float>> (l_jetPartonFlavour  );
+    iC.consumes<vector<float>> (l_jetHadronFlavour  );
+    iC.consumes<vector<float>> (l_jetCSV            );
+    iC.consumes<vector<float>> (l_jetJEC            );
+    iC.consumes<vector<float>> (l_jetnHadEnergy     );
+    iC.consumes<vector<float>> (l_jetnEMEnergy      );
+    iC.consumes<vector<float>> (l_jetHFHadronEnergy );
+    iC.consumes<vector<float>> (l_jetcHadEnergy     );
+    iC.consumes<vector<float>> (l_jetcEMEnergy      );
+    iC.consumes<vector<float>> (l_jetnumDaughters   );
+    iC.consumes<vector<float>> (l_jetcMultip        );
+    iC.consumes<vector<float>> (l_jetY              );
+    iC.consumes<vector<float>> (l_jetArea           );
+
     std::string versionStr = params.getParameter<std::string>("version");
     std::string qualityStr = params.getParameter<std::string>("quality");
 

@@ -1,6 +1,7 @@
 #ifndef ANALYSIS_VLQANA_JETMAKER_H
 #define ANALYSIS_VLQANA_JETMAKER_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -24,15 +25,11 @@ class JetMaker {
     enum JETTYPES_t { AK4JET, AK8JET, N_JETTYPES} ; 
     JetMaker () ; 
     ~JetMaker () ; 
-    JetMaker (edm::ParameterSet const&) ;
+    JetMaker (edm::ParameterSet const&, edm::ConsumesCollector && iC) ;
     void operator()(edm::Event& evt, vlq::JetCollection& jetOut) ;
     void operator()(vlq::JetCollection jetsIn, vlq::JetCollection& jetsOut) ;
 
   private:
-    JETTYPES_t type_ ; 
-    JetID* jetID_ ; 
-    pat::strbitset retjetid_ ; 
-    JetID::Quality_t quality_; 
     edm::ParameterSet JetIDParams_ ; 
     edm::ParameterSet JetSubstrParams_ ; 
     edm::ParameterSet SubjetParams_ ; 
@@ -68,60 +65,64 @@ class JetMaker {
     double btaggedcsvmOP_        ; 
     double btaggedcsvtOP_        ; 
 
-    edm::InputTag l_npv                ; 
-    edm::InputTag l_rho                ; 
-    edm::InputTag l_jetPt              ; 
-    edm::InputTag l_jetEta             ; 
-    edm::InputTag l_jetPhi             ; 
-    edm::InputTag l_jetMass            ; 
-    edm::InputTag l_jetEnergy          ; 
-    edm::InputTag l_jetPartonFlavour   ; 
-    edm::InputTag l_jetHadronFlavour   ; 
-    edm::InputTag l_jetCSV             ; 
-    edm::InputTag l_jetJEC             ; 
-    edm::InputTag l_jetnHadEnergy      ;
-    edm::InputTag l_jetnEMEnergy       ;
-    edm::InputTag l_jetHFHadronEnergy  ;
-    edm::InputTag l_jetcHadEnergy      ;
-    edm::InputTag l_jetcEMEnergy       ;
-    edm::InputTag l_jetnumDaughters    ;
-    edm::InputTag l_jetcMultip         ;
-    edm::InputTag l_jetY               ;
-    edm::InputTag l_jetArea            ; 
-    edm::InputTag l_jetGenJetPt        ; 
-    edm::InputTag l_jetGenJetEta       ; 
-    edm::InputTag l_jetGenJetPhi       ; 
-    edm::InputTag l_jettau1            ; 
-    edm::InputTag l_jettau2            ; 
-    edm::InputTag l_jettau3            ; 
-    edm::InputTag l_jetPrunedMass      ; 
-    edm::InputTag l_jetTrimmedMass     ; 
-    edm::InputTag l_jetFilteredMass    ; 
-    edm::InputTag l_jetSoftDropMass    ; 
-    edm::InputTag l_jetnSubJets        ; 
-    edm::InputTag l_vjetsjIdx0         ; 
-    edm::InputTag l_vjetsjIdx1         ; 
-    edm::InputTag l_ak8sjHadFl         ; 
-    edm::InputTag l_ak8sjPt            ; 
-    edm::InputTag l_ak8sjEta           ; 
-    edm::InputTag l_ak8sjPhi           ; 
-    edm::InputTag l_ak8sjMass          ; 
-    edm::InputTag l_ak8sjCSV           ; 
-    edm::InputTag l_ak8sjGenJetPt      ; 
-    edm::InputTag l_ak8sjGenJetEta     ; 
-    edm::InputTag l_ak8sjGenJetPhi     ; 
-    double jecShift_ ; 
-    int    jerShift_ ; 
+    edm::EDGetTokenT<int>                t_npv                ; 
+    edm::EDGetTokenT<double>             t_rho                ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetPt              ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetEta             ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetPhi             ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetMass            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetEnergy          ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetPartonFlavour   ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetHadronFlavour   ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetCSV             ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetJEC             ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetnHadEnergy      ;
+    edm::EDGetTokenT<std::vector<float>> t_jetnEMEnergy       ;
+    edm::EDGetTokenT<std::vector<float>> t_jetHFHadronEnergy  ;
+    edm::EDGetTokenT<std::vector<float>> t_jetcHadEnergy      ;
+    edm::EDGetTokenT<std::vector<float>> t_jetcEMEnergy       ;
+    edm::EDGetTokenT<std::vector<float>> t_jetnumDaughters    ;
+    edm::EDGetTokenT<std::vector<float>> t_jetcMultip         ;
+    edm::EDGetTokenT<std::vector<float>> t_jetY               ;
+    edm::EDGetTokenT<std::vector<float>> t_jetArea            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetGenJetPt        ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetGenJetEta       ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetGenJetPhi       ; 
+    edm::EDGetTokenT<std::vector<float>> t_jettau1            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jettau2            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jettau3            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetPrunedMass      ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetTrimmedMass     ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetFilteredMass    ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetSoftDropMass    ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetnSubJets        ; 
+    edm::EDGetTokenT<std::vector<float>> t_vjetsjIdx0         ; 
+    edm::EDGetTokenT<std::vector<float>> t_vjetsjIdx1         ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjHadFl         ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjPt            ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjEta           ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjPhi           ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjMass          ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjCSV           ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetPt      ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetEta     ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetPhi     ; 
+    double                    jecShift_ ; 
+    int                       jerShift_ ; 
     std::vector<std::string>  newJECPayloadNames_;
     std::string               jecUncPayloadName_;
     std::vector<std::string>  jecAK8GroomedPayloadNames_;
     bool                      doGroomedMassCorr_;
     bool                      doNewJEC_;
-    boost::shared_ptr<FactorizedJetCorrector> ptr_jecAK8_  ;
+    boost::shared_ptr<FactorizedJetCorrector>   ptr_jecAK8_  ;
     boost::shared_ptr<JetCorrectionUncertainty> ptr_jecUnc ; 
-    boost::shared_ptr<FactorizedJetCorrector> ptr_newJEC_  ;
+    boost::shared_ptr<FactorizedJetCorrector>   ptr_newJEC_  ;
     std::string jecAK8UncName_  ;
 
+    JETTYPES_t type_ ; 
+    JetID jetID_ ; 
+    pat::strbitset retjetid_ ; 
+    JetID::Quality_t quality_; 
 };
 
 #endif 
