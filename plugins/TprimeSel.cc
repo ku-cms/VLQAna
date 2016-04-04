@@ -33,7 +33,7 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "Analysis/VLQAna/interface/JetSelector.h"
+#include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/HT.h"
 
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
