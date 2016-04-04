@@ -32,8 +32,8 @@ class HJetTagging : public EDFilter {
 
 HJetTagging::HJetTagging (const edm::ParameterSet& iConfig) :
   l_HbbCands              (iConfig.getParameter<edm::InputTag>     ("HbbCandsLabel")),
-  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
-  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"))  
+  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
+  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector())  
 {
 }
 

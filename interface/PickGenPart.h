@@ -1,6 +1,7 @@
 #ifndef PICKGENPART_HH
 #define PICKGENPART_HH
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -10,7 +11,7 @@ typedef std::vector<vlq::GenParticle> GenParticleCollection ;
 
 class PickGenPart {
   public:
-    explicit PickGenPart(const edm::ParameterSet&) ; 
+    explicit PickGenPart(const edm::ParameterSet&, edm::ConsumesCollector && iC) ; 
     ~PickGenPart() ; 
     const GenParticleCollection operator() (edm::Event&) ; 
 

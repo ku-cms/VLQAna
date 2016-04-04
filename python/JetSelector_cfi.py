@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.JetID_cfi import * 
 
+CSVv2L = 0.460 
+CSVv2M = 0.800 
+CSVv2T = 0.935 
+
 defaultAK4JetSelectionParameters = cms.PSet(
     jettype                   = cms.string('AK4JET'),
     JetIDParams               = defaultAK4JetIDParameters, 
@@ -9,11 +13,8 @@ defaultAK4JetSelectionParameters = cms.PSet(
     SubjetParams              = cms.PSet(),
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
-    newJECPayloadNames        = cms.vstring(
-      "Summer15_25nsV7_MC_L1FastJet_AK4PFchs.txt",
-      "Summer15_25nsV7_MC_L2Relative_AK4PFchs.txt",
-      "Summer15_25nsV7_MC_L3Absolute_AK4PFchs.txt"), 
-    jecUncPayloadName         = cms.string("Summer15_25nsV7_MC_Uncertainty_AK4PFchs.txt"), 
+    newJECPayloadNames        = cms.vstring(), 
+    jecUncPayloadName         = cms.string(""), 
     jecAK8GroomedPayloadNames = cms.vstring(), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
@@ -22,9 +23,9 @@ defaultAK4JetSelectionParameters = cms.PSet(
     jetAbsEtaMax              = cms.double(5.0),
     jetCSVDiscMin             = cms.double(-10000),
     jetCSVDiscMax             = cms.double(10000),
-    btaggedcsvlOP             = cms.double(0.605) , 
-    btaggedcsvmOP             = cms.double(0.890) , 
-    btaggedcsvtOP             = cms.double(0.970) , 
+    btaggedcsvlOP             = cms.double(CSVv2L) , 
+    btaggedcsvmOP             = cms.double(CSVv2M) , 
+    btaggedcsvtOP             = cms.double(CSVv2T) , 
     IsJetIDLoose              = cms.bool(True),
     IsJetIDTight              = cms.bool(False),
     )
@@ -33,7 +34,6 @@ defaultBTaggedAK4JetSelectionParameters = defaultAK4JetSelectionParameters.clone
     jetPtMin            = cms.double(30),
     jetAbsEtaMax        = cms.double(2.4),
     jetCSVDiscMin       = cms.double(0.890),
-    jetCSVDiscMax       = cms.double(1.000),
     )
 
 defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone( 
@@ -43,14 +43,11 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     SubjetParams              = defaultSubjetParameters.clone(), 
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
-    newJECPayloadNames        = cms.vstring(
-      "Summer15_25nsV7_MC_L1FastJet_AK8PFchs.txt", 
-      "Summer15_25nsV7_MC_L2Relative_AK8PFchs.txt", 
-      "Summer15_25nsV7_MC_L3Absolute_AK8PFchs.txt"), 
-    jecUncPayloadName         = cms.string("Summer15_25nsV7_MC_Uncertainty_AK8PFchs.txt"),
+    newJECPayloadNames        = cms.vstring(), 
+    jecUncPayloadName         = cms.string(""),
     jecAK8GroomedPayloadNames = cms.vstring(
-      "Summer15_25nsV7_MC_L2Relative_AK8PFchs.txt", 
-      "Summer15_25nsV7_MC_L3Absolute_AK8PFchs.txt"), 
+      "Fall15_25nsV2_MC_L2Relative_AK8PFchs.txt", 
+      "Fall15_25nsV2_MC_L3Absolute_AK8PFchs.txt"), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),
@@ -73,9 +70,9 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     subjetCSVMax              = cms.double(1000000) ,
     subjetHighestCSVMin       = cms.double(-1000000) ,
     subjetHighestCSVMax       = cms.double(1000000) ,
-    btaggedcsvlOP             = cms.double(0.605) , 
-    btaggedcsvmOP             = cms.double(0.890) , 
-    btaggedcsvtOP             = cms.double(0.970) , 
+    btaggedcsvlOP             = cms.double(CSVv2L) , 
+    btaggedcsvmOP             = cms.double(CSVv2M) , 
+    btaggedcsvtOP             = cms.double(CSVv2T) , 
     )
 
 ### Corresponds to e(B) = 0.1% SD WP1 plus subjet b-tagging loose OP
@@ -95,7 +92,7 @@ defaultHJetSelectionParameters = defaultAK8JetSelectionParameters.clone(
     jettau2Bytau1Max    = cms.double(0.6) ,
     jetPrunedMassMin    = cms.double(105) ,
     jetPrunedMassMax    = cms.double(135) ,
-    subjetCSVMin        = cms.double(0.605) ,
+    subjetCSVMin        = cms.double(CSVv2L) ,
     )
 
 defaultWJetSelectionParameters = defaultHJetSelectionParameters.clone(
@@ -105,7 +102,6 @@ defaultWJetSelectionParameters = defaultHJetSelectionParameters.clone(
     )
 
 defaultBTaggedAK8JetSelectionParameters = defaultAK8JetSelectionParameters.clone(
-    jetCSVDiscMin       = cms.double(0.889),
-    jetCSVDiscMax       = cms.double(1.000),
+    jetCSVDiscMin       = cms.double(CSVv2M),
     )
 
