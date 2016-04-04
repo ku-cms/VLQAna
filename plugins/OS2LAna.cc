@@ -67,10 +67,10 @@ class OS2LAna : public edm::EDFilter {
     ApplyLeptonSFs lepsfs ; 
 
     // ----------member data ---------------------------
-    edm::InputTag l_evttype                      ;
-    edm::InputTag l_evtwtGen                     ;
-    edm::InputTag l_evtwtPV                      ;
-    edm::InputTag l_npv                          ;
+    edm::EDGetTokenT<string>   t_evttype         ;
+    edm::EDGetTokenT<double>   t_evtwtGen        ;
+    edm::EDGetTokenT<double>   t_evtwtPV         ;
+    edm::EDGetTokenT<unsigned> t_npv             ;
     edm::ParameterSet DilepCandParams_           ; 
     edm::ParameterSet ZCandParams_               ; 
     edm::ParameterSet BoostedZCandParams_        ; 
@@ -97,10 +97,10 @@ class OS2LAna : public edm::EDFilter {
 using namespace std; 
 
 OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
-  l_evttype               (iConfig.getParameter<edm::InputTag>     ("evttype")),
-  l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
-  l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
-  l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
+  t_evttype               (consumes<string>  (iConfig.getParameter<edm::InputTag>("evttype"))),
+  t_evtwtGen              (consumes<double>  (iConfig.getParameter<edm::InputTag>("evtwtGen"))),
+  t_evtwtPV               (consumes<double>  (iConfig.getParameter<edm::InputTag>("evtwtPV"))),
+  t_npv                   (consumes<unsigned>(iConfig.getParameter<edm::InputTag>("npv"))),
   DilepCandParams_        (iConfig.getParameter<edm::ParameterSet> ("DilepCandParams")),
   ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   BoostedZCandParams_     (iConfig.getParameter<edm::ParameterSet> ("BoostedZCandParams")),
@@ -120,11 +120,6 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"),consumesCollector())  
 {
 
-  consumes<string>  (l_evttype  );  
-  consumes<double>  (l_evtwtGen ); 
-  consumes<double>  (l_evtwtPV  ); 
-  consumes<unsigned>(l_npv      ); 
-
   produces<vlq::JetCollection>("tjets") ; 
   produces<vlq::JetCollection>("wjets") ; 
   produces<vlq::JetCollection>("bjets") ; 
@@ -138,10 +133,10 @@ OS2LAna::~OS2LAna() {}
 bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<string>h_evttype  ; evt.getByLabel(l_evttype , h_evttype ) ; 
-  Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
-  Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV ,  h_evtwtPV) ; 
-  Handle<unsigned>h_npv    ; evt.getByLabel(l_npv     , h_npv     ) ; 
+  Handle<string>   h_evttype  ; evt.getByToken(t_evttype , h_evttype ) ; 
+  Handle<double>   h_evtwtGen ; evt.getByToken(t_evtwtGen, h_evtwtGen) ; 
+  Handle<double>   h_evtwtPV  ; evt.getByToken(t_evtwtPV , h_evtwtPV ) ; 
+  Handle<unsigned> h_npv      ; evt.getByToken(t_npv     , h_npv     ) ; 
 
   unsigned npv(*h_npv.product()) ; 
 
