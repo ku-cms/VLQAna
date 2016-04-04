@@ -29,20 +29,20 @@ class HH4b : public edm::EDFilter {
     bool passHiggsTagging(vlq::Jet jet) ; 
 
     // ----------member data ---------------------------
-    edm::InputTag l_runno                        ;
-    edm::InputTag l_lumisec                      ;
-    edm::InputTag l_evtno                        ;
-    edm::InputTag l_isData                       ;
-    edm::InputTag l_evtwtGen                     ;
-    edm::InputTag l_evtwtPV                      ;
-    edm::InputTag l_evtwtPVLow                   ;
-    edm::InputTag l_evtwtPVHigh                  ;
-    edm::InputTag l_htHat                        ;
-    edm::InputTag l_lhewtids                     ;
-    edm::InputTag l_lhewts                       ;
-    edm::InputTag l_hltdecision                  ;
-    edm::InputTag l_npv                          ;
-    edm::InputTag l_npuTrue                      ;
+    edm::EDGetTokenT<int>           t_runno      ;
+    edm::EDGetTokenT<int>           t_lumisec    ;
+    edm::EDGetTokenT<int>           t_evtno      ;
+    edm::EDGetTokenT<bool>          t_isData     ;
+    edm::EDGetTokenT<double>        t_evtwtGen   ;
+    edm::EDGetTokenT<double>        t_evtwtPV    ;
+    edm::EDGetTokenT<double>        t_evtwtPVLow ;
+    edm::EDGetTokenT<double>        t_evtwtPVHigh;
+    edm::EDGetTokenT<double>        t_htHat      ;
+    edm::EDGetTokenT<int>           t_npuTrue    ;
+    edm::EDGetTokenT<vector<int>>   t_lhewtids   ;
+    edm::EDGetTokenT<vector<double>>t_lhewts     ;
+    edm::EDGetTokenT<bool>          t_hltdecision;
+    edm::EDGetTokenT<unsigned>      t_npv        ;
     JetMaker     jetAK8maker                     ; 
     JetMaker     jetHTaggedmaker                 ; 
     const std::string  btageffFile_              ;
@@ -57,20 +57,20 @@ class HH4b : public edm::EDFilter {
 using namespace std; 
 
 HH4b::HH4b(const edm::ParameterSet& iConfig) :
-  l_runno                 (iConfig.getParameter<edm::InputTag>     ("runno")),
-  l_lumisec               (iConfig.getParameter<edm::InputTag>     ("lumisec")),
-  l_evtno                 (iConfig.getParameter<edm::InputTag>     ("evtno")),
-  l_isData                (iConfig.getParameter<edm::InputTag>     ("isData")),
-  l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
-  l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
-  l_evtwtPVLow            (iConfig.getParameter<edm::InputTag>     ("evtwtPVLow")),
-  l_evtwtPVHigh           (iConfig.getParameter<edm::InputTag>     ("evtwtPVHigh")),
-  l_htHat                 (iConfig.getParameter<edm::InputTag>     ("htHat")),
-  l_lhewtids              (iConfig.getParameter<edm::InputTag>     ("lhewtids")),
-  l_lhewts                (iConfig.getParameter<edm::InputTag>     ("lhewts")),
-  l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
-  l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
-  l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
+  t_runno       (consumes<int>           (iConfig.getParameter<edm::InputTag>("runno"      ))),   
+  t_lumisec     (consumes<int>           (iConfig.getParameter<edm::InputTag>("lumisec"    ))),   
+  t_evtno       (consumes<int>           (iConfig.getParameter<edm::InputTag>("evtno"      ))),   
+  t_isData      (consumes<bool>          (iConfig.getParameter<edm::InputTag>("isData"     ))),   
+  t_evtwtGen    (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtGen"   ))),   
+  t_evtwtPV     (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPV"    ))),   
+  t_evtwtPVLow  (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPVLow" ))),   
+  t_evtwtPVHigh (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPVHigh"))),   
+  t_htHat       (consumes<double>        (iConfig.getParameter<edm::InputTag>("htHat"      ))),   
+  t_npuTrue     (consumes<int>           (iConfig.getParameter<edm::InputTag>("npuTrue"    ))),   
+  t_lhewtids    (consumes<vector<int>>   (iConfig.getParameter<edm::InputTag>("lhewtids"   ))),   
+  t_lhewts      (consumes<vector<double>>(iConfig.getParameter<edm::InputTag>("lhewts"     ))),   
+  t_hltdecision (consumes<bool>          (iConfig.getParameter<edm::InputTag>("hltdecision"))),   
+  t_npv         (consumes<unsigned>      (iConfig.getParameter<edm::InputTag>("npv"        ))),   
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
   btageffFile_            (iConfig.getParameter<std::string>       ("btageffFile"))
@@ -82,20 +82,20 @@ HH4b::~HH4b() {}
 bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<int>h_runno              ; evt.getByLabel(l_runno      , h_runno      ) ; 
-  Handle<int>h_lumisec            ; evt.getByLabel(l_lumisec    , h_lumisec    ) ; 
-  Handle<int>h_evtno              ; evt.getByLabel(l_evtno      , h_evtno      ) ; 
-  Handle<bool>h_isData            ; evt.getByLabel(l_isData     , h_isData     ) ; 
-  Handle<double>  h_evtwtGen      ; evt.getByLabel(l_evtwtGen   , h_evtwtGen   ) ; 
-  Handle<double>  h_evtwtPV       ; evt.getByLabel(l_evtwtPV    , h_evtwtPV    ) ; 
-  Handle<double>h_evtwtPVLow      ; evt.getByLabel(l_evtwtPVLow , h_evtwtPVLow ) ; 
-  Handle<double>h_evtwtPVHigh     ; evt.getByLabel(l_evtwtPVHigh, h_evtwtPVHigh) ; 
-  Handle<double>  h_htHat         ; evt.getByLabel(l_htHat      , h_htHat      ) ; 
-  Handle<int>h_npuTrue            ; evt.getByLabel(l_npuTrue    , h_npuTrue    ) ; 
-  Handle<vector<int>>h_lhewtids   ; evt.getByLabel(l_lhewtids   , h_lhewtids   ) ; 
-  Handle<vector<double>>h_lhewts  ; evt.getByLabel(l_lhewts     , h_lhewts     ) ; 
-  Handle<bool>    h_hltdecision   ; evt.getByLabel(l_hltdecision, h_hltdecision) ; 
-  Handle<unsigned>h_npv           ; evt.getByLabel(l_npv        , h_npv        ) ; 
+  Handle<int>           h_runno         ; evt.getByToken(t_runno      , h_runno      ) ; 
+  Handle<int>           h_lumisec       ; evt.getByToken(t_lumisec    , h_lumisec    ) ; 
+  Handle<int>           h_evtno         ; evt.getByToken(t_evtno      , h_evtno      ) ; 
+  Handle<bool>          h_isData        ; evt.getByToken(t_isData     , h_isData     ) ; 
+  Handle<double>        h_evtwtGen      ; evt.getByToken(t_evtwtGen   , h_evtwtGen   ) ; 
+  Handle<double>        h_evtwtPV       ; evt.getByToken(t_evtwtPV    , h_evtwtPV    ) ; 
+  Handle<double>        h_evtwtPVLow    ; evt.getByToken(t_evtwtPVLow , h_evtwtPVLow ) ; 
+  Handle<double>        h_evtwtPVHigh   ; evt.getByToken(t_evtwtPVHigh, h_evtwtPVHigh) ; 
+  Handle<double>        h_htHat         ; evt.getByToken(t_htHat      , h_htHat      ) ; 
+  Handle<int>           h_npuTrue       ; evt.getByToken(t_npuTrue    , h_npuTrue    ) ; 
+  Handle<vector<int>>   h_lhewtids      ; evt.getByToken(t_lhewtids   , h_lhewtids   ) ; 
+  Handle<vector<double>>h_lhewts        ; evt.getByToken(t_lhewts     , h_lhewts     ) ; 
+  Handle<bool>          h_hltdecision   ; evt.getByToken(t_hltdecision, h_hltdecision) ; 
+  Handle<unsigned>      h_npv           ; evt.getByToken(t_npv        , h_npv        ) ; 
 
   const int runno(*h_runno.product()) ; 
   const int lumisec(*h_lumisec.product()) ; 
