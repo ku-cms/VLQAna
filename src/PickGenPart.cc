@@ -2,7 +2,9 @@
 
 #include "Analysis/VLQAna/interface/PickGenPart.h"
 
-PickGenPart::PickGenPart (const edm::ParameterSet& iConfig) :
+using namespace edm;
+
+PickGenPart::PickGenPart (const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
   l_genPartID          (iConfig.getParameter<edm::InputTag>("genPartID")), 
   l_genPartStatus      (iConfig.getParameter<edm::InputTag>("genPartStatus")),
   l_genPartMom0ID      (iConfig.getParameter<edm::InputTag>("genPartMom0ID")), 
@@ -29,7 +31,26 @@ PickGenPart::PickGenPart (const edm::ParameterSet& iConfig) :
   dau1ids_             (iConfig.getParameter<std::vector<int>>("dau1ids")), 
   checkdauid_          (iConfig.getParameter<bool>("checkdauid")),
   debug_               (iConfig.getParameter<bool>("debug"))
-{ }
+{ 
+
+  iC.consumes<std::vector<float>>(l_genPartID        ); 
+  iC.consumes<std::vector<float>>(l_genPartStatus    ); 
+  iC.consumes<std::vector<float>>(l_genPartMom0ID    ); 
+  iC.consumes<std::vector<float>>(l_genPartMom1ID    ); 
+  iC.consumes<std::vector<float>>(l_genPartMom0Status); 
+  iC.consumes<std::vector<float>>(l_genPartMom1Status); 
+  iC.consumes<std::vector<float>>(l_genPartDau0ID    ); 
+  iC.consumes<std::vector<float>>(l_genPartDau1ID    ); 
+  iC.consumes<std::vector<float>>(l_genPartDau0Status); 
+  iC.consumes<std::vector<float>>(l_genPartDau1Status); 
+  iC.consumes<std::vector<float>>(l_genPartPt        ); 
+  iC.consumes<std::vector<float>>(l_genPartEta       ); 
+  iC.consumes<std::vector<float>>(l_genPartPhi       ); 
+  iC.consumes<std::vector<float>>(l_genPartMass      ); 
+  iC.consumes<std::vector<float>>(l_genPartE         ); 
+  iC.consumes<std::vector<float>>(l_genPartCharge    ); 
+
+}
 
 PickGenPart::~PickGenPart () {}
 
