@@ -71,8 +71,8 @@ HH4b::HH4b(const edm::ParameterSet& iConfig) :
   l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
   l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
   l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
-  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
-  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")),
+  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
+  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
   btageffFile_            (iConfig.getParameter<std::string>       ("btageffFile"))
 {
 }

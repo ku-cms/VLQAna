@@ -44,6 +44,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/HT.h"
 #include "Analysis/VLQAna/interface/ApplyLeptonSFs.h"
+#include "Analysis/VLQAna/interface/CandidateCleaner.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -109,15 +110,21 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
-  muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams")),
-  electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams")), 
-  jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
-  jetAK4BTaggedmaker      (iConfig.getParameter<edm::ParameterSet> ("jetAK4BTaggedselParams")), 
-  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
-  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
-  jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams")), 
-  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"))  
+  muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector()),
+  electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
+  jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams"),consumesCollector()),
+  jetAK4BTaggedmaker      (iConfig.getParameter<edm::ParameterSet> ("jetAK4BTaggedselParams"),consumesCollector()),
+  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()),
+  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
+  jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams"),consumesCollector()),
+  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"),consumesCollector())  
 {
+
+  consumes<string>  (l_evttype  );  
+  consumes<double>  (l_evtwtGen ); 
+  consumes<double>  (l_evtwtPV  ); 
+  consumes<unsigned>(l_npv      ); 
+
   produces<vlq::JetCollection>("tjets") ; 
   produces<vlq::JetCollection>("wjets") ; 
   produces<vlq::JetCollection>("bjets") ; 
@@ -131,10 +138,12 @@ OS2LAna::~OS2LAna() {}
 bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<string>h_evttype  ; evt.getByLabel(l_evttype  , h_evttype  ) ; 
+  Handle<string>h_evttype  ; evt.getByLabel(l_evttype , h_evttype ) ; 
   Handle<double>h_evtwtGen ; evt.getByLabel(l_evtwtGen, h_evtwtGen) ; 
-  Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV,  h_evtwtPV ) ; 
-  Handle<unsigned>h_npv    ; evt.getByLabel(l_npv, h_npv) ; 
+  Handle<double>h_evtwtPV  ; evt.getByLabel(l_evtwtPV ,  h_evtwtPV) ; 
+  Handle<unsigned>h_npv    ; evt.getByLabel(l_npv     , h_npv     ) ; 
+
+  unsigned npv(*h_npv.product()) ; 
 
   if (filterSignal_ && *h_evttype.product()!=signalType_) return false ;
 
@@ -142,8 +151,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
-  h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
-  h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
+  h1_["npv_noreweight"] -> Fill(npv, *h_evtwtGen.product()); 
+  h1_["npv"] -> Fill(npv, evtwt); 
 
   vlq::MuonCollection goodMuons; 
   muonmaker(evt, goodMuons) ; 
@@ -204,6 +213,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::JetCollection goodAK4Jets, goodBTaggedAK4Jets, goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
   jetAK4maker(evt, goodAK4Jets) ;
 
+  CandidateCleaner cleanjets(0.4);
+  cleanjets(goodAK4Jets, goodMuons); 
+  cleanjets(goodAK4Jets, goodElectrons); 
+
   HT htak4(goodAK4Jets) ; 
 
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
@@ -216,10 +229,24 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else return false ; 
 
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
+  cleanjets(goodBTaggedAK4Jets, goodMuons); 
+  cleanjets(goodBTaggedAK4Jets, goodElectrons); 
+
   jetAK8maker(evt, goodAK8Jets); 
+  cleanjets(goodAK8Jets, goodMuons); 
+  cleanjets(goodAK8Jets, goodElectrons); 
+  
   jetWTaggedmaker(evt, goodWTaggedJets);
+  cleanjets(goodWTaggedJets, goodMuons); 
+  cleanjets(goodWTaggedJets, goodElectrons); 
+  
   jetHTaggedmaker(evt, goodHTaggedJets);
+  cleanjets(goodHTaggedJets, goodMuons); 
+  cleanjets(goodHTaggedJets, goodElectrons); 
+  
   jetTopTaggedmaker(evt, goodTopTaggedJets);
+  cleanjets(goodTopTaggedJets, goodMuons); 
+  cleanjets(goodTopTaggedJets, goodElectrons); 
 
   h1_["nak8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
   h1_["nak4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
