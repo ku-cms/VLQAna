@@ -1,3 +1,22 @@
+FileNames_WZ = [
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_1.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_10.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_11.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_12.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_13.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_14.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_15.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_16.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_17.root', 
+  '/store/user/mmorris/WZ_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X__b2ganafw763_v01/160302_203631/0000/B2GEDMNtuple_18.root', 
+  ]
+
+FileNames_TprimeBToTH_M700=[
+    '/store/group/lpctlbsm/vorobiev/TprimeBToBW_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIIFall15MiniAODv2_25ns_v76x_v1_0/160223_182849/0000/B2GEDMNtuple_1.root', 
+    '/store/group/lpctlbsm/vorobiev/TprimeBToBW_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIIFall15MiniAODv2_25ns_v76x_v1_0/160223_182849/0000/B2GEDMNtuple_2.root', 
+    '/store/group/lpctlbsm/vorobiev/TprimeBToBW_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIIFall15MiniAODv2_25ns_v76x_v1_0/160223_182849/0000/B2GEDMNtuple_3.root', 
+    ]
+
 FileNames_TprimeBToTH_M1000=[
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003704/0000/B2GEDMNtuple_1.root',
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003704/0000/B2GEDMNtuple_2.root',
@@ -1623,3 +1642,4 @@ FileName_QCD_HT1000to1500 = [
   'root://cms-xrd-global///store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_98.root', 
   'root://cms-xrd-global///store/user/eschmitz/B2G/Spring15/ReMiniAOD/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003543/0000/B2GEDMNtuple_99.root', 
   ]
+
