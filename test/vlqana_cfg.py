@@ -63,15 +63,17 @@ options.register('storeLHEWts', True,
     VarParsing.varType.bool,
     "Store LHE wts?"
     )
+options.register('FileNames', 'FileNames_QCD_HT1000to1500',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Name of list of input files"
+    )
 
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
 
-hltpaths = []
+hltpaths = ["HLT_PFHT800_v"]
 if options.isData:
-    hltpaths = [
-        "HLT_PFHT800_v"
-        ]
     options.doBTagSFUnc = False 
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
@@ -86,8 +88,7 @@ process = cms.Process("VLQAna")
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      #FileNames_TprimeBToTH_M1200
-      FileName_QCD_HT1000to1500
+      FileNames[options.FileNames]
       )
     )
 

@@ -63,33 +63,33 @@ class VLQAna : public edm::EDFilter {
     double getHTReweightingSF(double ht, double err); 
 
     // ----------member data ---------------------------
-    edm::InputTag l_isData                       ;
-    edm::InputTag l_hltdecision                  ;
-    edm::InputTag l_evttype                      ;
-    edm::InputTag l_evtwtGen                     ;
-    edm::InputTag l_evtwtPV                      ;
-    edm::InputTag l_evtwtPVLow                   ;
-    edm::InputTag l_evtwtPVHigh                  ;
-    edm::InputTag l_npv                          ;
-    edm::InputTag l_npuTrue                      ;
-    edm::InputTag l_htHat                        ;
-    edm::InputTag l_lhewtids                     ;
-    edm::InputTag l_lhewts                       ;
+    edm::EDGetTokenT<bool>           t_isData     ;
+    edm::EDGetTokenT<bool>           t_hltdecision;
+    edm::EDGetTokenT<string>         t_evttype    ;
+    edm::EDGetTokenT<double>         t_evtwtGen   ;
+    edm::EDGetTokenT<double>         t_evtwtPV    ;
+    edm::EDGetTokenT<double>         t_evtwtPVLow ;
+    edm::EDGetTokenT<double>         t_evtwtPVHigh;
+    edm::EDGetTokenT<unsigned>       t_npv        ;
+    edm::EDGetTokenT<int>            t_npuTrue    ;
+    edm::EDGetTokenT<double>         t_htHat      ;
+    edm::EDGetTokenT<vector<int>>    t_lhewtids   ;
+    edm::EDGetTokenT<vector<double>> t_lhewts     ;
 
-    JetMaker jetAK4maker                         ; 
-    JetMaker jetAK8maker                         ; 
-    JetMaker jetHTaggedmaker                     ; 
-    JetMaker jetTopTaggedmaker                   ; 
-    JetMaker jetAntiHTaggedmaker                 ; 
+    JetMaker jetAK4maker                          ; 
+    JetMaker jetAK8maker                          ; 
+    JetMaker jetHTaggedmaker                      ; 
+    JetMaker jetTopTaggedmaker                    ; 
+    JetMaker jetAntiHTaggedmaker                  ; 
 
-    double HTMin_                                ; 
-    bool   doBTagSFUnc_                          ; 
-    bool   storePreselEvts_                      ; 
-    bool   doPreselOnly_                         ; 
+    double HTMin_                                 ; 
+    bool   doBTagSFUnc_                           ; 
+    bool   storePreselEvts_                       ; 
+    bool   doPreselOnly_                          ; 
 
-    edm::Service<TFileService> fs                ; 
-    std::map<std::string, TH1D*> h1_             ; 
-    std::map<std::string, TH2D*> h2_             ; 
+    edm::Service<TFileService> fs                 ; 
+    std::map<std::string, TH1D*> h1_              ; 
+    std::map<std::string, TH2D*> h2_              ; 
 
     TtHEventInfoBranches selectedevt_; 
     TtHJetInfoBranches jets_ ; 
@@ -100,27 +100,27 @@ class VLQAna : public edm::EDFilter {
 using namespace std; 
 
 VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
-  l_isData                (iConfig.getParameter<edm::InputTag>     ("isData")),
-  l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
-  l_evttype               (iConfig.getParameter<edm::InputTag>     ("evttype")),
-  l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
-  l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
-  l_evtwtPVLow            (iConfig.getParameter<edm::InputTag>     ("evtwtPVLow")),
-  l_evtwtPVHigh           (iConfig.getParameter<edm::InputTag>     ("evtwtPVHigh")),
-  l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
-  l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
-  l_htHat                 (iConfig.getParameter<edm::InputTag>     ("htHat")),
-  l_lhewtids              (iConfig.getParameter<edm::InputTag>     ("lhewtids")),
-  l_lhewts                (iConfig.getParameter<edm::InputTag>     ("lhewts")),
-  jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams"), consumesCollector()), 
-  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"), consumesCollector()), 
-  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"), consumesCollector()), 
-  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"), consumesCollector()),  
-  jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedselParams"), consumesCollector()), 
-  HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
-  doBTagSFUnc_            (iConfig.getParameter<bool>              ("doBTagSFUnc")),
-  storePreselEvts_        (iConfig.getParameter<bool>              ("storePreselEvts")),
-  doPreselOnly_           (iConfig.getParameter<bool>              ("doPreselOnly")) 
+  t_isData                (consumes<bool>           (iConfig.getParameter<edm::InputTag>("isData"))),
+  t_hltdecision           (consumes<bool>           (iConfig.getParameter<edm::InputTag>("hltdecision"))),
+  t_evttype               (consumes<string>         (iConfig.getParameter<edm::InputTag>("evttype"))),
+  t_evtwtGen              (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtGen"))),
+  t_evtwtPV               (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPV"))),
+  t_evtwtPVLow            (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPVLow"))),
+  t_evtwtPVHigh           (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPVHigh"))),
+  t_npv                   (consumes<unsigned>       (iConfig.getParameter<edm::InputTag>("npv"))),
+  t_npuTrue               (consumes<int>            (iConfig.getParameter<edm::InputTag>("npuTrue"))),
+  t_htHat                 (consumes<double>         (iConfig.getParameter<edm::InputTag>("htHat"))),
+  t_lhewtids              (consumes<vector<int>>    (iConfig.getParameter<edm::InputTag>("lhewtids"))),
+  t_lhewts                (consumes<vector<double>> (iConfig.getParameter<edm::InputTag>("lhewts"))),
+  jetAK4maker             (iConfig.getParameter<edm::ParameterSet>("jetAK4selParams"), consumesCollector()), 
+  jetAK8maker             (iConfig.getParameter<edm::ParameterSet>("jetAK8selParams"), consumesCollector()), 
+  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet>("jetHTaggedselParams"), consumesCollector()), 
+  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
+  jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
+  HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
+  doBTagSFUnc_            (iConfig.getParameter<bool>             ("doBTagSFUnc")),
+  storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
+  doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")) 
 {
 
 }
@@ -131,18 +131,18 @@ VLQAna::~VLQAna() {
 bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<bool>h_isData            ; evt.getByLabel(l_isData     ,  h_isData) ; 
-  Handle<bool>h_hltdecision       ; evt.getByLabel(l_hltdecision,  h_hltdecision) ; 
-  Handle<string>h_evttype         ; evt.getByLabel(l_evttype    , h_evttype) ; 
-  Handle<double>h_evtwtGen        ; evt.getByLabel(l_evtwtGen   , h_evtwtGen) ; 
-  Handle<double>h_evtwtPV         ; evt.getByLabel(l_evtwtPV    ,  h_evtwtPV) ; 
-  Handle<double>h_evtwtPVLow      ; evt.getByLabel(l_evtwtPVLow ,  h_evtwtPVLow) ; 
-  Handle<double>h_evtwtPVHigh     ; evt.getByLabel(l_evtwtPVHigh,  h_evtwtPVHigh) ; 
-  Handle<unsigned>h_npv           ; evt.getByLabel(l_npv        , h_npv) ; 
-  Handle<int>h_npuTrue            ; evt.getByLabel(l_npuTrue    , h_npuTrue) ; 
-  Handle<double>h_htHat           ; evt.getByLabel(l_htHat      , h_htHat) ; 
-  Handle<vector<int>>h_lhewtids   ; evt.getByLabel(l_lhewtids   , h_lhewtids) ; 
-  Handle<vector<double>>h_lhewts  ; evt.getByLabel(l_lhewts     , h_lhewts) ; 
+  Handle<bool>           h_isData        ; evt.getByToken(t_isData     , h_isData) ; 
+  Handle<bool>           h_hltdecision   ; evt.getByToken(t_hltdecision, h_hltdecision) ; 
+  Handle<string>         h_evttype       ; evt.getByToken(t_evttype    , h_evttype) ; 
+  Handle<double>         h_evtwtGen      ; evt.getByToken(t_evtwtGen   , h_evtwtGen) ; 
+  Handle<double>         h_evtwtPV       ; evt.getByToken(t_evtwtPV    , h_evtwtPV) ; 
+  Handle<double>         h_evtwtPVLow    ; evt.getByToken(t_evtwtPVLow , h_evtwtPVLow) ; 
+  Handle<double>         h_evtwtPVHigh   ; evt.getByToken(t_evtwtPVHigh, h_evtwtPVHigh) ; 
+  Handle<unsigned>       h_npv           ; evt.getByToken(t_npv        , h_npv) ; 
+  Handle<int>            h_npuTrue       ; evt.getByToken(t_npuTrue    , h_npuTrue) ; 
+  Handle<double>         h_htHat         ; evt.getByToken(t_htHat      , h_htHat) ; 
+  Handle<vector<int>>    h_lhewtids      ; evt.getByToken(t_lhewtids   , h_lhewtids) ; 
+  Handle<vector<double>> h_lhewts        ; evt.getByToken(t_lhewts     , h_lhewts) ; 
 
   const bool isData(*h_isData.product()) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
