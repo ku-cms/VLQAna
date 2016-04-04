@@ -47,24 +47,25 @@ options.setDefault('maxEvents', -1)
 options.parseArguments()
 
 hltpaths = []
+if options.zdecaymode == "zmumu":
+  hltpaths = [
+      "HLT_DoubleIsoMu17_eta2p1_v", 
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+      "HLT_DoubleMu8_Mass8_PFHT300_v",
+      ]
+elif options.zdecaymode == "zelel":
+  hltpaths = [
+      "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
+      ]
+else:
+  sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
+
 if options.isData:
   options.filterSignal = False 
   options.signalType = "" 
   options.applyLeptonSFs = False 
-  if options.zdecaymode == "zmumu":
-    hltpaths = [
-        "HLT_DoubleIsoMu17_eta2p1_v", 
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-        "HLT_DoubleMu8_Mass8_PFHT300_v",
-        ]
-  elif options.zdecaymode == "zelel":
-    hltpaths = [
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
-        "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
-        ]
-  else:
-    sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
 
 if options.filterSignal == True and len(options.signalType) == 0:
   sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!")  
@@ -76,9 +77,9 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    #FileNames
-    FileNames_TT_M1200
-    #'root://grid143.kfki.hu//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151111_093347/0000/B2GEDMNtuple_14.root'
+      'file:/afs/cern.ch/work/d/devdatta/CMSREL/B2GAnaFW_76X/CMSSW_7_6_3_patch2/src/Analysis/B2GAnaFW/test/B2GEDMNtuple_DYJets_M50Madgraph.root',
+    #FileNames_WZ
+    #FileNames_TprimeBToTH_M700
     ) 
     )
 
@@ -98,12 +99,9 @@ process.ana = ana.clone(
     signalType = cms.string(options.signalType),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-process.ana.elselParams.useVID = cms.bool(options.isData)
 process.ana.BoostedZCandParams.ptMin = cms.double(0.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(100)
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
-#if not options.isData:
-#  process.ana.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
 
 ### Boosted Z candidate
 process.anaBoosted = ana.clone(
@@ -111,11 +109,6 @@ process.anaBoosted = ana.clone(
     signalType = cms.string(options.signalType),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-process.anaBoosted.elselParams.useVID = cms.bool(options.isData)
-#if not options.isData:
-#  process.anaBoosted.jetAK8selParams.jecUncPayloadNames.extend(['Summer15_25nsV6_MC_L2L3Residual_AK8PFchs.txt', 'Summer15_25nsV6_MC_L3Absolute_AK8PFchs.txt']) ,
-
-
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
@@ -137,11 +130,11 @@ process.p = cms.Path(
     *process.cleanedEvents
     *cms.ignore(process.ana)
     #*cms.ignore(process.anaBoosted+process.vlqcands)
-    *process.anaBoosted
+    #*process.anaBoosted
     #*process.vlqcands
     * process.finalEvents
     )
 
 #process.schedule = cms.Schedule(process.p)
 
-#open('dump.py','w').write(process.dumpPython())
+open('dump.py','w').write(process.dumpPython())
