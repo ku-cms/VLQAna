@@ -76,6 +76,13 @@ class EventCleaner : public edm::EDFilter {
     edm::ParameterSet BbHParams_                           ;
     edm::ParameterSet BtWParams_                           ;
 
+    PickGenPart pickTtZ                                    ; 
+    PickGenPart pickTtH                                    ; 
+    PickGenPart pickTbW                                    ; 
+    PickGenPart pickBbZ                                    ; 
+    PickGenPart pickBbH                                    ; 
+    PickGenPart pickBtW                                    ; 
+
 };
 
 EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
@@ -113,8 +120,31 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   TbWParams_              (iConfig.getParameter<edm::ParameterSet>        ("TbWParams")),  
   BbZParams_              (iConfig.getParameter<edm::ParameterSet>        ("BbZParams")),  
   BbHParams_              (iConfig.getParameter<edm::ParameterSet>        ("BbHParams")),  
-  BtWParams_              (iConfig.getParameter<edm::ParameterSet>        ("BtWParams")) 
+  BtWParams_              (iConfig.getParameter<edm::ParameterSet>        ("BtWParams")),  
+  pickTtZ                 (TtZParams_,consumesCollector()), 
+  pickTtH                 (TtHParams_,consumesCollector()), 
+  pickTbW                 (TbWParams_,consumesCollector()), 
+  pickBbZ                 (BbZParams_,consumesCollector()), 
+  pickBbH                 (BbHParams_,consumesCollector()), 
+  pickBtW                 (BtWParams_,consumesCollector())  
 {
+
+  consumes<unsigned int>            (l_runno         ) ; 
+  consumes<unsigned int>            (l_lumisec       ) ; 
+  consumes<ULong64_t>               (l_evtno         ) ; 
+  consumes<std::vector<std::string>>(l_trigName      ) ; 
+  consumes<std::vector<float>>      (l_trigBit       ) ; 
+  consumes<std::vector<std::string>>(l_metFiltersName) ; 
+  consumes<std::vector<float>>      (l_metFiltersBit ) ; 
+  consumes<std::vector<float>>      (l_vtxRho        ) ; 
+  consumes<std::vector<float>>      (l_vtxZ          ) ; 
+  consumes<std::vector<int>>        (l_vtxNdf        ) ; 
+  consumes<int>                     (l_npv           ) ; 
+  consumes<int>                     (l_puNtrueInt    ) ; 
+
+  if ( !isData_ ) {
+  }
+
   if (doPUReweightingOfficial_) {
     LumiWeights_     = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_    , hist_PUDistMC_, hist_PUDistData_) ;
     LumiWeightsLow_  = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataLow_ , hist_PUDistMC_, hist_PUDistData_) ;
@@ -140,6 +170,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   produces<double>("htHat");
   produces<std::vector<int>>("lhewtids") ; 
   produces<std::vector<double>>("lhewts") ; 
+
 }
 
 EventCleaner::~EventCleaner() {}
@@ -260,13 +291,6 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   string evttype(isData_ ? "EvtType_Data" : "EvtType_MC");
 
   if ( !isData_ ) {
-    PickGenPart pickTtZ(TtZParams_) ; 
-    PickGenPart pickTtH(TtHParams_) ; 
-    PickGenPart pickTbW(TbWParams_) ; 
-    PickGenPart pickBbZ(BbZParams_) ; 
-    PickGenPart pickBbH(BbHParams_) ; 
-    PickGenPart pickBtW(BtWParams_) ; 
-
     vlq::GenParticleCollection vlqTtZ = pickTtZ(evt) ;  
     vlq::GenParticleCollection vlqTtH = pickTtH(evt) ;  
     vlq::GenParticleCollection vlqTbW = pickTbW(evt) ;  
