@@ -54,7 +54,6 @@ class EventCleaner : public edm::EDFilter {
     std::vector<std::string> metFilters_                   ; 
     const bool isData_                                     ; 
     const bool doPUReweightingOfficial_                    ;
-    const bool doPUReweightingNPV_                         ;
     const std::string file_PVWt_                           ; 
     const std::string file_PUDistData_                     ;
     const std::string file_PUDistDataLow_                  ;
@@ -104,7 +103,6 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   metFilters_             (iConfig.getParameter<std::vector<std::string>> ("metFilters")), 
   isData_                 (iConfig.getParameter<bool>                     ("isData")),
   doPUReweightingOfficial_(iConfig.getParameter<bool>                     ("DoPUReweightingOfficial")),
-  doPUReweightingNPV_     (iConfig.getParameter<bool>                     ("DoPUReweightingNPV")),
   file_PVWt_              (iConfig.getParameter<std::string>              ("File_PVWt")),
   file_PUDistData_        (iConfig.getParameter<std::string>              ("File_PUDistData")),
   file_PUDistDataLow_     (iConfig.getParameter<std::string>              ("File_PUDistDataLow")),
@@ -280,8 +278,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double evtwtPVHigh(1.0) ;
   if ( !isData_ ) {
     npuTrue = *h_puNtrueInt ; 
-    if ( doPUReweightingNPV_ ) evtwtPV *= GetLumiWeightsPVBased(file_PVWt_, hist_PVWt_, npv) ; 
-    else if ( doPUReweightingOfficial_ ) { 
+    if ( doPUReweightingOfficial_ ) { 
       evtwtPV *= LumiWeights_.weight(npuTrue) ; 
       evtwtPVLow *= LumiWeightsLow_.weight(npuTrue) ; 
       evtwtPVHigh *= LumiWeightsHigh_.weight(npuTrue) ; 
