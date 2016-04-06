@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 defaultWP = cms.PSet(
-   elidtype = cms.string("TIGHT"),
+   lepidtype = cms.string("TIGHT"),
    zdecayMode = cms.string("zelel"),
 )

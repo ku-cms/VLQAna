@@ -1,3 +1,14 @@
+FileNames_DYJetsToLL=[
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_1.root',
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_2.root',
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_3.root',
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_4.root',
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_5.root',
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_10.root',
+#'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_100.root',
+'/store/group/lpctlbsm/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160211_212431/0000/B2GEDMNtuple_101.root',
+]
+
 FileNames_TprimeBToTH_M1000=[
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003704/0000/B2GEDMNtuple_1.root',
     '/store/user/eschmitz/B2G/Spring15/ReMiniAOD/TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/crab_retry-ReMini-v2-b2ganafw74xV8-2_TprimeBToTH_M-1000_LH_TuneCUETP8M1_13TeV-madgraph-pythia8_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151102_003704/0000/B2GEDMNtuple_2.root',
