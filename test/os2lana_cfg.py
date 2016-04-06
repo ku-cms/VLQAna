@@ -83,10 +83,13 @@ from inputFiles_cfi import *
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring( 
+     'root://eoscms.cern.ch//eos/cms/store/group/phys_b2g/vorobiev/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/160404_120114/0000/B2GEDMNtuple_1.root',
+     #'root://grid143.kfki.hu//store/group/phys_b2g/vorobiev/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/151118_204222/0000/B2GEDMNtuple_1.root',
+    #'/store/group/phys_b2g/vorobiev/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_Run2Spring15MiniAODv2_25ns_v74x_v84/151118_204222/0000/B2GEDMNtuple_1.root'
    #'/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_CR_Zmumu_20Nov/TT_TuneCUETP8M1_13TeV-powheg-pythia8/crab_TT_powheg-pythia8_ext3_25ns_CR_Zmumu/151126_084215/0000/SkimmedB2GEdmNtuples_1.root',
     #'/store/group/phys_b2g/B2GAnaFW/DoubleEG/Run2015D-05Oct2015-v1_B2GAnaFW_v74x_v8p4/151122_201800/0000/B2GEDMNtuple_1.root',
     #'/store/group/phys_b2g/B2GAnaFW/DoubleEG/Run2015D-PromptReco-v4_B2GAnaFW_v74x_v8p4/151122_201819/0000/B2GEDMNtuple_10.root',
-    FileNames_DYJetsToLL
+    #FileNames_DYJetsToLL
     #'root://grid143.kfki.hu//store/group/phys_b2g/B2GAnaFW/Skims/CR_Zelel/DoubleEG/Run2015D-05Oct2015-v1_B2GAnaFW_v74x_v8p4_Skim_CR_Zelel_24Nov2015/151124_141440/0000/SkimmedB2GEdmNtuples_1.root'
     ) 
     )
@@ -104,7 +107,7 @@ process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOff
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
-### Low pt Z candidate with low pt jets 
+### Z candidate and jet selections 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
     signalType = cms.string(options.signalType),
@@ -116,21 +119,10 @@ process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
-process.ana.BoostedZCandParams.ptMin = cms.double(0.)
-process.ana.jetAK8selParams.jetPtMin = cms.double(200) #100 compare to default?
-process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(30) #why 40 compare to default?
-
-### Boosted Z candidate
-process.anaBoosted = ana.clone(
-    filterSignal = cms.bool(options.filterSignal),
-    signalType = cms.string(options.signalType),
-    applyLeptonSFs = cms.bool(options.applyLeptonSFs),
-    )
-process.anaBoosted.elselParams.elidtype = cms.string(options.lepID)
-process.anaBoosted.muselParams.muidtype = cms.string(options.lepID)
-process.anaBoosted.muselParams.muIsoMax = cms.double(0.15)
-process.anaBoosted.lepsfsParams.lepidtype = cms.string(options.lepID)
-process.anaBoosted.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
+process.ana.BoostedZCandParams.ptMin = cms.double(80.)
+process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
+process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
+process.ana.STMin = cms.double(500.)
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
@@ -151,7 +143,6 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *cms.ignore(process.ana)
-    #*process.anaBoosted ##comment it
     * process.finalEvents
     )
 
