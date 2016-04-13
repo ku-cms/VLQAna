@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'DY_HT100to200_25ns'
+config.General.requestName = 'DY_HT100to200_25ns_SR_Zelel'
 config.General.workArea = 'B2GEDMNtuplesSkim_SR_Zelel_20Nov'
 config.General.transferLogs = True
 
@@ -19,10 +19,10 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
 config.Data.ignoreLocality = False
 config.Data.publication = True
-config.Data.outLFNDirBase = '/store/user/devdatta/B2GEDMNtuplesSkim_SR_Zelel_20Nov/'
+config.Data.outLFNDirBase = '/store/group/lpcbprime/noreplica/skhalil/B2GEDMNtuplesSkim_SR_Zelel_20Nov/'
 # This string is used to construct the output dataset name
 
 config.section_("Site")
-config.Site.storageSite = 'T2_CH_CERN'
+config.Site.storageSite = 'T3_US_FNALLPC'
 
 config.section_('User')

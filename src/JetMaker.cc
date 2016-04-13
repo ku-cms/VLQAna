@@ -378,6 +378,24 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
         p4sj1 *= ptsmear * newJEC  * (1 + jecShift_*unc);
       }
+      newJetP4 *= (1 + jecShift_*unc) ; 
+
+#if DEBUGMORE      
+      cout 
+        << " \njet pt jecshift      = " << newJetP4.Pt() 
+        << " \njet mass jecshift    = " << newJetP4.Mag() 
+        << endl ; 
+#endif 
+
+      double jetCSVDisc = (h_jetCSV.product())->at(ijet); 
+      if (jetPt      < idxjetPtMin_       || 
+          jetPt      >  idxjetPtMax_      ||
+          jetCSVDisc < idxjetCSVDiscMin_  ||
+          jetCSVDisc >  idxjetCSVDiscMax_ 
+         ) continue ; 
+
+      //// Jet to put in the jet collection
+      vlq::Jet jet ; 
 
       if ( vjetssj0CSV > btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
       if ( vjetssj1CSV > btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 

@@ -12,12 +12,13 @@ git cms-merge-topic dmajumder:CMSSW_7_4_X_AnalysisDataFormats_BoostedObjects
 
 git clone git@github.com:dmajumder/EventCounter.git Analysis/EventCounter 
 
-git clone -b VLQtrees git@github.com:dmajumder/VLQAna.git Analysis/VLQAna  
+git clone -b CMSSW_7_6_X git@github.com:dmajumder/VLQAna.git Analysis/VLQAna  
 
+ 
 #To just build this stuff
 scram b -j20
 
-# To run
+# To run on OS2L analysis
 cd Analysis/VLQAna/test
 
 cmsRun vlqAna_cfg.py 
@@ -38,4 +39,16 @@ To process data, change in tpthPreselTrees_submit_all.py  line 52:
 
 config.JobType.pyCfgParams = ['isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'doBTagSFUnc=False']
 
+# To run crab jobs for skims, e.g for CR in dielectron channel
 
+Analysis/VLQAna/test/Skim/CRAB/Skims_CR_Zelel 
+
+Modify the exisiting crab file, by changing the relvant parameters, like config.General.requestName, config.Data.inputDataset, config.Data.outLFNDirBase, config.Site.storageSite etc.
+
+crab submit -c crab_XX.py
+
+This will create an output condor directory, through which you can check the status of the jobs.
+
+crab status -d MY_CONDOR_DIR
+
+Please see more details https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial.

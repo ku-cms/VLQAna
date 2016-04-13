@@ -8,10 +8,15 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('zdecaymode', '',
+options.register('zdecaymode', 'zmumu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
+    )
+options.register('lepID', 'TIGHT',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "lepton ID? Choose: 'TIGHT' or 'LOOSE'"
     )
 options.register('outFileName', 'os2lana.root',
     VarParsing.multiplicity.singleton,
@@ -28,7 +33,7 @@ options.register('filterSignal', False,
     VarParsing.varType.bool,
     "Select only tZtt or bZbZ modes"
     )
-options.register('signalType', "EvtType_MC_tZtZ",
+options.register('signalType', '',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
@@ -38,8 +43,10 @@ options.register('applyLeptonSFs', True,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
+
 options.setDefault('maxEvents', -1)
 options.parseArguments()
+print options
 
 hltpaths = []
 if options.zdecaymode == "zmumu":
@@ -78,31 +85,34 @@ process.source = cms.Source(
     ) 
     )
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
+#process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
-### Low pt Z candidate with low pt jets 
+### Z candidate and jet selections 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
     signalType = cms.string(options.signalType),
+    zdecayMode = cms.string(options.zdecaymode),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     )
-process.ana.BoostedZCandParams.ptMin = cms.double(0.)
-process.ana.jetAK8selParams.jetPtMin = cms.double(100)
-process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(40)
-
-### Boosted Z candidate
-process.anaBoosted = ana.clone(
-    filterSignal = cms.bool(options.filterSignal),
-    signalType = cms.string(options.signalType),
-    applyLeptonSFs = cms.bool(options.applyLeptonSFs),
-    )
+process.ana.elselParams.elidtype = cms.string(options.lepID)
+process.ana.muselParams.muidtype = cms.string(options.lepID)
+process.ana.muselParams.muIsoMax = cms.double(0.15)
+process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
+process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
+process.ana.BoostedZCandParams.ptMin = cms.double(80.)
+process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
+process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
+process.ana.STMin = cms.double(500.)
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
@@ -123,9 +133,6 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *cms.ignore(process.ana)
-    #*cms.ignore(process.anaBoosted+process.vlqcands)
-    #*process.anaBoosted
-    #*process.vlqcands
     * process.finalEvents
     )
 
