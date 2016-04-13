@@ -64,8 +64,6 @@ class OS2LAna : public edm::EDFilter {
     virtual void beginJob() override;
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
-    void getCleanJets (vlq::JetCollection &cleanJets, vlq::JetCollection goodJets, vlq::MuonCollection goodMuons, TH1D* h, double w);
-    void getCleanJets (vlq::JetCollection &cleanJets, vlq::JetCollection goodJets, vlq::ElectronCollection goodElectrons, TH1D* h, double w);
     // ----------member data ---------------------------
     edm::EDGetTokenT<string>   t_evttype         ;
     edm::EDGetTokenT<double>   t_evtwtGen        ;
@@ -99,29 +97,6 @@ class OS2LAna : public edm::EDFilter {
 
 using namespace std; 
 
-// static data member definitions
-void OS2LAna::getCleanJets (vlq::JetCollection &cleanJets, vlq::JetCollection goodJets, vlq::MuonCollection goodMuons, TH1D* h, double w){
-   for (vlq::Jet& ijet : goodJets) {  
-      double dR_jl = -100; bool fakeJet = false;   
-      for  (unsigned int imu=0; imu<goodMuons.size(); ++imu){
-         dR_jl = ijet.getP4().DeltaR(goodMuons.at(imu).getP4());
-         h -> Fill(dR_jl, w);
-         if (dR_jl < 0.4) {fakeJet = true;}
-      }
-      if(!fakeJet){cleanJets.push_back(ijet);}
-   }
-}
-void OS2LAna::getCleanJets (vlq::JetCollection &cleanJets, vlq::JetCollection goodJets, vlq::ElectronCollection goodElectrons, TH1D* h, double w){ 
-   for (vlq::Jet& ijet : goodJets) { 
-      double dR_jl = -100; bool fakeJet = false;    
-      for  (unsigned int iel=0; iel<goodElectrons.size(); ++iel){
-         dR_jl = ijet.getP4().DeltaR(goodElectrons.at(iel).getP4());
-         h -> Fill(dR_jl, w);
-         if (dR_jl < 0.3) {fakeJet = true;}
-      }
-      if(!fakeJet){cleanJets.push_back(ijet);}
-   }
-}
 // constructors and destructor
 OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   t_evttype               (consumes<string>  (iConfig.getParameter<edm::InputTag>("evttype"))),
@@ -139,7 +114,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
   zdecayMode_             (iConfig.getParameter<std::string>       ("zdecayMode")), 
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
-  lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams"),consumesCollector()),
+  lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector()),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams"),consumesCollector()),
@@ -180,6 +155,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const bool hltdecision(*h_hltdecision.product()) ; 
   if ( !hltdecision ) return false; 
 
+  double evtwtgen(*h_evtwtGen.product());
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
      
   vlq::MuonCollection goodMuons; 
@@ -250,15 +226,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
      h1_["y_z"+lep+lep+"_boosted"] -> Fill(izll.getP4().Rapidity(), evtwt) ; 
   }  
 
-  //now require atleast 3 AK4 jets in events
-  vlq::JetCollection cleanAK4Jets, goodAK4Jets;
-  jetAK4maker(evt, goodAK4Jets) ;
-  
-  //AK4 jet cleaning
-  if (zdecayMode_ == "zmumu") {getCleanJets(cleanAK4Jets, goodAK4Jets, goodMuons, h1_["dR_"+lep+"j"], evtwt);}
-  else if (zdecayMode_ == "zelel") {getCleanJets(cleanAK4Jets, goodAK4Jets, goodElectrons, h1_["dR_"+lep+"j"], evtwt);}
-
   CandidateCleaner cleanjets(0.4);
+
+  vlq::JetCollection goodAK4Jets;
+  jetAK4maker(evt, goodAK4Jets) ;
   cleanjets(goodAK4Jets, goodMuons); 
   cleanjets(goodAK4Jets, goodElectrons); 
 
@@ -266,21 +237,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["ht_zsel"] -> Fill(htak4.getHT(), evtwt) ; 
 
-  CandidateFilter boostedzllfilter(BoostedZCandParams_) ; 
-  boostedzllfilter(dielectrons, zelelBoosted) ; 
-  boostedzllfilter(dimuons, zmumuBoosted) ; 
-
-  if ( zmumuBoosted.size() > 0 || zelelBoosted.size() > 0 ) h1_["cutflow"] -> Fill(3, evtwt) ;
-  else return false ; 
-
+  vlq::JetCollection goodBTaggedAK4Jets;
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   cleanjets(goodBTaggedAK4Jets, goodMuons); 
   cleanjets(goodBTaggedAK4Jets, goodElectrons); 
 
+  vlq::JetCollection goodAK8Jets;
   jetAK8maker(evt, goodAK8Jets); 
   cleanjets(goodAK8Jets, goodMuons); 
   cleanjets(goodAK8Jets, goodElectrons); 
   
+  vlq::JetCollection goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
   jetWTaggedmaker(evt, goodWTaggedJets);
   cleanjets(goodWTaggedJets, goodMuons); 
   cleanjets(goodWTaggedJets, goodElectrons); 
@@ -293,22 +260,20 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodTopTaggedJets, goodMuons); 
   cleanjets(goodTopTaggedJets, goodElectrons); 
 
-  h1_["nak4"] -> Fill(cleanAK4Jets.size(), evtwt) ; 
+  h1_["nak4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
 
   //at least 3 AK4 jets and dilepton mass 
-  if (cleanAK4Jets.size() > 2 ) {h1_["cutflow"] -> Fill(5, evtwt) ;} 
+  if (goodAK4Jets.size() > 2 ) {h1_["cutflow"] -> Fill(5, evtwt) ;} 
   else return false;
 
   //leading jet
-  h1_["ptak4leading"] -> Fill(cleanAK4Jets.at(0).getPt(), evtwt) ; 
-  h1_["etaak4leading"] -> Fill(cleanAK4Jets.at(0).getEta(), evtwt) ;
-  h1_["csvak4leading"] -> Fill(cleanAK4Jets.at(0).getCSV(), evtwt) ; 
+  h1_["ptak4leading"] -> Fill(goodAK4Jets.at(0).getPt(), evtwt) ; 
+  h1_["etaak4leading"] -> Fill(goodAK4Jets.at(0).getEta(), evtwt) ;
+  h1_["csvak4leading"] -> Fill(goodAK4Jets.at(0).getCSV(), evtwt) ; 
 
-  if (cleanAK4Jets.at(0).getPt() > 80){h1_["cutflow"] -> Fill(6, evtwt) ; }
+  if (goodAK4Jets.at(0).getPt() > 80){h1_["cutflow"] -> Fill(6, evtwt) ; }
   else return false;
 
-  //get HT, ST with boosted Z
-  HT htak4(cleanAK4Jets) ;
   double ST = htak4.getHT() ;
   ST += zllBoosted.at(0).getPt() ;  
   h1_["ht"] -> Fill(htak4.getHT(), evtwt) ; 
@@ -317,16 +282,16 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //fill the plots after pre-selection
   ///////////////////////////////////////
   
-  h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
-  h1_["npv"] -> Fill(*h_npv.product(), evtwt);
+  h1_["npv_noreweight"] -> Fill(npv, evtwtgen); 
+  h1_["npv"] -> Fill(npv, evtwt);
 
   //Properties of jets
-  h1_["ptak42nd"] -> Fill(cleanAK4Jets.at(1).getPt(), evtwt) ; 
-  h1_["etaak42nd"] -> Fill(cleanAK4Jets.at(1).getEta(), evtwt) ;
-  h1_["csvak42nd"] -> Fill(cleanAK4Jets.at(1).getCSV(), evtwt) ;
-  h1_["ptak43rd"] -> Fill(cleanAK4Jets.at(2).getPt(), evtwt) ; 
-  h1_["etaak43rd"] -> Fill(cleanAK4Jets.at(2).getEta(), evtwt) ;
-  h1_["csvak43rd"] -> Fill(cleanAK4Jets.at(2).getCSV(), evtwt) ;
+  h1_["ptak42nd"] -> Fill(goodAK4Jets.at(1).getPt(), evtwt) ; 
+  h1_["etaak42nd"] -> Fill(goodAK4Jets.at(1).getEta(), evtwt) ;
+  h1_["csvak42nd"] -> Fill(goodAK4Jets.at(1).getCSV(), evtwt) ;
+  h1_["ptak43rd"] -> Fill(goodAK4Jets.at(2).getPt(), evtwt) ; 
+  h1_["etaak43rd"] -> Fill(goodAK4Jets.at(2).getEta(), evtwt) ;
+  h1_["csvak43rd"] -> Fill(goodAK4Jets.at(2).getCSV(), evtwt) ;
   
   //lepton specfic properties
   if ( zdecayMode_ == "zmumu" ){       
@@ -368,17 +333,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //////////////////////////////////////////////////////////
 
  
-  //clean b-jets 
-  vlq::JetCollection cleanBTaggedAK4Jets, goodBTaggedAK4Jets;
-  jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
-  if (zdecayMode_ == "zmumu") {getCleanJets(cleanBTaggedAK4Jets, goodBTaggedAK4Jets, goodMuons, h1_["dR_"+lep+"b"], evtwt);}
-  else if (zdecayMode_ == "zelel") {getCleanJets(cleanBTaggedAK4Jets, goodBTaggedAK4Jets, goodElectrons, h1_["dR_"+lep+"b"], evtwt);}
-  
-  h1_["nbjets"] -> Fill(cleanBTaggedAK4Jets.size(), evtwt) ;
+  h1_["nbjets"] -> Fill(goodBTaggedAK4Jets.size(), evtwt) ;
 
-  if ( cleanBTaggedAK4Jets.size() > 0 ) {
-    h1_["ptbjetleading"] -> Fill(cleanBTaggedAK4Jets.at(0).getPt(), evtwt) ;
-    h1_["etabjetleading"] -> Fill(cleanBTaggedAK4Jets.at(0).getEta(), evtwt) ;
+  if ( goodBTaggedAK4Jets.size() > 0 ) {
+    h1_["ptbjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt) ;
+    h1_["etabjetleading"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt) ;
     h1_["htSigR"] ->Fill(htak4.getHT(), evtwt) ; 
     h1_["stSigR"] ->Fill(ST, evtwt) ;   
     h1_["cutflow"] -> Fill(7, evtwt) ;
@@ -386,13 +345,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else return false;
   
   //fill the b-tag efficiency plots after full event selection  
-  for (vlq::Jet jet : cleanAK4Jets) {
+  for (vlq::Jet jet : goodAK4Jets) {
      if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
      else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
      else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
   }
 
-  for (vlq::Jet jet : cleanBTaggedAK4Jets) {
+  for (vlq::Jet jet : goodBTaggedAK4Jets) {
     if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
     else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
     else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
@@ -401,15 +360,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( ST > STMin_ ) h1_["cutflow"] -> Fill(8, evtwt) ;  
   else return false ; 
   
-  //get ak8 jets and match them to AK4
-  vlq::JetCollection goodAK8Jets, matchedAK8Jets;
-  jetAK8maker(evt, goodAK8Jets); 
+  ////Match AK8 to AK4
+  vlq::JetCollection matchedAK8Jets;
 
-  //require at lease one ak8 jet that is matched to ak4 jet  
+  ////require at lease one ak8 jet that is matched to ak4 jet  
   if ( goodAK8Jets.size() > 0 ) {
      for (vlq::Jet& fjet : goodAK8Jets) { 
         bool matched = false;
-        for (vlq::Jet& ijet : cleanAK4Jets) {
+        for (vlq::Jet& ijet : goodAK4Jets) {
            if (ijet.getP4().DeltaR(fjet.getP4()) < 0.4){matched = true;}
         }
         if (matched) {matchedAK8Jets.push_back(fjet);}
@@ -436,11 +394,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["softdropmak82nd"] -> Fill((matchedAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
   }
   
-  //get all other jets
-  vlq::JetCollection goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
-  jetWTaggedmaker(evt, goodWTaggedJets);
-  jetHTaggedmaker(evt, goodHTaggedJets);
-  jetTopTaggedmaker(evt, goodTopTaggedJets);
         
   h1_["nwjet"] -> Fill(goodWTaggedJets.size(), evtwt) ; 
   h1_["nhjet"] -> Fill(goodHTaggedJets.size(), evtwt) ; 
@@ -459,12 +412,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (goodTopTaggedJets.size() > 0 && zllBoosted.size()>0) {
      tp_p4 = zllBoosted.at(0).getP4() + goodTopTaggedJets.at(0).getP4() ;
   }
-  else if ( goodWTaggedJets.size() > 0 && cleanBTaggedAK4Jets.size() > 0  && zllBoosted.size()>0 ) { 
-     tp_p4 = zllBoosted.at(0).getP4() + cleanBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
+  else if ( goodWTaggedJets.size() > 0 && goodBTaggedAK4Jets.size() > 0  && zllBoosted.size()>0 ) { 
+     tp_p4 = zllBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + goodWTaggedJets.at(0).getP4() ;
   }
-  else if ( cleanBTaggedAK4Jets.size() > 0 && zllBoosted.size()>0) {    
-       tp_p4 = zllBoosted.at(0).getP4() + cleanBTaggedAK4Jets.at(0).getP4() + matchedAK8Jets.at(0).getP4() ; 
-       bp_p4 = zllBoosted.at(0).getP4() + cleanBTaggedAK4Jets.at(0).getP4() ; 
+  else if ( goodBTaggedAK4Jets.size() > 0 && zllBoosted.size()>0) {    
+       tp_p4 = zllBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() + matchedAK8Jets.at(0).getP4() ; 
+       bp_p4 = zllBoosted.at(0).getP4() + goodBTaggedAK4Jets.at(0).getP4() ; 
   }
 
   h1_["ptTprime"]->Fill(tp_p4.Pt(), evtwt) ; 
@@ -477,8 +430,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
   std::auto_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
-  std::auto_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(cleanBTaggedAK4Jets ) ) ; 
-  std::auto_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(cleanAK4Jets ) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
+  std::auto_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
   std::auto_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zllBoosted) ) ; 
 
   evt.put(ptr_tjets, "tjets") ; 

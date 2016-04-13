@@ -1,13 +1,10 @@
 #ifndef ANALYSIS_VLQANA_APPLYLEPTONSFS_HH
 #define ANALYSIS_VLQANA_APPLYLEPTONSFS_HH
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 class ApplyLeptonSFs {
   public:
     enum LEPTONIDTYPES_t {LOOSE, TIGHT} ; 
-    ApplyLeptonSFs (edm::ParameterSet const& pars, edm::ConsumesCollector && iC) : 
+    ApplyLeptonSFs (edm::ParameterSet const& pars) : 
       sf_(1),
       zdecayMode_(pars.getParameter<std::string>("zdecayMode")) 
   {
