@@ -16,7 +16,7 @@ class JetID : public Selector<int>  {
   public: // interface
 
     enum Version_t { FIRSTDATA, N_VERSIONS };
-    enum Quality_t { LOOSE, TIGHT, N_QUALITY};
+    enum Quality_t { LOOSE, TIGHT, TIGHTLEPVETO, N_QUALITY};
 
     JetID() {}
     JetID(JetID&) {} 
@@ -38,6 +38,7 @@ class JetID : public Selector<int>  {
       l_jetcEMEnergy       (params.getParameter<edm::InputTag> ("jetcEMEnergyLabel")),            
       l_jetnumDaughters    (params.getParameter<edm::InputTag> ("jetnumDaughtersLabel")),             
       l_jetcMultip         (params.getParameter<edm::InputTag> ("jetcMultipLabel")),              
+      l_jetMuonEnergy      (params.getParameter<edm::InputTag> ("jetMuonEnergyLabel")),              
       l_jetY               (params.getParameter<edm::InputTag> ("jetYLabel")),                      
       l_jetArea            (params.getParameter<edm::InputTag> ("jetAreaLabel"))                         
   {
@@ -58,6 +59,7 @@ class JetID : public Selector<int>  {
     iC.consumes<vector<float>> (l_jetcEMEnergy      );
     iC.consumes<vector<float>> (l_jetnumDaughters   );
     iC.consumes<vector<float>> (l_jetcMultip        );
+    iC.consumes<vector<float>> (l_jetMuonEnergy     );
     iC.consumes<vector<float>> (l_jetY              );
     iC.consumes<vector<float>> (l_jetArea           );
 
@@ -71,6 +73,7 @@ class JetID : public Selector<int>  {
 
     if      ( qualityStr == "LOOSE") quality_ = LOOSE;
     else if ( qualityStr == "TIGHT") quality_ = TIGHT;
+    else if ( qualityStr == "TIGHTLEPVETO") quality_ = TIGHTLEPVETO;
     else quality_ = LOOSE;
 
     push_back("CHF" );
@@ -79,7 +82,7 @@ class JetID : public Selector<int>  {
     push_back("NEF" );
     push_back("NCH" );
     push_back("nConstituents");
-
+    push_back("MUE");
 
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
@@ -96,8 +99,14 @@ class JetID : public Selector<int>  {
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);      
+    } else if ( quality_ == TIGHTLEPVETO ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      set("CEF", 0.99);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("MUE", 0.8);      
     }
-
 
     // Now check the configuration to see if the user changed anything
     if ( params.exists("CHF") ) set("CHF", params.getParameter<double>("CHF") );
@@ -106,10 +115,10 @@ class JetID : public Selector<int>  {
     if ( params.exists("NEF") ) set("NEF", params.getParameter<double>("NEF") );
     if ( params.exists("NCH") ) set("NCH", params.getParameter<int>   ("NCH") );
     if ( params.exists("nConstuents") ) set("nConstituents", params.getParameter<int> ("nConstituents") );
+    if ( params.exists("MUE") ) set("MUE", params.getParameter<double> ("MUE") );
 
     if ( params.exists("cutsToIgnore") )
       setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
-
 
     indexNConstituents_ = index_type (&bits_, "nConstituents");
     indexNEF_ = index_type (&bits_, "NEF");
@@ -117,11 +126,11 @@ class JetID : public Selector<int>  {
     indexCEF_ = index_type (&bits_, "CEF");
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
+    indexMUE_ = index_type (&bits_, "MUE");
 
     retInternal_ = getBitTemplate();
 
   }
-
 
     JetID( Version_t version, Quality_t quality) :
       version_(version), 
@@ -134,7 +143,7 @@ class JetID : public Selector<int>  {
     push_back("NEF" );
     push_back("NCH" );
     push_back("nConstituents");
-
+    push_back("MUE");
 
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
@@ -151,6 +160,14 @@ class JetID : public Selector<int>  {
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);      
+    } else if ( quality_ == TIGHTLEPVETO ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      set("CEF", 0.99);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("nConstituents", 1);      
+      set("MUE", 0.8);      
     }
 
 
@@ -160,10 +177,10 @@ class JetID : public Selector<int>  {
     indexCEF_ = index_type (&bits_, "CEF");
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
+    indexMUE_ = index_type (&bits_, "MUE");
 
     retInternal_ = getBitTemplate();   
   }
-
 
     // 
     // Accessor from PAT jets
@@ -199,6 +216,7 @@ class JetID : public Selector<int>  {
       double cef = 0.0;
       double nef = 0.0;
       int    nch = 0;
+      double mue = 0.0;
       int    nconstituents = 0;
 
       Handle <vector<float>>  h_jetPt             ; evt.getByLabel (l_jetPt               , h_jetPt             );
@@ -217,6 +235,7 @@ class JetID : public Selector<int>  {
       Handle <vector<float>>  h_jetcEMEnergy      ; evt.getByLabel (l_jetcEMEnergy        , h_jetcEMEnergy      );
       Handle <vector<float>>  h_jetnumDaughters   ; evt.getByLabel (l_jetnumDaughters     , h_jetnumDaughters   );
       Handle <vector<float>>  h_jetcMultip        ; evt.getByLabel (l_jetcMultip          , h_jetcMultip        );
+      Handle <vector<float>>  h_jetMuonEnergy     ; evt.getByLabel (l_jetMuonEnergy       , h_jetMuonEnergy     );
       Handle <vector<float>>  h_jetY              ; evt.getByLabel (l_jetY                , h_jetY              );
       Handle <vector<float>>  h_jetArea           ; evt.getByLabel (l_jetArea             , h_jetArea           );
 
@@ -233,6 +252,7 @@ class JetID : public Selector<int>  {
       cef = (h_jetcEMEnergy.product())->at(ijet) / jetP4Raw.E() ; 
       nef = (h_jetnEMEnergy.product())->at(ijet) / jetP4Raw.E() ; 
       nch = (h_jetcMultip.product())->at(ijet) ; 
+      mue = (h_jetMuonEnergy.product())->at(ijet)/ jetP4Raw.E() ; 
       nconstituents = (h_jetnumDaughters.product())->at(ijet) ; 
 
       // Cuts for all |eta|:
@@ -243,6 +263,7 @@ class JetID : public Selector<int>  {
       if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jeteta) > 2.4 ) ) passCut( ret, indexCEF_);
       if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jeteta) > 2.4 ) ) passCut( ret, indexCHF_);
       if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jeteta) > 2.4 ) ) passCut( ret, indexNCH_);    
+      if ( ignoreCut(indexMUE_)           || ( mue < cut(indexMUE_, double()) || std::abs(jeteta) > 2.4 ) ) passCut( ret, indexMUE_);    
 
       setIgnored( ret );
       return (bool)ret;
@@ -259,6 +280,7 @@ class JetID : public Selector<int>  {
     index_type indexCEF_;
     index_type indexCHF_;
     index_type indexNCH_;
+    index_type indexMUE_;
 
     edm::InputTag l_jetPt              ; 
     edm::InputTag l_jetEta             ; 
@@ -276,6 +298,7 @@ class JetID : public Selector<int>  {
     edm::InputTag l_jetcEMEnergy       ;
     edm::InputTag l_jetnumDaughters    ;
     edm::InputTag l_jetcMultip         ;
+    edm::InputTag l_jetMuonEnergy      ; 
     edm::InputTag l_jetY               ;
     edm::InputTag l_jetArea            ; 
 };
