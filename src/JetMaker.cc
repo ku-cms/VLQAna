@@ -263,18 +263,23 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     //// Jet to put in the jet collection
     vlq::Jet jet ; 
+    jet.setP4           (newJetP4) ; 
+    jet.setIndex        (ijet)  ;
+    jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
+    jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
+    jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
 
     if ( type_ == AK8JET ) {
 
-      double jettau1       (-1000); 
-      double jettau2       (-1000); 
-      double jettau3       (-1000); 
-      double jetMass       (-1000); 
-      double jetPrunedMass (-1000); 
-      double jetTrimmedMass(-1000); 
+      double jettau1         (-1000); 
+      double jettau2         (-1000); 
+      double jettau3         (-1000); 
+      double jetMass         (-1000); 
+      double jetPrunedMass   (-1000); 
+      double jetTrimmedMass  (-1000); 
       double jetSoftDropMass (-1000); 
-      int    vjetsjIdx0    (-1000); 
-      int    vjetsjIdx1    (-1000); 
+      int    vjetsjIdx0      (-1000); 
+      int    vjetsjIdx1      (-1000); 
 
       double vjetssj0HadFl (-1000) ; 
       double vjetssj0Pt    (-1000) ;
@@ -394,9 +399,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           jetCSVDisc >  idxjetCSVDiscMax_ 
          ) continue ; 
 
-      //// Jet to put in the jet collection
-      vlq::Jet jet ; 
-
       if ( vjetssj0CSV > btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
       if ( vjetssj1CSV > btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
 
@@ -448,11 +450,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     } //// if type_ == AK8JET
 
-    jet.setP4           (newJetP4) ; 
-    jet.setIndex        (ijet)  ;
-    jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
-    jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
-    jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
     jets.push_back(jet) ; 
 
 #if DEBUGMORE
