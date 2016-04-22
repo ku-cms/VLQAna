@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.JetID_cfi import * 
 
+###https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X#Supported_Algorithms_and_Operati
 CSVv2L = 0.460 
 CSVv2M = 0.800 
 CSVv2T = 0.935 
@@ -50,7 +51,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
       "Fall15_25nsV2_MC_L3Absolute_AK8PFchs.txt"), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
-    jetPtMin                  = cms.double(200),
+    jetPtMin                  = cms.double(300),
     jetAbsEtaMax              = cms.double(2.4),
     jetPtMax                  = cms.double(1000000),
     jettau2Bytau1Min          = cms.double(0.0) ,
