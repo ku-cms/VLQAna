@@ -338,26 +338,14 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
       //// Get b-tag SF weight
       if ( (ijet.second).getCSVSubjet0() > CSVv2L ) { btagsf *= reader_->eval(sj0fl,sj0eta,sj0pt); 
-        if ( btagsf > 2 ) { 
-          cout << "???????? btagsf0 = " << btagsf << " jet pt = " << sj0pt << " eta = " << sj0eta << " flav = " << sj0flhad << endl ;
-        }
       }
       else { btagsf *= ( 1 - reader_->eval(sj0fl,sj0eta,sj0pt)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) )/
         ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0flhad) );  
-        if ( btagsf > 2 ) { 
-          cout << "???????? btagsf1 = " << btagsf << " jet pt = " << sj0pt << " eta = " << sj0eta << " flav = " << sj0flhad << endl ;
-        }
       }
       if ( (ijet.second).getCSVSubjet1() > CSVv2L ) { btagsf *= reader_->eval(sj1fl,sj1eta,sj1pt) ;  
-        if ( btagsf > 2 ) { 
-          cout << "???????? btagsf2 = " << btagsf << " jet pt = " << sj0pt << " eta = " << sj0eta << " flav = " << sj0flhad << endl ;
-        }
       }
       else { btagsf *= ( 1 - reader_->eval(sj1fl,sj1eta,sj1pt)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) )/
         ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1flhad) );  
-        if ( btagsf > 2 ) { 
-          cout << "???????? btagsf3 = " << btagsf << " jet pt = " << sj0pt << " eta = " << sj0eta << " flav = " << sj0flhad << endl ;
-        }
       }
 
       //// Get btag SF up bc err
@@ -399,7 +387,6 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   } //// Loop over all Higgs jets
 
-  cout << " btagsf = " << btagsf << endl ;  
   if ( boost::math::isnan(btagsf) )
     cout << " btagsf = " << btagsf << " is nan = " << boost::math::isnan(btagsf) << endl ;  
 
@@ -416,10 +403,11 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
 bool HH4b::passHiggsTagging(vlq::Jet jet) {
   bool passHiggsTagging(0);
-  if (jet.getPt() > 200. 
+  if (jet.getPt() > 300. 
       && abs(jet.getEta()) <= 2.4
       && abs(jet.getPrunedMass()) >= 90 
-      && (jet.getTau1() == 0. || jet.getTau2()/jet.getTau1() < 0.75)
+      //&& (jet.getTau1() == 0. || jet.getTau2()/jet.getTau1() < 0.75)
+      && (jet.getTau1() == 0. || jet.getTau2()/jet.getTau1() < 1.00)
      ) passHiggsTagging = true ; 
   return passHiggsTagging;
 }
