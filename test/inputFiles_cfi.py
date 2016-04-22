@@ -347,5 +347,10 @@ FileNames = {
  '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/DoubleEG/B2GAnaFW_76X_V1p2/160406_180659/0000/B2GEDMNtuple_97.root', 
  '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/DoubleEG/B2GAnaFW_76X_V1p2/160406_180659/0000/B2GEDMNtuple_98.root', 
  '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/DoubleEG/B2GAnaFW_76X_V1p2/160406_180659/0000/B2GEDMNtuple_99.root', 
- ]
-} 
+ ], 
+ 'FileNames_BG1200':[
+ '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/B2GAnaFW_76X_V1p2/160418_100216/0000/B2GEDMNtuple_1.root',
+ '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/B2GAnaFW_76X_V1p2/160418_100216/0000/B2GEDMNtuple_2.root',
+ ],
+}
+
