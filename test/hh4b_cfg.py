@@ -81,13 +81,13 @@ process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 process.load('Analysis.VLQAna.HH4b_cff') 
 process.hh4b.jetAK8selParams.scaleJetP4 = cms.bool(False)
-process.hh4b.jetAK8selParams.jettau2Bytau1Max = cms.double(0.75)
+process.hh4b.jetAK8selParams.jettau2Bytau1Max = cms.double(1.00)
 process.hh4b.jetAK8selParams.subjetCSVMin = cms.double(-1000.) 
 #process.hh4b.doBTagSFUnc = options.doBTagSFUnc
 process.hh4b.jetAK8selParams.jecShift = options.jecShift 
 process.hh4b.jetAK8selParams.jerShift = options.jerShift 
 process.hh4b.jetHTaggedselParams.scaleJetP4 = cms.bool(False)
-process.hh4b.jetHTaggedselParams.jettau2Bytau1Max = cms.double(0.75)
+process.hh4b.jetHTaggedselParams.jettau2Bytau1Max = cms.double(1.00)
 process.hh4b.jetHTaggedselParams.subjetCSVMin = cms.double(-1000.) 
 #process.hh4b.doBTagSFUnc = options.doBTagSFUnc
 process.hh4b.jetHTaggedselParams.jecShift = options.jecShift 
