@@ -107,10 +107,6 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
     btaggedcsvtOP_        = iConfig.getParameter<double>("btaggedcsvtOP")  ;
   }
 
-  if (iConfig.getParameter<bool>("IsJetIDLoose") == true && iConfig.getParameter<bool>("IsJetIDTight") == false) quality_ = JetID::LOOSE ; 
-  else if (iConfig.getParameter<bool>("IsJetIDTight") == true && iConfig.getParameter<bool>("IsJetIDLoose") == false) quality_ = JetID::TIGHT ; 
-  else edm::LogError("JetMaker::JetMaker") << "Ambiguous JetID: Please select only one (LOOSE or TIGHT) as True!!!" ; 
-
   if (doGroomedMassCorr_) { 
     jecAK8UncName_ = jecAK8GroomedPayloadNames_.back();
     std::vector<JetCorrectorParameters> vPar;
@@ -164,8 +160,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
   if ((h_jetPt.product())->size() < 1) return ; 
 
-  //const int npv(*h_npv) ; 
-  const int npv(10) ; 
+  const int npv(*h_npv) ; 
   const double rho(*h_rho) ; 
 
   for (unsigned ijet = 0; ijet < (h_jetPt.product())->size(); ++ijet) { 
@@ -177,10 +172,10 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     TLorentzVector  jetP4, uncorrJetP4, newJetP4;
 
-    jetP4.SetPtEtaPhiM( (h_jetPt.product())->at(ijet), 
+    jetP4.SetPtEtaPhiE( (h_jetPt.product())->at(ijet), 
         (h_jetEta.product())->at(ijet), 
         (h_jetPhi.product())->at(ijet), 
-        (h_jetMass.product())->at(ijet) ) ;
+        (h_jetEnergy.product())->at(ijet) ) ;
 
     uncorrJetP4 = jetP4 * (h_jetJEC.product())->at(ijet) ; 
 
@@ -193,8 +188,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       ptr_newJEC_->setRho   ( rho ) ;  
       ptr_newJEC_->setNPV   ( npv );
       newJEC = ptr_newJEC_->getCorrection();
+      newJetP4 = uncorrJetP4*newJEC ; 
     }
-    newJetP4 = uncorrJetP4*newJEC ; 
+    else newJetP4 = jetP4 ; 
 
 #if DEBUGMORE
     cout 
@@ -240,8 +236,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
       ptr_jecUnc->setJetPt ( uncorrJetP4.Pt()     );
       unc = ptr_jecUnc->getUncertainty(true);
+      newJetP4 *= (1 + jecShift_*unc) ; 
     }
-    newJetP4 *= (1 + jecShift_*unc) ; 
 
 #if DEBUGMORE
     cout 
@@ -263,11 +259,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     //// Jet to put in the jet collection
     vlq::Jet jet ; 
-    jet.setP4           (newJetP4) ; 
-    jet.setIndex        (ijet)  ;
-    jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
-    jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
-    jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
 
     if ( type_ == AK8JET ) {
 
@@ -383,24 +374,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
         p4sj1 *= ptsmear * newJEC  * (1 + jecShift_*unc);
       }
-      newJetP4 *= (1 + jecShift_*unc) ; 
 
-#if DEBUGMORE      
-      cout 
-        << " \njet pt jecshift      = " << newJetP4.Pt() 
-        << " \njet mass jecshift    = " << newJetP4.Mag() 
-        << endl ; 
-#endif 
-
-      double jetCSVDisc = (h_jetCSV.product())->at(ijet); 
-      if (jetPt      < idxjetPtMin_       || 
-          jetPt      >  idxjetPtMax_      ||
-          jetCSVDisc < idxjetCSVDiscMin_  ||
-          jetCSVDisc >  idxjetCSVDiscMax_ 
-         ) continue ; 
-
-      if ( vjetssj0CSV > btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
-      if ( vjetssj1CSV > btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
+      if ( vjetssj0CSV >= btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
+      if ( vjetssj1CSV >= btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
 
       double subjetHighestCSV = std::max(vjetssj0CSV,vjetssj1CSV) ; 
 
@@ -450,6 +426,11 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     } //// if type_ == AK8JET
 
+    jet.setP4           (newJetP4) ; 
+    jet.setIndex        (ijet)  ;
+    jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
+    jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
+    jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
     jets.push_back(jet) ; 
 
 #if DEBUGMORE

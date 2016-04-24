@@ -121,8 +121,6 @@ class JetMaker {
 
     JETTYPES_t type_ ; 
     JetID jetID_ ; 
-    pat::strbitset retjetid_ ; 
-    JetID::Quality_t quality_; 
 };
 
 #endif 
