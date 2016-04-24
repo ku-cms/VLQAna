@@ -15,7 +15,7 @@ defaultAK4JetSelectionParameters = cms.PSet(
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
-    jecUncPayloadName         = cms.string(""), 
+    jecUncPayloadName         = cms.string("Fall15_25nsV2_MC_Uncertainty_AK4PFchs.txt"), 
     jecAK8GroomedPayloadNames = cms.vstring(), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
@@ -27,14 +27,12 @@ defaultAK4JetSelectionParameters = cms.PSet(
     btaggedcsvlOP             = cms.double(CSVv2L) , 
     btaggedcsvmOP             = cms.double(CSVv2M) , 
     btaggedcsvtOP             = cms.double(CSVv2T) , 
-    IsJetIDLoose              = cms.bool(True),
-    IsJetIDTight              = cms.bool(False),
     )
 
 defaultBTaggedAK4JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jetPtMin            = cms.double(30),
     jetAbsEtaMax        = cms.double(2.4),
-    jetCSVDiscMin       = cms.double(0.890),
+    jetCSVDiscMin       = cms.double(CSVv2M),
     )
 
 defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone( 
@@ -45,7 +43,7 @@ defaultAK8JetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
-    jecUncPayloadName         = cms.string(""),
+    jecUncPayloadName         = cms.string("Fall15_25nsV2_MC_Uncertainty_AK8PFchs.txt"),
     jecAK8GroomedPayloadNames = cms.vstring(
       "Fall15_25nsV2_MC_L2Relative_AK8PFchs.txt", 
       "Fall15_25nsV2_MC_L3Absolute_AK8PFchs.txt"), 
