@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -57,6 +58,8 @@ class HH4b : public edm::EDFilter {
     std::unique_ptr<BTagCalibrationReader>  reader_; 
     std::unique_ptr<BTagCalibrationReader>  readerUp_; 
     std::unique_ptr<BTagCalibrationReader>  readerDown_; 
+    const bool printEvtNo_;
+    std::ofstream outfile_ ; 
 
     static const double CSVv2L ; 
 };
@@ -84,7 +87,8 @@ HH4b::HH4b(const edm::ParameterSet& iConfig) :
   calib_          (new BTagCalibration("CSVv2","CSVv2_subjets_76X.csv")), 
   reader_         (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"central")), 
   readerUp_       (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"up")), 
-  readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down"))  
+  readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")),
+  printEvtNo_     (iConfig.getParameter<bool>("printEvtNo"))  
 {
 
   reader_->load(*calib_,     // calibration instance
@@ -125,7 +129,7 @@ HH4b::HH4b(const edm::ParameterSet& iConfig) :
 
 }
 
-HH4b::~HH4b() {}
+HH4b::~HH4b() { }
 
 const double HH4b::CSVv2L = 0.460;
 
@@ -205,6 +209,10 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3b  ) h1_["cutflow"] -> Fill(12) ;
   if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt4b  ) h1_["cutflow"] -> Fill(13) ;
   if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3bHPHP) h1_["cutflow"] -> Fill(14) ;
+
+  if ( printEvtNo_ && hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt0b  ) {
+    outfile_ << runno << " " << lumisec << " " << evtno << std::endl ; 
+  }
 
   //// Event selection
   if ( !hltNPV || !ak8Pt ) return false; 
@@ -436,10 +444,16 @@ void HH4b::beginJob() {
   selectedevt.RegisterTree(tree_,"SelectedEvent") ; 
   hjets.RegisterTree(tree_,"HJets") ; 
 
+  if ( printEvtNo_ ) {
+    outfile_.open("EvtNo_0b.txt",ios::out) ; 
+    outfile_ << " Runno " << " Lumisec " << " Evtno " << std::endl ; 
+  }
+
 }
 
 void HH4b::endJob() {
 
+  outfile_.close() ;
   return ; 
 }
 
