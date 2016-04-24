@@ -17,6 +17,7 @@ hh4b = cms.EDFilter("HH4b",
     npv                 = cms.InputTag("evtcleaner","npv"),
     npuTrue             = cms.InputTag("evtcleaner","npuTrue"),
     jetAK8selParams     = defaultAK8JetSelectionParameters.clone(
+      jetPtMin                  = cms.double(200),
       JetIDParams  = defaultAK8JetIDParameters.clone(
         quality = cms.string  ("TIGHTLEPVETO"),
         ), 
@@ -30,4 +31,5 @@ hh4b = cms.EDFilter("HH4b",
       jetPrunedMassMax    = cms.double(145) ,
       ),
     btageffFile         = cms.string("btag-eff-subjet.root"), 
+    printEvtNo          = cms.bool(False),
     )
