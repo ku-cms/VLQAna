@@ -13,11 +13,11 @@
 #include "Analysis/VLQAna/interface/HH4bTree.h"
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
-#include "Analysis/VLQAna/interface/BTagCalibrationStandalone.h"
 #include <TH1D.h>
 #include <TTree.h>
 #include <TF1.h>
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <algorithm> 
 
 class HH4b : public edm::EDFilter {
   public:
@@ -54,12 +54,12 @@ class HH4b : public edm::EDFilter {
     JetInfoBranches ak8jets ; 
     JetInfoBranches hjets ; 
     TTree* tree_ ; 
-    std::unique_ptr<BTagCalibration>  calib_; 
-    std::unique_ptr<BTagCalibrationReader>  reader_; 
-    std::unique_ptr<BTagCalibrationReader>  readerUp_; 
-    std::unique_ptr<BTagCalibrationReader>  readerDown_; 
     const bool printEvtNo_;
-    std::ofstream outfile_ ; 
+
+    std::unique_ptr<BTagSFUtils> btagsfutils_ ; 
+
+    std::ofstream outfile0b_ ; 
+    std::ofstream outfile4b_ ; 
 
     static const double CSVv2L ; 
 };
@@ -84,48 +84,9 @@ HH4b::HH4b(const edm::ParameterSet& iConfig) :
   jetAK8maker     (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
   jetHTaggedmaker (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
   btageffFile_    (iConfig.getParameter<std::string>       ("btageffFile")), 
-  calib_          (new BTagCalibration("CSVv2","CSVv2_subjets_76X.csv")), 
-  reader_         (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"central")), 
-  readerUp_       (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"up")), 
-  readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")),
-  printEvtNo_     (iConfig.getParameter<bool>("printEvtNo"))  
+  printEvtNo_     (iConfig.getParameter<bool>("printEvtNo")), 
+  btagsfutils_    (new BTagSFUtils())
 {
-
-  reader_->load(*calib_,     // calibration instance
-      BTagEntry::BTagEntry::FLAV_B,     // btag flavour
-      "lt") ;            // measurement type
-
-  reader_->load(*calib_,     // calibration instance
-      BTagEntry::BTagEntry::FLAV_C,     // btag flavour
-      "lt") ;            // measurement type
-
-  reader_->load(*calib_,     // calibration instance
-      BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
-      "incl") ;              // measurement type
-
-  readerUp_->load(*calib_,   // calibration instance
-      BTagEntry::BTagEntry::FLAV_B,     // btag flavour
-      "lt") ;            // measurement type
-
-  readerUp_->load(*calib_,   // calibration instance
-      BTagEntry::BTagEntry::FLAV_C,     // btag flavour
-      "lt") ;            // measurement type
-
-  readerUp_->load(*calib_,   // calibration instance
-      BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
-      "incl") ;              // measurement type
-
-  readerDown_->load(*calib_, // calibration instance
-      BTagEntry::BTagEntry::FLAV_B,     // btag flavour
-      "lt") ;            // measurement type
-
-  readerDown_->load(*calib_, // calibration instance
-      BTagEntry::BTagEntry::FLAV_C,     // btag flavour
-      "lt") ;            // measurement type
-
-  readerDown_->load(*calib_, // calibration instance
-      BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
-      "incl") ;              // measurement type
 
 }
 
@@ -211,7 +172,17 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3bHPHP) h1_["cutflow"] -> Fill(14) ;
 
   if ( printEvtNo_ && hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt0b  ) {
-    outfile_ << runno << " " << lumisec << " " << evtno << std::endl ; 
+    outfile0b_ << runno << " " << lumisec << " " << evtno << " " 
+      << goodAK8Jets.at(0).getCSVSubjet0() << " " << goodAK8Jets.at(0).getCSVSubjet1() << " " 
+      << goodAK8Jets.at(1).getCSVSubjet0() << " " << goodAK8Jets.at(1).getCSVSubjet1() << " " 
+      << std::endl ; 
+  }
+
+  if ( printEvtNo_ && hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt4b  ) {
+    outfile4b_ << runno << " " << lumisec << " " << evtno << " " 
+      << goodAK8Jets.at(0).getCSVSubjet0() << " " << goodAK8Jets.at(0).getCSVSubjet1() << " " 
+      << goodAK8Jets.at(1).getCSVSubjet0() << " " << goodAK8Jets.at(1).getCSVSubjet1() << " " 
+      << std::endl ; 
   }
 
   //// Event selection
@@ -267,6 +238,11 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   selectedevt.nsubjetsBTaggedCSVL_ = 0 ;
 
+  std::vector<double>sjcsvs;
+  std::vector<double>sjpts;
+  std::vector<double>sjetas;
+  std::vector<int>sjflhads;
+
   hjets.njets = goodHTaggedJets.size() ; 
   for (auto ijet : index(goodHTaggedJets) ) {
     hjets.Index[ijet.first] = (ijet.second).getIndex() ;
@@ -303,97 +279,23 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     if ( !isData ) { 
 
-      BTagEntry::JetFlavor sj0fl, sj1fl ; 
+      sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
+      sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
 
-      int sj0flhad(abs((ijet.second).getHadronFlavourSubjet0())), sj1flhad(abs((ijet.second).getHadronFlavourSubjet1())) ; 
+      sjpts.push_back((ijet.second).getPtSubjet0()) ;  
+      sjpts.push_back((ijet.second).getPtSubjet1()) ;  
 
-      double sj0eta(abs((ijet.second).getEtaSubjet0())), sj1eta(abs((ijet.second).getEtaSubjet1())) ; 
-      double sj0pt((ijet.second).getPtSubjet0()), sj1pt((ijet.second).getPtSubjet1()) ; 
+      sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
+      sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
 
-      int uncscale0(1), uncscale1(1); 
-
-      if (abs((ijet.second).getHadronFlavourSubjet0()) == 5) {
-        sj0fl = BTagEntry::FLAV_B;
-        if ( sj0pt < 30. ) { sj0pt = 30.01 ; uncscale0 = 2 ; } 
-        if ( sj0pt > 420. ) { sj0pt = 419.99 ; uncscale0 = 2 ; } 
-      }
-      else if (abs((ijet.second).getHadronFlavourSubjet0()) == 4) {
-        sj0fl = BTagEntry::FLAV_C;
-        if ( sj0pt < 30. ) { sj0pt = 30.01 ; uncscale0 = 2 ; } 
-        if ( sj0pt > 420. ) { sj0pt = 419.99 ; uncscale0 = 2 ; } 
-      }
-      else {
-        sj0fl = BTagEntry::FLAV_UDSG;
-        if ( sj0pt < 20. ) { sj0pt =20.01 ; uncscale0 = 2 ; }
-        if ( sj0pt > 1000. ) { sj0pt = 999.99 ; uncscale0 = 2; }
-      }
-
-      if (abs((ijet.second).getHadronFlavourSubjet1()) == 5) {
-        sj1fl = BTagEntry::FLAV_B;
-        if ( sj1pt < 30. ) { sj1pt = 30.01 ; uncscale1 = 2 ; } 
-        if ( sj1pt > 420. ) { sj1pt = 419.99 ; uncscale1 = 2 ; } 
-      }
-      else if (abs((ijet.second).getHadronFlavourSubjet1()) == 4) {
-        sj1fl = BTagEntry::FLAV_C;
-        if ( sj1pt < 30. ) { sj1pt = 30.01 ; uncscale1 = 2 ; } 
-        if ( sj1pt > 420. ) { sj1pt = 419.99 ; uncscale1 = 2 ; } 
-      }
-      else {
-        sj1fl = BTagEntry::FLAV_UDSG;
-        if ( sj1pt < 20. ) { sj1pt =20.01 ; uncscale1 = 2 ; }
-        if ( sj1pt > 1000. ) { sj1pt = 999.99 ; uncscale1 = 2; }
-      }
-
-      //// Get b-tag SF weight
-      if ( (ijet.second).getCSVSubjet0() > CSVv2L ) { btagsf *= reader_->eval(sj0fl,sj0eta,sj0pt); 
-      }
-      else { btagsf *= ( 1 - reader_->eval(sj0fl,sj0eta,sj0pt)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) )/
-        ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0flhad) );  
-      }
-      if ( (ijet.second).getCSVSubjet1() > CSVv2L ) { btagsf *= reader_->eval(sj1fl,sj1eta,sj1pt) ;  
-      }
-      else { btagsf *= ( 1 - reader_->eval(sj1fl,sj1eta,sj1pt)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) )/
-        ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1flhad) );  
-      }
-
-      //// Get btag SF up bc err
-      if (sj0flhad == 5 || sj0flhad == 4) {
-        if ( (ijet.second).getCSVSubjet0() > CSVv2L ) { btagsf_bcUp *= uncscale0*readerUp_->eval(sj0fl,sj0eta,sj0pt) ; } 
-        else { btagsf_bcUp *=  uncscale0*( 1 - readerUp_->eval(sj0fl,sj0eta,sj0pt)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) )/
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) ) ; } 
-        if ( (ijet.second).getCSVSubjet1() > CSVv2L ) { btagsf_bcUp *= uncscale1*readerUp_->eval(sj1fl,sj1eta,sj1pt) ; } 
-        else { btagsf_bcUp *= uncscale1*( 1 - readerUp_->eval(sj1fl,sj1eta,sj1pt)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) /
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) ; } 
-      }
-      else {
-        if ( (ijet.second).getCSVSubjet0() > CSVv2L ) { btagsf_lUp *= uncscale0*readerUp_->eval(sj0fl,sj0eta,sj0pt) ; } 
-        else { btagsf_lUp *= uncscale0*( 1 - readerUp_->eval(sj0fl,sj0eta,sj0pt)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) )/
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) ) ; }
-        if ( (ijet.second).getCSVSubjet1() > CSVv2L ) { btagsf_lUp *= uncscale1*readerUp_->eval(sj1fl,sj1eta,sj1pt) ; }
-        else { btagsf_lUp *= uncscale1*( 1 - readerUp_->eval(sj1fl,sj1eta,sj1pt)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) /
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) ; } 
-      }
-
-      if (sj1flhad == 5 || sj1flhad == 4) {
-        if ( (ijet.second).getCSVSubjet1() > CSVv2L ) { btagsf_bcDown *= uncscale0*readerDown_->eval(sj0fl,sj0eta,sj0pt) ; }
-        else { btagsf_bcDown *= uncscale0*( 1 - readerDown_->eval(sj0fl,sj0eta,sj0pt)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) )/
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) ) ; } 
-        if ( (ijet.second).getCSVSubjet0() > CSVv2L ) { btagsf_bcDown *= uncscale1*readerDown_->eval(sj1fl,sj1eta,sj1pt) ; }
-        else { btagsf_bcDown *= uncscale1*( 1 - readerDown_->eval(sj1fl,sj1eta,sj1pt)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) )/
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) ; } 
-      }
-      else {
-        if ( (ijet.second).getCSVSubjet0() > CSVv2L ) { btagsf_lDown *= uncscale0*readerDown_->eval(sj0fl,sj0eta,sj0pt) ; } 
-        else { btagsf_lDown *= uncscale0*( 1 - readerDown_->eval(sj0fl,sj0eta,sj0pt)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) )/
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt,sj0flhad) ) ; } 
-        if ( (ijet.second).getCSVSubjet1() > CSVv2L ) { btagsf_lDown *= uncscale1*readerDown_->eval(sj1fl,sj1eta,sj1pt) ; } 
-        else { btagsf_lDown *= uncscale1*( 1 - readerDown_->eval(sj1fl,sj1eta,sj1pt)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) /
-          ( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt,sj1flhad) ) ; } 
-      }
+      sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
+      sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
 
     } //// if !isData do  b tag SFs
 
   } //// Loop over all Higgs jets
+
+  if ( !isData ) btagsfutils_->getBTagSFs (sjcsvs, sjpts, sjetas, sjflhads, CSVv2L, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   if ( boost::math::isnan(btagsf) )
     cout << " btagsf = " << btagsf << " is nan = " << boost::math::isnan(btagsf) << endl ;  
@@ -445,15 +347,25 @@ void HH4b::beginJob() {
   hjets.RegisterTree(tree_,"HJets") ; 
 
   if ( printEvtNo_ ) {
-    outfile_.open("EvtNo_0b.txt",ios::out) ; 
-    outfile_ << " Runno " << " Lumisec " << " Evtno " << std::endl ; 
+    outfile0b_.open("EvtNo_0b.txt",ios::out) ; 
+    outfile0b_ << " Cat0b: Runno " << " Lumisec " << " Evtno " 
+      << " j0-sj0 CSVv2 " << " j0-sj1 CSVv2 " 
+      << " j1-sj0 CSVv2 " << " j1-sj1 CSVv2 " 
+      << std::endl ; 
+
+    outfile4b_.open("EvtNo_4b.txt",ios::out) ; 
+    outfile4b_ << " Cat4b: Runno " << " Lumisec " << " Evtno " 
+      << " j0-sj0 CSVv2 " << " j0-sj1 CSVv2 " 
+      << " j1-sj0 CSVv2 " << " j1-sj1 CSVv2 " 
+      << std::endl ; 
   }
 
 }
 
 void HH4b::endJob() {
 
-  outfile_.close() ;
+  outfile0b_.close() ;
+  outfile4b_.close() ;
   return ; 
 }
 
