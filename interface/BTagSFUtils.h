@@ -3,9 +3,163 @@
 #include <TF1.h>
 #include <map>
 
-struct BTagSFUtils {
+#include "Analysis/VLQAna/interface/Utilities.h"
+#include "Analysis/VLQAna/interface/BTagCalibrationStandalone.h"
+
+class BTagSFUtils {
+
+  private:
+
+    std::unique_ptr<BTagCalibration>        calib_      ; 
+    std::unique_ptr<BTagCalibrationReader>  reader_     ; 
+    std::unique_ptr<BTagCalibrationReader>  readerUp_   ; 
+    std::unique_ptr<BTagCalibrationReader>  readerDown_ ; 
 
   public: 
+
+    BTagSFUtils () : 
+      calib_          (new BTagCalibration("CSVv2","CSVv2_subjets_76X.csv")), 
+      reader_         (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"central")), 
+      readerUp_       (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"up")), 
+      readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")) 
+  {
+    reader_->load(*calib_,     // calibration instance
+        BTagEntry::BTagEntry::FLAV_B,     // btag flavour
+        "lt") ;            // measurement type
+
+    reader_->load(*calib_,     // calibration instance
+        BTagEntry::BTagEntry::FLAV_C,     // btag flavour
+        "lt") ;            // measurement type
+
+    reader_->load(*calib_,     // calibration instance
+        BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
+        "incl") ;              // measurement type
+
+    readerUp_->load(*calib_,   // calibration instance
+        BTagEntry::BTagEntry::FLAV_B,     // btag flavour
+        "lt") ;            // measurement type
+
+    readerUp_->load(*calib_,   // calibration instance
+        BTagEntry::BTagEntry::FLAV_C,     // btag flavour
+        "lt") ;            // measurement type
+
+    readerUp_->load(*calib_,   // calibration instance
+        BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
+        "incl") ;              // measurement type
+
+    readerDown_->load(*calib_, // calibration instance
+        BTagEntry::BTagEntry::FLAV_B,     // btag flavour
+        "lt") ;            // measurement type
+
+    readerDown_->load(*calib_, // calibration instance
+        BTagEntry::BTagEntry::FLAV_C,     // btag flavour
+        "lt") ;            // measurement type
+
+    readerDown_->load(*calib_, // calibration instance
+        BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
+        "incl") ;              // measurement type
+
+  }
+
+    void getBTagSFs(
+        std::vector<double>jetcsvs,
+        std::vector<double>jetpts,
+        std::vector<double>jetetas,
+        std::vector<int>jetflhads,
+        const double csvMin, 
+        double& btagsf, double& btagsf_bcUp, double& btagsf_bcDown, double& btagsf_lUp, double& btagsf_lDown
+        ) {
+
+      //// Assign flavour notation as per b-tag SF .csv file 
+      std::vector<BTagEntry::JetFlavor> jetfls ; 
+      for ( int flhad : jetflhads ) {
+        BTagEntry::JetFlavor fl ; 
+        if ( abs(flhad) == 5 ) fl = BTagEntry::FLAV_B;
+        else if ( abs(flhad) == 4 ) fl = BTagEntry::FLAV_C;
+        else fl = BTagEntry::FLAV_UDSG;
+        jetfls.push_back(fl) ; 
+      }
+
+      //// Get pT within bounds and double uncert if needed
+      std::vector<int> uncscales ; 
+      for ( auto idx : index(jetpts) ) {
+        BTagEntry::JetFlavor fl = jetfls.at(idx.first) ; 
+        double pt = jetpts.at(idx.first) ; 
+        double uncscale(1.) ; 
+        if ( fl == 0 || fl == 1) {
+          if ( pt < 30. ) { pt = 30.01 ; uncscale *= 2 ; } 
+          if ( pt > 420. ) { pt = 419.99 ; uncscale *= 2 ; } 
+          if ( fl == 1 ) uncscale *= 2 ; 
+        }
+        else {
+          if ( pt < 20. ) { pt =20.01 ; uncscale *= 2 ; }
+          if ( pt > 1000. ) { pt = 999.99 ; uncscale *= 2; }
+        }
+        jetpts.at(idx.first) = pt ; 
+        uncscales.push_back(uncscale) ; 
+      }
+
+      //// Get scale factors and efficiencies 
+      std::vector<double> sfs, sfsUp, sfsDown, dsfsUp, dsfsDown, effs ;
+      for ( auto idx : index(jetpts) ) {
+        BTagEntry::JetFlavor fl = jetfls.at(idx.first) ; 
+        int flhad = jetflhads.at(idx.first) ; 
+        double pt = jetpts.at(idx.first) ; 
+        double eta = jetetas.at(idx.first) ; 
+        double sf = reader_->eval(fl,eta,pt) ; 
+        double sfUp = readerUp_->eval(fl,eta,pt) ; 
+        double sfDown = readerDown_->eval(fl,eta,pt) ; 
+        double dsfUp = sfUp - sf ; 
+        double dsfDown = sfDown - sf ;
+        double eff = BTagSFUtils::getBTagEff_CSVv2L(pt,flhad) ; 
+        double uncscale = uncscales.at(idx.first) ; 
+        sfs.push_back(sf) ; 
+        sfsUp.push_back(sfUp) ; 
+        sfsDown.push_back(sfDown) ; 
+        dsfsUp.push_back(dsfUp) ; 
+        dsfsDown.push_back(dsfDown) ; 
+        effs.push_back(eff) ; 
+
+        double sfUpabs = sf  + (uncscale*dsfUp/sf)  ; 
+        double sfDownabs = sf  + (uncscale*dsfDown/sf)  ; 
+        if ( sfUpabs < 0 ) sfUpabs = 0 ;  
+        if ( sfDownabs < 0 ) sfDownabs = 0 ;  
+
+        double jetcsv = jetcsvs.at(idx.first) ; 
+        if ( jetcsv >= csvMin ) { 
+          btagsf *= sf ; 
+
+          //// Get uncertainties 
+          if ( fl == 0 || fl == 1) {
+            btagsf_bcUp *= sfUpabs ; 
+            btagsf_bcDown *= sfDownabs ; 
+          }
+          else {
+            btagsf_lUp *= sfUpabs ; 
+            btagsf_lDown *= sfDownabs ; 
+          }
+
+        }
+        else {
+          btagsf *= eff < 1 ? (1 - std::min(1.,eff*sf))/(1 - eff) : 0 ; 
+
+          //// Get uncertainties 
+          if ( fl == 0 || fl == 1) {
+            btagsf_bcUp *= eff < 1 ? (1 - std::min(1.,eff*sfUpabs))/(1 - eff) : 0 ;
+            btagsf_bcDown *= eff < 1 ? (1 - std::min(1.,eff*sfDownabs))/(1 - eff) : 0 ;
+          }
+          else {
+            btagsf_lUp *= eff < 1 ? (1 - std::min(1.,eff*sfUpabs))/(1 - eff) : 0 ;
+            btagsf_lDown *= eff < 1 ? (1 - std::min(1.,eff*sfDownabs))/(1 - eff) : 0 ;
+          }
+
+        }
+
+      }
+
+      return ; 
+    }
+
     static double getBTagEff_CSVv2L (double pt, double jetFl) {
 
       //std::string hname="";
