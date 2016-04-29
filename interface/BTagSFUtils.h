@@ -5,6 +5,7 @@
 
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/BTagCalibrationStandalone.h"
+#include <boost/math/special_functions/fpclassify.hpp>
 
 class BTagSFUtils {
 
@@ -120,10 +121,16 @@ class BTagSFUtils {
         dsfsDown.push_back(dsfDown) ; 
         effs.push_back(eff) ; 
 
-        double sfUpabs = sf  + (uncscale*dsfUp/sf)  ; 
-        double sfDownabs = sf  + (uncscale*dsfDown/sf)  ; 
+        double sfUpabs = sf != 0. ? sf  + (uncscale*dsfUp/sf) : 0. ; 
+        double sfDownabs = sf != 0. ? sf  + (uncscale*dsfDown/sf) : 0. ; 
         if ( sfUpabs < 0 ) sfUpabs = 0 ;  
         if ( sfDownabs < 0 ) sfDownabs = 0 ;  
+
+        if ( boost::math::isnan(sf) || boost::math::isnan(sfUp) || boost::math::isnan(sfUpabs))
+          std::cout << " sf = " << sf << " is nan = " << boost::math::isnan(sf) << std::endl << 
+          std::cout << " sfUp = " << sfUp << " is nan = " << boost::math::isnan(sfUp) << std::endl << 
+          std::cout << " dsfUp = " << dsfUp << " is nan = " << boost::math::isnan(dsfUp) << std::endl << 
+          std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
 
         double jetcsv = jetcsvs.at(idx.first) ; 
         if ( jetcsv >= csvMin ) { 
