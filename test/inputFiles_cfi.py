@@ -349,8 +349,8 @@ FileNames = {
     '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/DoubleEG/B2GAnaFW_76X_V1p2/160406_180659/0000/B2GEDMNtuple_99.root', 
     ], 
  'FileNames_BG1200':[
-    '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/B2GAnaFW_76X_V1p2/160418_100216/0000/B2GEDMNtuple_1.root',
-    '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/B2GAnaFW_76X_V1p2/160418_100216/0000/B2GEDMNtuple_2.root',
+    '/store/group/phys_b2g/B2GAnaFW_76X_V1p3/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/B2GAnaFW_76X_V1p2/160428_214501/0000/B2GEDMNtuple_1.root',
+    '/store/group/phys_b2g/B2GAnaFW_76X_V1p3/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/B2GAnaFW_76X_V1p2/160428_214501/0000/B2GEDMNtuple_2.root',
     ],
  'FileNames_BG1600':[
    '/store/group/phys_b2g/B2GAnaFW_76X_V1p2/BulkGravTohhTohbbhbb_narrow_M-1600_13TeV-madgraph/B2GAnaFW_76X_V1p2/160418_100256/0000/B2GEDMNtuple_1.root'
