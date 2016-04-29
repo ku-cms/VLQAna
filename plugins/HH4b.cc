@@ -297,9 +297,6 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if ( !isData ) btagsfutils_->getBTagSFs (sjcsvs, sjpts, sjetas, sjflhads, CSVv2L, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
-  if ( boost::math::isnan(btagsf) )
-    cout << " btagsf = " << btagsf << " is nan = " << boost::math::isnan(btagsf) << endl ;  
-
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
   selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 
