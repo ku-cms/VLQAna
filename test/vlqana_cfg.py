@@ -43,7 +43,7 @@ options.register('topTagBDisc', 0.79,
     VarParsing.varType.float,
     "Top-tagging b-discriminator cut"
     )
-options.register('HTMin', 1000,
+options.register('HTMin', 1100,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.float,
     "Minimum HT"
@@ -86,8 +86,8 @@ process = cms.Process("VLQAna")
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      #FileNames_TprimeBToTH_M1200
-      FileName_QCD_HT1000to1500
+      FileNames_TprimeBToTH_M1200
+      #FileName_QCD_HT1000to1500
       )
     )
 
