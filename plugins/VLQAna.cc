@@ -544,6 +544,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvHTagged             .clear() ; jets_.csvHTagged             .reserve(goodHTaggedJets.size()) ;   
   jets_.partonFlavourHTagged   .clear() ; jets_.partonFlavourHTagged   .reserve(goodHTaggedJets.size()) ;   
   jets_.hadronFlavourHTagged   .clear() ; jets_.hadronFlavourHTagged   .reserve(goodHTaggedJets.size()) ;   
+  jets_.groomedMassCorrHTagged .clear() ; jets_.groomedMassCorrHTagged .reserve(goodHTaggedJets.size()) ;   
   jets_.sj0CSVHTagged          .clear() ; jets_.sj0CSVHTagged          .reserve(goodHTaggedJets.size()) ;   
   jets_.sj1CSVHTagged          .clear() ; jets_.sj1CSVHTagged          .reserve(goodHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0HTagged.clear() ; jets_.hadronFlavourSJ0HTagged.reserve(goodHTaggedJets.size()) ;   
@@ -563,6 +564,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvHTagged             .push_back(jet.getCSV());
     jets_.partonFlavourHTagged   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourHTagged   .push_back(jet.getHadronFlavour());
+    jets_.groomedMassCorrHTagged .push_back(jet.getGroomedMassCorr());
     jets_.sj0CSVHTagged          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVHTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0HTagged.push_back(jet.getHadronFlavourSubjet0()) ;
@@ -582,6 +584,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvAntiHTagged             .clear() ; jets_.csvAntiHTagged             .reserve(antiHTaggedJets.size()) ;   
   jets_.partonFlavourAntiHTagged   .clear() ; jets_.partonFlavourAntiHTagged   .reserve(antiHTaggedJets.size()) ;   
   jets_.hadronFlavourAntiHTagged   .clear() ; jets_.hadronFlavourAntiHTagged   .reserve(antiHTaggedJets.size()) ;   
+  jets_.groomedMassCorrAntiHTagged .clear() ; jets_.groomedMassCorrAntiHTagged .reserve(antiHTaggedJets.size()) ;   
   jets_.sj0CSVAntiHTagged          .clear() ; jets_.sj0CSVAntiHTagged          .reserve(antiHTaggedJets.size()) ;   
   jets_.sj1CSVAntiHTagged          .clear() ; jets_.sj1CSVAntiHTagged          .reserve(antiHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0AntiHTagged.clear() ; jets_.hadronFlavourSJ0AntiHTagged.reserve(antiHTaggedJets.size()) ;   
@@ -601,6 +604,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvAntiHTagged             .push_back(jet.getCSV());
     jets_.partonFlavourAntiHTagged   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourAntiHTagged   .push_back(jet.getHadronFlavour());
+    jets_.groomedMassCorrAntiHTagged .push_back(jet.getGroomedMassCorr());
     jets_.sj0CSVAntiHTagged          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVAntiHTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AntiHTagged.push_back(jet.getHadronFlavourSubjet0()) ;
@@ -620,6 +624,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvTopTagged             .clear() ; jets_.csvTopTagged             .reserve(goodTopTaggedJets.size()) ;   
   jets_.partonFlavourTopTagged   .clear() ; jets_.partonFlavourTopTagged   .reserve(goodTopTaggedJets.size()) ;   
   jets_.hadronFlavourTopTagged   .clear() ; jets_.hadronFlavourTopTagged   .reserve(goodTopTaggedJets.size()) ;   
+  jets_.groomedMassCorrTopTagged .clear() ; jets_.groomedMassCorrTopTagged .reserve(goodTopTaggedJets.size()) ;   
   jets_.sj0CSVTopTagged          .clear() ; jets_.sj0CSVTopTagged          .reserve(goodTopTaggedJets.size()) ;   
   jets_.sj1CSVTopTagged          .clear() ; jets_.sj1CSVTopTagged          .reserve(goodTopTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0TopTagged.clear() ; jets_.hadronFlavourSJ0TopTagged.reserve(goodTopTaggedJets.size()) ;   
@@ -639,6 +644,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvTopTagged             .push_back(jet.getCSV());
     jets_.partonFlavourTopTagged   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourTopTagged   .push_back(jet.getHadronFlavour());
+    jets_.groomedMassCorrTopTagged .push_back(jet.getGroomedMassCorr());
     jets_.sj0CSVTopTagged          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVTopTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0TopTagged.push_back(jet.getHadronFlavourSubjet0()) ;
