@@ -119,6 +119,7 @@ class TtHJetInfoBranches {
     std::vector<double> csvHTagged;
     std::vector<double> partonFlavourHTagged; 
     std::vector<double> hadronFlavourHTagged; 
+    std::vector<double> groomedMassCorrHTagged;
 
     std::vector<double> sj0CSVHTagged;
     std::vector<double> sj1CSVHTagged;
@@ -138,6 +139,7 @@ class TtHJetInfoBranches {
     std::vector<double> csvAntiHTagged;
     std::vector<double> partonFlavourAntiHTagged; 
     std::vector<double> hadronFlavourAntiHTagged; 
+    std::vector<double> groomedMassCorrAntiHTagged;
 
     std::vector<double> sj0CSVAntiHTagged;
     std::vector<double> sj1CSVAntiHTagged;
@@ -157,6 +159,7 @@ class TtHJetInfoBranches {
     std::vector<double> csvTopTagged;
     std::vector<double> partonFlavourTopTagged; 
     std::vector<double> hadronFlavourTopTagged; 
+    std::vector<double> groomedMassCorrTopTagged;
 
     std::vector<double> sj0CSVTopTagged;
     std::vector<double> sj1CSVTopTagged;
@@ -206,6 +209,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("csvHTagged", &csvHTagged);
       cutTree->Branch("partonFlavourHTagged", &partonFlavourHTagged);
       cutTree->Branch("hadronFlavourHTagged", &hadronFlavourHTagged);
+      cutTree->Branch("groomedMassCorrHTagged", &groomedMassCorrHTagged);
 
       cutTree->Branch("sj0CSVHTagged",&sj0CSVHTagged);
       cutTree->Branch("sj1CSVHTagged",&sj1CSVHTagged);
@@ -225,6 +229,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("csvAntiHTagged", &csvAntiHTagged);
       cutTree->Branch("partonFlavourAntiHTagged", &partonFlavourAntiHTagged);
       cutTree->Branch("hadronFlavourAntiHTagged", &hadronFlavourAntiHTagged);
+      cutTree->Branch("groomedMassCorrAntiHTagged", &groomedMassCorrAntiHTagged);
 
       cutTree->Branch("sj0CSVAntiHTagged",&sj0CSVAntiHTagged);
       cutTree->Branch("sj1CSVAntiHTagged",&sj1CSVAntiHTagged);
@@ -244,6 +249,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("csvTopTagged", &csvTopTagged);
       cutTree->Branch("partonFlavourTopTagged", &partonFlavourTopTagged);
       cutTree->Branch("hadronFlavourTopTagged", &hadronFlavourTopTagged);
+      cutTree->Branch("groomedMassCorrTopTagged", &groomedMassCorrTopTagged);
 
       cutTree->Branch("sj0CSVTopTagged",&sj0CSVTopTagged);
       cutTree->Branch("sj1CSVTopTagged",&sj1CSVTopTagged);
