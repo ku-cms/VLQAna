@@ -51,26 +51,39 @@ def plot (f) :
   #hmsubtr.Draw("histsame")
   #c_msubtr.SaveAs(c_msubtr.GetName()+".pdf")
   #c_msubtr.SaveAs(c_msubtr.GetName()+".root")
-  #
-  #hnSJBtagged_bcUp.SetLineColor(2)
-  #hnSJBtagged_bcDown.SetLineColor(3)
-  #hnSJBtagged.SetLineColor(4)
   
-  #c_nSJBtagged = ROOT.TCanvas("c_nSJBtagged","N(b tagged subjets)",800,600)
-  #c_nSJBtagged.cd()
-  #hnSJBtagged_bcUp.Draw("hist")
-  #hnSJBtagged_bcDown.Draw("histsame")
-  #hnSJBtagged.Draw("histsame")
-  #c_nSJBtagged.SaveAs(c_nSJBtagged.GetName()+".pdf")
-  #c_nSJBtagged.SaveAs(c_nSJBtagged.GetName()+".root")
-  #
-  #fout = ROOT.TFile("nSJBtagged.root","RECREATE")
-  #fout.cd()
-  #hnSJBtagged.Write()
-  #hnSJBtagged_bcUp.Write()
-  #hnSJBtagged_bcDown.Write()
-  #fout.Close()
-  #
+  hnSJBtagged_bcUp.SetLineColor(2)
+  hnSJBtagged_bcDown.SetLineColor(3)
+  hnSJBtagged.SetLineColor(4)
+  
+  ROOT.gROOT.SetStyle('Plain')
+  ROOT.gStyle.SetOptStat(0)
+
+  c_nSJBtagged = ROOT.TCanvas("c_nSJBtagged_BG"+mass,"N(b tagged subjets)",800,600)
+  c_nSJBtagged.cd()
+  hnSJBtagged_bcUp.Draw("hist")
+  hnSJBtagged_bcDown.Draw("histsame")
+  hnSJBtagged.Draw("histsame")
+
+  leg = ROOT.TLegend(0.12,0.68,0.52,0.88)
+  leg.SetBorderSize(0)
+  leg.SetHeader("BG"+mass)
+  leg.AddEntry(hnSJBtagged, "N(b-tagged subjets)", "l")
+  leg.AddEntry(hnSJBtagged_bcUp, "N(b-tagged subjets): b-tag SF up", "l")
+  leg.AddEntry(hnSJBtagged_bcDown, "N(b-tagged subjets): b-tag SF down", "l")
+  leg.Draw()
+
+  c_nSJBtagged.SaveAs(c_nSJBtagged.GetName()+".pdf")
+  c_nSJBtagged.SaveAs(c_nSJBtagged.GetName()+".root")
+  
+  fout = ROOT.TFile("nSJBtagged_BG"+mass+".root","RECREATE")
+  fout.cd()
+  hnSJBtagged.Write()
+  hnSJBtagged_bcUp.Write()
+  hnSJBtagged_bcDown.Write()
+
+  fout.Close()
+  
   #fout = ROOT.TFile("hmsubtr.root","RECREATE")
   #fout.cd()
   #hmsubtr.Write()
@@ -109,12 +122,15 @@ def plot (f) :
   print " " 
 
 files = [
-"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph_76X.root", 
-"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1400_13TeV-madgraph_76X.root", 
-"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1600_13TeV-madgraph_76X.root", 
-"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1800_13TeV-madgraph_76X.root", 
-"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-2000_13TeV-madgraph_76X.root", 
-"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-2500_13TeV-madgraph_76X.root", 
+"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_29Apr2016/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph_76X.root",
+"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_29Apr2016/BulkGravTohhTohbbhbb_narrow_M-1400_13TeV-madgraph_76X.root",
+"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_29Apr2016/BulkGravTohhTohbbhbb_narrow_M-2000_13TeV-madgraph_76X.root",
+#"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph_76X.root", 
+#"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1400_13TeV-madgraph_76X.root", 
+#"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1600_13TeV-madgraph_76X.root", 
+#"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-1800_13TeV-madgraph_76X.root", 
+#"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-2000_13TeV-madgraph_76X.root", 
+#"~/eos/cms/store/group/phys_b2g/devdatta/HH4b_76X_24Apr2016_V2/BulkGravTohhTohbbhbb_narrow_M-2500_13TeV-madgraph_76X.root", 
 ]
 
 for f in files:
