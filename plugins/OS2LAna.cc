@@ -104,6 +104,7 @@ class OS2LAna : public edm::EDFilter {
     std::map<std::string, TH1D*> h1_             ; 
     std::map<std::string, TH2D*> h2_             ; 
     std::string lep; 
+    PickGenPart genpart                          ;
 };
 
 using namespace std;
@@ -164,7 +165,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
   jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams"),consumesCollector()),
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"),consumesCollector()),   
-  lep                     (iConfig.getParameter<std::string>       ("lep"))  
+  lep                     (iConfig.getParameter<std::string>       ("lep")), 
+  genpart                 (genParams_, consumesCollector()) 
 {
 
   produces<vlq::JetCollection>("tjets") ; 
@@ -543,52 +545,51 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Leptons = lep1 + lep2;
   //TLorentzVector Leptons = zll.at(0).getP4();
 
-  // if (optimizeReco_ && *h_evttype.product() != "EvtType_Data"){
+  if (optimizeReco_ && *h_evttype.product() != "EvtType_Data"){
 
-  //    PickGenPart genpart(genParams_, consumesCollector()) ;
-  //    GenParticleCollection genPartsInfo;
-  //    genPartsInfo = genpart(evt) ;
-  //    // Declare TLorentzVectors to fill with genParticles
-  //    TLorentzVector bGen, bbarGen, q1, q2;// Z1, Z2;
-  //    TLorentzVector qJet, qbarJet, bJet, bbarJet;
-  //    TLorentzVector had_bjet, lep_bjet, had_bGen, lep_bGen;
-  //    bGen = reco.getGen(genPartsInfo, 5, 8000002);
-  //    bbarGen = reco.getGen(genPartsInfo, -5, 8000002);
-  //    q1 = reco.getGen(genPartsInfo, 1, 5, 8000002);
-  //    q2 = reco.getGen(genPartsInfo, -5, -1, 8000002);
+     GenParticleCollection genPartsInfo;
+     genPartsInfo = genpart(evt) ;
+     // Declare TLorentzVectors to fill with genParticles
+     TLorentzVector bGen, bbarGen, q1, q2;// Z1, Z2;
+     TLorentzVector qJet, qbarJet, bJet, bbarJet;
+     TLorentzVector had_bjet, lep_bjet, had_bGen, lep_bGen;
+     bGen = reco.getGen(genPartsInfo, 5, 8000002);
+     bbarGen = reco.getGen(genPartsInfo, -5, 8000002);
+     q1 = reco.getGen(genPartsInfo, 1, 5, 8000002);
+     q2 = reco.getGen(genPartsInfo, -5, -1, 8000002);
 
-  //    qJet = reco.getMatchedJet(q1, goodAK4Jets, 0.3);
-  //    qbarJet = reco.getMatchedJet(q2, goodAK4Jets, 0.3);
-  //    bJet = reco.getMatchedJet(bGen, goodAK4Jets, 0.3);
-  //    bbarJet = reco.getMatchedJet(bbarGen, goodAK4Jets, 0.3);
+     qJet = reco.getMatchedJet(q1, goodAK4Jets, 0.3);
+     qbarJet = reco.getMatchedJet(q2, goodAK4Jets, 0.3);
+     bJet = reco.getMatchedJet(bGen, goodAK4Jets, 0.3);
+     bbarJet = reco.getMatchedJet(bbarGen, goodAK4Jets, 0.3);
 
-  //    //Choose charge of b (Change based on B' mass)
-  //    double bcheck = abs((bGen + q1 + q2).M() - vlqMass_);
-  //    double bbarcheck = abs((bbarGen + q1 + q2).M() - vlqMass_);
-  //    if (bcheck < bbarcheck){
-  //       had_bGen = bGen;
-  //       lep_bGen = bbarGen;
-  //       had_bjet = bJet;
-  //       lep_bjet = bbarJet;
-  //    }
-  //    else {
-  //       had_bGen = bbarGen;
-  //       lep_bGen = bGen;
-  //       had_bjet = bbarJet;
-  //       lep_bjet = bJet;
-  //    }
-  //    double genZ = reco.findInvMass(q1, q2);
-  //    double genB = reco.findInvMass(q1, q2, had_bGen);
-  //    double ZJet = reco.findInvMass(qJet, qbarJet);
-  //    double hadBJet = reco.findInvMass(qJet, qbarJet, had_bjet);
-  //    double lepBJet = reco.findInvMass(lep1, lep2, lep_bjet);
+     //Choose charge of b (Change based on B' mass)
+     double bcheck = abs((bGen + q1 + q2).M() - vlqMass_);
+     double bbarcheck = abs((bbarGen + q1 + q2).M() - vlqMass_);
+     if (bcheck < bbarcheck){
+        had_bGen = bGen;
+        lep_bGen = bbarGen;
+        had_bjet = bJet;
+        lep_bjet = bbarJet;
+     }
+     else {
+        had_bGen = bbarGen;
+        lep_bGen = bGen;
+        had_bjet = bbarJet;
+        lep_bjet = bJet;
+     }
+     double genZ = reco.findInvMass(q1, q2);
+     double genB = reco.findInvMass(q1, q2, had_bGen);
+     double ZJet = reco.findInvMass(qJet, qbarJet);
+     double hadBJet = reco.findInvMass(qJet, qbarJet, had_bjet);
+     double lepBJet = reco.findInvMass(lep1, lep2, lep_bjet);
 
-  //    h1_["genZ"]->Fill(genZ, evtwt);
-  //    h1_["genBMass"] -> Fill(genB, evtwt);
-  //    h1_["ZJetMass"]->Fill(ZJet,evtwt);
-  //    h1_["hadBJetMass"] ->Fill(hadBJet, evtwt);
-  //    h1_["lepBJetMass"] ->Fill(lepBJet, evtwt);
-  // }
+     h1_["genZ"]->Fill(genZ, evtwt);
+     h1_["genBMass"] -> Fill(genB, evtwt);
+     h1_["ZJetMass"]->Fill(ZJet,evtwt);
+     h1_["hadBJetMass"] ->Fill(hadBJet, evtwt);
+     h1_["lepBJetMass"] ->Fill(lepBJet, evtwt);
+  }
   pair<double, double> chi2_result;
   if (goodAK4Jets.size() > 4)
     chi2_result = reco.doReco(goodAK4Jets, bosonMass_, Leptons);
