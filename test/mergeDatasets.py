@@ -6,9 +6,9 @@ from ROOT import TFile
 
 
 # usage description
-usage = """Usage: ./mergeDatasets.py [options]\n
-Example: ./mergeDatasets.py -w LXBatch_Jobs -d datasetListForMerging.txt\n
-For more help: ./mergeDatasets.py  --help
+usage = """Usage: ./count_mergeDatasets.py [options]\n
+Example: ./count_mergeDatasets.py -w LXBatch_Jobs -d datasetListForMerging.txt\n
+For more help: ./count_mergeDatasets.py  --help
 """
 
 def main():
@@ -29,8 +29,8 @@ def main():
                     metavar="OUTPUT_DIR")
 
   parser.add_option("-a", "--analyzer_module", dest="analyzer_module",
-                    help="Name of the analyzer module (This parameter is optional and is set to 'ana' by default)",
-                    default='ana',
+                    help="Name of the analyzer module (This parameter is optional and is set to 'btagval' by default)",
+                    default='btagval',
                     metavar="ANALYZER_MODULE")
 
   (options, args) = parser.parse_args()
@@ -99,6 +99,19 @@ def main():
     print group
     final_histos = {}
 
+    #before scaling
+    _totalFatjets = 0
+    _totalFatjets_b = 0
+    _totalFatjets_bfromg = 0
+    _totalFatjets_c = 0
+    _totalFatjets_l = 0
+
+    #after scaling
+    totalFatjets = 0
+    totalFatjets_b = 0
+    totalFatjets_bfromg = 0
+    totalFatjets_c = 0
+    totalFatjets_l = 0
     for dataset in group_datasets[group]:
       input_root_file  = os.path.join(main_workdir,dataset.lstrip('/').replace('/','__') + '.root')
       if not os.path.isfile(input_root_file):
@@ -108,18 +121,42 @@ def main():
 
       # open input ROOT file
       root_file = TFile(input_root_file)
-      htemp = root_file.Get(os.path.join(options.analyzer_module,'cutflow'))
+      htemp = root_file.Get(os.path.join(options.analyzer_module,'h1_CutFlow_unw'))
       nEventsAll = htemp.GetBinContent(1)
-      nEventsStored = htemp.GetBinContent(1)
+      nEventsStored = htemp.GetBinContent(2)
       scale = 1.
+
+      htemp2 = root_file.Get(os.path.join(options.analyzer_module,'h1_fatjet_pt'))
+      htemp2_b = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_b'))
+      htemp2_bfromg = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_bfromg'))
+      htemp2_c = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_c'))
+      htemp2_l = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_l'))
+      nFatjet = htemp2.GetEntries()
+      nFatjet_b = htemp2_b.GetEntries()
+      nFatjet_bfromg = htemp2_bfromg.GetEntries()
+      nFatjet_c = htemp2_c.GetEntries()
+      nFatjet_l = htemp2_l.GetEntries()
+
       if group_xs[group] > 0.:
         if group_L[group] > 0.:
           scale = (dataset_xs[dataset]*group_L[group])/nEventsAll
         else:
           scale = dataset_xs[dataset]/(group_xs[group]*nEventsAll)
-        print dataset + ' -- Events: %.0f (all), %.0f (stored); relative xs: %.8E; scale: %.8E'%(nEventsAll,nEventsStored,(dataset_xs[dataset]/group_xs[group]),scale)
+        print dataset + ' -- Events: %.0f (all), %.0f (stored); relative xs: %.8E; scale: %.8E; Fatjets: %.0f (b: %.0f,bgsp: %.0f,c: %.0f,l: %.0f); Fatjets (after scale): %0.f (b: %.0f,bgsp: %.0f,c: %.0f,l: %.0f)'%(nEventsAll,nEventsStored,(dataset_xs[dataset]/group_xs[group]),scale,nFatjet,nFatjet_b,nFatjet_bfromg,nFatjet_c,nFatjet_l,scale*nFatjet,scale*nFatjet_b,scale*nFatjet_bfromg,scale*nFatjet_c,scale*nFatjet_l)
       else:
-        print dataset + ' -- Events: %.0f (all), %.0f (stored); scale: %.8E'%(nEventsAll,nEventsStored,scale)
+        print dataset + ' -- Events: %.0f (all), %.0f (stored); scale: %.8E; Fatjets: %.0f; Fatjets (after scale): %0.f'%(nEventsAll,nEventsStored,scale,nFatjet, scale*nFatjet)
+
+      _totalFatjets = _totalFatjets + nFatjet
+      _totalFatjets_b = _totalFatjets_b + nFatjet_b
+      _totalFatjets_bfromg = _totalFatjets_bfromg + nFatjet_bfromg
+      _totalFatjets_c = _totalFatjets_c + nFatjet_c
+      _totalFatjets_l = _totalFatjets_l + nFatjet_l
+
+      totalFatjets = totalFatjets + scale*nFatjet
+      totalFatjets_b = totalFatjets_b + scale*nFatjet_b
+      totalFatjets_bfromg = totalFatjets_bfromg + scale*nFatjet_bfromg
+      totalFatjets_c = totalFatjets_c + scale*nFatjet_c
+      totalFatjets_l = totalFatjets_l + scale*nFatjet_l
 
       # get the number of histograms
       nHistos = root_file.Get(options.analyzer_module).GetListOfKeys().GetEntries()
@@ -129,21 +166,25 @@ def main():
         histoName = root_file.Get(options.analyzer_module).GetListOfKeys()[h].GetName()
         #print histoName
         htemp = root_file.Get(os.path.join(options.analyzer_module,histoName))
-        if htemp.InheritsFrom('TH1'):
 
-          if histoName not in final_histos.keys():
-              final_histos[histoName] = copy.deepcopy(htemp)
-              final_histos[histoName].SetName(group + '__' + histoName)
-              final_histos[histoName].Scale(scale)
-          else:
-            final_histos[histoName].Add(htemp, scale) 
+        if histoName not in final_histos.keys():
+          final_histos[histoName] = copy.deepcopy(htemp)
+          final_histos[histoName].SetName(group + '__' + histoName)
+          final_histos[histoName].Scale(scale)
+        else:
+          final_histos[histoName].Add(htemp, scale)
+
+
+    print ''
+    print 'TOTAL Fatjets (before scale) = %.0f (b: %.0f,bgsp: %.0f,c: %.0f,l: %.0f)'%(_totalFatjets,_totalFatjets_b,_totalFatjets_bfromg,_totalFatjets_c,_totalFatjets_l)
+    print 'TOTAL Fatjets (after scale) = %.0f (b: %.0f,bgsp: %.0f,c: %.0f,l: %.0f)'%(totalFatjets,totalFatjets_b,totalFatjets_bfromg,totalFatjets_c,totalFatjets_l)
 
     output_root_file.cd()
     histos = final_histos.keys()
     histos.sort()
     print "Writing histograms..."
     for histo in histos:
-      #print "Writing histogram: " , final_histos[histo].GetName()
+      print "Writing histogram: " , final_histos[histo].GetName()
       final_histos[histo].Write()
     print 'Done'
 
