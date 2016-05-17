@@ -1,4 +1,59 @@
-probValue = [ 4.8551E-07,
+# From SimGeneral/MixingModule/python/mix_2015_25ns_FallMC_matchData_PoissonOOTPU_cfi.py
+probValue_76X= [
+                0.000108643,
+                0.000388957,
+                0.000332882,
+                0.00038397,
+                0.000549167,
+                0.00105412,
+                0.00459007,
+                0.0210314,
+                0.0573688,
+                0.103986,
+                0.142369,
+                0.157729,
+                0.147685,
+                0.121027,
+                0.08855,
+                0.0582866,
+                0.0348526,
+                0.019457,
+                0.0107907,
+                0.00654313,
+                0.00463195,
+                0.00370927,
+                0.0031137,
+                0.00261141,
+                0.00215499,
+                0.00174491,
+                0.00138268,
+                0.00106731,
+                0.000798828,
+                0.00057785,
+                0.00040336,
+                0.00027161,
+                0.000176535,
+                0.00011092,
+                6.75502e-05,
+                4.00323e-05,
+                2.32123e-05,
+                1.32585e-05,
+                7.51611e-06,
+                4.25902e-06,
+                2.42513e-06,
+                1.39077e-06,
+                8.02452e-07,
+                4.64159e-07,
+                2.67845e-07,
+                1.5344e-07,
+                8.68966e-08,
+                4.84931e-08,
+                2.6606e-08,
+                1.433e-08,
+    ]
+
+# From SimGeneral/MixingModule/python/mix_2015_25ns_Startup_PoissonOOTPU_cfi.py
+probValue_74X = [ 4.8551E-07,
               1.74806E-06,
               3.30868E-06,
               1.62972E-05,
@@ -52,15 +107,15 @@ probValue = [ 4.8551E-07,
               4.8551E-08] 
 
 import os, sys, ROOT
-#SimGeneral/MixingModule/python/mix_2015_25ns_Startup_PoissonOOTPU_cfi.py
 probFunctionVariable = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52]
 
 hmc = ROOT.TH1D("pileup","MC pileup",50,0.,50)
-for ii in range(len(probValue)):
-  print ii, " ", probFunctionVariable[ii]+1, " ", probValue[ii]  
-  hmc.SetBinContent(probFunctionVariable[ii]+1, probValue[ii]) 
+for ii in range(len(probValue_76X)):
+  print ii, " ", probFunctionVariable[ii]+1, " ", probValue_76X[ii]  
+  hmc.SetBinContent(probFunctionVariable[ii]+1, probValue_76X[ii]) 
  
-fout = ROOT.TFile("PUDistMC_2015_25ns_Startup_PoissonOOTPU.root","RECREATE")
+#fout = ROOT.TFile("PUDistMC_2015_25ns_Startup_PoissonOOTPU.root","RECREATE")
+fout = ROOT.TFile("PUDistMC_2015_25ns_FallMC_matchData_PoissonOOTPU.root","RECREATE")
 fout.cd()
 hmc.Write()
 fout.Close()
