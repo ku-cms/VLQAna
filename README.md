@@ -1,4 +1,4 @@
-setenv SCRAM_ARCH slc6_amd64_gcc491
+setenv SCRAM_ARCH slc6_amd64_gcc493
 
 cmsrel CMSSW_7_6_3_patch2
 
