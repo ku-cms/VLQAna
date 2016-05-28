@@ -44,6 +44,11 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   t_jetHadronFlavour  = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetPartonFlavourLabel") );
   t_jetPartonFlavour  = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetHadronFlavourLabel") );
   t_jetCSV            = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCSVLabel")           );
+  t_jetCMVA           = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCMVALabel")          );
+  t_jetCvsB           = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCvsBLabel")          );
+  t_jetCvsL           = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCvsLLabel")          );
+  t_jetDoubleBAK8     = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetDoubleBAK8Label")    );
+  t_jetDoubleBCA15    = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetDoubleBCA15Label")   );
   t_jetJEC            = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetJECLabel")           );
   t_jetnHadEnergy     = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetnHadEnergyLabel")    );
   t_jetnEMEnergy      = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetnEMEnergyLabel")     );
@@ -57,6 +62,8 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   t_jetGenJetPt       = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetPtLabel")      );
   t_jetGenJetEta      = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetEtaLabel")     );
   t_jetGenJetPhi      = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetPhiLabel")     );
+  t_jetGenJetE        = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetELabel")       );
+  t_jetGenJetCharge   = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetChargeLabel")  );
 
   if ( type_ == AK8JET ) {
     t_jettau1           = iC.consumes<vector<float>>(JetSubstrParams_.getParameter<edm::InputTag> ("jettau1Label")         );
@@ -74,9 +81,12 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
     t_ak8sjPhi          = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetEtaLabel")          );
     t_ak8sjMass         = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetMassLabel")         );
     t_ak8sjCSV          = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetCSVLabel")          );
+    t_ak8sjCMVA         = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetCMVALabel")         );
     t_ak8sjGenJetPt     = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetGenJetPtLabel")     );
     t_ak8sjGenJetEta    = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetGenJetEtaLabel")    );
     t_ak8sjGenJetPhi    = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetGenJetPhiLabel")    );
+    t_ak8sjGenJetE      = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetGenJetELabel")      );
+    t_ak8sjGenJetCharge = iC.consumes<vector<float>>(SubjetParams_   .getParameter<edm::InputTag> ("jetGenJetChargeLabel") );
   }
 
   idxjetPtMin_ = iConfig.getParameter<double>("jetPtMin")  ;
@@ -144,6 +154,11 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
   Handle <vector<float>>  h_jetHadronFlavour  ; evt.getByToken (t_jetHadronFlavour    , h_jetHadronFlavour  );
   Handle <vector<float>>  h_jetPartonFlavour  ; evt.getByToken (t_jetPartonFlavour    , h_jetPartonFlavour  );
   Handle <vector<float>>  h_jetCSV            ; evt.getByToken (t_jetCSV              , h_jetCSV            );
+  Handle <vector<float>>  h_jetCMVA           ; evt.getByToken (t_jetCMVA             , h_jetCMVA           );
+  Handle <vector<float>>  h_jetCvsB           ; evt.getByToken (t_jetCvsB             , h_jetCvsB           );
+  Handle <vector<float>>  h_jetCvsL           ; evt.getByToken (t_jetCvsL             , h_jetCvsL           );
+  Handle <vector<float>>  h_jetDoubleBAK8     ; evt.getByToken (t_jetDoubleBAK8       , h_jetDoubleBAK8     );
+  Handle <vector<float>>  h_jetDoubleBCA15    ; evt.getByToken (t_jetDoubleBCA15      , h_jetDoubleBCA15    );
   Handle <vector<float>>  h_jetJEC            ; evt.getByToken (t_jetJEC              , h_jetJEC            );
   Handle <vector<float>>  h_jetnHadEnergy     ; evt.getByToken (t_jetnHadEnergy       , h_jetnHadEnergy     );
   Handle <vector<float>>  h_jetnEMEnergy      ; evt.getByToken (t_jetnEMEnergy        , h_jetnEMEnergy      );
@@ -154,6 +169,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
   Handle <vector<float>>  h_jetcMultip        ; evt.getByToken (t_jetcMultip          , h_jetcMultip        );
   Handle <vector<float>>  h_jetY              ; evt.getByToken (t_jetY                , h_jetY              );
   Handle <vector<float>>  h_jetArea           ; evt.getByToken (t_jetArea             , h_jetArea           );
+  Handle <vector<float>>  h_jetGenJetE        ; evt.getByToken (t_jetGenJetE          , h_jetGenJetE        );
   Handle <vector<float>>  h_jetGenJetEta      ; evt.getByToken (t_jetGenJetEta        , h_jetGenJetEta      );
   Handle <vector<float>>  h_jetGenJetPt       ; evt.getByToken (t_jetGenJetPt         , h_jetGenJetPt       );
   Handle <vector<float>>  h_jetGenJetPhi      ; evt.getByToken (t_jetGenJetPhi        , h_jetGenJetPhi      );
@@ -257,6 +273,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         jetCSVDisc >  idxjetCSVDiscMax_ 
        ) continue ; 
 
+    TLorentzVector genJetP4;
+    genJetP4.SetPtEtaPhiE((h_jetGenJetPt.product())->at(ijet), 
+        (h_jetGenJetEta.product())->at(ijet),
+        (h_jetGenJetPhi.product())->at(ijet),
+        (h_jetGenJetE.product())->at(ijet));
+
     //// Jet to put in the jet collection
     vlq::Jet jet ; 
 
@@ -278,6 +300,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       double vjetssj0Phi   (-1000) ;
       double vjetssj0Mass  (-1000) ;
       double vjetssj0CSV   (-1000) ;
+      double vjetssj0CMVA  (-1000) ;
 
       double vjetssj1HadFl (-1000) ; 
       double vjetssj1Pt    (-1000) ;
@@ -285,9 +308,11 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       double vjetssj1Phi   (-1000) ;
       double vjetssj1Mass  (-1000) ;
       double vjetssj1CSV   (-1000) ;
+      double vjetssj1CMVA  (-1000) ;
 
       int nsubjetsbtaggedcsvl(0) ; 
       TLorentzVector p4sj0, p4sj1; 
+      TLorentzVector p4gensj0, p4gensj1;
 
       Handle <vector<float>>  h_jettau1           ; evt.getByToken (t_jettau1             , h_jettau1        );
       Handle <vector<float>>  h_jettau2           ; evt.getByToken (t_jettau2             , h_jettau2        );
@@ -302,9 +327,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       Handle <vector<float>>  h_ak8sjPhi          ; evt.getByToken (t_ak8sjPhi            , h_ak8sjPhi       );
       Handle <vector<float>>  h_ak8sjMass         ; evt.getByToken (t_ak8sjMass           , h_ak8sjMass      );
       Handle <vector<float>>  h_ak8sjCSV          ; evt.getByToken (t_ak8sjCSV            , h_ak8sjCSV       );
+      Handle <vector<float>>  h_ak8sjCMVA         ; evt.getByToken (t_ak8sjCMVA           , h_ak8sjCMVA      );
       Handle <vector<float>>  h_ak8sjGenJetPt     ; evt.getByToken (t_ak8sjGenJetPt       , h_ak8sjGenJetPt  );
       Handle <vector<float>>  h_ak8sjGenJetEta    ; evt.getByToken (t_ak8sjGenJetEta      , h_ak8sjGenJetEta );
       Handle <vector<float>>  h_ak8sjGenJetPhi    ; evt.getByToken (t_ak8sjGenJetPhi      , h_ak8sjGenJetPhi );
+      Handle <vector<float>>  h_ak8sjGenJetE      ; evt.getByToken (t_ak8sjGenJetE        , h_ak8sjGenJetE   );
+      Handle <vector<float>>  h_ak8sjGenJetCharge ; evt.getByToken (t_ak8sjGenJetCharge   , h_ak8sjGenJetE   );
       Handle <vector<float>>  h_vjetsjIdx0        ; evt.getByToken (t_vjetsjIdx0          , h_vjetsjIdx0     );
       Handle <vector<float>>  h_vjetsjIdx1        ; evt.getByToken (t_vjetsjIdx1          , h_vjetsjIdx1     );
 
@@ -361,8 +389,13 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         vjetssj0Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx0) ; 
         vjetssj0Mass    = (h_ak8sjMass.product())->at(vjetsjIdx0) ; 
         vjetssj0CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx0) ; 
+        vjetssj0CMVA    = (h_ak8sjCMVA.product())->at(vjetsjIdx0) ; 
         p4sj0.SetPtEtaPhiM(vjetssj0Pt, vjetssj0Eta, vjetssj0Phi, vjetssj0Mass) ; 
         p4sj0 *= ptsmear * newJEC  * (1 + jecShift_*unc);
+        p4gensj0.SetPtEtaPhiE((h_ak8sjGenJetPt.product())->at(vjetsjIdx0), 
+            (h_ak8sjGenJetEta.product())->at(vjetsjIdx0),
+            (h_ak8sjGenJetPhi.product())->at(vjetsjIdx0),
+            (h_ak8sjGenJetE.product())->at(vjetsjIdx0));
       }
       if (vjetsjIdx1 >= 0) {
         vjetssj1HadFl   = (h_ak8sjHadFl.product())->at(vjetsjIdx1) ; 
@@ -371,8 +404,13 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         vjetssj1Phi     = (h_ak8sjPhi.product())->at(vjetsjIdx1) ; 
         vjetssj1Mass    = (h_ak8sjMass.product())->at(vjetsjIdx1) ; 
         vjetssj1CSV     = (h_ak8sjCSV.product())->at(vjetsjIdx1) ; 
+        vjetssj1CMVA    = (h_ak8sjCMVA.product())->at(vjetsjIdx1) ; 
         p4sj1.SetPtEtaPhiM(vjetssj1Pt, vjetssj1Eta, vjetssj1Phi, vjetssj1Mass) ; 
         p4sj1 *= ptsmear * newJEC  * (1 + jecShift_*unc);
+        p4gensj1.SetPtEtaPhiE((h_ak8sjGenJetPt.product())->at(vjetsjIdx1), 
+            (h_ak8sjGenJetEta.product())->at(vjetsjIdx1),
+            (h_ak8sjGenJetPhi.product())->at(vjetsjIdx1),
+            (h_ak8sjGenJetE.product())->at(vjetsjIdx1));
       }
 
       if ( vjetssj0CSV >= btaggedcsvlOP_ ) ++nsubjetsbtaggedcsvl ; 
@@ -416,6 +454,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         jet.setEtaSubjet1   ( p4sj1.Eta() ) ;
         jet.setCSVSubjet0   ( vjetssj0CSV ) ;
         jet.setCSVSubjet1   ( vjetssj1CSV ) ;
+        jet.setCMVASubjet0  ( vjetssj0CMVA ) ;
+        jet.setCMVASubjet1  ( vjetssj1CMVA ) ;
         jet.setNConsts      ( (h_jetnumDaughters.product())->at(ijet) ) ;
         jet.setGroomedMassCorr (masssmear * massCorr * (1 + jecShift_*unc) ) ; 
         jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ; 
@@ -431,6 +471,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     jet.setPartonFlavour( (h_jetPartonFlavour.product())->at(ijet) ) ;  
     jet.setHadronFlavour( (h_jetHadronFlavour.product())->at(ijet) ) ;  
     jet.setCSV          ( (h_jetCSV.product())->at(ijet) ) ;  
+    jet.setCMVA         ( (h_jetCMVA.product())->at(ijet) ) ;  
+    jet.setCvsB         ( (h_jetCvsB.product())->at(ijet) ) ;  
+    jet.setCvsL         ( (h_jetCvsL.product())->at(ijet) ) ;  
+    jet.setDoubleBAK8   ( (h_jetDoubleBAK8.product())->at(ijet) ) ;  
+    jet.setDoubleBCA15  ( (h_jetDoubleBCA15.product())->at(ijet) ) ;  
+    jet.setGenJetP4     (genJetP4);
     jets.push_back(jet) ; 
 
 #if DEBUGMORE

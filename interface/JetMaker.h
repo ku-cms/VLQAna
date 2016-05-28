@@ -75,6 +75,11 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_jetPartonFlavour   ; 
     edm::EDGetTokenT<std::vector<float>> t_jetHadronFlavour   ; 
     edm::EDGetTokenT<std::vector<float>> t_jetCSV             ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetCMVA            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetCvsB            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetCvsL            ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetDoubleBAK8      ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetDoubleBCA15     ; 
     edm::EDGetTokenT<std::vector<float>> t_jetJEC             ; 
     edm::EDGetTokenT<std::vector<float>> t_jetnHadEnergy      ;
     edm::EDGetTokenT<std::vector<float>> t_jetnEMEnergy       ;
@@ -88,6 +93,8 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_jetGenJetPt        ; 
     edm::EDGetTokenT<std::vector<float>> t_jetGenJetEta       ; 
     edm::EDGetTokenT<std::vector<float>> t_jetGenJetPhi       ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetGenJetE         ; 
+    edm::EDGetTokenT<std::vector<float>> t_jetGenJetCharge    ; 
     edm::EDGetTokenT<std::vector<float>> t_jettau1            ; 
     edm::EDGetTokenT<std::vector<float>> t_jettau2            ; 
     edm::EDGetTokenT<std::vector<float>> t_jettau3            ; 
@@ -104,9 +111,12 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_ak8sjPhi           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjMass          ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjCSV           ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjCMVA          ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetPt      ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetEta     ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetPhi     ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetE       ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetCharge  ; 
     double                    jecShift_ ; 
     int                       jerShift_ ; 
     std::vector<std::string>  newJECPayloadNames_;
