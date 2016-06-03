@@ -42,6 +42,8 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
 
   typedef edm::Handle <std::vector<float>> hfloat ; 
 
+  genParts_.clear();
+
   hfloat h_genPartPt            ; evt.getByToken(t_genPartPt            , h_genPartPt           ) ;  
   hfloat h_genPartEta           ; evt.getByToken(t_genPartEta           , h_genPartEta          ) ;  
   hfloat h_genPartPhi           ; evt.getByToken(t_genPartPhi           , h_genPartPhi          ) ;  
