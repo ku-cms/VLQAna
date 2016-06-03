@@ -16,13 +16,84 @@ class BTagSFUtils {
     std::unique_ptr<BTagCalibrationReader>  readerUp_   ; 
     std::unique_ptr<BTagCalibrationReader>  readerDown_ ; 
 
+    BTagEntry::OperatingPoint op_ ; 
+    const double bfl_ptMin_ ;
+    const double bfl_ptMax_ ;
+    const double cfl_ptMin_ ;
+    const double cfl_ptMax_ ;
+    const double lfl_ptMin_ ;
+    const double lfl_ptMax_ ;
+
   public: 
+
+    BTagSFUtils (const std::string reader, 
+        const BTagEntry::OperatingPoint op,
+        const double bfl_ptMin, const double bfl_ptMax,
+        const double cfl_ptMin, const double cfl_ptMax,
+        const double lfl_ptMin, const double lfl_ptMax 
+        ) : 
+      calib_          (new BTagCalibration("CSVv2",reader)), 
+      reader_         (new BTagCalibrationReader(op,"central")), 
+      readerUp_       (new BTagCalibrationReader(op,"up")), 
+      readerDown_     (new BTagCalibrationReader(op,"down")),  
+      op_(op),
+      bfl_ptMin_ (bfl_ptMin),
+      bfl_ptMax_ (bfl_ptMax),
+      cfl_ptMin_ (cfl_ptMin),
+      cfl_ptMax_ (cfl_ptMax),
+      lfl_ptMin_ (lfl_ptMin),
+      lfl_ptMax_ (lfl_ptMax) 
+  {
+    reader_->load(*calib_,     // calibration instance
+        BTagEntry::BTagEntry::FLAV_B,     // btag flavour
+        "mujets") ;            // measurement type
+
+    reader_->load(*calib_,     // calibration instance
+        BTagEntry::BTagEntry::FLAV_C,     // btag flavour
+        "mujets") ;            // measurement type
+
+    reader_->load(*calib_,     // calibration instance
+        BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
+        "incl") ;              // measurement type
+
+    readerUp_->load(*calib_,   // calibration instance
+        BTagEntry::BTagEntry::FLAV_B,     // btag flavour
+        "mujets") ;            // measurement type
+
+    readerUp_->load(*calib_,   // calibration instance
+        BTagEntry::BTagEntry::FLAV_C,     // btag flavour
+        "mujets") ;            // measurement type
+
+    readerUp_->load(*calib_,   // calibration instance
+        BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
+        "incl") ;              // measurement type
+
+    readerDown_->load(*calib_, // calibration instance
+        BTagEntry::BTagEntry::FLAV_B,     // btag flavour
+        "mujets") ;            // measurement type
+
+    readerDown_->load(*calib_, // calibration instance
+        BTagEntry::BTagEntry::FLAV_C,     // btag flavour
+        "mujets") ;            // measurement type
+
+    readerDown_->load(*calib_, // calibration instance
+        BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
+        "incl") ;              // measurement type
+
+  }
 
     BTagSFUtils () : 
       calib_          (new BTagCalibration("CSVv2","CSVv2_subjets_76X.csv")), 
       reader_         (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"central")), 
       readerUp_       (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"up")), 
-      readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")) 
+      readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")),
+      op_(BTagEntry::OP_LOOSE),
+      bfl_ptMin_ (30.),
+      bfl_ptMax_ (420.),
+      cfl_ptMin_ (30.),
+      cfl_ptMax_ (420.),
+      lfl_ptMin_ (20.),
+      lfl_ptMax_ (1000.) 
   {
     reader_->load(*calib_,     // calibration instance
         BTagEntry::BTagEntry::FLAV_B,     // btag flavour
@@ -88,13 +159,13 @@ class BTagSFUtils {
         double pt = jetpts.at(idx.first) ; 
         double uncscale(1.) ; 
         if ( fl == 0 || fl == 1) {
-          if ( pt < 30. ) { pt = 30.01 ; uncscale *= 2 ; } 
-          if ( pt > 420. ) { pt = 419.99 ; uncscale *= 2 ; } 
+          if ( pt < bfl_ptMin_ ) { pt = 30.01 ; uncscale *= 2 ; } 
+          if ( pt > bfl_ptMax_ ) { pt = 419.99 ; uncscale *= 2 ; } 
           if ( fl == 1 ) uncscale *= 2 ; 
         }
         else {
-          if ( pt < 20. ) { pt =20.01 ; uncscale *= 2 ; }
-          if ( pt > 1000. ) { pt = 999.99 ; uncscale *= 2; }
+          if ( pt < lfl_ptMin_ ) { pt =20.01 ; uncscale *= 2 ; }
+          if ( pt > lfl_ptMax_ ) { pt = 999.99 ; uncscale *= 2; }
         }
         jetpts.at(idx.first) = pt ; 
         uncscales.push_back(uncscale) ; 
@@ -112,7 +183,9 @@ class BTagSFUtils {
         double sfDown = readerDown_->eval(fl,eta,pt) ; 
         double dsfUp = sfUp - sf ; 
         double dsfDown = sfDown - sf ;
-        double eff = BTagSFUtils::getBTagEff_CSVv2L(pt,flhad) ; 
+        double eff = 1.0;
+        if ( op_ == BTagEntry::OP_LOOSE) BTagSFUtils::getBTagEff_CSVv2L(pt,flhad) ; 
+        else if ( op_ == BTagEntry::OP_MEDIUM) BTagSFUtils::getBTagEff_CSVv2M(pt,flhad) ; 
         double uncscale = uncscales.at(idx.first) ; 
         sfs.push_back(sf) ; 
         sfsUp.push_back(sfUp) ; 
@@ -128,9 +201,9 @@ class BTagSFUtils {
 
         if ( boost::math::isnan(sf) || boost::math::isnan(sfUp) || boost::math::isnan(sfUpabs))
           std::cout << " sf = " << sf << " is nan = " << boost::math::isnan(sf) << std::endl << 
-          std::cout << " sfUp = " << sfUp << " is nan = " << boost::math::isnan(sfUp) << std::endl << 
-          std::cout << " dsfUp = " << dsfUp << " is nan = " << boost::math::isnan(dsfUp) << std::endl << 
-          std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
+            std::cout << " sfUp = " << sfUp << " is nan = " << boost::math::isnan(sfUp) << std::endl << 
+            std::cout << " dsfUp = " << dsfUp << " is nan = " << boost::math::isnan(dsfUp) << std::endl << 
+            std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
 
         double jetcsv = jetcsvs.at(idx.first) ; 
         if ( jetcsv >= csvMin ) { 
@@ -190,6 +263,20 @@ class BTagSFUtils {
         if (jetFl == 5) eff = 0.8 ; 
         else if (jetFl == 4) eff = 0.3 ; 
         else if (jetFl == 0) eff = 0.1 ; 
+        else eff = 0.; 
+      }
+      else eff = 0.; 
+      return eff ;
+    }
+
+    static double getBTagEff_CSVv2M (double pt, double jetFl) {
+
+      double eff(1) ; 
+      jetFl = abs(jetFl) ; 
+      if ( pt > 0 ) {
+        if (jetFl == 5) eff = 0.6 ; 
+        else if (jetFl == 4) eff = 0.2 ; 
+        else if (jetFl == 0) eff = 0.01 ; 
         else eff = 0.; 
       }
       else eff = 0.; 

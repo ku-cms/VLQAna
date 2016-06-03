@@ -29,14 +29,6 @@ class JetMaker {
     void operator()(edm::Event& evt, vlq::JetCollection& jetOut) ;
     void operator()(vlq::JetCollection jetsIn, vlq::JetCollection& jetsOut) ;
 
-  private:
-    edm::ParameterSet JetIDParams_ ; 
-    edm::ParameterSet JetSubstrParams_ ; 
-    edm::ParameterSet SubjetParams_ ; 
-
-    bool         scaleJetP4_     ;
-    double       scaledJetMass_  ; 
-
     double idxjetPtMin_          ;
     double idxjetPtMax_          ;
     double idxjetAbsEtaMax_      ;
@@ -61,6 +53,14 @@ class JetMaker {
     double idxsjCSVMax_          ; 
     double idxsjHighestCSVMin_   ; 
     double idxsjHighestCSVMax_   ; 
+  private:
+    edm::ParameterSet JetIDParams_ ; 
+    edm::ParameterSet JetSubstrParams_ ; 
+    edm::ParameterSet SubjetParams_ ; 
+
+    bool         scaleJetP4_     ;
+    double       scaledJetMass_  ; 
+
     double btaggedcsvlOP_        ; 
     double btaggedcsvmOP_        ; 
     double btaggedcsvtOP_        ; 

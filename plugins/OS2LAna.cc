@@ -50,7 +50,10 @@ Implementation:
 #include "Analysis/VLQAna/interface/PickGenPart.h"
 #include "Analysis/VLQAna/interface/JetID.h"
 #include "Analysis/VLQAna/interface/MassReco.h"
+#include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
+#include <TFile.h>
+#include <TF1.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TLorentzVector.h>
@@ -69,6 +72,7 @@ class OS2LAna : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
     void fillAdditionalPlots( vlq::ElectronCollection goodElectrons,double evtwt);
+    double GetDYNLOCorr(const double dileppt); 
     // ----------member data ---------------------------
     edm::EDGetTokenT<string>   t_evttype         ;
     edm::EDGetTokenT<double>   t_evtwtGen        ;
@@ -90,6 +94,10 @@ class OS2LAna : public edm::EDFilter {
     const double vlqMass_                        ;
     const double bosonMass_                      ;
     const bool applyLeptonSFs_                   ;
+    const bool applyBTagSFs_                     ;
+    const bool applyDYNLOCorr_                   ;
+    const std::string fname_DYNLOCorr_           ; 
+    const std::string funname_DYNLOCorr_         ; 
     ApplyLeptonSFs lepsfs                        ;
     METMaker metmaker                            ;
     MuonMaker muonmaker                          ; 
@@ -105,6 +113,9 @@ class OS2LAna : public edm::EDFilter {
     std::map<std::string, TH2D*> h2_             ; 
     std::string lep; 
     PickGenPart genpart                          ;
+    const std::string fnamebtagSF_               ;
+    std::unique_ptr<BTagSFUtils> btagsfutils_    ; 
+
 };
 
 using namespace std;
@@ -155,6 +166,10 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   vlqMass_                (iConfig.getParameter<double>            ("vlqMass")),
   bosonMass_              (iConfig.getParameter<double>            ("bosonMass")),
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
+  applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")), 
+  applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")), 
+  fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
+  funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
   metmaker                (iConfig.getParameter<edm::ParameterSet> ("metselParams"),consumesCollector()),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector()),
@@ -166,7 +181,9 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetWTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetWTaggedselParams"),consumesCollector()),
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"),consumesCollector()),   
   lep                     (iConfig.getParameter<std::string>       ("lep")), 
-  genpart                 (genParams_, consumesCollector()) 
+  genpart                 (genParams_, consumesCollector()),
+  fnamebtagSF_            (iConfig.getParameter<std::string>       ("fnamebtagSF")),
+  btagsfutils_            (new BTagSFUtils(fnamebtagSF_,BTagEntry::OP_MEDIUM,30., 670., 30., 670., 20., 1000.))
 {
 
   produces<vlq::JetCollection>("tjets") ; 
@@ -229,7 +246,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //dilepton candidate
   if (zdecayMode_ == "zmumu") {dileptons = dimuons; }
   else if (zdecayMode_ == "zelel") {dileptons = dielectrons;}
-  if (dileptons.size() < 1) return false;
+  if (dileptons.size()  < 1) return false;
+
+  //// Get Dy EWK correction
+  if ( applyDYNLOCorr_ ) {
+    double EWKNLOkfact(GetDYNLOCorr(dileptons.at(0).getPt())) ; 
+    evtwt *= EWKNLOkfact ;
+  }
 
   //get lepton ID and Iso SF
   if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") {
@@ -336,8 +359,33 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //b-tagging:
   vlq::JetCollection goodBTaggedAK4Jets;
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
+
   if (zdecayMode_ == "zmumu") {cleanjets(goodBTaggedAK4Jets, goodMuons); }
   else if (zdecayMode_ == "zelel") {cleanjets(goodBTaggedAK4Jets, goodElectrons); }  
+
+  double btagsf(1) ;
+  double btagsf_bcUp(1) ; 
+  double btagsf_bcDown(1) ; 
+  double btagsf_lUp(1) ; 
+  double btagsf_lDown(1) ; 
+  if ( applyBTagSFs_ ) {
+     std::vector<double>csvs;
+     std::vector<double>pts;
+     std::vector<double>etas;
+     std::vector<int>   flhads;
+
+     for (vlq::Jet jet : goodAK4Jets) {
+       csvs.push_back(jet.getCSV()) ; 
+       pts.push_back(jet.getPt()) ; 
+       etas.push_back(jet.getEta()) ; 
+       flhads.push_back(jet.getHadronFlavour()) ; 
+     }
+
+     btagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetAK4maker.idxjetCSVDiscMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+
+     std::cout << " btag sf = " << btagsf << " bc Up = " << btagsf_bcUp << " btagsf_bcDown = " 
+       << btagsf_bcDown << " btagsf_lUp " << btagsf_lUp << " btagsf_lDown " << btagsf_lDown << std::endl;  
+  }
 
   //fill control plots
   if ( goodBTaggedAK4Jets.size() > 0 && ST < 700) {
@@ -547,48 +595,48 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if (optimizeReco_ && *h_evttype.product() != "EvtType_Data"){
 
-     GenParticleCollection genPartsInfo;
-     genPartsInfo = genpart(evt) ;
-     // Declare TLorentzVectors to fill with genParticles
-     TLorentzVector bGen, bbarGen, q1, q2;// Z1, Z2;
-     TLorentzVector qJet, qbarJet, bJet, bbarJet;
-     TLorentzVector had_bjet, lep_bjet, had_bGen, lep_bGen;
-     bGen = reco.getGen(genPartsInfo, 5, 8000002);
-     bbarGen = reco.getGen(genPartsInfo, -5, 8000002);
-     q1 = reco.getGen(genPartsInfo, 1, 5, 8000002);
-     q2 = reco.getGen(genPartsInfo, -5, -1, 8000002);
+    GenParticleCollection genPartsInfo;
+    genPartsInfo = genpart(evt) ;
+    // Declare TLorentzVectors to fill with genParticles
+    TLorentzVector bGen, bbarGen, q1, q2;// Z1, Z2;
+    TLorentzVector qJet, qbarJet, bJet, bbarJet;
+    TLorentzVector had_bjet, lep_bjet, had_bGen, lep_bGen;
+    bGen = reco.getGen(genPartsInfo, 5, 8000002);
+    bbarGen = reco.getGen(genPartsInfo, -5, 8000002);
+    q1 = reco.getGen(genPartsInfo, 1, 5, 8000002);
+    q2 = reco.getGen(genPartsInfo, -5, -1, 8000002);
 
-     qJet = reco.getMatchedJet(q1, goodAK4Jets, 0.3);
-     qbarJet = reco.getMatchedJet(q2, goodAK4Jets, 0.3);
-     bJet = reco.getMatchedJet(bGen, goodAK4Jets, 0.3);
-     bbarJet = reco.getMatchedJet(bbarGen, goodAK4Jets, 0.3);
+    qJet = reco.getMatchedJet(q1, goodAK4Jets, 0.3);
+    qbarJet = reco.getMatchedJet(q2, goodAK4Jets, 0.3);
+    bJet = reco.getMatchedJet(bGen, goodAK4Jets, 0.3);
+    bbarJet = reco.getMatchedJet(bbarGen, goodAK4Jets, 0.3);
 
-     //Choose charge of b (Change based on B' mass)
-     double bcheck = abs((bGen + q1 + q2).M() - vlqMass_);
-     double bbarcheck = abs((bbarGen + q1 + q2).M() - vlqMass_);
-     if (bcheck < bbarcheck){
-        had_bGen = bGen;
-        lep_bGen = bbarGen;
-        had_bjet = bJet;
-        lep_bjet = bbarJet;
-     }
-     else {
-        had_bGen = bbarGen;
-        lep_bGen = bGen;
-        had_bjet = bbarJet;
-        lep_bjet = bJet;
-     }
-     double genZ = reco.findInvMass(q1, q2);
-     double genB = reco.findInvMass(q1, q2, had_bGen);
-     double ZJet = reco.findInvMass(qJet, qbarJet);
-     double hadBJet = reco.findInvMass(qJet, qbarJet, had_bjet);
-     double lepBJet = reco.findInvMass(lep1, lep2, lep_bjet);
+    //Choose charge of b (Change based on B' mass)
+    double bcheck = abs((bGen + q1 + q2).M() - vlqMass_);
+    double bbarcheck = abs((bbarGen + q1 + q2).M() - vlqMass_);
+    if (bcheck < bbarcheck){
+      had_bGen = bGen;
+      lep_bGen = bbarGen;
+      had_bjet = bJet;
+      lep_bjet = bbarJet;
+    }
+    else {
+      had_bGen = bbarGen;
+      lep_bGen = bGen;
+      had_bjet = bbarJet;
+      lep_bjet = bJet;
+    }
+    double genZ = reco.findInvMass(q1, q2);
+    double genB = reco.findInvMass(q1, q2, had_bGen);
+    double ZJet = reco.findInvMass(qJet, qbarJet);
+    double hadBJet = reco.findInvMass(qJet, qbarJet, had_bjet);
+    double lepBJet = reco.findInvMass(lep1, lep2, lep_bjet);
 
-     h1_["genZ"]->Fill(genZ, evtwt);
-     h1_["genBMass"] -> Fill(genB, evtwt);
-     h1_["ZJetMass"]->Fill(ZJet,evtwt);
-     h1_["hadBJetMass"] ->Fill(hadBJet, evtwt);
-     h1_["lepBJetMass"] ->Fill(lepBJet, evtwt);
+    h1_["genZ"]->Fill(genZ, evtwt);
+    h1_["genBMass"] -> Fill(genB, evtwt);
+    h1_["ZJetMass"]->Fill(ZJet,evtwt);
+    h1_["hadBJetMass"] ->Fill(hadBJet, evtwt);
+    h1_["lepBJetMass"] ->Fill(lepBJet, evtwt);
   }
   pair<double, double> chi2_result;
   if (goodAK4Jets.size() > 4)
@@ -750,6 +798,15 @@ void OS2LAna::beginJob() {
     h1_["D0_EB_el_pre"] = pre.make<TH1D>("D0_EB_el_pre", ";d0 (EB);;", 100,-0.1,0.1) ;
     h1_["D0_EE_el_pre"] = pre.make<TH1D>("D0_EE_el_pre", ";d0 (EE);;", 100,-0.1,0.1) ;
   }
+
+}
+
+double OS2LAna::GetDYNLOCorr(const double dileppt) {
+
+  std::unique_ptr<TFile >file_DYNLOCorr = std::unique_ptr<TFile>(new TFile(fname_DYNLOCorr_.c_str())) ;
+  std::unique_ptr<TF1>fun_DYNLOCorr = std::unique_ptr<TF1>(dynamic_cast<TF1*>(file_DYNLOCorr->Get(funname_DYNLOCorr_.c_str()))) ; 
+  double EWKNLOkfact = fun_DYNLOCorr->Eval(dileppt);
+  return EWKNLOkfact; 
 
 }
 

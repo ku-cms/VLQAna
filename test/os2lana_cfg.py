@@ -43,6 +43,16 @@ options.register('applyLeptonSFs', True,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
+options.register('applyBTagSFs', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Apply b-tagging SFs to the MC"
+    )
+options.register('applyDYNLOCorr', False, ### Set to true only for DY process ### Only EWK NLO k-factor is applied
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Apply DY EWK k-factor to DY MC"
+    )
 options.register('FileNames', 'FileNames_QCD_HT1000to1500',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
@@ -64,6 +74,8 @@ if options.isData:
   options.signalType = "" 
   options.optimizeReco = False
   options.applyLeptonSFs = False 
+  options.applyBTagSFs   = False 
+  options.applyDYNLOCorr = False 
   if options.zdecaymode == "zmumu":
     hltpaths = [
         "HLT_DoubleIsoMu17_eta2p1_v", 
@@ -91,7 +103,8 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
       #FileNames[options.FileNames]
       #'file:/afs/cern.ch/work/d/devdatta/CMSREL/B2GAnaFW_76X/CMSSW_7_6_3_patch2/src/Analysis/B2GAnaFW/test/B2GEDMNtuple_DYJets_M50Madgraph.root',
-      'root://cms-xrd-global.cern.ch//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TT_TuneCUETP8M1noCR_13TeV-powheg-pythia8/B2GAnaFW_76X_V1p1_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160401_092930/0000/B2GEDMNtuple_13.root'
+      '/store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_76X_V1p1_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160401_102909/0000/B2GEDMNtuple_1.root'
+      #'root://cms-xrd-global.cern.ch//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TT_TuneCUETP8M1noCR_13TeV-powheg-pythia8/B2GAnaFW_76X_V1p1_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160401_092930/0000/B2GEDMNtuple_13.root'
     ) 
     )
 
@@ -113,6 +126,7 @@ process.ana = ana.clone(
     signalType = cms.string(options.signalType),
     zdecayMode = cms.string(options.zdecaymode),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
+    applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     optimizeReco = cms.bool(options.optimizeReco),
     )
 process.ana.elselParams.elidtype = cms.string(options.lepID)
