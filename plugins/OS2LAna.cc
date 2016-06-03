@@ -383,8 +383,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
      btagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetAK4maker.idxjetCSVDiscMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
-     std::cout << " btag sf = " << btagsf << " bc Up = " << btagsf_bcUp << " btagsf_bcDown = " 
-       << btagsf_bcDown << " btagsf_lUp " << btagsf_lUp << " btagsf_lDown " << btagsf_lDown << std::endl;  
   }
 
   //fill control plots
