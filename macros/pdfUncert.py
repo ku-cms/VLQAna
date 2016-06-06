@@ -17,7 +17,13 @@ passevtwt=0.
 passevtwtpdfUp=0.
 passevtwtpdfDown=0.
 
+evts=10000
+ievt = 0
 for event in mychain:
+  ievt = ievt+1
+  if ievt > evts: break
+  ievt = ievt+1
+  if ievt%1000 == 0: print ievt
   #issig = event.isRegionD
   #if not issig: continue
 
