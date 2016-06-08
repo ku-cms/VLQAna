@@ -22,6 +22,14 @@ ana = cms.EDFilter("VLQAna",
       subjetCSVMin = cms.double(-1000000) ,
       subjetCSVMax = cms.double(0.605) ,
       ), 
+    jetAntiHTaggedLooseselParams    = defaultHJetSelectionParameters.clone(
+      subjetCSVMin = cms.double(-1000000) ,
+      subjetHighestCSVMin = cms.double(0.605) ,
+      ), 
+    jetAntiHTaggedLooseBTagselParams    = defaultHJetSelectionParameters.clone(
+      subjetCSVMin = cms.double(-1000000) ,
+      subjetHighestCSVMin = cms.double(0.400) ,
+      ), 
     jetTopTaggedselParams      = defaultTJetSelectionParameters.clone(
       jettau3Bytau2Max    = cms.double(0.54) ,
       subjetHighestCSVMin = cms.double(0.79) ,
