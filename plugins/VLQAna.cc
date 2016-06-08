@@ -81,6 +81,8 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetHTaggedmaker                     ; 
     JetMaker jetTopTaggedmaker                   ; 
     JetMaker jetAntiHTaggedmaker                 ; 
+    JetMaker jetAntiHTaggedLoosemaker            ; 
+    JetMaker jetAntiHTaggedLooseBTagmaker        ; 
 
     double HTMin_                                ; 
     bool   doBTagSFUnc_                          ; 
@@ -100,27 +102,29 @@ class VLQAna : public edm::EDFilter {
 using namespace std; 
 
 VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
-  l_isData                (iConfig.getParameter<edm::InputTag>     ("isData")),
-  l_hltdecision           (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
-  l_evttype               (iConfig.getParameter<edm::InputTag>     ("evttype")),
-  l_evtwtGen              (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
-  l_evtwtPV               (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
-  l_evtwtPVLow            (iConfig.getParameter<edm::InputTag>     ("evtwtPVLow")),
-  l_evtwtPVHigh           (iConfig.getParameter<edm::InputTag>     ("evtwtPVHigh")),
-  l_npv                   (iConfig.getParameter<edm::InputTag>     ("npv")),
-  l_npuTrue               (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
-  l_htHat                 (iConfig.getParameter<edm::InputTag>     ("htHat")),
-  l_lhewtids              (iConfig.getParameter<edm::InputTag>     ("lhewtids")),
-  l_lhewts                (iConfig.getParameter<edm::InputTag>     ("lhewts")),
-  jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
-  jetAK8maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
-  jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
-  jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams")),  
-  jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedselParams")), 
-  HTMin_                  (iConfig.getParameter<double>            ("HTMin")), 
-  doBTagSFUnc_            (iConfig.getParameter<bool>              ("doBTagSFUnc")),
-  storePreselEvts_        (iConfig.getParameter<bool>              ("storePreselEvts")),
-  doPreselOnly_           (iConfig.getParameter<bool>              ("doPreselOnly")) 
+  l_isData                         (iConfig.getParameter<edm::InputTag>     ("isData")),
+  l_hltdecision                    (iConfig.getParameter<edm::InputTag>     ("hltdecision")),
+  l_evttype                        (iConfig.getParameter<edm::InputTag>     ("evttype")),
+  l_evtwtGen                       (iConfig.getParameter<edm::InputTag>     ("evtwtGen")),
+  l_evtwtPV                        (iConfig.getParameter<edm::InputTag>     ("evtwtPV")),
+  l_evtwtPVLow                     (iConfig.getParameter<edm::InputTag>     ("evtwtPVLow")),
+  l_evtwtPVHigh                    (iConfig.getParameter<edm::InputTag>     ("evtwtPVHigh")),
+  l_npv                            (iConfig.getParameter<edm::InputTag>     ("npv")),
+  l_npuTrue                        (iConfig.getParameter<edm::InputTag>     ("npuTrue")),
+  l_htHat                          (iConfig.getParameter<edm::InputTag>     ("htHat")),
+  l_lhewtids                       (iConfig.getParameter<edm::InputTag>     ("lhewtids")),
+  l_lhewts                         (iConfig.getParameter<edm::InputTag>     ("lhewts")),
+  jetAK4maker                      (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams")), 
+  jetAK8maker                      (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams")), 
+  jetHTaggedmaker                  (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams")), 
+  jetTopTaggedmaker                (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams")),  
+  jetAntiHTaggedmaker              (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedselParams")), 
+  jetAntiHTaggedLoosemaker         (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedLooseselParams")), 
+  jetAntiHTaggedLooseBTagmaker     (iConfig.getParameter<edm::ParameterSet> ("jetAntiHTaggedLooseBTagselParams")), 
+  HTMin_                           (iConfig.getParameter<double>            ("HTMin")), 
+  doBTagSFUnc_                     (iConfig.getParameter<bool>              ("doBTagSFUnc")),
+  storePreselEvts_                 (iConfig.getParameter<bool>              ("storePreselEvts")),
+  doPreselOnly_                    (iConfig.getParameter<bool>              ("doPreselOnly")) 
 {
 
 }
@@ -198,26 +202,34 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets ; 
+  vlq::JetCollection antiHTaggedJetsLoose, antiHTaggedJetsLooseBTag;
 
   jetHTaggedmaker(evt, goodHTaggedJets);
   jetTopTaggedmaker(evt, goodTopTaggedJets);
   jetAntiHTaggedmaker(evt, antiHTaggedJets);
+  jetAntiHTaggedLoosemaker(evt, antiHTaggedJetsLoose);
+  jetAntiHTaggedLooseBTagmaker(evt, antiHTaggedJetsLooseBTag);
 
-  unsigned nAK4      (goodAK4Jets.size());
-  unsigned nAK8      (goodAK8Jets.size());
-  unsigned nHiggs    (goodHTaggedJets.size()); 
-  unsigned nTop      (goodTopTaggedJets.size()); 
-  unsigned nAntiHiggs(antiHTaggedJets.size()); 
+  unsigned nAK4               (goodAK4Jets.size());
+  unsigned nAK8               (goodAK8Jets.size());
+  unsigned nHiggs             (goodHTaggedJets.size()); 
+  unsigned nTop               (goodTopTaggedJets.size()); 
+  unsigned nAntiHiggs         (antiHTaggedJets.size()); 
+  unsigned nAntiHiggsLoose    (antiHTaggedJetsLoose.size()); 
+  unsigned nAntiHiggsLooseBTag(antiHTaggedJetsLooseBTag.size()); 
 
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
   //// | C: Good H Anti-top | D: Good H Good top | 
 
   bool isRegionA(false), isRegionB(false), isRegionC(false), isRegionD(false), isRegionNotABCD(false); 
+  bool isRegionBLoose(false), isRegionBLooseBTag(false);
 
   std::unique_ptr<vlq::Jet> theHiggs ;  
   std::unique_ptr<vlq::Jet> theTop ;
   std::unique_ptr<vlq::Jet> theAntiHiggs ; 
+  std::unique_ptr<vlq::Jet> theAntiHiggsLoose ; 
+  std::unique_ptr<vlq::Jet> theAntiHiggsLooseBTag ; 
 
   if (nTop > 0) {
 
@@ -247,6 +259,28 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     } //// isRegionB
     else isRegionNotABCD = true ;
 
+    if (nAntiHiggsLoose > 0) {
+      for (vlq::Jet& antihjetLoose : antiHTaggedJetsLoose) {
+        double dphi = abs((theTop->getP4()).DeltaPhi(antihjetLoose.getP4())) ;  
+        if (dphi > 2.0) {
+          theAntiHiggsLoose = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjetLoose)) ; 
+          isRegionBLoose = true ; 
+          break ; 
+        }
+      }
+    } //// isRegionBLoose
+
+    if (nAntiHiggsLooseBTag > 0) {
+      for (vlq::Jet& antihjetLooseBTag : antiHTaggedJetsLooseBTag) {
+        double dphi = abs((theTop->getP4()).DeltaPhi(antihjetLooseBTag.getP4())) ;  
+        if (dphi > 2.0) {
+          theAntiHiggsLooseBTag = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjetLooseBTag)) ; 
+          isRegionBLooseBTag = true ; 
+          break ; 
+        }
+      }
+    } //// isRegionBLooseBTag
+
   }
   else {
 
@@ -275,17 +309,31 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( isRegionD ) h1_["cutflow"] -> Fill(11, evtwt) ; 
 
   TLorentzVector p4_tprime, p4_TprimeDummy ; 
+  TLorentzVector p4_TprimeDummyLoose, p4_TprimeDummyLooseBTag ; 
   double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0), MtprimeDummy_corr(0) ; 
+  double MtprimeDummyLoose(0), MtprimeDummyLooseBTag(0);
 
   if (isRegionD) {
     p4_tprime = theTop->getP4() + theHiggs->getP4() ; 
     Mtprime = p4_tprime.Mag();
     Mtprime_corr = Mtprime - theTop->getSoftDropMass() - theHiggs->getPrunedMass() + 172.5 + 125. ; 
   }
-  else if (isRegionB) {
-    p4_TprimeDummy = theTop->getP4() + theAntiHiggs->getP4() ; 
-    MtprimeDummy = p4_TprimeDummy.Mag() ; 
-    MtprimeDummy_corr = MtprimeDummy - theTop->getSoftDropMass() - theAntiHiggs->getPrunedMass() + 172.5 + 125. ; 
+  else {
+    if (isRegionB) {
+      p4_TprimeDummy = theTop->getP4() + theAntiHiggs->getP4() ; 
+      MtprimeDummy = p4_TprimeDummy.Mag() ; 
+      MtprimeDummy_corr = MtprimeDummy - theTop->getSoftDropMass() - theAntiHiggs->getPrunedMass() + 172.5 + 125. ; 
+    }
+  }
+
+  if (isRegionBLoose) {
+    p4_TprimeDummyLoose = theTop->getP4() + theAntiHiggsLoose->getP4() ; 
+    MtprimeDummyLoose = p4_TprimeDummyLoose.Mag() ; 
+  }
+
+  if (isRegionBLooseBTag) {
+    p4_TprimeDummyLooseBTag = theTop->getP4() + theAntiHiggsLooseBTag->getP4() ; 
+    MtprimeDummyLooseBTag = p4_TprimeDummyLooseBTag.Mag() ; 
   }
 
   double evtwtHT(1), evtwtHTUp(1), evtwtHTDown(1);
@@ -462,11 +510,15 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.btagsf_lDown_ = btagsf_lDown ; 
   selectedevt_.mtprime_ = Mtprime ;
   selectedevt_.mtprimeDummy_ = MtprimeDummy ;
+  selectedevt_.mtprimeDummyLoose_ = MtprimeDummyLoose ;
+  selectedevt_.mtprimeDummyLooseBTag_ = MtprimeDummyLooseBTag ;
   selectedevt_.ht_ = htak4.getHT();
   selectedevt_.nAK4_ = int(nAK4);
   selectedevt_.nAK8_ = int(nAK8);
   selectedevt_.isRegionA_ = isRegionA ; 
   selectedevt_.isRegionB_ = isRegionB ; 
+  selectedevt_.isRegionBLoose_ = isRegionBLoose ; 
+  selectedevt_.isRegionBLooseBTag_ = isRegionBLooseBTag ; 
   selectedevt_.isRegionC_ = isRegionC ; 
   selectedevt_.isRegionD_ = isRegionD ; 
   selectedevt_.isRegionNotABCD_ = isRegionNotABCD;
