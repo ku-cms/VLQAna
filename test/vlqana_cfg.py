@@ -87,7 +87,7 @@ from inputFiles_cfi import *
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
       FileNames_TprimeBToTH_M1200
-      #FileName_QCD_HT1000to1500
+      #FileName_QCD_HT2000toInf
       )
     )
 
