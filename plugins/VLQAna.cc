@@ -152,7 +152,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
-  if ( !hltdecision ) return false; 
+  //DMif ( !hltdecision ) return false; 
 
   h1_["cutflow"] -> Fill(2, evtwt) ; 
 
