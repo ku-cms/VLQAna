@@ -118,7 +118,8 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const bool isData(*h_isData.product()) ; 
   const double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
   const double htHat((*h_htHat.product())) ; 
-  const bool hltdecision(*h_hltdecision.product()) ; 
+  //const bool hltdecision(*h_hltdecision.product()) ; 
+  const bool hltdecision(1);
   const unsigned npv(*h_npv.product()) ; 
 
   vlq::JetCollection  goodAK8Jets ;  

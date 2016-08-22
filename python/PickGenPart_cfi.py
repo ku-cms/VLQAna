@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 genPartParams = cms.PSet(
+    genParticles        = cms.InputTag("filteredPrunedGenParticles"),
     genPartPt           = cms.InputTag("genPart", "genPartPt"), 
     genPartEta          = cms.InputTag("genPart", "genPartEta"), 
     genPartPhi          = cms.InputTag("genPart", "genPartPhi"), 

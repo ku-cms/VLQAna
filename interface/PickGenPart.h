@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "AnalysisDataFormats/BoostedObjects/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 typedef std::vector<vlq::GenParticle> GenParticleCollection ; 
 
@@ -16,6 +17,8 @@ class PickGenPart {
     const GenParticleCollection operator() (edm::Event&) ; 
 
   private: 
+
+    edm::EDGetTokenT<std::vector<reco::GenParticle>> t_genparticles ;
 
     edm::EDGetTokenT<std::vector<float>> t_genPartID          ; 
     edm::EDGetTokenT<std::vector<float>> t_genPartStatus      ; 
@@ -44,7 +47,6 @@ class PickGenPart {
     std::vector<int> dau1ids_ ; 
     bool checkdauid_ ; 
     bool debug_ ; 
-
 
     GenParticleCollection genParts_ ; 
 

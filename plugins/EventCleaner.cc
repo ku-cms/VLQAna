@@ -39,7 +39,7 @@ class EventCleaner : public edm::EDFilter {
     edm::InputTag l_runno                                  ; 
     edm::InputTag l_lumisec                                ; 
     edm::InputTag l_evtno                                  ; 
-    edm::InputTag l_trigName                               ; 
+    //edm::InputTag l_trigName                               ; 
     edm::InputTag l_trigBit                                ; 
     edm::InputTag l_metFiltersName                         ; 
     edm::InputTag l_metFiltersBit                          ; 
@@ -88,7 +88,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   l_runno                 (iConfig.getParameter<edm::InputTag>            ("runnoLabel")),
   l_lumisec               (iConfig.getParameter<edm::InputTag>            ("lumisecLabel")),
   l_evtno                 (iConfig.getParameter<edm::InputTag>            ("evtnoLabel")),
-  l_trigName              (iConfig.getParameter<edm::InputTag>            ("trigNameLabel")),
+  //l_trigName              (iConfig.getParameter<edm::InputTag>            ("trigNameLabel")),
   l_trigBit               (iConfig.getParameter<edm::InputTag>            ("trigBitLabel")),
   l_metFiltersName        (iConfig.getParameter<edm::InputTag>            ("metFiltersNameLabel")),
   l_metFiltersBit         (iConfig.getParameter<edm::InputTag>            ("metFiltersBitLabel")),
@@ -130,7 +130,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   consumes<unsigned int>            (l_runno         ) ; 
   consumes<unsigned int>            (l_lumisec       ) ; 
   consumes<ULong64_t>               (l_evtno         ) ; 
-  consumes<std::vector<std::string>>(l_trigName      ) ; 
+  //consumes<std::vector<std::string>>(l_trigName      ) ; 
   consumes<std::vector<float>>      (l_trigBit       ) ; 
   consumes<std::vector<std::string>>(l_metFiltersName) ; 
   consumes<std::vector<float>>      (l_metFiltersBit ) ; 
@@ -184,7 +184,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<unsigned int> h_runno    ; evt.getByLabel (l_runno                  , h_runno                );
   Handle<unsigned int> h_lumisec  ; evt.getByLabel (l_lumisec                , h_lumisec              );
   Handle<ULong64_t> h_evtno       ; evt.getByLabel (l_evtno                  , h_evtno                );
-  hstring h_trigName              ; evt.getByLabel (l_trigName               , h_trigName             );
+  //hstring h_trigName              ; evt.getByLabel (l_trigName               , h_trigName             );
   hfloat  h_trigBit               ; evt.getByLabel (l_trigBit                , h_trigBit              ); 
   hstring h_metFiltersName        ; evt.getByLabel (l_metFiltersName         , h_metFiltersName       );
   hfloat  h_metFiltersBit         ; evt.getByLabel (l_metFiltersBit          , h_metFiltersBit        ); 
@@ -201,11 +201,11 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   unsigned int hltdecisions(0) ; 
   for ( const string& myhltpath : hltPaths_ ) {
     vector<string>::const_iterator it ;
-    for (it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it ) {
-      if ( it->find(myhltpath) < std::string::npos) {
-        hltdecisions |= int((h_trigBit.product())->at( it - (h_trigName.product())->begin() )) << ( it - (h_trigName.product())->begin() ) ;  
-      }
-    }
+    //for (it = (h_trigName.product())->begin(); it != (h_trigName.product())->end(); ++it ) {
+    //  if ( it->find(myhltpath) < std::string::npos) {
+    //    hltdecisions |= int((h_trigBit.product())->at( it - (h_trigName.product())->begin() )) << ( it - (h_trigName.product())->begin() ) ;  
+    //  }
+    //}
   }
   bool hltdecision(false) ; 
   if ( hltPaths_.size() > 0 && !hltdecisions) hltdecision=false;

@@ -88,6 +88,7 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_jetcEMEnergy       ;
     edm::EDGetTokenT<std::vector<float>> t_jetnumDaughters    ;
     edm::EDGetTokenT<std::vector<float>> t_jetcMultip         ;
+    edm::EDGetTokenT<std::vector<float>> t_jetnMultip         ;
     edm::EDGetTokenT<std::vector<float>> t_jetY               ;
     edm::EDGetTokenT<std::vector<float>> t_jetArea            ; 
     edm::EDGetTokenT<std::vector<float>> t_jetGenJetPt        ; 
@@ -110,6 +111,7 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_ak8sjEta           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjPhi           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjMass          ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjEnergy        ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjCSV           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjCMVA          ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetPt      ; 

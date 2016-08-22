@@ -6,6 +6,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="AnalysisDataFormats/BoostedObjects"/>
 <use name="boost"/>
 <use name="root"/>
