@@ -251,6 +251,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     hjets.Pt[ijet.first] = (ijet.second).getPt() ;
     hjets.Eta[ijet.first] = (ijet.second).getEta() ;
     hjets.Phi[ijet.first] = (ijet.second).getPhi() ;
+    hjets.Energy[ijet.first] = (ijet.second).getEnergy() ;
     hjets.Mass[ijet.first] = (ijet.second).getMass() ;
     hjets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
     hjets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
@@ -259,12 +260,6 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     hjets.tau3[ijet.first] = (ijet.second).getTau3() ;
     hjets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
     hjets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
-    hjets.nhf[ijet.first] = (ijet.second).getNHF() ;
-    hjets.chf[ijet.first] = (ijet.second).getCHF() ;
-    hjets.emf[ijet.first] = (ijet.second).getEMF() ;
-    hjets.phf[ijet.first] = (ijet.second).getPHF() ;
-    hjets.muf[ijet.first] = (ijet.second).getMUF() ;
-    hjets.nconsts[ijet.first] = (ijet.second).getNConsts() ;
     hjets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
     hjets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
     hjets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
@@ -275,6 +270,11 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     hjets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
     hjets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
     hjets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
+    hjets.phiSubjet0[ijet.first] = (ijet.second).getPhiSubjet0() ;
+    hjets.phiSubjet1[ijet.first] = (ijet.second).getPhiSubjet1() ;
+    hjets.energySubjet0[ijet.first] = (ijet.second).getEnergySubjet0() ;
+    hjets.energySubjet1[ijet.first] = (ijet.second).getEnergySubjet1() ;
+    hjets.doublesv[ijet.first] = (ijet.second).getDoubleBAK8();
     hjets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
     hjets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
 
