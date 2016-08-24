@@ -23,7 +23,7 @@ options.register('outFileName', 'os2lana.root',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('doPUReweightingOfficial', True,
+options.register('doPUReweightingOfficial', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
@@ -43,7 +43,7 @@ options.register('applyLeptonSFs', True,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.register('applyBTagSFs', True,
+options.register('applyBTagSFs', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
@@ -58,7 +58,7 @@ options.register('FileNames', 'FileNames_QCD_HT1000to1500',
     VarParsing.varType.string,
     "Name of list of input files"
     )
-options.register('optimizeReco', True,
+options.register('optimizeReco', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Optimize mass reconstruction"
