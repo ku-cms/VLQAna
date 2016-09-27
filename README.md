@@ -6,7 +6,7 @@ cd CMSSW_8_0_15/src
 
 git cms-init 
 
-git cms-merge-topic CMSSW_8_0_X_AnalysisDataFormats_BoostedObjects
+git cms-merge-topic dmajumder:CMSSW_8_0_X_AnalysisDataFormats_BoostedObjects
 
 git clone git@github.com:dmajumder/EventCounter.git Analysis/EventCounter
 
