@@ -1,16 +1,4 @@
 FileNames = {
-  'FileNames_ST': [
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_1.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_10.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_11.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_12.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_13.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_14.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_15.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_16.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_17.root', 
-    '/store/group/lpctlbsm/B2GAnaFW_80X_V1p0/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2_B2GAnaFW_80x_V1p0_v2/160719_131720/0000/B2GEDMNtuple_18.root', 
-    ],
   'FileNames_DoubleEG': [
     '/store/group/phys_b2g/skhi/B2GAnaFW_80X_V2p0_RunIISpring16MiniAODv2_B2GAnaFW_80x_V2p0/DoubleEG/RunIISpring16MiniAODv2_B2GAnaFW_80x_V2p0/160914_162605/0000/B2GEDMNtuple_1.root', 
     '/store/group/phys_b2g/skhi/B2GAnaFW_80X_V2p0_RunIISpring16MiniAODv2_B2GAnaFW_80x_V2p0/DoubleEG/RunIISpring16MiniAODv2_B2GAnaFW_80x_V2p0/160914_162605/0000/B2GEDMNtuple_10.root', 
