@@ -237,8 +237,8 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   double evtwtGen(1.0) ; 
   double htHat(0.0);
-  std::vector<int> lhewtids;
-  std::vector<double> lhewts;
+  std::vector<int> lhewtids{-999999};
+  std::vector<double> lhewts{-999999};
   if ( !isData_ && storeLHEWts_ ) {
     //Handle<GenEventInfoProduct> h_genEvtInfoProd; 
     //evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
@@ -249,6 +249,8 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     Handle<LHEEventProduct> h_lheEvtProd;
     evt.getByToken(t_lheEvtProd, h_lheEvtProd); 
     double nominal_wt = h_lheEvtProd->weights()[0].wgt ; // h_lheEvtProd->hepeup().XWGTUP ; //h_lheEvtProd->originalXWGTUP();
+    lhewtids.clear();
+    lhewts.clear();
     lhewtids.reserve(h_lheEvtProd->weights().size()) ;
     lhewts.reserve(h_lheEvtProd->weights().size()) ; 
     for (unsigned iwt = 0; iwt < h_lheEvtProd->weights().size(); ++iwt) {
