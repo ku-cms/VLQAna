@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.PickGenPart_cfi import *
-from Analysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.JetMaker_cfi import *
 ana = cms.EDFilter("VLQAna", 
     isData                     = cms.InputTag("evtcleaner","isData"), 
     hltdecision                = cms.InputTag("evtcleaner","hltdecision"), 

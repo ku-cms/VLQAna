@@ -5,7 +5,7 @@ from Analysis.VLQAna.ApplyLeptonSFs_cfi import *
 from Analysis.VLQAna.ElectronMaker_cfi import *
 from Analysis.VLQAna.MuonMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
-from Analysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.JetMaker_cfi import *
 from Analysis.VLQAna.METMaker_cfi import *
 
 ana = cms.EDFilter("OS2LAna",
@@ -24,7 +24,7 @@ ana = cms.EDFilter("OS2LAna",
     lep                        = cms.string("el"),
     applyLeptonSFs             = cms.bool(False),  
     applyBTagSFs               = cms.bool(False),  
-    fnamebtagSF                = cms.string('CSVv2_76X.csv'),
+    fnamebtagSF                = cms.string('CSVv2_ichep.csv'),
     applyDYNLOCorr             = cms.bool(False),  
     File_DYNLOCorr             = cms.string('scalefactors_v4.root'),
     Fun_DYNLOCorr              = cms.string('z_ewkcorr/z_ewkcorr_func'),

@@ -47,8 +47,6 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   t_jetCMVA           = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCMVALabel")          );
   t_jetCvsB           = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCvsBLabel")          );
   t_jetCvsL           = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetCvsLLabel")          );
-  t_jetDoubleBAK8     = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetDoubleBAK8Label")    );
-  t_jetDoubleBCA15    = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetDoubleBCA15Label")   );
   t_jetJEC            = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetJECLabel")           );
   t_jetnHadEnergy     = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetnHadEnergyLabel")    );
   t_jetnEMEnergy      = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetnEMEnergyLabel")     );
@@ -67,6 +65,8 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   t_jetGenJetCharge   = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetChargeLabel")  );
 
   if ( type_ == AK8JET ) {
+    t_jetDoubleBAK8     = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag>     ("jetDoubleBAK8Label")   );
+    t_jetDoubleBCA15    = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag>     ("jetDoubleBCA15Label")  );
     t_jettau1           = iC.consumes<vector<float>>(JetSubstrParams_.getParameter<edm::InputTag> ("jettau1Label")         );
     t_jettau2           = iC.consumes<vector<float>>(JetSubstrParams_.getParameter<edm::InputTag> ("jettau2Label")         );
     t_jettau3           = iC.consumes<vector<float>>(JetSubstrParams_.getParameter<edm::InputTag> ("jettau3Label")         );
@@ -159,8 +159,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
   Handle <vector<float>>  h_jetCMVA           ; evt.getByToken (t_jetCMVA             , h_jetCMVA           );
   Handle <vector<float>>  h_jetCvsB           ; evt.getByToken (t_jetCvsB             , h_jetCvsB           );
   Handle <vector<float>>  h_jetCvsL           ; evt.getByToken (t_jetCvsL             , h_jetCvsL           );
-  Handle <vector<float>>  h_jetDoubleBAK8     ; evt.getByToken (t_jetDoubleBAK8       , h_jetDoubleBAK8     );
-  Handle <vector<float>>  h_jetDoubleBCA15    ; evt.getByToken (t_jetDoubleBCA15      , h_jetDoubleBCA15    );
   Handle <vector<float>>  h_jetJEC            ; evt.getByToken (t_jetJEC              , h_jetJEC            );
   Handle <vector<float>>  h_jetnHadEnergy     ; evt.getByToken (t_jetnHadEnergy       , h_jetnHadEnergy     );
   Handle <vector<float>>  h_jetnEMEnergy      ; evt.getByToken (t_jetnEMEnergy        , h_jetnEMEnergy      );
@@ -320,6 +318,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       TLorentzVector p4sj0, p4sj1; 
       TLorentzVector p4gensj0, p4gensj1;
 
+      Handle <vector<float>>  h_jetDoubleBAK8     ; evt.getByToken (t_jetDoubleBAK8       , h_jetDoubleBAK8  );
+      Handle <vector<float>>  h_jetDoubleBCA15    ; evt.getByToken (t_jetDoubleBCA15      , h_jetDoubleBCA15 );
       Handle <vector<float>>  h_jettau1           ; evt.getByToken (t_jettau1             , h_jettau1        );
       Handle <vector<float>>  h_jettau2           ; evt.getByToken (t_jettau2             , h_jettau2        );
       Handle <vector<float>>  h_jettau3           ; evt.getByToken (t_jettau3             , h_jettau3        );
@@ -389,6 +389,11 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       jetSoftDropMass = masssmear * massCorr * (1 + jecShift_*unc) * (h_jetSoftDropMass.product())->at(ijet) ;
       vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
       vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
+#if DEBUG
+      std::cout << " vjetsjIdx0 " << vjetsjIdx0 
+        << " h_ak8sjHadFl.product() size " 
+        << h_ak8sjHadFl.product()->size() << std::endl;
+#endif
       if (vjetsjIdx0 >= 0 ) {
         ++nsubjets;
         vjetssj0HadFl   = (h_ak8sjHadFl.product())->at(vjetsjIdx0) ; 
@@ -450,6 +455,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           && subjetHighestCSV >= idxsjHighestCSVMin_
           && subjetHighestCSV <  idxsjHighestCSVMax_
          ) { 
+        jet.setDoubleBAK8   ( (h_jetDoubleBAK8.product())->at(ijet) ) ;  
+        jet.setDoubleBCA15  ( (h_jetDoubleBCA15.product())->at(ijet) ) ;  
         jet.setTau1         ( (h_jettau1.product())->at(ijet) ) ; 
         jet.setTau2         ( (h_jettau2.product())->at(ijet) ) ; 
         jet.setTau3         ( (h_jettau3.product())->at(ijet) ) ; 
@@ -491,8 +498,6 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     jet.setCMVA         ( (h_jetCMVA.product())->at(ijet) ) ;  
     jet.setCvsB         ( (h_jetCvsB.product())->at(ijet) ) ;  
     jet.setCvsL         ( (h_jetCvsL.product())->at(ijet) ) ;  
-    jet.setDoubleBAK8   ( (h_jetDoubleBAK8.product())->at(ijet) ) ;  
-    jet.setDoubleBCA15  ( (h_jetDoubleBCA15.product())->at(ijet) ) ;  
     jet.setGenJetP4     (genJetP4);
     jets.push_back(jet) ; 
 
