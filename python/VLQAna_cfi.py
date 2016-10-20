@@ -16,13 +16,13 @@ ana = cms.EDFilter("VLQAna",
     lhewtids                   = cms.InputTag("evtcleaner","lhewtids"),
     lhewts                     = cms.InputTag("evtcleaner","lhewts"), 
     jetAK4selParams            = defaultAK4JetSelectionParameters,
-    jetAK8selParams            = defaultAK8JetSelectionParameters,
-    jetHTaggedselParams        = defaultHJetSelectionParameters,
-    jetAntiHTaggedselParams    = defaultHJetSelectionParameters.clone(
+    jetAK8selParams            = defaultAK8CHSJetSelectionParameters,
+    jetHTaggedselParams        = defaultCHSHJetSelectionParameters,
+    jetAntiHTaggedselParams    = defaultCHSHJetSelectionParameters.clone(
       subjetCSVMin = cms.double(-1000000) ,
       subjetCSVMax = cms.double(0.605) ,
       ), 
-    jetTopTaggedselParams      = defaultTJetSelectionParameters.clone(
+    jetTopTaggedselParams      = defaultCHSTJetSelectionParameters.clone(
       jettau3Bytau2Max    = cms.double(0.54) ,
       subjetHighestCSVMin = cms.double(0.79) ,
       ), 
