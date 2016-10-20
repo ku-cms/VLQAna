@@ -186,13 +186,70 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       << std::endl ; 
   }
 
+  std::vector<double>ak8jets_sjcsvs;
+  std::vector<double>ak8jets_sjpts;
+  std::vector<double>ak8jets_sjetas;
+  std::vector<int>ak8jets_sjflhads;
+
+  ak8jets.njets = goodAK8Jets.size() ; 
+  for (auto ijet : index(goodAK8Jets) ) {
+    ak8jets.Index[ijet.first] = (ijet.second).getIndex() ;
+    ak8jets.ParentIndex[ijet.first] = -1 ;
+    ak8jets.Pt[ijet.first] = (ijet.second).getPt() ;
+    ak8jets.Eta[ijet.first] = (ijet.second).getEta() ;
+    ak8jets.Phi[ijet.first] = (ijet.second).getPhi() ;
+    ak8jets.Energy[ijet.first] = (ijet.second).getEnergy() ;
+    ak8jets.Mass[ijet.first] = (ijet.second).getMass() ;
+    ak8jets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
+    ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
+    ak8jets.tau1[ijet.first] = (ijet.second).getTau1() ;
+    ak8jets.tau2[ijet.first] = (ijet.second).getTau2() ;
+    ak8jets.tau3[ijet.first] = (ijet.second).getTau3() ;
+    ak8jets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
+    ak8jets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
+    ak8jets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
+    ak8jets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
+    ak8jets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
+    selectedevt.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
+    ak8jets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
+    ak8jets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
+    ak8jets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
+    ak8jets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
+    ak8jets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
+    ak8jets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
+    ak8jets.phiSubjet0[ijet.first] = (ijet.second).getPhiSubjet0() ;
+    ak8jets.phiSubjet1[ijet.first] = (ijet.second).getPhiSubjet1() ;
+    ak8jets.energySubjet0[ijet.first] = (ijet.second).getEnergySubjet0() ;
+    ak8jets.energySubjet1[ijet.first] = (ijet.second).getEnergySubjet1() ;
+    ak8jets.doublesv[ijet.first] = (ijet.second).getDoubleBAK8();
+    ak8jets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
+    ak8jets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
+
+    if ( !isData ) { 
+
+      ak8jets_sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
+      ak8jets_sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
+
+      ak8jets_sjpts.push_back((ijet.second).getPtSubjet0()) ;  
+      ak8jets_sjpts.push_back((ijet.second).getPtSubjet1()) ;  
+
+      ak8jets_sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
+      ak8jets_sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
+
+      ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
+      ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
+
+    } //// if !isData do  b tag SFs
+
+  } //// Loop over all AK8 jets
+
   //// Event selection
-  if ( !hltNPV || !ak8Pt ) return false; 
+  //if ( !hltNPV || !ak8Pt ) return false; 
 
   h1_["npv"] -> Fill(*h_npv.product()); 
 
   //// Leading 2 jets pass Higgs tagging
-  if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
+  //if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
 
   vlq::JetCollection goodHTaggedJets ;
   goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
@@ -239,10 +296,10 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   selectedevt.nsubjetsBTaggedCSVL_ = 0 ;
 
-  std::vector<double>sjcsvs;
-  std::vector<double>sjpts;
-  std::vector<double>sjetas;
-  std::vector<int>sjflhads;
+  std::vector<double>hjets_sjcsvs;
+  std::vector<double>hjets_sjpts;
+  std::vector<double>hjets_sjetas;
+  std::vector<int>hjets_sjflhads;
 
   hjets.njets = goodHTaggedJets.size() ; 
   for (auto ijet : index(goodHTaggedJets) ) {
@@ -280,23 +337,23 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     if ( !isData ) { 
 
-      sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
-      sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
+      hjets_sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
+      hjets_sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
 
-      sjpts.push_back((ijet.second).getPtSubjet0()) ;  
-      sjpts.push_back((ijet.second).getPtSubjet1()) ;  
+      hjets_sjpts.push_back((ijet.second).getPtSubjet0()) ;  
+      hjets_sjpts.push_back((ijet.second).getPtSubjet1()) ;  
 
-      sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
-      sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
+      hjets_sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
+      hjets_sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
 
-      sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
-      sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
+      hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
+      hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
 
     } //// if !isData do  b tag SFs
 
   } //// Loop over all Higgs jets
 
-  if ( !isData ) btagsfutils_->getBTagSFs (sjcsvs, sjpts, sjetas, sjflhads, CSVv2L, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+  if ( !isData ) btagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
@@ -342,6 +399,7 @@ void HH4b::beginJob() {
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
   tree_ = fs->make<TTree>("tree", "HH4b") ; 
   selectedevt.RegisterTree(tree_,"SelectedEvent") ; 
+  ak8jets.RegisterTree(tree_,"AK8Jets") ; 
   hjets.RegisterTree(tree_,"HJets") ; 
 
   if ( printEvtNo_ ) {

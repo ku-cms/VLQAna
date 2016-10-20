@@ -169,6 +169,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   vlq::JetCollection goodAK8Jets; 
   jetAK8maker(evt, goodAK8Jets); 
+  return false;
+
   //// Event pre-selection
   if (goodAK8Jets.size() < 1) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
