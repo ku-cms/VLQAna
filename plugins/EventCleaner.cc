@@ -165,7 +165,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   produces<int>("lumisec");
   produces<int>("runno");
   produces<bool>("isData");
-  //produces<std::bitset<1000>>("hltdecisions");
+  produces<bool>("hltdecision");
   produces<std::string>("evttype"); 
   produces<double>("evtwtGen");
   produces<double>("evtwtPV");
@@ -214,7 +214,6 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
   else hltdecisions << 1;
   if ( cleanEvents_ && hltdecisions==false ) return false ; 
-  std::cout << " hltdecisions " << hltdecisions << std::endl;
 
   if ( isData_ ) {
     bool metfilterdecision(1) ; 
@@ -319,7 +318,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   unique_ptr<int>ptr_lumisec(new int(lumisec)); 
   unique_ptr<int>ptr_runno(new int(runno)); 
   unique_ptr<bool>ptr_isData(new bool(isData_)); 
-  //unique_ptr<std::bitset<1000>>ptr_hltdecisions(new std::bitset<1000>(hltdecisions)); 
+  unique_ptr<bool>ptr_hltdecision(new bool(hltdecisions.any())); 
   unique_ptr<string>ptr_evttype(new string(evttype)); 
   unique_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
   unique_ptr<double>ptr_evtwtPV(new double(evtwtPV)); 
@@ -335,7 +334,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   evt.put(std::move(ptr_lumisec), "lumisec");
   evt.put(std::move(ptr_runno), "runno");
   evt.put(std::move(ptr_isData), "isData");
-  //evt.put(std::move(ptr_hltdecisions), "hltdecisions");
+  evt.put(std::move(ptr_hltdecision), "hltdecision");
   evt.put(std::move(ptr_evttype), "evttype");
   evt.put(std::move(ptr_evtwtGen), "evtwtGen");
   evt.put(std::move(ptr_evtwtPV), "evtwtPV");
