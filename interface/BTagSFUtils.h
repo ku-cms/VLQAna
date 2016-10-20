@@ -199,11 +199,11 @@ class BTagSFUtils {
         if ( sfUpabs < 0 ) sfUpabs = 0 ;  
         if ( sfDownabs < 0 ) sfDownabs = 0 ;  
 
-        if ( boost::math::isnan(sf) || boost::math::isnan(sfUp) || boost::math::isnan(sfUpabs))
-          std::cout << " sf = " << sf << " is nan = " << boost::math::isnan(sf) << std::endl ; 
-          std::cout << " sfUp = " << sfUp << " is nan = " << boost::math::isnan(sfUp) << std::endl ; 
-          std::cout << " dsfUp = " << dsfUp << " is nan = " << boost::math::isnan(dsfUp) << std::endl ; 
-          std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
+        //DMif ( boost::math::isnan(sf) || boost::math::isnan(sfUp) || boost::math::isnan(sfUpabs))
+        //DM  std::cout << " sf = " << sf << " is nan = " << boost::math::isnan(sf) << std::endl ; 
+        //DM  std::cout << " sfUp = " << sfUp << " is nan = " << boost::math::isnan(sfUp) << std::endl ; 
+        //DM  std::cout << " dsfUp = " << dsfUp << " is nan = " << boost::math::isnan(dsfUp) << std::endl ; 
+        //DM  std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
 
         double jetcsv = jetcsvs.at(idx.first) ; 
         if ( jetcsv >= csvMin ) { 
