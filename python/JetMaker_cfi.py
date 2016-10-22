@@ -82,7 +82,7 @@ defaultCHSTJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jettau3Bytau2Max    = cms.double(0.61) ,
     jetSoftDropMassMin  = cms.double(110) ,
     jetSoftDropMassMax  = cms.double(210) ,
-    subjetHighestCSVMin = cms.double(0.760) ,
+    subjetHighestCSVMin = cms.double(CSVv2L) ,
     )
 
 defaultCHSHJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
@@ -151,7 +151,7 @@ defaultPuppiTJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clon
     jettau3Bytau2Max    = cms.double(0.61) ,
     jetSoftDropMassMin  = cms.double(110) ,
     jetSoftDropMassMax  = cms.double(210) ,
-    subjetHighestCSVMin = cms.double(0.760) ,
+    subjetHighestCSVMin = cms.double(CSVv2L) ,
     )
 
 defaultPuppiHJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clone(
