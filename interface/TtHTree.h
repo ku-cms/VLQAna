@@ -8,6 +8,12 @@
 class TtHEventInfoBranches {
   public:
 
+    int    runno_ ;
+    int    lumisec_ ; 
+    int    evtno_;    
+    int    bcno_;
+    int    time_;
+    double htHat_; 
     double EvtWeight_ ; 
     double EvtWtPV_;
     double EvtWtPVLow_;
@@ -36,42 +42,43 @@ class TtHEventInfoBranches {
     bool   isRegionD_;
     bool   isRegionNotABCD_;
     std::vector<std::pair<int, double> > lhewts_ ; 
-    double htHat_ ; 
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
-      cutTree->Branch("EvtWeight", &EvtWeight_, "EvtWeight/D");
-      cutTree->Branch("EvtWtPV", &EvtWtPV_, "EvtWtPV/D");
-      cutTree->Branch("EvtWtPVLow", &EvtWtPVLow_, "EvtWtPVLow/D");
-      cutTree->Branch("EvtWtPVHigh", &EvtWtPVHigh_, "EvtWtPVHigh/D");
-      cutTree->Branch("EvtWtHT", &EvtWtHT_, "EvtWtHT/D");
-      cutTree->Branch("EvtWtHTUp", &EvtWtHTUp_, "EvtWtHTUp/D");
-      cutTree->Branch("EvtWtHTDown", &EvtWtHTDown_, "EvtWtHTDown/D");
-      cutTree->Branch("npv",&npv_, "npv/I");
-      cutTree->Branch("npuTrue",&npuTrue_, "npuTrue/I");
-      cutTree->Branch("toptagsf",&toptagsf_, "toptagsf/D");
-      cutTree->Branch("toptagsf_Up",&toptagsf_Up_, "toptagsf_Up/D");
-      cutTree->Branch("toptagsf_Down",&toptagsf_Down_, "toptagsf_Down/D");
-      cutTree->Branch("btagsf",&btagsf_, "btagsf/D");
-      cutTree->Branch("btagsf_bcUp",&btagsf_bcUp_, "btagsf_bcUp/D");
-      cutTree->Branch("btagsf_bcDown",&btagsf_bcDown_, "btagsf_bcDown/D");
-      cutTree->Branch("btagsf_lUp",&btagsf_lUp_, "btagsf_lUp/D");
-      cutTree->Branch("btagsf_lDown",&btagsf_lDown_, "btagsf_lDown/D");
-      cutTree->Branch("mtprime",&mtprime_, "mtprime/D");
-      cutTree->Branch("mtprimeDummy",&mtprimeDummy_, "mtprimeDummy/D");
-      cutTree->Branch("ht",&ht_, "ht/D");
-      cutTree->Branch("nAK4",&nAK4_, "nAK4/I");
-      cutTree->Branch("nAK8",&nAK8_, "nAK8/I");
-      cutTree->Branch("isRegionA",&isRegionA_, "isRegionA/O");
-      cutTree->Branch("isRegionB",&isRegionB_, "isRegionB/O");
-      cutTree->Branch("isRegionC",&isRegionC_, "isRegionC/O");
-      cutTree->Branch("isRegionD",&isRegionD_, "isRegionD/O");
-      cutTree->Branch("isRegionNotABCD",&isRegionNotABCD_, "isRegionNotABCD/O");
-      cutTree->Branch("lhewts", &lhewts_) ;  
-      cutTree->Branch("htHat", &htHat_) ; 
+      cutTree->Branch((name+"_runno").c_str(), &runno_, (name+"_runno/I").c_str());
+      cutTree->Branch((name+"_lumisec").c_str(), &lumisec_, (name+"_lumisec/I").c_str());
+      cutTree->Branch((name+"_evtno").c_str(), &evtno_, (name+"_evtno/I").c_str());
+      cutTree->Branch((name+"_bcno").c_str(), &bcno_, (name+"_bcno/I").c_str());
+      cutTree->Branch((name+"_time").c_str(), &time_, (name+"_time/I").c_str());
+      cutTree->Branch((name+"_htHat").c_str(), &htHat_, (name+"_htHat/D").c_str()) ; 
+      cutTree->Branch((name+"_EvtWeight").c_str(), &EvtWeight_, "EvtWeight/D");
+      cutTree->Branch((name+"_EvtWtPV").c_str(), &EvtWtPV_, "EvtWtPV/D");
+      cutTree->Branch((name+"_EvtWtPVLow").c_str(), &EvtWtPVLow_, "EvtWtPVLow/D");
+      cutTree->Branch((name+"_EvtWtPVHigh").c_str(), &EvtWtPVHigh_, "EvtWtPVHigh/D");
+      cutTree->Branch((name+"_EvtWtHT").c_str(), &EvtWtHT_, "EvtWtHT/D");
+      cutTree->Branch((name+"_EvtWtHTUp").c_str(), &EvtWtHTUp_, "EvtWtHTUp/D");
+      cutTree->Branch((name+"_EvtWtHTDown").c_str(), &EvtWtHTDown_, "EvtWtHTDown/D");
+      cutTree->Branch((name+"_npv").c_str(), &npv_, "npv/I");
+      cutTree->Branch((name+"_npuTrue").c_str(), &npuTrue_, "npuTrue/I");
+      cutTree->Branch((name+"_toptagsf").c_str(), &toptagsf_, "toptagsf/D");
+      cutTree->Branch((name+"_toptagsf_Up").c_str(), &toptagsf_Up_, "toptagsf_Up/D");
+      cutTree->Branch((name+"_toptagsf_Down").c_str(), &toptagsf_Down_, "toptagsf_Down/D");
+      cutTree->Branch((name+"_btagsf").c_str(), &btagsf_, "btagsf/D");
+      cutTree->Branch((name+"_btagsf_bcUp").c_str(), &btagsf_bcUp_, "btagsf_bcUp/D");
+      cutTree->Branch((name+"_btagsf_bcDown").c_str(), &btagsf_bcDown_, "btagsf_bcDown/D");
+      cutTree->Branch((name+"_btagsf_lUp").c_str(), &btagsf_lUp_, "btagsf_lUp/D");
+      cutTree->Branch((name+"_btagsf_lDown").c_str(), &btagsf_lDown_, "btagsf_lDown/D");
+      cutTree->Branch((name+"_mtprime").c_str(), &mtprime_, "mtprime/D");
+      cutTree->Branch((name+"_mtprimeDummy").c_str(), &mtprimeDummy_, "mtprimeDummy/D");
+      cutTree->Branch((name+"_ht").c_str(), &ht_, "ht/D");
+      cutTree->Branch((name+"_nAK4").c_str(), &nAK4_, "nAK4/I");
+      cutTree->Branch((name+"_nAK8").c_str(), &nAK8_, "nAK8/I");
+      cutTree->Branch((name+"_isRegionA").c_str(), &isRegionA_, "isRegionA/O");
+      cutTree->Branch((name+"_isRegionB").c_str(), &isRegionB_, "isRegionB/O");
+      cutTree->Branch((name+"_isRegionC").c_str(), &isRegionC_, "isRegionC/O");
+      cutTree->Branch((name+"_isRegionD").c_str(), &isRegionD_, "isRegionD/O");
+      cutTree->Branch((name+"_isRegionNotABCD").c_str(), &isRegionNotABCD_, "isRegionNotABCD/O");
+      cutTree->Branch((name+"_lhewts").c_str(), &lhewts_) ;  
     }
-
-    //void ReadTree(TTree* tree, std::string name="SelectedEvents") {
-    //}
 
 };
 
