@@ -50,49 +50,58 @@ class HH4b : public edm::EDFilter {
     const std::string  btageffFile_              ;
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
-    EventInfoBranches selectedevt; 
-    JetInfoBranches ak8jets ; 
-    JetInfoBranches hjets ; 
+    hh4b::EventInfoBranches selectedevt; 
+    hh4b::DiJetInfoBranches leadingdijets; 
+    hh4b::JetInfoBranches ak8jets ; 
+    hh4b::JetInfoBranches hjets ; 
     TTree* tree_ ; 
     const bool printEvtNo_;
 
     std::unique_ptr<BTagSFUtils> btagsfutils_ ; 
+    std::unique_ptr<BTagSFUtils> doublebtagsfutils_ ; 
 
     std::ofstream outfile0b_ ; 
     std::ofstream outfile4b_ ; 
 
     static const double CSVv2L ; 
+    static const double DoubleBL;
+    static const double DoubleBM;
+    static const double DoubleBT;
 };
+
+const double HH4b::CSVv2L = 0.460;
+const double HH4b::DoubleBL = 0.30;
+const double HH4b::DoubleBM = 0.60;
+const double HH4b::DoubleBT = 0.80;
 
 using namespace std; 
 
 HH4b::HH4b(const edm::ParameterSet& iConfig) :
-  t_runno         (consumes<int>           (iConfig.getParameter<edm::InputTag>("runno"      ))),   
-  t_lumisec       (consumes<int>           (iConfig.getParameter<edm::InputTag>("lumisec"    ))),   
-  t_evtno         (consumes<int>           (iConfig.getParameter<edm::InputTag>("evtno"      ))),   
-  t_isData        (consumes<bool>          (iConfig.getParameter<edm::InputTag>("isData"     ))),   
-  t_evtwtGen      (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtGen"   ))),   
-  t_evtwtPV       (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPV"    ))),   
-  t_evtwtPVLow    (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPVLow" ))),   
-  t_evtwtPVHigh   (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPVHigh"))),   
-  t_htHat         (consumes<double>        (iConfig.getParameter<edm::InputTag>("htHat"      ))),   
-  t_npuTrue       (consumes<int>           (iConfig.getParameter<edm::InputTag>("npuTrue"    ))),   
-  t_lhewtids      (consumes<vector<int>>   (iConfig.getParameter<edm::InputTag>("lhewtids"   ))),   
-  t_lhewts        (consumes<vector<double>>(iConfig.getParameter<edm::InputTag>("lhewts"     ))),   
-  t_hltdecision   (consumes<bool>          (iConfig.getParameter<edm::InputTag>("hltdecision"))),   
-  t_npv           (consumes<unsigned>      (iConfig.getParameter<edm::InputTag>("npv"        ))),   
-  jetAK8maker     (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
-  jetHTaggedmaker (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
-  btageffFile_    (iConfig.getParameter<std::string>       ("btageffFile")), 
-  printEvtNo_     (iConfig.getParameter<bool>("printEvtNo")), 
-  btagsfutils_    (new BTagSFUtils())
+  t_runno               (consumes<int>           (iConfig.getParameter<edm::InputTag>("runno"      ))),   
+  t_lumisec             (consumes<int>           (iConfig.getParameter<edm::InputTag>("lumisec"    ))),   
+  t_evtno               (consumes<int>           (iConfig.getParameter<edm::InputTag>("evtno"      ))),   
+  t_isData              (consumes<bool>          (iConfig.getParameter<edm::InputTag>("isData"     ))),   
+  t_evtwtGen            (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtGen"   ))),   
+  t_evtwtPV             (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPV"    ))),   
+  t_evtwtPVLow          (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPVLow" ))),   
+  t_evtwtPVHigh         (consumes<double>        (iConfig.getParameter<edm::InputTag>("evtwtPVHigh"))),   
+  t_htHat               (consumes<double>        (iConfig.getParameter<edm::InputTag>("htHat"      ))),   
+  t_npuTrue             (consumes<int>           (iConfig.getParameter<edm::InputTag>("npuTrue"    ))),   
+  t_lhewtids            (consumes<vector<int>>   (iConfig.getParameter<edm::InputTag>("lhewtids"   ))),   
+  t_lhewts              (consumes<vector<double>>(iConfig.getParameter<edm::InputTag>("lhewts"     ))),   
+  t_hltdecision         (consumes<bool>          (iConfig.getParameter<edm::InputTag>("hltdecision"))),   
+  t_npv                 (consumes<unsigned>      (iConfig.getParameter<edm::InputTag>("npv"        ))),   
+  jetAK8maker           (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
+  jetHTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
+  btageffFile_          (iConfig.getParameter<std::string>       ("btageffFile")), 
+  printEvtNo_           (iConfig.getParameter<bool>("printEvtNo")), 
+  btagsfutils_          (new BTagSFUtils()),
+  doublebtagsfutils_    (new BTagSFUtils())
 {
 
 }
 
 HH4b::~HH4b() { }
-
-const double HH4b::CSVv2L = 0.460;
 
 bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -118,8 +127,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const bool isData(*h_isData.product()) ; 
   const double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
   const double htHat((*h_htHat.product())) ; 
-  //const bool hltdecision(*h_hltdecision.product()) ; 
-  const bool hltdecision(1);
+  const bool hltdecision(*h_hltdecision.product()) ; 
   const unsigned npv(*h_npv.product()) ; 
 
   vlq::JetCollection  goodAK8Jets ;  
@@ -130,8 +138,8 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   TLorentzVector p4_jet0 = goodAK8Jets.size()>=1 ? goodAK8Jets.at(0).getP4() : p4null ;
   TLorentzVector p4_jet1 = goodAK8Jets.size()>= 2 ? goodAK8Jets.at(1).getP4() : p4null ;
   double invm(goodAK8Jets.size()>= 2 ? (p4_jet0 + p4_jet1).Mag() : -999999) ;
-  double mj_0(goodAK8Jets.size()>= 2 ? goodAK8Jets.at(0).getPrunedMass() : -999999) ;
-  double mj_1(goodAK8Jets.size()>= 2 ? goodAK8Jets.at(1).getPrunedMass() : -999999) ;
+  double mj_0(goodAK8Jets.size()>= 2 ? goodAK8Jets.at(0).getSoftDropMass() : -999999) ;
+  double mj_1(goodAK8Jets.size()>= 2 ? goodAK8Jets.at(1).getSoftDropMass() : -999999) ;
   double t21_0(goodAK8Jets.size()>= 2 ? 
       ( goodAK8Jets.at(0).getTau1() != 0 ? goodAK8Jets.at(0).getTau2() / goodAK8Jets.at(0).getTau1() : 999999) 
       : 999999 ) ; 
@@ -140,6 +148,18 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       : 999999 ) ; 
   int nsjBTagged(goodAK8Jets.size()>= 2 ? 
       goodAK8Jets.at(0).getNSubjetsBTaggedCSVL() + goodAK8Jets.at(1).getNSubjetsBTaggedCSVL() : -999999) ; 
+  double doubleb0(goodAK8Jets.size()>= 1 ?
+      goodAK8Jets.at(0).getDoubleBAK8() : -999999) ;
+  double doubleb1(goodAK8Jets.size()>= 2 ?
+      goodAK8Jets.at(1).getDoubleBAK8() : -999999) ;
+  std::bitset<4>doublebcat0(1), doublebcat1(1);
+  if (doubleb0 > DoubleBL) doublebcat0 = doublebcat0 << 1;
+  if (doubleb0 > DoubleBM) doublebcat0 = doublebcat0 << 1;
+  if (doubleb0 > DoubleBT) doublebcat0 = doublebcat0 << 1;
+  if (doubleb1 > DoubleBL) doublebcat1 = doublebcat1 << 1;
+  if (doubleb1 > DoubleBM) doublebcat1 = doublebcat1 << 1;
+  if (doubleb1 > DoubleBT) doublebcat1 = doublebcat1 << 1;
+  std::bitset<4>doublebcategory(doublebcat0 | doublebcat1);
 
   //// Event flags for cut flows
   const bool hltNPV   (hltdecision && (npv > 0)) ; 
@@ -189,7 +209,11 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::vector<double>ak8jets_sjcsvs;
   std::vector<double>ak8jets_sjpts;
   std::vector<double>ak8jets_sjetas;
-  std::vector<int>ak8jets_sjflhads;
+  std::vector<int>   ak8jets_sjflhads;
+
+  std::vector<double>ak8jets_doublebs;
+  std::vector<double>ak8jets_pts;
+  std::vector<int>   ak8jets_flhads;
 
   ak8jets.njets = goodAK8Jets.size() ; 
   for (auto ijet : index(goodAK8Jets) ) {
@@ -210,7 +234,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     ak8jets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
     ak8jets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
     ak8jets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
-    selectedevt.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
+    leadingdijets.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
     ak8jets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
     ak8jets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
     ak8jets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
@@ -239,6 +263,10 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
       ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
 
+      ak8jets_doublebs.push_back((ijet.second).getDoubleBAK8());
+      ak8jets_pts.push_back((ijet.second).getPt());
+      ak8jets_flhads.push_back((ijet.second).getHadronFlavour());
+
     } //// if !isData do  b tag SFs
 
   } //// Loop over all AK8 jets
@@ -248,12 +276,18 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["npv"] -> Fill(*h_npv.product()); 
 
+  return true;
+
   //// Leading 2 jets pass Higgs tagging
   //if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
 
   vlq::JetCollection goodHTaggedJets ;
   goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
   goodHTaggedJets.push_back(goodAK8Jets.at(1)); 
+
+  leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
+
+  std::cout << " doublebbitset " << doublebcategory << " doublebcategory = " << leadingdijets.doublebcategory_ << endl; 
 
   double btagsf(1) ;
   double btagsf_bcUp(1) ; 
@@ -265,15 +299,16 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   TLorentzVector p4_hjet1 = goodHTaggedJets.at(1).getP4() ; 
   TLorentzVector p4_leading2hjets = p4_hjet0+p4_hjet1 ;
 
-  selectedevt.deta_leading2hjets_ = cosThetaStar ; 
-  selectedevt.minv_leading2hjets_ = p4_leading2hjets.Mag();
-  selectedevt.minv_leading2hjets_subtr_ = p4_leading2hjets.Mag() 
+  leadingdijets.deta_leading2hjets_ = cosThetaStar ; 
+  leadingdijets.minv_leading2hjets_ = p4_leading2hjets.Mag();
+  leadingdijets.minv_leading2hjets_subtr_ = p4_leading2hjets.Mag() 
     - (goodHTaggedJets.at(0).getMass() - 125.) 
     - (goodHTaggedJets.at(1).getMass() - 125.);
-  selectedevt.pt_leading2hjets_ = p4_leading2hjets.Pt();
-  selectedevt.eta_leading2hjets_ = p4_leading2hjets.Eta();
-  selectedevt.y_leading2hjets_ = p4_leading2hjets.Rapidity();
-  selectedevt.phi_leading2hjets_ = p4_leading2hjets.Phi();
+  leadingdijets.pt_leading2hjets_ = p4_leading2hjets.Pt();
+  leadingdijets.eta_leading2hjets_ = p4_leading2hjets.Eta();
+  leadingdijets.y_leading2hjets_ = p4_leading2hjets.Rapidity();
+  leadingdijets.phi_leading2hjets_ = p4_leading2hjets.Phi();
+  leadingdijets.energy_leading2hjets_ = p4_leading2hjets.E();
 
   std::vector<std::pair<int, double>> lhe_ids_wts;
   for (auto idx : index(*h_lhewtids.product()) ) {
@@ -294,12 +329,16 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt.lhewts_ = lhe_ids_wts;
   selectedevt.htHat_ = htHat ; 
 
-  selectedevt.nsubjetsBTaggedCSVL_ = 0 ;
+  leadingdijets.nsubjetsBTaggedCSVL_ = 0 ;
 
   std::vector<double>hjets_sjcsvs;
   std::vector<double>hjets_sjpts;
   std::vector<double>hjets_sjetas;
   std::vector<int>hjets_sjflhads;
+
+  std::vector<double>hjets_doublebs;
+  std::vector<double>hjets_pts;
+  std::vector<int>   hjets_flhads;
 
   hjets.njets = goodHTaggedJets.size() ; 
   for (auto ijet : index(goodHTaggedJets) ) {
@@ -320,7 +359,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     hjets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
     hjets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
     hjets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
-    selectedevt.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
+    leadingdijets.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
     hjets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
     hjets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
     hjets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
@@ -349,11 +388,20 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
       hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
 
+      hjets_doublebs.push_back((ijet.second).getDoubleBAK8());
+      hjets_pts.push_back((ijet.second).getPt());
+      hjets_flhads.push_back((ijet.second).getHadronFlavour());
+
     } //// if !isData do  b tag SFs
 
   } //// Loop over all Higgs jets
 
-  if ( !isData ) btagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+  if ( !isData ) {
+    btagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, 
+        btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+    //doublebtagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, 
+    //    btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+  }
 
   selectedevt.btagsf_ = btagsf;
   selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 

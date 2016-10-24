@@ -14,11 +14,6 @@ options.register('outFileName', 'hh4b.root',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('doBTagSFUnc', False,
-    VarParsing.multiplicity.singleton,
-    VarParsing.varType.bool,
-    "Apply b-tag SF uncertainties"
-    )
 options.register('jecShift', 0,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.float,
@@ -107,23 +102,19 @@ process.hh4bchs.printEvtNo = cms.bool(options.printEvtNo)
 process.hh4bchs.jetAK8selParams.scaleJetP4 = cms.bool(False)
 process.hh4bchs.jetAK8selParams.jettau2Bytau1Max = cms.double(1.00)
 process.hh4bchs.jetAK8selParams.subjetCSVMin = cms.double(-1000.) 
-#process.hh4bchs.doBTagSFUnc = options.doBTagSFUnc
 process.hh4bchs.jetAK8selParams.jecShift = options.jecShift 
 process.hh4bchs.jetAK8selParams.jerShift = options.jerShift 
 process.hh4bchs.jetHTaggedselParams.scaleJetP4 = cms.bool(False)
 process.hh4bchs.jetHTaggedselParams.jettau2Bytau1Max = cms.double(1.00)
 process.hh4bchs.jetHTaggedselParams.subjetCSVMin = cms.double(-1000.) 
-#process.hh4bchs.doBTagSFUnc = options.doBTagSFUnc
 process.hh4bchs.jetHTaggedselParams.jecShift = options.jecShift 
 process.hh4bchs.jetHTaggedselParams.jerShift = options.jerShift 
 if options.isData:
-  #process.hh4bchs.jetAK8selParams.newJECPayloadNames.append("Fall15_25nsV2_DATA_L2L3Residual_AK8PFchs.txt") #
   process.hh4bchs.jetAK8selParams.jecUncPayloadName = cms.string("Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt")
   process.hh4bchs.jetAK8selParams.jecAK8GroomedPayloadNames = cms.vstring(
       "Spring16_25nsV6_DATA_L2Relative_AK8PFchs.txt", 
       "Spring16_25nsV6_DATA_L3Absolute_AK8PFchs.txt",
       "Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt")  
-  #process.hh4bchs.jetHTaggedselParams.newJECPayloadNames.append("Fall15_25nsV2_DATA_L2L3Residual_AK8PFchs.txt") #
   process.hh4bchs.jetHTaggedselParams.jecUncPayloadName = cms.string("Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt")
   process.hh4bchs.jetHTaggedselParams.jecAK8GroomedPayloadNames = cms.vstring(
       "Spring16_25nsV6_DATA_L2Relative_AK8PFchs.txt", 
@@ -142,8 +133,6 @@ process.hh4bpuppi = process.hh4bchs.clone(
       JetIDParams  = defaultAK8PuppiJetIDParameters.clone(
         quality = cms.string  ("TIGHTLEPVETO"),
         ), 
-      jetSoftDropMassMin    = cms.double(90) ,
-      jetSoftDropMassMax    = cms.double(145) ,
       ),
     )
 
@@ -157,7 +146,7 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *process.hh4bchs
-    *process.hh4bpuppi
+    #*process.hh4bpuppi
     * process.finalEvents
     )
 
