@@ -277,7 +277,6 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["npv"] -> Fill(*h_npv.product()); 
 
   leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
-  std::cout << " doublebbitset " << doublebcategory << " doublebcategory = " << leadingdijets.doublebcategory_ << endl; 
 
   //// Leading 2 jets pass Higgs tagging
   if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
