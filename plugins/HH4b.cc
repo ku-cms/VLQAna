@@ -272,9 +272,12 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   } //// Loop over all AK8 jets
 
   //// Event selection
-  //if ( !hltNPV || !ak8Pt ) return false; 
+  if ( !hltNPV || !ak8Pt ) return false; 
 
   h1_["npv"] -> Fill(*h_npv.product()); 
+
+  leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
+  std::cout << " doublebbitset " << doublebcategory << " doublebcategory = " << leadingdijets.doublebcategory_ << endl; 
 
   //// Leading 2 jets pass Higgs tagging
   if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
@@ -282,10 +285,6 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::JetCollection goodHTaggedJets ;
   goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
   goodHTaggedJets.push_back(goodAK8Jets.at(1)); 
-
-  leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
-
-  std::cout << " doublebbitset " << doublebcategory << " doublebcategory = " << leadingdijets.doublebcategory_ << endl; 
 
   double btagsf(1) ;
   double btagsf_bcUp(1) ; 
