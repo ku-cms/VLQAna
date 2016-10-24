@@ -146,7 +146,7 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *process.hh4bchs
-    #*process.hh4bpuppi
+    *process.hh4bpuppi
     * process.finalEvents
     )
 

@@ -276,10 +276,8 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["npv"] -> Fill(*h_npv.product()); 
 
-  return true;
-
   //// Leading 2 jets pass Higgs tagging
-  //if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
+  if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
 
   vlq::JetCollection goodHTaggedJets ;
   goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
