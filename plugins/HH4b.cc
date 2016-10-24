@@ -443,6 +443,7 @@ void HH4b::beginJob() {
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
   tree_ = fs->make<TTree>("tree", "HH4b") ; 
   selectedevt.RegisterTree(tree_,"SelectedEvent") ; 
+  leadingdijets.RegisterTree(tree_,"LeadingDiJets") ;
   ak8jets.RegisterTree(tree_,"AK8Jets") ; 
   hjets.RegisterTree(tree_,"HJets") ; 
 
