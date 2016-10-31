@@ -8,8 +8,14 @@ defaultAK4JetIDParameters = cms.PSet(
     quality                    = cms.string  ("LOOSE"),
     )
 
-defaultAK8JetIDParameters = cms.PSet(
-    defaultAK8JetParameters, 
+defaultAK8CHSJetIDParameters = cms.PSet(
+    defaultAK8CHSJetParameters, 
+    version                    = cms.string  ("FIRSTDATA"),
+    quality                    = cms.string  ("TIGHT"),
+    )
+
+defaultAK8PuppiJetIDParameters = cms.PSet(
+    defaultAK8PuppiJetParameters, 
     version                    = cms.string  ("FIRSTDATA"),
     quality                    = cms.string  ("TIGHT"),
     )

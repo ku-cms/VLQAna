@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.PickGenPart_cfi import *
-from Analysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.JetMaker_cfi import *
 ana = cms.EDFilter("VLQAna", 
+    runno                      = cms.InputTag("evtcleaner","runno"), 
+    lumisec                    = cms.InputTag("evtcleaner","lumisec"), 
+    evtno                      = cms.InputTag("evtcleaner","evtno"), 
     isData                     = cms.InputTag("evtcleaner","isData"), 
     hltdecision                = cms.InputTag("evtcleaner","hltdecision"), 
     evttype                    = cms.InputTag("evtcleaner","evttype"),
@@ -16,13 +19,13 @@ ana = cms.EDFilter("VLQAna",
     lhewtids                   = cms.InputTag("evtcleaner","lhewtids"),
     lhewts                     = cms.InputTag("evtcleaner","lhewts"), 
     jetAK4selParams            = defaultAK4JetSelectionParameters,
-    jetAK8selParams            = defaultAK8JetSelectionParameters,
-    jetHTaggedselParams        = defaultHJetSelectionParameters,
-    jetAntiHTaggedselParams    = defaultHJetSelectionParameters.clone(
+    jetAK8selParams            = defaultAK8CHSJetSelectionParameters,
+    jetHTaggedselParams        = defaultCHSHJetSelectionParameters,
+    jetAntiHTaggedselParams    = defaultCHSHJetSelectionParameters.clone(
       subjetCSVMin = cms.double(-1000000) ,
       subjetCSVMax = cms.double(0.605) ,
       ), 
-    jetTopTaggedselParams      = defaultTJetSelectionParameters.clone(
+    jetTopTaggedselParams      = defaultCHSTJetSelectionParameters.clone(
       jettau3Bytau2Max    = cms.double(0.54) ,
       subjetHighestCSVMin = cms.double(0.79) ,
       ), 

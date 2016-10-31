@@ -49,9 +49,9 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
   genParts_.clear();
 
 
-  for ( reco::GenParticle igen : *(h_genparticles.product())) {
-    std::cout << " pdg id = " << igen.pdgId() << std::endl ; 
-  }
+  //for ( reco::GenParticle igen : *(h_genparticles.product())) {
+  //  std::cout << " pdg id = " << igen.pdgId() << std::endl ; 
+  //}
 
   //hfloat h_genPartPt            ; evt.getByToken(t_genPartPt            , h_genPartPt           ) ;  
   //hfloat h_genPartEta           ; evt.getByToken(t_genPartEta           , h_genPartEta          ) ;  

@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Analysis.VLQAna.JetSelector_cfi import *
+from Analysis.VLQAna.JetMaker_cfi import *
 
 hh4b = cms.EDFilter("HH4b",
     runno               = cms.InputTag("evtcleaner","runno"), 
@@ -16,15 +16,15 @@ hh4b = cms.EDFilter("HH4b",
     hltdecision         = cms.InputTag("evtcleaner","hltdecision"), 
     npv                 = cms.InputTag("evtcleaner","npv"),
     npuTrue             = cms.InputTag("evtcleaner","npuTrue"),
-    jetAK8selParams     = defaultAK8JetSelectionParameters.clone(
+    jetAK8selParams  = defaultAK8CHSJetSelectionParameters.clone(
       jetPtMin                  = cms.double(200),
-      JetIDParams  = defaultAK8JetIDParameters.clone(
+      JetIDParams  = defaultAK8CHSJetIDParameters.clone(
         quality = cms.string  ("TIGHTLEPVETO"),
         ), 
       jetAbsEtaMax = cms.double(100), 
       ),
-    jetHTaggedselParams = defaultHJetSelectionParameters.clone(
-      JetIDParams  = defaultAK8JetIDParameters.clone(
+    jetHTaggedselParams = defaultCHSHJetSelectionParameters.clone(
+      JetIDParams  = defaultAK8CHSJetIDParameters.clone(
         quality = cms.string  ("TIGHTLEPVETO"),
         ), 
       jetPrunedMassMin    = cms.double(90) ,

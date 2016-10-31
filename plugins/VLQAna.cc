@@ -63,6 +63,9 @@ class VLQAna : public edm::EDFilter {
     double getHTReweightingSF(double ht, double err); 
 
     // ----------member data ---------------------------
+    edm::EDGetTokenT<int>            t_runno      ;
+    edm::EDGetTokenT<int>            t_lumisec    ;
+    edm::EDGetTokenT<int>            t_evtno      ;
     edm::EDGetTokenT<bool>           t_isData     ;
     edm::EDGetTokenT<bool>           t_hltdecision;
     edm::EDGetTokenT<string>         t_evttype    ;
@@ -83,7 +86,6 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAntiHTaggedmaker                  ; 
 
     double HTMin_                                 ; 
-    bool   doBTagSFUnc_                           ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
 
@@ -95,11 +97,16 @@ class VLQAna : public edm::EDFilter {
     TtHJetInfoBranches jets_ ; 
     TTree* tree_ ; 
 
+    std::unique_ptr<BTagSFUtils> btagsfutils_ ; 
+
 };
 
 using namespace std; 
 
 VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
+  t_runno                 (consumes<int>            (iConfig.getParameter<edm::InputTag>("runno"))),   
+  t_lumisec               (consumes<int>            (iConfig.getParameter<edm::InputTag>("lumisec"))),   
+  t_evtno                 (consumes<int>            (iConfig.getParameter<edm::InputTag>("evtno"))),   
   t_isData                (consumes<bool>           (iConfig.getParameter<edm::InputTag>("isData"))),
   t_hltdecision           (consumes<bool>           (iConfig.getParameter<edm::InputTag>("hltdecision"))),
   t_evttype               (consumes<string>         (iConfig.getParameter<edm::InputTag>("evttype"))),
@@ -118,9 +125,9 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
-  doBTagSFUnc_            (iConfig.getParameter<bool>             ("doBTagSFUnc")),
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
-  doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")) 
+  doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
+  btagsfutils_            (new BTagSFUtils())
 {
 
 }
@@ -131,19 +138,25 @@ VLQAna::~VLQAna() {
 bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<bool>           h_isData        ; evt.getByToken(t_isData     , h_isData) ; 
+  Handle<int>            h_runno         ; evt.getByToken(t_runno      , h_runno      ) ; 
+  Handle<int>            h_lumisec       ; evt.getByToken(t_lumisec    , h_lumisec    ) ; 
+  Handle<int>            h_evtno         ; evt.getByToken(t_evtno      , h_evtno      ) ; 
+  Handle<bool>           h_isData        ; evt.getByToken(t_isData     , h_isData     ) ; 
   Handle<bool>           h_hltdecision   ; evt.getByToken(t_hltdecision, h_hltdecision) ; 
-  Handle<string>         h_evttype       ; evt.getByToken(t_evttype    , h_evttype) ; 
-  Handle<double>         h_evtwtGen      ; evt.getByToken(t_evtwtGen   , h_evtwtGen) ; 
-  Handle<double>         h_evtwtPV       ; evt.getByToken(t_evtwtPV    , h_evtwtPV) ; 
-  Handle<double>         h_evtwtPVLow    ; evt.getByToken(t_evtwtPVLow , h_evtwtPVLow) ; 
+  Handle<string>         h_evttype       ; evt.getByToken(t_evttype    , h_evttype    ) ; 
+  Handle<double>         h_evtwtGen      ; evt.getByToken(t_evtwtGen   , h_evtwtGen   ) ; 
+  Handle<double>         h_evtwtPV       ; evt.getByToken(t_evtwtPV    , h_evtwtPV    ) ; 
+  Handle<double>         h_evtwtPVLow    ; evt.getByToken(t_evtwtPVLow , h_evtwtPVLow ) ; 
   Handle<double>         h_evtwtPVHigh   ; evt.getByToken(t_evtwtPVHigh, h_evtwtPVHigh) ; 
-  Handle<unsigned>       h_npv           ; evt.getByToken(t_npv        , h_npv) ; 
-  Handle<int>            h_npuTrue       ; evt.getByToken(t_npuTrue    , h_npuTrue) ; 
-  Handle<double>         h_htHat         ; evt.getByToken(t_htHat      , h_htHat) ; 
-  Handle<vector<int>>    h_lhewtids      ; evt.getByToken(t_lhewtids   , h_lhewtids) ; 
-  Handle<vector<double>> h_lhewts        ; evt.getByToken(t_lhewts     , h_lhewts) ; 
+  Handle<unsigned>       h_npv           ; evt.getByToken(t_npv        , h_npv        ) ; 
+  Handle<int>            h_npuTrue       ; evt.getByToken(t_npuTrue    , h_npuTrue    ) ; 
+  Handle<double>         h_htHat         ; evt.getByToken(t_htHat      , h_htHat      ) ; 
+  Handle<vector<int>>    h_lhewtids      ; evt.getByToken(t_lhewtids   , h_lhewtids   ) ; 
+  Handle<vector<double>> h_lhewts        ; evt.getByToken(t_lhewts     , h_lhewts     ) ; 
 
+  const int runno(*h_runno.product()) ; 
+  const int lumisec(*h_lumisec.product()) ; 
+  const int evtno(*h_evtno.product()) ; 
   const bool isData(*h_isData.product()) ; 
   const bool hltdecision(*h_hltdecision.product()) ; 
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
@@ -169,6 +182,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   vlq::JetCollection goodAK8Jets; 
   jetAK8maker(evt, goodAK8Jets); 
+
   //// Event pre-selection
   if (goodAK8Jets.size() < 1) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
@@ -194,7 +208,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["Presel_NAK4"] -> Fill(goodAK4Jets.size(), evtwt) ; 
     h1_["Presel_NAK8"] -> Fill(goodAK8Jets.size(), evtwt) ; 
 
-    if ( !storePreselEvts_ && doPreselOnly_ ) return true;
   }
 
   vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets ; 
@@ -298,71 +311,56 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     evtwtHTUp = getHTReweightingSF(htak4.getHT(), 1) ; 
     evtwtHTDown = getHTReweightingSF(htak4.getHT(), -1) ; 
 
-    if ( theTop != nullptr && theTop->getPt() >= 400. && theTop->getPt() < 550.) {
-      toptagsf = 0.88 ;
-      toptagsfUp = 0.88+0.13 ; 
-      toptagsfDown = 0.88-0.13;
-    }
-    else if ( theTop != nullptr && theTop->getPt() >= 550.)  {
-      toptagsf = 0.94 ;
-      toptagsfUp = 0.94+0.29 ; 
-      toptagsfDown = 0.94-0.29;
-    }
+    std::vector<double> sjcsvs(0) ; 
+    std::vector<double> sjpts (0) ; 
+    std::vector<double> sjetas(0) ; 
+    std::vector<int> sjfls (0) ; 
 
-    if ( theHiggs != nullptr || theAntiHiggs != nullptr ) {
-
-      double sj0csv(0) ; 
-      double sj0pt (0) ; 
-      double sj0fl (0) ; 
-      double sj1csv(0) ; 
-      double sj1pt (0) ; 
-      double sj1fl (0) ; 
-      if ( theHiggs != nullptr ) {
-        sj0csv=(theHiggs->getCSVSubjet0()) ; 
-        sj0pt =(theHiggs->getPtSubjet0()) ; 
-        sj0fl =(theHiggs->getHadronFlavourSubjet0()) ; 
-        sj1csv=(theHiggs->getCSVSubjet1()) ; 
-        sj1pt =(theHiggs->getPtSubjet1()) ; 
-        sj1fl =(theHiggs->getHadronFlavourSubjet1()) ; 
+    //// This needs to be revisied when the top tag WP is updated
+    if ( theTop != nullptr ){
+      if ( theTop->getPt() >= 400. && theTop->getPt() < 550.) {
+        toptagsf = 0.88 ;
+        toptagsfUp = 0.88+0.13 ; 
+        toptagsfDown = 0.88-0.13;
       }
-      else if ( theAntiHiggs != nullptr ) {
-        sj0csv=(theAntiHiggs->getCSVSubjet0()) ; 
-        sj0pt =(theAntiHiggs->getPtSubjet0()) ; 
-        sj0fl =(theAntiHiggs->getHadronFlavourSubjet0()) ; 
-        sj1csv=(theAntiHiggs->getCSVSubjet1()) ; 
-        sj1pt =(theAntiHiggs->getPtSubjet1()) ; 
-        sj1fl =(theAntiHiggs->getHadronFlavourSubjet1()) ; 
+      else if ( theTop != nullptr && theTop->getPt() >= 550.)  {
+        toptagsf = 0.94 ;
+        toptagsfUp = 0.94+0.29 ; 
+        toptagsfDown = 0.94-0.29;
       }
+      sjcsvs.push_back( (theTop->getCSVSubjet0()) ); 
+      sjpts .push_back( (theTop->getPtSubjet0()) ); 
+      sjetas.push_back( (theTop->getEtaSubjet0()) ); 
+      sjfls .push_back( (theTop->getHadronFlavourSubjet0()) ); 
+      sjcsvs.push_back( (theTop->getCSVSubjet1()) ); 
+      sjpts .push_back( (theTop->getPtSubjet1()) ); 
+      sjetas.push_back( (theTop->getEtaSubjet1()) ); 
+      sjfls .push_back( (theTop->getHadronFlavourSubjet1()) ); 
+    }
 
-      ////// Get btag SFs
-      if ( sj0csv > 0.605 ) btagsf *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl, 0, 0) ; 
-      else btagsf *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,0)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-      if ( sj1csv > 0.605 ) btagsf *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl, 0, 0) ; 
-      else btagsf *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,0)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
+    if ( theHiggs != nullptr ) {
+      sjcsvs.push_back( (theHiggs->getCSVSubjet0()) ); 
+      sjpts .push_back( (theHiggs->getPtSubjet0()) ); 
+      sjetas.push_back( (theHiggs->getEtaSubjet0()) ); 
+      sjfls .push_back( (theHiggs->getHadronFlavourSubjet0()) ); 
+      sjcsvs.push_back( (theHiggs->getCSVSubjet1()) ); 
+      sjpts .push_back( (theHiggs->getPtSubjet1()) ); 
+      sjetas.push_back( (theHiggs->getEtaSubjet1()) ); 
+      sjfls .push_back( (theHiggs->getHadronFlavourSubjet1()) ); 
+    }
+    else if ( theAntiHiggs != nullptr ) {
+      sjcsvs.push_back( (theAntiHiggs->getCSVSubjet0()) ); 
+      sjpts .push_back( (theAntiHiggs->getPtSubjet0()) ); 
+      sjetas.push_back( (theAntiHiggs->getPtSubjet0()) ); 
+      sjfls .push_back( (theAntiHiggs->getHadronFlavourSubjet0()) ); 
+      sjcsvs.push_back( (theAntiHiggs->getCSVSubjet1()) ); 
+      sjpts .push_back( (theAntiHiggs->getPtSubjet1()) ); 
+      sjetas.push_back( (theAntiHiggs->getPtSubjet1()) ) ; 
+      sjfls .push_back( (theAntiHiggs->getHadronFlavourSubjet1()) ); 
+    }
 
-      //// Get btag SF up bc err
-      if ( sj0csv > 0.605 ) btagsf_bcUp *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,1,0) ; 
-      else btagsf_bcUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-      if ( sj1csv > 0.605 ) btagsf_bcUp *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,1,0) ; 
-      else btagsf_bcUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-      if ( sj0csv > 0.605 ) btagsf_bcDown *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0) ; 
-      else btagsf_bcDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,-1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-      if ( sj1csv > 0.605 ) btagsf_bcDown *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0) ; 
-      else btagsf_bcDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,-1,0)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-      //// Get btag SF up light err
-      if ( sj0csv > 0.605 ) btagsf_lUp *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,1) ; 
-      else btagsf_lUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,1)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-      if ( sj1csv > 0.605 ) btagsf_lUp *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,1) ; 
-      else btagsf_lUp *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,1)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-      if ( sj0csv > 0.605 ) btagsf_lDown *= BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1) ; 
-      else btagsf_lDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj0pt, sj0fl,0,-1)*BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj0pt, sj0fl) ); 
-      if ( sj1csv > 0.605 ) btagsf_lDown *= BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1) ; 
-      else btagsf_lDown *= ( 1 - BTagSFUtils::getBTagSF_CSVv2L(sj1pt, sj1fl,0,-1)*BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) )/( 1 - BTagSFUtils::getBTagEff_CSVv2L(sj1pt, sj1fl) ); 
-
-    } //// Do b-tag SFs
+    ////// Get btag SFs
+    btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   } //// if !isData
 
@@ -443,6 +441,9 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     lhe_ids_wts.push_back(std::make_pair(id, wt)) ; 
   }
 
+  selectedevt_.runno_ = int(runno);
+  selectedevt_.lumisec_ = int(lumisec);
+  selectedevt_.evtno_ = int(evtno);
   selectedevt_.EvtWeight_ = double(*h_evtwtGen.product());
   selectedevt_.EvtWtPV_ = double(*h_evtwtPV.product()) ; 
   selectedevt_.EvtWtPVLow_ = double(*h_evtwtPVLow.product()) ; 
@@ -775,103 +776,6 @@ void VLQAna::beginJob() {
   h1_["RegB_mtprime_corr_toptagsfDown"] = fs->make<TH1D>("RegB_mtprime_corr_toptagsfDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegB_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegB_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
-
-  //h1_["ptak8leading"]  = fs->make<TH1D>("ptak8leading"  ,";p_T(leading AK8 jet) [GeV];;"      , 40, 0., 2000.) ; 
-  //h1_["ptak4leading"]  = fs->make<TH1D>("ptak4leading"  ,";p_T(leading AK4 jet) [GeV];;"      , 40, 0., 2000.) ; 
-  //h1_["ptbjetleading"]  = fs->make<TH1D>("ptbjetleading"  ,";p_T(leading b jet) [GeV];;"      , 40, 0., 2000.) ; 
-
-  //h1_["etaak8leading"] = fs->make<TH1D>("etaak8leading", ";#eta(leading AK8 jet);;" , 80 ,-4. ,4.) ; 
-  //h1_["etaak4leading"] = fs->make<TH1D>("etaak4leading", ";#eta(leading AK4 jet);;" , 80 ,-4. ,4.) ; 
-  //h1_["etabjetleading"] = fs->make<TH1D>("etabjetleading", ";#eta(leading b jet);;" , 80 ,-4. ,4.) ; 
-
-  //h1_["ptak82nd"]  = fs->make<TH1D>("ptak82nd"  ,";p_T(2nd AK8 jet) [GeV];;"      , 40, 0., 2000.) ; 
-  //h1_["ptak8leadingPlus2nd"]  = fs->make<TH1D>("ptak8leadingPlus2nd"  ,";p_T(leading AK8 jet)+p_T (2nd AK8 jet) [GeV];;"      , 40, 0., 2000.) ; 
-
-  //h1_["csvbjetleading"] = fs->make<TH1D>("csvbjetleading", ";CSV (leading b jet);;" ,50 ,0. ,1.) ; 
-  //h1_["csvbjethighestcsv"] = fs->make<TH1D>("csvbjethighestcsv", ";max. CSV b jet;;" ,50 ,0. ,1.) ; 
-
-  //h1_["ak4highestcsv_nocuts"] = fs->make<TH1D>("ak4highestcsv_nocuts", ";max. CSV of AK4 jets;;" , 50, 0., 1.) ; 
-
-  //h1_["ptak4highestcsv"] = fs->make<TH1D>("ptak4highestcsv", ";p_T(highest CSV AK4 jet);;" , 100, 0., 2000.) ; 
-  //h1_["etaak4highestcsv"] = fs->make<TH1D>("etaak4highestcsv", ";#eta(highest CSV AK4 jet);;" , 80 ,-4. ,4.) ; 
-
-  //h1_["ptak4forwardmost"] = fs->make<TH1D>("ptak4forwardmost", ";p_T(forwardmost AK4 jet);;" , 100, 0., 2000.) ; 
-  //h1_["etaak4forwardmost"] = fs->make<TH1D>("etaak4forwardmost", ";p_T(forwardmost AK4 jet);;" , 80 ,-4. ,4.) ; 
-
-  //h1_["mak8leading"] = fs->make<TH1D>("mak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-  //h1_["mak8highestm"] = fs->make<TH1D>("mak8highestm", ";M(most massive AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-
-  //h1_["prunedmak8leading"] = fs->make<TH1D>("prunedmak8leading", ";M(pruned leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-
-  //h1_["trimmedmak8leading"] = fs->make<TH1D>("trimmedmak8leading", ";M(trimmed leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-  //h1_["trimmedmak8highesttrimmedm"] = fs->make<TH1D>("trimmedmak8highesttrimmedm", ";M(highest trimmed mass AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-
-  //h1_["softdropmak8leading"] = fs->make<TH1D>("softdropmak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-  //h1_["softdropmak8highestsoftdropm"] = fs->make<TH1D>("softdropmak8highestsoftdropm", ";M(highest soft drop mass AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-
-  //h1_["mak82nd"] = fs->make<TH1D>("mak82nd", ";M(2nd AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
-
-  //h1_["csvak8leading"] = fs->make<TH1D>("csvak8leading", ";CSV (leading AK8 jet);;" ,50 ,0. ,1.) ;
-  //h1_["csvak82nd"] = fs->make<TH1D>("csvak82nd", ";CSV (2nd AK8 jet);;" ,50 ,0. ,1.) ;
-
-  //h2_["pt_ak8_leading_2nd"] = fs->make<TH2D>("pt_ak8_leading_2nd", ";p_T (leading AK8 jet) [GeV];p_T (2nd AK8 jet) [GeV];" ,40, 0., 2000. ,40, 0., 2000.) ; 
-
-  //h2_["m_ak8_leading_2nd"] = fs->make<TH2D>("m_ak8_leading_2nd", ";M(leading AK8 jet) [GeV];M(2nd AK8 jet) [GeV];" ,100, 0., 200. ,100, 0., 200.) ; 
-
-  //h2_["csv_ak8_leading_2nd"] = fs->make<TH2D>("csv_ak8_leading_2nd", ";CSV(leading AK8 jet) ;CSV(2nd AK8 jet) ;" ,50 ,0. ,1. ,50 ,0. ,1.) ;  
-
-  //h1_["nak8_nocuts"] = fs->make<TH1D>("nak8_nocuts", ";AK8 jet multiplicity before cuts;;" , 11, -0.5,10.5) ; 
-  //h1_["nak4_nocuts"] = fs->make<TH1D>("nak4_nocuts", ";AK4 jet multiplicity before cuts;;" , 11, -0.5,10.5) ; 
-  //h1_["nbloose_nocuts"] = fs->make<TH1D>("nbloose_nocuts", ";b jet multiplicity before cuts;;" , 11, -0.5,10.5) ; 
-
-  //h1_["nak8_presel"] = fs->make<TH1D>("nak8_presel", ";AK8 jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nak4_presel"] = fs->make<TH1D>("nak4_presel", ";AK4 jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nbloose_presel"] = fs->make<TH1D>("nbloose_presel", ";b jet multiplicity (Loose OP);;" , 11, -0.5,10.5) ; 
-  //h1_["nbmedium_presel"] = fs->make<TH1D>("nbmedium_presel", ";b jet multiplicity (Medium OP);;" , 11, -0.5,10.5) ; 
-
-  //h1_["nwjet_presel"] = fs->make<TH1D>("nwjet_presel", ";W jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nhjet_presel"] = fs->make<TH1D>("nhjet_presel", ";H jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["ntjet_presel"] = fs->make<TH1D>("ntjet_presel", ";top jet multiplicity;;" , 11, -0.5,10.5) ; 
-
-  //h1_["nwcand_presel"] = fs->make<TH1D>("nwcand_presel", ";W candidate multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nhcand_presel"] = fs->make<TH1D>("nhcand_presel", ";H candidate multiplicity;;" , 11, -0.5,10.5) ; 
-
-  //h1_["ht_presel"] = fs->make<TH1D>("ht_presel" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-
-  //h1_["nak8"] = fs->make<TH1D>("nak8", ";AK8 jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nak4"] = fs->make<TH1D>("nak4", ";AK4 jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nbloose"] = fs->make<TH1D>("nbloose", ";b jet multiplicity (Loose OP);;" , 11, -0.5,10.5) ; 
-  //h1_["nbmedium"] = fs->make<TH1D>("nbmedium", ";b jet multiplicity (Medium OP);;" , 11, -0.5,10.5) ; 
-
-  //h1_["nwjet"] = fs->make<TH1D>("nwjet", ";W jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nhjet"] = fs->make<TH1D>("nhjet", ";H jet multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["ntjet"] = fs->make<TH1D>("ntjet", ";top jet multiplicity;;" , 11, -0.5,10.5) ; 
-
-  //h1_["nwcand"] = fs->make<TH1D>("nwcand", ";W candidate multiplicity;;" , 11, -0.5,10.5) ; 
-  //h1_["nhcand"] = fs->make<TH1D>("nhcand", ";H candidate multiplicity;;" , 11, -0.5,10.5) ; 
-
-  //h1_["ht"] = fs->make<TH1D>("ht" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-
-  //h1_["ptleadinghcand"] = fs->make<TH1D>("ptleadinghcand" ,";p_T (leading H cands) [GeV]", 100, 0., 2000.) ; 
-  //h1_["ptleadingwcand"] = fs->make<TH1D>("ptleadingwcand" ,";p_T (leading W cands) [GeV]", 100, 0., 2000.) ; 
-
-  //h1_["ptleadinghjet"] = fs->make<TH1D>("ptleadinghjet" ,";p_T (leading H-tagged jets) [GeV]", 100, 0., 2000.) ; 
-  //h1_["ptleadingwjet"] = fs->make<TH1D>("ptleadingwjet" ,";p_T (leading W-tagged jets) [GeV]", 100, 0., 2000.) ; 
-  //h1_["ptleadingtjet"] = fs->make<TH1D>("ptleadingtjet" ,";p_T (leading top-tagged jets) [GeV]", 100, 0., 2000.) ; 
-
-  //h1_["ht_nwjetGt0"] = fs->make<TH1D>("ht_nwjetGt0" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-  //h1_["ht_nhjetGt0"] = fs->make<TH1D>("ht_nhjetGt0" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-  //h1_["ht_ntjetGt0"] = fs->make<TH1D>("ht_ntjetGt0" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-  //h1_["ht_nwhjetGt0"] = fs->make<TH1D>("ht_nwhjetGt0" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-  //h1_["ht_nhtjetGt0"] = fs->make<TH1D>("ht_nhtjetGt0" ,";H_T (AK4 jets) [GeV]", 200, 0., 4000.) ; 
-  //h1_["ht_nwcandGt0"] = fs->make<TH1D>("ht_nwcandGt0" ,";H_T (AK4 cands) [GeV]", 200, 0., 4000.) ; 
-  //h1_["ht_nhcandGt0"] = fs->make<TH1D>("ht_nhcandGt0" ,";H_T (AK4 cands) [GeV]", 200, 0., 4000.) ; 
-
-  //h1_["ptak8"]  = fs->make<TH1D>("ptak8"  ,";p_T(AK8 jet) [GeV]"         , 100, 0., 2000.) ; 
-  //h1_["pthjets"] = fs->make<TH1D>("pthjets" ,";p_T (H-tagged jets) [GeV]", 100, 0., 2000.) ; 
-  //h1_["csvhjets"] = fs->make<TH1D>("csvhjets", ";CSV (H-tagged jets);;" ,50 ,0. ,1.) ;
-
-  //h1_["drwh"] = fs->make<TH1D>("drwh", ";#DeltaR(H,W);;", 40, 0, 4.) ;  
 
 }
 

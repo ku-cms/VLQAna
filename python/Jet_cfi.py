@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 defaultAK4JetParameters = cms.PSet(
-    npvLabel                = cms.InputTag("eventUserData", "npv"),
+    npvLabel                = cms.InputTag("vertexInfo", "npv"),
     rhoLabel                = cms.InputTag("fixedGridRhoFastjetAll"),
     jetPtLabel              = cms.InputTag("jetsAK4CHS", "jetAK4CHSPt"),
     jetEtaLabel             = cms.InputTag("jetsAK4CHS", "jetAK4CHSEta"),
@@ -14,8 +14,8 @@ defaultAK4JetParameters = cms.PSet(
     jetCMVALabel            = cms.InputTag("jetsAK4CHS", "jetAK4CHSCMVAv2"),
     jetCvsBLabel            = cms.InputTag("jetsAK4CHS", "jetAK4CHSCvsB"),
     jetCvsLLabel            = cms.InputTag("jetsAK4CHS", "jetAK4CHSCvsL"),
-    jetDoubleBAK8Label      = cms.InputTag("jetsAK4CHS", "jetAK4CHSDoubleBAK8"),
-    jetDoubleBCA15Label     = cms.InputTag("jetsAK4CHS", "jetAK4CHSDoubleBCA15"),
+    #jetDoubleBAK8Label      = cms.InputTag("jetsAK4CHS", "jetAK4CHSDoubleBAK8"),
+    #jetDoubleBCA15Label     = cms.InputTag("jetsAK4CHS", "jetAK4CHSDoubleBCA15"),
     jetJECLabel             = cms.InputTag("jetsAK4CHS", "jetAK4CHSjecFactor0"),
     jetnHadEnergyLabel      = cms.InputTag("jetsAK4CHS", "jetAK4CHSneutralHadronEnergyFrac"),
     jetnEMEnergyLabel       = cms.InputTag("jetsAK4CHS", "jetAK4CHSneutralEmEnergyFrac"),
@@ -35,13 +35,28 @@ defaultAK4JetParameters = cms.PSet(
     jetGenJetChargeLabel    = cms.InputTag("jetsAK4CHS", "jetAK4CHSGenJetCharge"),
     )
 
-defaultAK8JetParameters = defaultAK4JetParameters.clone( 
-    npvLabel                = cms.InputTag("eventUserData", "npv"),
+defaultAK8GenJetSoftDropParameters = cms.PSet(
+    jetPtLabel     = cms.InputTag("genJetsAK8SoftDrop"       , "genJetsAK8SoftDropPt"),    
+    jetEtaLabel    = cms.InputTag("genJetsAK8SoftDrop"       , "genJetsAK8SoftDropEta"),    
+    jetPhiLabel    = cms.InputTag("genJetsAK8SoftDrop"       , "genJetsAK8SoftDropPhi"),    
+    jetEnergyLabel = cms.InputTag("genJetsAK8SoftDrop"       , "genJetsAK8SoftDropE"),    
+    jetChargeLabel = cms.InputTag("genJetsAK8SoftDrop"       , "genJetsAK8SoftDropCharge"),    
+    )
+
+defaultAK8GenSoftDropSubjetParameters = cms.PSet(
+    jetPtLabel     = cms.InputTag("genJetsAK8SoftDropSubjets", "genJetsAK8SoftDropSubJetsEta"),    
+    jetEtaLabel    = cms.InputTag("genJetsAK8SoftDropSubjets", "genJetsAK8SoftDropSubJetsPhi"),    
+    jetPhiLabel    = cms.InputTag("genJetsAK8SoftDropSubjets", "genJetsAK8SoftDropSubJetsPt"),    
+    jetEnergyLabel = cms.InputTag("genJetsAK8SoftDropSubjets", "genJetsAK8SoftDropSubJetsE"),    
+    jetChargeLabel = cms.InputTag("genJetsAK8SoftDropSubjets", "genJetsAK8SoftDropSubJetsCharge"),    
+    )
+
+defaultAK8CHSJetParameters = defaultAK4JetParameters.clone( 
+    npvLabel                = cms.InputTag("vertexInfo", "npv"),
     rhoLabel                = cms.InputTag("fixedGridRhoFastjetAll"),
     jetPtLabel              = cms.InputTag("jetsAK8CHS", "jetAK8CHSPt"),
     jetEtaLabel             = cms.InputTag("jetsAK8CHS", "jetAK8CHSEta"),
     jetPhiLabel             = cms.InputTag("jetsAK8CHS", "jetAK8CHSPhi"),
-    #jetMassLabel            = cms.InputTag("jetsAK8CHS", "jetAK8CHSMass"),
     jetEnergyLabel          = cms.InputTag("jetsAK8CHS", "jetAK8CHSE"),
     jetPrunedMassLabel      = cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"),
     jetTrimmedMassLabel     = cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"),
@@ -74,7 +89,7 @@ defaultAK8JetParameters = defaultAK4JetParameters.clone(
     jetGenJetChargeLabel    = cms.InputTag("jetsAK8CHS", "jetAK8CHSGenJetCharge"),
     )
 
-defaultJetSubstructureParameters = cms.PSet( 
+defaultCHSJetSubstructureParameters = cms.PSet( 
     jettau1Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"), 
     jettau2Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"),  
     jettau3Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"),  
@@ -86,7 +101,7 @@ defaultJetSubstructureParameters = cms.PSet(
     vjetsjIdx1Label         = cms.InputTag("jetsAK8CHS", "jetAK8CHSvSubjetIndex1"),  
     )
 
-defaultSubjetParameters = cms.PSet(
+defaultCHSSubjetParameters = cms.PSet(
     jetPtLabel              = cms.InputTag("subjetsAK8CHS", "subjetAK8CHSPt"),
     jetEtaLabel             = cms.InputTag("subjetsAK8CHS", "subjetAK8CHSEta"),
     jetPhiLabel             = cms.InputTag("subjetsAK8CHS", "subjetAK8CHSPhi"),
@@ -101,4 +116,72 @@ defaultSubjetParameters = cms.PSet(
     jetGenJetPhiLabel       = cms.InputTag("subjetsAK8CHS", "subjetAK8CHSGenJetPhi"),
     jetGenJetELabel         = cms.InputTag("subjetsAK8CHS", "subjetAK8CHSGenJetE"),
     jetGenJetChargeLabel    = cms.InputTag("subjetsAK8CHS", "subjetAK8CHSGenJetCharge"),
+    )
+
+defaultAK8PuppiJetParameters = defaultAK4JetParameters.clone( 
+    npvLabel                = cms.InputTag("vertexInfo", "npv"),
+    rhoLabel                = cms.InputTag("fixedGridRhoFastjetAll"),
+    jetPtLabel              = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiPt"),
+    jetEtaLabel             = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiEta"),
+    jetPhiLabel             = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiPhi"),
+    #jetMassLabel            = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiMass"),
+    jetEnergyLabel          = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiE"),
+    jetPrunedMassLabel      = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiprunedMass"),
+    jetTrimmedMassLabel     = cms.InputTag("jetsAK8Puppi", "jetAK8PuppitrimmedMass"),
+    jetFilteredMassLabel    = cms.InputTag("jetsAK8Puppi", "jetAK8PuppifilteredMass"),
+    jetSoftDropMassLabel    = cms.InputTag("jetsAK8Puppi", "jetAK8PuppisoftDropMass"),
+    jetPartonFlavourLabel   = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiPartonFlavour"),
+    jetHadronFlavourLabel   = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiHadronFlavour"),
+    jetCSVLabel             = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiCSVv2"),
+    jetCMVALabel            = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiCMVAv2"),
+    jetCvsBLabel            = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiCvsB"),
+    jetCvsLLabel            = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiCvsL"),
+    jetDoubleBAK8Label      = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiDoubleBAK8"),
+    jetDoubleBCA15Label     = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiDoubleBCA15"),
+    jetJECLabel             = cms.InputTag("jetsAK8Puppi", "jetAK8PuppijecFactor0"),
+    jetnHadEnergyLabel      = cms.InputTag("jetsAK8Puppi", "jetAK8PuppineutralHadronEnergyFrac"),
+    jetnEMEnergyLabel       = cms.InputTag("jetsAK8Puppi", "jetAK8PuppineutralEmEnergyFrac"),
+    #jetHFHadronEnergyLabel  = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiHFHadronEnergy"),
+    jetcHadEnergyLabel      = cms.InputTag("jetsAK8Puppi", "jetAK8PuppichargedHadronEnergyFrac"),
+    jetcEMEnergyLabel       = cms.InputTag("jetsAK8Puppi", "jetAK8PuppichargedEmEnergyFrac"),
+    #jetnumDaughtersLabel    = cms.InputTag("jetsAK8Puppi", "jetAK8PuppinumberOfDaughters"),
+    jetcMultipLabel         = cms.InputTag("jetsAK8Puppi", "jetAK8PuppichargedMultiplicity"),
+    jetnMultipLabel         = cms.InputTag("jetsAK8Puppi", "jetAK8PuppineutralMultiplicity"),
+    jetMuonEnergyLabel      = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiMuonEnergy"),
+    jetYLabel               = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiY"),
+    jetAreaLabel            = cms.InputTag("jetsAK8Puppi", "jetAK8PuppijetArea"),
+    jetGenJetPtLabel        = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiGenJetPt"),
+    jetGenJetEtaLabel       = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiGenJetEta"),
+    jetGenJetPhiLabel       = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiGenJetPhi"),
+    jetGenJetELabel         = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiGenJetE"),
+    jetGenJetChargeLabel    = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiGenJetCharge"),
+    )
+
+defaultPuppiJetSubstructureParameters = cms.PSet( 
+    jettau1Label            = cms.InputTag("jetsAK8Puppi", "jetAK8Puppitau1"), 
+    jettau2Label            = cms.InputTag("jetsAK8Puppi", "jetAK8Puppitau2"),  
+    jettau3Label            = cms.InputTag("jetsAK8Puppi", "jetAK8Puppitau3"),  
+    jetPrunedMassLabel      = cms.InputTag("jetsAK8Puppi", "jetAK8PuppiprunedMass"),
+    jetTrimmedMassLabel     = cms.InputTag("jetsAK8Puppi", "jetAK8PuppitrimmedMass"),
+    jetFilteredMassLabel    = cms.InputTag("jetsAK8Puppi", "jetAK8PuppifilteredMass"),
+    jetSoftDropMassLabel    = cms.InputTag("jetsAK8Puppi", "jetAK8PuppisoftDropMass"),
+    vjetsjIdx0Label         = cms.InputTag("jetsAK8Puppi", "jetAK8PuppivSubjetIndex0"),  
+    vjetsjIdx1Label         = cms.InputTag("jetsAK8Puppi", "jetAK8PuppivSubjetIndex1"),  
+    )
+
+defaultPuppiSubjetParameters = cms.PSet(
+    jetPtLabel              = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiPt"),
+    jetEtaLabel             = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiEta"),
+    jetPhiLabel             = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiPhi"),
+    #jetMassLabel            = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiMass"),
+    jetEnergyLabel          = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiE"),
+    jetCSVLabel             = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiCSVv2"),
+    jetCMVALabel            = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiCMVAv2"),
+    jetPartonFlavourLabel   = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiPartonFlavour"),
+    jetHadronFlavourLabel   = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiHadronFlavour"),
+    jetGenJetPtLabel        = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiGenJetPt"),
+    jetGenJetEtaLabel       = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiGenJetEta"),
+    jetGenJetPhiLabel       = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiGenJetPhi"),
+    jetGenJetELabel         = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiGenJetE"),
+    jetGenJetChargeLabel    = cms.InputTag("subjetsAK8Puppi", "subjetAK8PuppiGenJetCharge"),
     )
