@@ -1004,7 +1004,15 @@ FileNames = {
       'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/JetHT/Run2016G/JetHT/Run2016G-PromptReco-v1_B2GAnaFW_80X_V2p1/161013_133043/0000/B2GEDMNtuple_997.root', 
       'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/JetHT/Run2016G/JetHT/Run2016G-PromptReco-v1_B2GAnaFW_80X_V2p1/161013_133043/0000/B2GEDMNtuple_998.root', 
       'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/JetHT/Run2016G/JetHT/Run2016G-PromptReco-v1_B2GAnaFW_80X_V2p1/161013_133043/0000/B2GEDMNtuple_999.root', 
-      ]
+      ],
+    'FileNames_TbtH1500': [
+      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161101_213151/0000/B2GEDMNtuple_1.root', 
+      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161101_213151/0000/B2GEDMNtuple_2.root', 
+      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161101_213151/0000/B2GEDMNtuple_3.root', 
+      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161101_213151/0000/B2GEDMNtuple_4.root', 
+      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161101_213151/0000/B2GEDMNtuple_5.root', 
+      'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2/TprimeTToTH_M-1500_LH_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161101_213151/0000/B2GEDMNtuple_6.root', 
+    ],
   }
 files=[]
 
