@@ -75,7 +75,7 @@ defaultAK8CHSJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     )
 
 ### Corresponds to e(B) = 0.1% SD WP1 plus subjet b-tagging loose OP
-### From https://twiki.cern.ch/twiki/bin/view/CMS/JetTopTagging#13_TeV_working_points
+### From https://twiki.cern.ch/twiki/bin/view/CMS/JetTopTagging#13_TeV_working_points_CMSSW_7_6
 defaultCHSTJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jetPtMin            = cms.double(500),
     jettau3Bytau2Min    = cms.double(0.0) ,
@@ -144,7 +144,7 @@ defaultAK8PuppiJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     )
 
 ### Corresponds to e(B) = 0.1% SD WP1 plus subjet b-tagging loose OP
-### From https://twiki.cern.ch/twiki/bin/view/CMS/JetTopTagging#13_TeV_working_points
+### From https://twiki.cern.ch/twiki/bin/view/CMS/JetTopTagging#13_TeV_working_points_CMSSW_7_6
 defaultPuppiTJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clone(
     jetPtMin            = cms.double(500),
     jettau3Bytau2Min    = cms.double(0.0) ,
