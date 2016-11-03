@@ -17,6 +17,7 @@ evtcleaner = cms.EDFilter("EventCleaner",
     vtxNdfLabel                = cms.InputTag("vertexInfo", "ndof"),
     npvLabel                   = cms.InputTag("vertexInfo", "npv"),
     puNtrueIntLabel            = cms.InputTag("eventUserData", "puNtrueInt"),
+    hltORAND                   = cms.string("OR"),
     hltPaths                   = cms.vstring (
         ), 
     metFilters                 = cms.vstring (
