@@ -75,6 +75,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
 
     double elPt = (h_elPt.product())->at(iel) ; 
     double elAbsEta  = std::abs((h_elEta.product())->at(iel)) ; 
+    double elscAbsEta  = std::abs((h_elscEta.product())->at(iel)) ; 
     double elIso = (h_elIso03.product())->at(iel) ; 
     double dEtaIn =(h_eldEtaIn.product())->at(iel);
     double dPhiIn =(h_eldPhiIn.product())->at(iel);
@@ -85,7 +86,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
     double ooEmooP =(h_elooEmooP.product())->at(iel);
     double hasMatchedConVeto=(h_elhasMatchedConVeto.product())->at(iel);
     double missHits=(h_elmissHits.product())->at(iel);
-    bool   isEB = (h_elscEta.product())->at(iel) < 1.479 ;
+    bool   isEB = elAbsEta < 1.479 ;
   
     bool elisLoose  = passElId("LOOSE" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);
     bool elisMedium = passElId("MEDIUM", isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits); 
