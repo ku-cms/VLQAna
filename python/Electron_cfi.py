@@ -9,7 +9,6 @@ defaultElectronParameters = cms.PSet(
       elHoELabel               = cms.InputTag("electrons", "elHoE"),
       elIso03Label             = cms.InputTag("electrons", "elIso03"),
       elKeyLabel               = cms.InputTag("electrons", "elKey"),
-      elMassLabel              = cms.InputTag("electrons", "elMass"),
       elPhiLabel               = cms.InputTag("electrons", "elPhi"),
       elPtLabel                = cms.InputTag("electrons", "elPt"),
       elYLabel                 = cms.InputTag("electrons", "elY"),

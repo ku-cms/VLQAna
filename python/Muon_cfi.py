@@ -26,7 +26,6 @@ defaultMuonParameters = cms.PSet(
     muIsTrackerMuonLabel            = cms.InputTag("muons", "muIsTrackerMuon"), 
     muIso04Label                    = cms.InputTag("muons", "muIso04"), 
     muKeyLabel                      = cms.InputTag("muons", "muKey"), 
-    muMassLabel                     = cms.InputTag("muons", "muMass"), 
     muNumberMatchedStationsLabel    = cms.InputTag("muons", "muNumberMatchedStations"), 
     muNumberOfPixelLayersLabel      = cms.InputTag("muons", "muNumberOfPixelLayers"), 
     muNumberOfValidTrackerHitsLabel = cms.InputTag("muons", "muNumberOfValidTrackerHits"), 
