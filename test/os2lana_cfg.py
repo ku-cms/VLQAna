@@ -78,15 +78,11 @@ if options.isData:
   options.applyDYNLOCorr = False 
   if options.zdecaymode == "zmumu":
     hltpaths = [
-        "HLT_DoubleIsoMu17_eta2p1_v", 
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-        #"HLT_DoubleMu8_Mass8_PFHT300_v",
+        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
-        #"HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"
         ]
   else:
     sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
@@ -102,10 +98,7 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
       FileNames[options.FileNames]
-      #'file:/afs/cern.ch/user/d/devdatta/eos/cms/store/group/phys_b2g/B2GAnaFW_76X_V1p2/TprimeTprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIIFall15MiniAODv2_25ns_v76x_v1p2/160410_205229/0000/B2GEDMNtuple_1.root', 
-      #'file:/afs/cern.ch/work/d/devdatta/CMSREL/B2GAnaFW_76X/CMSSW_7_6_3_patch2/src/Analysis/B2GAnaFW/test/B2GEDMNtuple_DYJets_M50Madgraph.root',
-      #'/store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/B2GAnaFW_76X_V1p1_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160401_102909/0000/B2GEDMNtuple_1.root'
-      #'root://cms-xrd-global.cern.ch//store/user/jkarancs/SusyAnalysis/B2GEdmNtuple/TT_TuneCUETP8M1noCR_13TeV-powheg-pythia8/B2GAnaFW_76X_V1p1_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160401_092930/0000/B2GEDMNtuple_13.root'
+      '/store/user/grauco/B2GAnaFW/B2GAnaFW_80X_V2p1/TT_TuneCUETP8M1_13TeV-powheg-pythia8/B2GAnaFW_80X_V2p1/161021_085128/0000/B2GEDMNtuple_105.root'
     ) 
     )
 
