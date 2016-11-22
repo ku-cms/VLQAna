@@ -98,7 +98,6 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
       FileNames[options.FileNames]
-      '/store/user/grauco/B2GAnaFW/B2GAnaFW_80X_V2p1/TT_TuneCUETP8M1_13TeV-powheg-pythia8/B2GAnaFW_80X_V2p1/161021_085128/0000/B2GEDMNtuple_105.root'
     ) 
     )
 
