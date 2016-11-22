@@ -30,7 +30,6 @@ MuonMaker::MuonMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector &
   t_muIsTrackerMuon            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muIsTrackerMuonLabel"))), 
   t_muIso04                    (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muIso04Label"))), 
   t_muKey                      (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muKeyLabel"))), 
-  t_muMass                     (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muMassLabel"))), 
   t_muNumberMatchedStations    (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muNumberMatchedStationsLabel"))), 
   t_muNumberOfPixelLayers      (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muNumberOfPixelLayersLabel"))), 
   t_muNumberOfValidTrackerHits (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muNumberOfValidTrackerHitsLabel"))), 
@@ -85,7 +84,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
   Handle<vector<float>> h_muIsTrackerMuon           ; evt.getByToken(t_muIsTrackerMuon           ,h_muIsTrackerMuon           );
   Handle<vector<float>> h_muIso04                   ; evt.getByToken(t_muIso04                   ,h_muIso04                   );
   Handle<vector<float>> h_muKey                     ; evt.getByToken(t_muKey                     ,h_muKey                     );
-  Handle<vector<float>> h_muMass                    ; evt.getByToken(t_muMass                    ,h_muMass                    );
   Handle<vector<float>> h_muNumberMatchedStations   ; evt.getByToken(t_muNumberMatchedStations   ,h_muNumberMatchedStations   );
   Handle<vector<float>> h_muNumberOfPixelLayers     ; evt.getByToken(t_muNumberOfPixelLayers     ,h_muNumberOfPixelLayers     );
   Handle<vector<float>> h_muNumberOfValidTrackerHits; evt.getByToken(t_muNumberOfValidTrackerHits,h_muNumberOfValidTrackerHits);
@@ -116,7 +114,7 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
        ) {
     vlq::Muon muon ; 
     TLorentzVector  muP4;
-    muP4.SetPtEtaPhiM( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muMass.product())->at(imu) ) ;
+    muP4.SetPtEtaPhiE( (h_muPt.product())->at(imu), (h_muEta.product())->at(imu), (h_muPhi.product())->at(imu), (h_muE.product())->at(imu) ) ;
     muon.setP4                      (muP4)                                              ; 
     muon.setIndex                   (imu)                                               ;
     muon.setCharge                  ((h_muCharge.product())->at(imu))                   ;
@@ -144,7 +142,7 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
     muon.setIsTrackerMuon           ((h_muIsTrackerMuon.product())->at(imu))            ;
     muon.setIso04                   ((h_muIso04.product())->at(imu))                    ;
     muon.setKey                     ((h_muKey.product())->at(imu))                      ;
-    muon.setMass                    ((h_muMass.product())->at(imu))                     ;
+    muon.setMass                    (muP4.Mag())                                        ;
     muon.setNumberMatchedStations   ((h_muNumberMatchedStations.product())->at(imu))    ;
     muon.setNumberOfPixelLayers     ((h_muNumberOfPixelLayers.product())->at(imu))      ;
     muon.setNumberOfValidTrackerHits((h_muNumberOfValidTrackerHits.product())->at(imu)) ;

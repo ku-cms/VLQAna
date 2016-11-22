@@ -28,7 +28,6 @@ class ElectronMaker {
     edm::EDGetTokenT<std::vector<float>> t_elHoE                ;
     edm::EDGetTokenT<std::vector<float>> t_elIso03              ;
     edm::EDGetTokenT<std::vector<float>> t_elKey                ;
-    edm::EDGetTokenT<std::vector<float>> t_elMass               ;
     edm::EDGetTokenT<std::vector<float>> t_elPhi                ;
     edm::EDGetTokenT<std::vector<float>> t_elPt                 ;
     edm::EDGetTokenT<std::vector<float>> t_elY                  ;

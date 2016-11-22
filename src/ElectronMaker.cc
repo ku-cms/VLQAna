@@ -14,7 +14,6 @@ ElectronMaker::ElectronMaker (edm::ParameterSet const& iConfig, edm::ConsumesCol
   t_elHoE               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elHoELabel"))),
   t_elIso03             (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elIso03Label"))),
   t_elKey               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elKeyLabel"))),
-  t_elMass              (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elMassLabel"))),
   t_elPhi               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elPhiLabel"))),
   t_elPt                (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elPtLabel"))),
   t_elY                 (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elYLabel"))),
@@ -54,7 +53,6 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   Handle<vector<float>> h_elHoE                ; evt.getByToken(t_elHoE               , h_elHoE               ); 
   Handle<vector<float>> h_elIso03              ; evt.getByToken(t_elIso03             , h_elIso03             ); 
   Handle<vector<float>> h_elKey                ; evt.getByToken(t_elKey               , h_elKey               ); 
-  Handle<vector<float>> h_elMass               ; evt.getByToken(t_elMass              , h_elMass              ); 
   Handle<vector<float>> h_elPhi                ; evt.getByToken(t_elPhi               , h_elPhi               ); 
   Handle<vector<float>> h_elPt                 ; evt.getByToken(t_elPt                , h_elPt                ); 
   Handle<vector<float>> h_elY                  ; evt.getByToken(t_elY                 , h_elY                 ); 
@@ -103,7 +101,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
     if (elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ && passId ){
       vlq::Electron electron ; 
       TLorentzVector  elP4;
-      elP4.SetPtEtaPhiM( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elMass.product())->at(iel) ) ;
+      elP4.SetPtEtaPhiE( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elE.product())->at(iel) ) ;
       electron.setP4                (elP4)                                      ;
       electron.setIndex             (iel)                                       ; 
       electron.setCharge            (h_elCharge            .product()->at(iel)) ; 
@@ -114,7 +112,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
       electron.setHoE               (h_elHoE               .product()->at(iel)) ; 
       electron.setIso03             (h_elIso03             .product()->at(iel)) ; 
       electron.setKey               (h_elKey               .product()->at(iel)) ; 
-      electron.setMass              (h_elMass              .product()->at(iel)) ; 
+      electron.setMass              (elP4.Mag())                                ; 
       electron.setPhi               (h_elPhi               .product()->at(iel)) ; 
       electron.setPt                (h_elPt                .product()->at(iel)) ; 
       electron.setY                 (h_elY                 .product()->at(iel)) ; 
