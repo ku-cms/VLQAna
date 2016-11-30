@@ -11,7 +11,6 @@ defaultMuonParameters = cms.PSet(
     muGenMuonEtaLabel               = cms.InputTag("muons", "muGenMuonEta"), 
     muGenMuonPhiLabel               = cms.InputTag("muons", "muGenMuonPhi"), 
     muGenMuonPtLabel                = cms.InputTag("muons", "muGenMuonPt"), 
-    muGenMuonYLabel                 = cms.InputTag("muons", "muGenMuonY"), 
     muGlbTrkNormChi2Label           = cms.InputTag("muons", "muGlbTrkNormChi2"), 
     muInTrkNormChi2Label            = cms.InputTag("muons", "muInTrkNormChi2"), 
     muIsGlobalMuonLabel             = cms.InputTag("muons", "muIsGlobalMuon"), 

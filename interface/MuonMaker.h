@@ -25,7 +25,6 @@ class MuonMaker {
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonEta               ;
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonPhi               ;
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonPt                ;
-    edm::EDGetTokenT<std::vector<float>> t_muGenMuonY                 ;
     edm::EDGetTokenT<std::vector<float>> t_muGlbTrkNormChi2           ;
     edm::EDGetTokenT<std::vector<float>> t_muInTrkNormChi2            ;
     edm::EDGetTokenT<std::vector<float>> t_muIsGlobalMuon             ;
