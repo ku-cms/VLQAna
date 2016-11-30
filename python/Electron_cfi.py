@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 defaultElectronParameters = cms.PSet(
       elChargeLabel            = cms.InputTag("electrons", "elCharge"),
-      elD0Label                = cms.InputTag("electrons", "elD0"),
+      elDxyLabel               = cms.InputTag("electrons", "elDxy"),
       elDzLabel                = cms.InputTag("electrons", "elDz"),
       elELabel                 = cms.InputTag("electrons", "elE"),
       elEtaLabel               = cms.InputTag("electrons", "elEta"),
@@ -11,7 +11,6 @@ defaultElectronParameters = cms.PSet(
       elKeyLabel               = cms.InputTag("electrons", "elKey"),
       elPhiLabel               = cms.InputTag("electrons", "elPhi"),
       elPtLabel                = cms.InputTag("electrons", "elPt"),
-      elYLabel                 = cms.InputTag("electrons", "elY"),
       eldEtaInLabel            = cms.InputTag("electrons", "eldEtaIn"),
       eldPhiInLabel            = cms.InputTag("electrons", "eldPhiIn"),
       elfull5x5sieeLabel       = cms.InputTag("electrons", "elfull5x5siee"),

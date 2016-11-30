@@ -7,7 +7,7 @@ using namespace edm ;
 
 ElectronMaker::ElectronMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && iC) : 
   t_elCharge            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elChargeLabel"))),
-  t_elD0                (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elD0Label"))),
+  t_elDxy               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elDxyLabel"))),
   t_elDz                (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elDzLabel"))),
   t_elE                 (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elELabel"))),
   t_elEta               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elEtaLabel"))),
@@ -16,7 +16,6 @@ ElectronMaker::ElectronMaker (edm::ParameterSet const& iConfig, edm::ConsumesCol
   t_elKey               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elKeyLabel"))),
   t_elPhi               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elPhiLabel"))),
   t_elPt                (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elPtLabel"))),
-  t_elY                 (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elYLabel"))),
   t_eldEtaIn            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("eldEtaInLabel"))),
   t_eldPhiIn            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("eldPhiInLabel"))),
   t_elfull5x5siee       (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elfull5x5sieeLabel"))),
@@ -46,7 +45,7 @@ ElectronMaker::~ElectronMaker () {}
 void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& electrons) { 
 
   Handle<vector<float>> h_elCharge             ; evt.getByToken(t_elCharge            , h_elCharge            ); 
-  Handle<vector<float>> h_elD0                 ; evt.getByToken(t_elD0                , h_elD0                ); 
+  Handle<vector<float>> h_elDxy                ; evt.getByToken(t_elDxy               , h_elDxy               ); 
   Handle<vector<float>> h_elDz                 ; evt.getByToken(t_elDz                , h_elDz                ); 
   Handle<vector<float>> h_elE                  ; evt.getByToken(t_elE                 , h_elE                 ); 
   Handle<vector<float>> h_elEta                ; evt.getByToken(t_elEta               , h_elEta               ); 
@@ -55,7 +54,6 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   Handle<vector<float>> h_elKey                ; evt.getByToken(t_elKey               , h_elKey               ); 
   Handle<vector<float>> h_elPhi                ; evt.getByToken(t_elPhi               , h_elPhi               ); 
   Handle<vector<float>> h_elPt                 ; evt.getByToken(t_elPt                , h_elPt                ); 
-  Handle<vector<float>> h_elY                  ; evt.getByToken(t_elY                 , h_elY                 ); 
   Handle<vector<float>> h_eldEtaIn             ; evt.getByToken(t_eldEtaIn            , h_eldEtaIn            ); 
   Handle<vector<float>> h_eldPhiIn             ; evt.getByToken(t_eldPhiIn            , h_eldPhiIn            ); 
   Handle<vector<float>> h_elfull5x5siee        ; evt.getByToken(t_elfull5x5siee       , h_elfull5x5siee       ); 
@@ -79,17 +77,17 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
     double dPhiIn =(h_eldPhiIn.product())->at(iel);
     double full5x5siee =(h_elfull5x5siee.product())->at(iel);
     double HoE =(h_elHoE.product())->at(iel);
-    double D0 =(h_elD0.product())->at(iel);
+    double Dxy = (h_elDxy.product())->at(iel);
     double Dz =(h_elDz.product())->at(iel);
     double ooEmooP =(h_elooEmooP.product())->at(iel);
     double hasMatchedConVeto=(h_elhasMatchedConVeto.product())->at(iel);
     double missHits=(h_elmissHits.product())->at(iel);
     bool   isEB = elAbsEta < 1.479 ;
   
-    bool elisLoose  = passElId("LOOSE" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);
-    bool elisMedium = passElId("MEDIUM", isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits); 
-    bool elisTight  = passElId("TIGHT" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);  
-    bool elisVeto   = passElId("VETO"  , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, D0, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);  
+    bool elisLoose  = passElId("LOOSE" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);
+    bool elisMedium = passElId("MEDIUM", isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits); 
+    bool elisTight  = passElId("TIGHT" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);  
+    bool elisVeto   = passElId("VETO"  , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);  
 
     bool passId(false); 
     if (type_ == LOOSE  && elisLoose ) passId = true ;
@@ -105,7 +103,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
       electron.setP4                (elP4)                                      ;
       electron.setIndex             (iel)                                       ; 
       electron.setCharge            (h_elCharge            .product()->at(iel)) ; 
-      electron.setD0                (h_elD0                .product()->at(iel)) ; 
+      electron.setDxy               (h_elDxy               .product()->at(iel)) ; 
       electron.setDz                (h_elDz                .product()->at(iel)) ; 
       electron.setE                 (h_elE                 .product()->at(iel)) ; 
       electron.setEta               (h_elEta               .product()->at(iel)) ; 
@@ -115,7 +113,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
       electron.setMass              (elP4.Mag())                                ; 
       electron.setPhi               (h_elPhi               .product()->at(iel)) ; 
       electron.setPt                (h_elPt                .product()->at(iel)) ; 
-      electron.setY                 (h_elY                 .product()->at(iel)) ; 
+      electron.setY                 (elP4.Rapidity())                           ; 
       electron.setdEtaIn            (h_eldEtaIn            .product()->at(iel)) ; 
       electron.setdPhiIn            (h_eldPhiIn            .product()->at(iel)) ; 
       electron.setfull5x5siee       (h_elfull5x5siee       .product()->at(iel)) ; 
