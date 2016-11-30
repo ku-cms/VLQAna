@@ -6,10 +6,7 @@ using namespace edm ;
 
 MuonMaker::MuonMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && iC) : 
   t_muCharge                   (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muChargeLabel"))), 
-  t_muD0                       (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muD0Label"))), 
-  t_muD0err                    (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muD0errLabel"))), 
   t_muDxy                      (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDxyLabel"))), 
-  t_muDxyerr                   (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDxyerrLabel"))), 
   t_muDz                       (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDzLabel"))), 
   t_muDzerr                    (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDzerrLabel"))), 
   t_muE                        (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muELabel"))), 
@@ -42,7 +39,6 @@ MuonMaker::MuonMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector &
   t_muSumNeutralHadronPt       (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muSumNeutralHadronPtLabel"))), 
   t_muSumPUPt                  (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muSumPUPtLabel"))), 
   t_muSumPhotonPt              (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muSumPhotonPtLabel"))), 
-  t_muY                        (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muYLabel"))),
   muPtMin_                     (iConfig.getParameter<double>("muPtMin")), 
   muPtMax_                     (iConfig.getParameter<double>("muPtMax")), 
   muAbsEtaMax_                 (iConfig.getParameter<double>("muAbsEtaMax")), 
@@ -60,10 +56,7 @@ MuonMaker::~MuonMaker () {}
 void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) { 
 
   Handle<vector<float>> h_muCharge                  ; evt.getByToken(t_muCharge                  ,h_muCharge                  );
-  Handle<vector<float>> h_muD0                      ; evt.getByToken(t_muD0                      ,h_muD0                      );
-  Handle<vector<float>> h_muD0err                   ; evt.getByToken(t_muD0err                   ,h_muD0err                   );
   Handle<vector<float>> h_muDxy                     ; evt.getByToken(t_muDxy                     ,h_muDxy                     );
-  Handle<vector<float>> h_muDxyerr                  ; evt.getByToken(t_muDxyerr                  ,h_muDxyerr                  );
   Handle<vector<float>> h_muDz                      ; evt.getByToken(t_muDz                      ,h_muDz                      );
   Handle<vector<float>> h_muDzerr                   ; evt.getByToken(t_muDzerr                   ,h_muDzerr                   );
   Handle<vector<float>> h_muE                       ; evt.getByToken(t_muE                       ,h_muE                       );
@@ -96,7 +89,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
   Handle<vector<float>> h_muSumNeutralHadronPt      ; evt.getByToken(t_muSumNeutralHadronPt      ,h_muSumNeutralHadronPt      );
   Handle<vector<float>> h_muSumPUPt                 ; evt.getByToken(t_muSumPUPt                 ,h_muSumPUPt                 );
   Handle<vector<float>> h_muSumPhotonPt             ; evt.getByToken(t_muSumPhotonPt             ,h_muSumPhotonPt             );
-  Handle<vector<float>> h_muY                       ; evt.getByToken(t_muY                       ,h_muY                       );
 
   for (unsigned imu = 0; imu < (h_muPt.product())->size(); ++imu) {
 
@@ -118,10 +110,7 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
     muon.setP4                      (muP4)                                              ; 
     muon.setIndex                   (imu)                                               ;
     muon.setCharge                  ((h_muCharge.product())->at(imu))                   ;
-    muon.setD0                      ((h_muD0.product())->at(imu))                       ;
-    muon.setD0err                   ((h_muD0err.product())->at(imu))                    ;
     muon.setDxy                     ((h_muDxy.product())->at(imu))                      ;
-    muon.setDxyerr                  ((h_muDxyerr.product())->at(imu))                   ;
     muon.setDz                      ((h_muDz.product())->at(imu))                       ;
     muon.setDzerr                   ((h_muDzerr.product())->at(imu))                    ;
     muon.setE                       ((h_muE.product())->at(imu))                        ;

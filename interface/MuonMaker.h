@@ -16,10 +16,7 @@ class MuonMaker {
   private:
     MUONIDTYPES_t type_ ; 
     edm::EDGetTokenT<std::vector<float>> t_muCharge                   ;
-    edm::EDGetTokenT<std::vector<float>> t_muD0                       ;
-    edm::EDGetTokenT<std::vector<float>> t_muD0err                    ;
     edm::EDGetTokenT<std::vector<float>> t_muDxy                      ;
-    edm::EDGetTokenT<std::vector<float>> t_muDxyerr                   ;
     edm::EDGetTokenT<std::vector<float>> t_muDz                       ;
     edm::EDGetTokenT<std::vector<float>> t_muDzerr                    ;
     edm::EDGetTokenT<std::vector<float>> t_muE                        ;

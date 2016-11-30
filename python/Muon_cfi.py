@@ -2,10 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 defaultMuonParameters = cms.PSet(
     muChargeLabel                   = cms.InputTag("muons", "muCharge"), 
-    muD0Label                       = cms.InputTag("muons", "muD0"), 
-    muD0errLabel                    = cms.InputTag("muons", "muD0err"), 
     muDxyLabel                      = cms.InputTag("muons", "muDxy"), 
-    muDxyerrLabel                   = cms.InputTag("muons", "muDxyerr"), 
     muDzLabel                       = cms.InputTag("muons", "muDz"), 
     muDzerrLabel                    = cms.InputTag("muons", "muDzerr"), 
     muELabel                        = cms.InputTag("muons", "muE"), 
