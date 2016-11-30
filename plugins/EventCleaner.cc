@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <boost/dynamic_bitset.hpp>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -206,7 +207,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //const size_t ntrigs ((h_trigName.product())->size());
   const size_t ntrigs (hltPaths_.size());
   //std::bitset<1000>hltdecisions(0) ; 
-  boost::dynamic_bitset<> hltdecisions(ntrigs);
+  boost::dynamic_bitset<> hltdecisions(std::max(int(ntrigs),1));
   if ( ntrigs > 0 ) { 
     for ( size_t i = 0; i < ntrigs; ++i) {
       const string& myhltpath = hltPaths_.at(i);
@@ -220,11 +221,12 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       }
     }
   }
-  else hltdecisions << 1;
+  else {
+    hltdecisions[0] = 1;
+  }
   if ( cleanEvents_ ) {
     if ( hltORAND_ == "OR" && !hltdecisions.any() ) {
-    cout << " hltdecisions = " << hltdecisions << endl;
-    return false ; 
+      return false ; 
     }
     else if ( hltORAND_ == "AND" ) {
       int hltdecision = 1;
