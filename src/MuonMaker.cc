@@ -8,7 +8,6 @@ MuonMaker::MuonMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector &
   t_muCharge                   (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muChargeLabel"))), 
   t_muDxy                      (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDxyLabel"))), 
   t_muDz                       (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDzLabel"))), 
-  t_muDzerr                    (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muDzerrLabel"))), 
   t_muE                        (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muELabel"))), 
   t_muEta                      (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muEtaLabel"))), 
   t_muGenMuonCharge            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muGenMuonChargeLabel"))), 
@@ -16,7 +15,6 @@ MuonMaker::MuonMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector &
   t_muGenMuonEta               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muGenMuonEtaLabel"))), 
   t_muGenMuonPhi               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muGenMuonPhiLabel"))), 
   t_muGenMuonPt                (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muGenMuonPtLabel"))), 
-  t_muGenMuonY                 (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muGenMuonYLabel"))), 
   t_muGlbTrkNormChi2           (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muGlbTrkNormChi2Label"))), 
   t_muInTrkNormChi2            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muInTrkNormChi2Label"))), 
   t_muIsGlobalMuon             (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("muIsGlobalMuonLabel"))), 
@@ -58,7 +56,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
   Handle<vector<float>> h_muCharge                  ; evt.getByToken(t_muCharge                  ,h_muCharge                  );
   Handle<vector<float>> h_muDxy                     ; evt.getByToken(t_muDxy                     ,h_muDxy                     );
   Handle<vector<float>> h_muDz                      ; evt.getByToken(t_muDz                      ,h_muDz                      );
-  Handle<vector<float>> h_muDzerr                   ; evt.getByToken(t_muDzerr                   ,h_muDzerr                   );
   Handle<vector<float>> h_muE                       ; evt.getByToken(t_muE                       ,h_muE                       );
   Handle<vector<float>> h_muEta                     ; evt.getByToken(t_muEta                     ,h_muEta                     );
   Handle<vector<float>> h_muGenMuonCharge           ; evt.getByToken(t_muGenMuonCharge           ,h_muGenMuonCharge           );
@@ -66,7 +63,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
   Handle<vector<float>> h_muGenMuonEta              ; evt.getByToken(t_muGenMuonEta              ,h_muGenMuonEta              );
   Handle<vector<float>> h_muGenMuonPhi              ; evt.getByToken(t_muGenMuonPhi              ,h_muGenMuonPhi              );
   Handle<vector<float>> h_muGenMuonPt               ; evt.getByToken(t_muGenMuonPt               ,h_muGenMuonPt               );
-  Handle<vector<float>> h_muGenMuonY                ; evt.getByToken(t_muGenMuonY                ,h_muGenMuonY                );
   Handle<vector<float>> h_muGlbTrkNormChi2          ; evt.getByToken(t_muGlbTrkNormChi2          ,h_muGlbTrkNormChi2          );
   Handle<vector<float>> h_muInTrkNormChi2           ; evt.getByToken(t_muInTrkNormChi2           ,h_muInTrkNormChi2           );
   Handle<vector<float>> h_muIsGlobalMuon            ; evt.getByToken(t_muIsGlobalMuon            ,h_muIsGlobalMuon            );
@@ -112,7 +108,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
     muon.setCharge                  ((h_muCharge.product())->at(imu))                   ;
     muon.setDxy                     ((h_muDxy.product())->at(imu))                      ;
     muon.setDz                      ((h_muDz.product())->at(imu))                       ;
-    muon.setDzerr                   ((h_muDzerr.product())->at(imu))                    ;
     muon.setE                       ((h_muE.product())->at(imu))                        ;
     muon.setEta                     ((h_muEta.product())->at(imu))                      ;
     muon.setGenMuonCharge           ((h_muGenMuonCharge.product())->at(imu))            ;
@@ -120,7 +115,6 @@ void MuonMaker::operator () (edm::Event& evt, vlq::MuonCollection& muons) {
     muon.setGenMuonEta              ((h_muGenMuonEta.product())->at(imu))               ;
     muon.setGenMuonPhi              ((h_muGenMuonPhi.product())->at(imu))               ;
     muon.setGenMuonPt               ((h_muGenMuonPt.product())->at(imu))                ;
-    muon.setGenMuonY                ((h_muGenMuonY.product())->at(imu))                 ;
     muon.setGlbTrkNormChi2          ((h_muGlbTrkNormChi2.product())->at(imu))           ;
     muon.setInTrkNormChi2           ((h_muInTrkNormChi2.product())->at(imu))            ;
     muon.setIsGlobalMuon            ((h_muIsGlobalMuon.product())->at(imu))             ;

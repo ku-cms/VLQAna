@@ -4,7 +4,6 @@ defaultMuonParameters = cms.PSet(
     muChargeLabel                   = cms.InputTag("muons", "muCharge"), 
     muDxyLabel                      = cms.InputTag("muons", "muDxy"), 
     muDzLabel                       = cms.InputTag("muons", "muDz"), 
-    muDzerrLabel                    = cms.InputTag("muons", "muDzerr"), 
     muELabel                        = cms.InputTag("muons", "muE"), 
     muEtaLabel                      = cms.InputTag("muons", "muEta"), 
     muGenMuonChargeLabel            = cms.InputTag("muons", "muGenMuonCharge"), 
