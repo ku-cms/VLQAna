@@ -5,7 +5,7 @@
 #include <TRandom.h>
 
 #define DEBUGMORE false 
-#define DEBUG false
+#define DEBUG false  
 
 using namespace std;
 using namespace edm ; 
@@ -229,11 +229,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       double eta_reco = uncorrJetP4.Eta() ; 
       double jerscalep4 = ApplyJERp4(eta_reco, jerShift_) ; 
       if (pt_gen > 0.) ptsmear = std::max( 0.0, pt_gen + jerscalep4*(pt_reco - pt_gen) )/pt_reco ; 
-      else {
+      else if (jerscalep4 > 1. && pt_reco > 0.) {
         TRandom* rand = new TRandom();
         ptsmear = rand->Gaus(pt_reco, sqrt(jerscalep4*jerscalep4 - 1)*0.2)/pt_reco ; //// Assuming 20% JER
         delete rand; 
       }
+      else ptsmear = 1.;
       newJetP4 *= ptsmear ; 
 #if DEBUG
       cout 
@@ -367,6 +368,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 #if DEBUGMORE
       cout 
         << " \njet pt massCorrSmear = " << newJetP4.Pt() 
+        << " \njet eta massCorrSmear = " << newJetP4.Eta() 
         << " \njet mass massCorrSmear " << newJetP4.Mag() 
         << endl ; 
 #endif 
@@ -504,6 +506,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 #if DEBUGMORE
     cout 
       << " \njet pt finally       = " << jet.getPt() 
+      << " \njet eta finally       = " << jet.getEta() 
       << " \njet mass finally     = " << jet.getMass() 
       << endl ; 
 #endif 

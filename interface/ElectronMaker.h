@@ -15,23 +15,21 @@ class ElectronMaker {
     ElectronMaker (edm::ParameterSet const&, edm::ConsumesCollector && iC) ; 
     ~ElectronMaker () ; 
     void operator () (edm::Event& evt, vlq::ElectronCollection& electrons) ; 
-   bool passElId(string WP, bool isEB, float dEtaIn, float dPhiIn, float full5x5siee, float HoE, float Iso, float D0, float Dz, float ooEmooP, bool conv, int missHits);
+   bool passElId(string WP, bool isEB, float dEtaIn, float dPhiIn, float full5x5siee, float HoE, float Iso, float Dxy, float Dz, float ooEmooP, bool conv, int missHits);
     
   private: 
    //double getEleSF(double pt, double eta);
     ELECTRONIDTYPES_t type_ ; 
     edm::EDGetTokenT<std::vector<float>> t_elCharge             ;
-    edm::EDGetTokenT<std::vector<float>> t_elD0                 ;
+    edm::EDGetTokenT<std::vector<float>> t_elDxy                ;
     edm::EDGetTokenT<std::vector<float>> t_elDz                 ;
     edm::EDGetTokenT<std::vector<float>> t_elE                  ;
     edm::EDGetTokenT<std::vector<float>> t_elEta                ;
     edm::EDGetTokenT<std::vector<float>> t_elHoE                ;
     edm::EDGetTokenT<std::vector<float>> t_elIso03              ;
     edm::EDGetTokenT<std::vector<float>> t_elKey                ;
-    edm::EDGetTokenT<std::vector<float>> t_elMass               ;
     edm::EDGetTokenT<std::vector<float>> t_elPhi                ;
     edm::EDGetTokenT<std::vector<float>> t_elPt                 ;
-    edm::EDGetTokenT<std::vector<float>> t_elY                  ;
     edm::EDGetTokenT<std::vector<float>> t_eldEtaIn             ;
     edm::EDGetTokenT<std::vector<float>> t_eldPhiIn             ;
     edm::EDGetTokenT<std::vector<float>> t_elfull5x5siee        ;

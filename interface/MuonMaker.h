@@ -16,12 +16,8 @@ class MuonMaker {
   private:
     MUONIDTYPES_t type_ ; 
     edm::EDGetTokenT<std::vector<float>> t_muCharge                   ;
-    edm::EDGetTokenT<std::vector<float>> t_muD0                       ;
-    edm::EDGetTokenT<std::vector<float>> t_muD0err                    ;
     edm::EDGetTokenT<std::vector<float>> t_muDxy                      ;
-    edm::EDGetTokenT<std::vector<float>> t_muDxyerr                   ;
     edm::EDGetTokenT<std::vector<float>> t_muDz                       ;
-    edm::EDGetTokenT<std::vector<float>> t_muDzerr                    ;
     edm::EDGetTokenT<std::vector<float>> t_muE                        ;
     edm::EDGetTokenT<std::vector<float>> t_muEta                      ;
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonCharge            ;
@@ -29,7 +25,6 @@ class MuonMaker {
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonEta               ;
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonPhi               ;
     edm::EDGetTokenT<std::vector<float>> t_muGenMuonPt                ;
-    edm::EDGetTokenT<std::vector<float>> t_muGenMuonY                 ;
     edm::EDGetTokenT<std::vector<float>> t_muGlbTrkNormChi2           ;
     edm::EDGetTokenT<std::vector<float>> t_muInTrkNormChi2            ;
     edm::EDGetTokenT<std::vector<float>> t_muIsGlobalMuon             ;
@@ -40,7 +35,6 @@ class MuonMaker {
     edm::EDGetTokenT<std::vector<float>> t_muIsTrackerMuon            ;
     edm::EDGetTokenT<std::vector<float>> t_muIso04                    ;
     edm::EDGetTokenT<std::vector<float>> t_muKey                      ;
-    edm::EDGetTokenT<std::vector<float>> t_muMass                     ;
     edm::EDGetTokenT<std::vector<float>> t_muNumberMatchedStations    ;
     edm::EDGetTokenT<std::vector<float>> t_muNumberOfPixelLayers      ;
     edm::EDGetTokenT<std::vector<float>> t_muNumberOfValidTrackerHits ;

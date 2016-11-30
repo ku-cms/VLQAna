@@ -507,6 +507,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvAK8             .clear() ; jets_.csvAK8             .reserve(goodAK8Jets.size()) ;  
   jets_.partonFlavourAK8   .clear() ; jets_.partonFlavourAK8   .reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourAK8   .clear() ; jets_.hadronFlavourAK8   .reserve(goodAK8Jets.size()) ;  
+  jets_.doubleBAK8         .clear() ; jets_.doubleBAK8         .reserve(goodAK8Jets.size()) ;  
   jets_.sj0CSVAK8          .clear() ; jets_.sj0CSVAK8          .reserve(goodAK8Jets.size()) ;  
   jets_.sj1CSVAK8          .clear() ; jets_.sj1CSVAK8          .reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ0AK8.clear() ; jets_.hadronFlavourSJ0AK8.reserve(goodAK8Jets.size()) ;  
@@ -526,6 +527,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvAK8             .push_back(jet.getCSV());
     jets_.partonFlavourAK8   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourAK8   .push_back(jet.getHadronFlavour());
+    jets_.doubleBAK8         .push_back(jet.getDoubleBAK8()) ;
     jets_.sj0CSVAK8          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVAK8          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AK8.push_back(jet.getHadronFlavourSubjet0()) ;
@@ -545,6 +547,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvHTagged             .clear() ; jets_.csvHTagged             .reserve(goodHTaggedJets.size()) ;   
   jets_.partonFlavourHTagged   .clear() ; jets_.partonFlavourHTagged   .reserve(goodHTaggedJets.size()) ;   
   jets_.hadronFlavourHTagged   .clear() ; jets_.hadronFlavourHTagged   .reserve(goodHTaggedJets.size()) ;   
+  jets_.doubleBHTagged         .clear() ; jets_.doubleBHTagged         .reserve(goodHTaggedJets.size()) ;   
   jets_.sj0CSVHTagged          .clear() ; jets_.sj0CSVHTagged          .reserve(goodHTaggedJets.size()) ;   
   jets_.sj1CSVHTagged          .clear() ; jets_.sj1CSVHTagged          .reserve(goodHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0HTagged.clear() ; jets_.hadronFlavourSJ0HTagged.reserve(goodHTaggedJets.size()) ;   
@@ -564,6 +567,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvHTagged             .push_back(jet.getCSV());
     jets_.partonFlavourHTagged   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourHTagged   .push_back(jet.getHadronFlavour());
+    jets_.doubleBHTagged         .push_back(jet.getDoubleBAK8()) ;
     jets_.sj0CSVHTagged          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVHTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0HTagged.push_back(jet.getHadronFlavourSubjet0()) ;
@@ -583,6 +587,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvAntiHTagged             .clear() ; jets_.csvAntiHTagged             .reserve(antiHTaggedJets.size()) ;   
   jets_.partonFlavourAntiHTagged   .clear() ; jets_.partonFlavourAntiHTagged   .reserve(antiHTaggedJets.size()) ;   
   jets_.hadronFlavourAntiHTagged   .clear() ; jets_.hadronFlavourAntiHTagged   .reserve(antiHTaggedJets.size()) ;   
+  jets_.doubleBAntiHTagged         .clear() ; jets_.doubleBAntiHTagged         .reserve(antiHTaggedJets.size()) ;   
   jets_.sj0CSVAntiHTagged          .clear() ; jets_.sj0CSVAntiHTagged          .reserve(antiHTaggedJets.size()) ;   
   jets_.sj1CSVAntiHTagged          .clear() ; jets_.sj1CSVAntiHTagged          .reserve(antiHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0AntiHTagged.clear() ; jets_.hadronFlavourSJ0AntiHTagged.reserve(antiHTaggedJets.size()) ;   
@@ -602,6 +607,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvAntiHTagged             .push_back(jet.getCSV());
     jets_.partonFlavourAntiHTagged   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourAntiHTagged   .push_back(jet.getHadronFlavour());
+    jets_.doubleBAntiHTagged         .push_back(jet.getDoubleBAK8()) ;
     jets_.sj0CSVAntiHTagged          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVAntiHTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AntiHTagged.push_back(jet.getHadronFlavourSubjet0()) ;
@@ -621,6 +627,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.csvTopTagged             .clear() ; jets_.csvTopTagged             .reserve(goodTopTaggedJets.size()) ;   
   jets_.partonFlavourTopTagged   .clear() ; jets_.partonFlavourTopTagged   .reserve(goodTopTaggedJets.size()) ;   
   jets_.hadronFlavourTopTagged   .clear() ; jets_.hadronFlavourTopTagged   .reserve(goodTopTaggedJets.size()) ;   
+  jets_.doubleBTopTagged         .clear() ; jets_.doubleBTopTagged         .reserve(goodTopTaggedJets.size()) ;   
   jets_.sj0CSVTopTagged          .clear() ; jets_.sj0CSVTopTagged          .reserve(goodTopTaggedJets.size()) ;   
   jets_.sj1CSVTopTagged          .clear() ; jets_.sj1CSVTopTagged          .reserve(goodTopTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0TopTagged.clear() ; jets_.hadronFlavourSJ0TopTagged.reserve(goodTopTaggedJets.size()) ;   
@@ -640,6 +647,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvTopTagged             .push_back(jet.getCSV());
     jets_.partonFlavourTopTagged   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourTopTagged   .push_back(jet.getHadronFlavour());
+    jets_.doubleBTopTagged         .push_back(jet.getDoubleBAK8()) ;
     jets_.sj0CSVTopTagged          .push_back(jet.getCSVSubjet0()) ;
     jets_.sj1CSVTopTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0TopTagged.push_back(jet.getHadronFlavourSubjet0()) ;
@@ -667,7 +675,7 @@ void VLQAna::beginJob() {
 
   if (storePreselEvts_ || doPreselOnly_) {
 
-    h1_["Presel_HT"] = fs->make<TH1D>("Presel_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
+    h1_["Presel_HT"] = fs->make<TH1D>("Presel_HT", "H_{T};H_{T} [GeV];;",50,500,3000) ; 
 
     h1_["Presel_ptAK4_0"] = fs->make<TH1D>("Presel_ptAK4_0", "p_{T} AK4;p_{T} (1st AK4 jet) [GeV];;",50,0,2000) ; 
     h1_["Presel_ptAK4_1"] = fs->make<TH1D>("Presel_ptAK4_1", "p_{T} AK4;p_{T} (2nd AK4 jet) [GeV];;",50,0,2000) ; 

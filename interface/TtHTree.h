@@ -108,6 +108,7 @@ class TtHJetInfoBranches {
     std::vector<double> partonFlavourAK8; 
     std::vector<double> hadronFlavourAK8; 
 
+    std::vector<double> doubleBAK8;
     std::vector<double> sj0CSVAK8;
     std::vector<double> sj1CSVAK8;
     std::vector<double> hadronFlavourSJ0AK8; 
@@ -127,6 +128,7 @@ class TtHJetInfoBranches {
     std::vector<double> partonFlavourHTagged; 
     std::vector<double> hadronFlavourHTagged; 
 
+    std::vector<double> doubleBHTagged;
     std::vector<double> sj0CSVHTagged;
     std::vector<double> sj1CSVHTagged;
     std::vector<double> hadronFlavourSJ0HTagged; 
@@ -146,6 +148,7 @@ class TtHJetInfoBranches {
     std::vector<double> partonFlavourAntiHTagged; 
     std::vector<double> hadronFlavourAntiHTagged; 
 
+    std::vector<double> doubleBAntiHTagged;
     std::vector<double> sj0CSVAntiHTagged;
     std::vector<double> sj1CSVAntiHTagged;
     std::vector<double> hadronFlavourSJ0AntiHTagged; 
@@ -165,6 +168,7 @@ class TtHJetInfoBranches {
     std::vector<double> partonFlavourTopTagged; 
     std::vector<double> hadronFlavourTopTagged; 
 
+    std::vector<double> doubleBTopTagged;
     std::vector<double> sj0CSVTopTagged;
     std::vector<double> sj1CSVTopTagged;
     std::vector<double> hadronFlavourSJ0TopTagged; 
@@ -195,6 +199,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("partonFlavourAK8", &partonFlavourAK8);
       cutTree->Branch("hadronFlavourAK8", &hadronFlavourAK8);
 
+      cutTree->Branch("doubleBAK8",&doubleBAK8);
       cutTree->Branch("sj0CSVAK8",&sj0CSVAK8);
       cutTree->Branch("sj1CSVAK8",&sj1CSVAK8);
       cutTree->Branch("hadronFlavourSJ0AK8",&hadronFlavourSJ0AK8);
@@ -214,6 +219,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("partonFlavourHTagged", &partonFlavourHTagged);
       cutTree->Branch("hadronFlavourHTagged", &hadronFlavourHTagged);
 
+      cutTree->Branch("doubleBHTagged",&doubleBHTagged);
       cutTree->Branch("sj0CSVHTagged",&sj0CSVHTagged);
       cutTree->Branch("sj1CSVHTagged",&sj1CSVHTagged);
       cutTree->Branch("hadronFlavourSJ0HTagged",&hadronFlavourSJ0HTagged);
@@ -233,6 +239,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("partonFlavourAntiHTagged", &partonFlavourAntiHTagged);
       cutTree->Branch("hadronFlavourAntiHTagged", &hadronFlavourAntiHTagged);
 
+      cutTree->Branch("doubleBAntiHTagged",&doubleBAntiHTagged);
       cutTree->Branch("sj0CSVAntiHTagged",&sj0CSVAntiHTagged);
       cutTree->Branch("sj1CSVAntiHTagged",&sj1CSVAntiHTagged);
       cutTree->Branch("hadronFlavourSJ0AntiHTagged",&hadronFlavourSJ0AntiHTagged);
@@ -252,6 +259,7 @@ class TtHJetInfoBranches {
       cutTree->Branch("partonFlavourTopTagged", &partonFlavourTopTagged);
       cutTree->Branch("hadronFlavourTopTagged", &hadronFlavourTopTagged);
 
+      cutTree->Branch("doubleBTopTagged",&doubleBTopTagged);
       cutTree->Branch("sj0CSVTopTagged",&sj0CSVTopTagged);
       cutTree->Branch("sj1CSVTopTagged",&sj1CSVTopTagged);
       cutTree->Branch("hadronFlavourSJ0TopTagged",&hadronFlavourSJ0TopTagged);

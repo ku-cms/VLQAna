@@ -1,16 +1,16 @@
 setenv SCRAM_ARCH slc6_amd64_gcc530
 
-cmsrel CMSSW_8_0_15
+cmsrel CMSSW_8_0_20
 
-cd CMSSW_8_0_15/src
+cd CMSSW_8_0_20/src
 
 git cms-init 
 
-git cms-merge-topic CMSSW_8_0_X_AnalysisDataFormats_BoostedObjects
+git cms-merge-topic dmajumder:CMSSW_8_0_X_AnalysisDataFormats_BoostedObjects
 
 git clone git@github.com:dmajumder/EventCounter.git Analysis/EventCounter
 
-git clone -b CMSSW_8_0_X git@github.com:dmajumder/VLQAna.git Analysis/VLQAna
+git clone -b CMSSW_8_0_X_NewB2GAnaFW git@github.com:dmajumder/VLQAna.git Analysis/VLQAna
  
 #To just build this stuff
 scram b -j20

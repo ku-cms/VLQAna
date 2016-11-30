@@ -2,22 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 genPartParams = cms.PSet(
     genParticles        = cms.InputTag("filteredPrunedGenParticles"),
-    genPartPt           = cms.InputTag("genPart", "genPartPt"), 
-    genPartEta          = cms.InputTag("genPart", "genPartEta"), 
-    genPartPhi          = cms.InputTag("genPart", "genPartPhi"), 
-    genPartMass         = cms.InputTag("genPart", "genPartMass"), 
-    genPartE            = cms.InputTag("genPart", "genPartE"), 
-    genPartCharge       = cms.InputTag("genPart", "genPartCharge"), 
-    genPartID           = cms.InputTag("genPart", "genPartID"), 
-    genPartStatus       = cms.InputTag("genPart", "genPartStatus"),
-    genPartMom0ID       = cms.InputTag("genPart", "genPartMom0ID"), 
-    genPartMom1ID       = cms.InputTag("genPart", "genPartMom1ID"), 
-    genPartDau0ID       = cms.InputTag("genPart", "genPartDau0ID"), 
-    genPartDau1ID       = cms.InputTag("genPart", "genPartDau1ID"), 
-    genPartMom0Status   = cms.InputTag("genPart", "genPartMom0Status"), 
-    genPartMom1Status   = cms.InputTag("genPart", "genPartMom1Status"), 
-    genPartDau0Status   = cms.InputTag("genPart", "genPartDau0Status"), 
-    genPartDau1Status   = cms.InputTag("genPart", "genPartDau1Status"), 
     debug               = cms.bool(False), 
     )
 
