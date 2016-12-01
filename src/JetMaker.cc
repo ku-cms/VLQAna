@@ -114,6 +114,8 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
     idxsjCSVMax_          = iConfig.getParameter<double>("subjetCSVMax")  ;
     idxsjHighestCSVMin_   = iConfig.getParameter<double>("subjetHighestCSVMin")  ;
     idxsjHighestCSVMax_   = iConfig.getParameter<double>("subjetHighestCSVMax")  ;
+    idxjetDoubleBMin_     = iConfig.getParameter<double>("jetDoubleBMin") ; //EJS
+    idxjetDoubleBMax_     = iConfig.getParameter<double>("jetDoubleBMax") ; //EJS  
     btaggedcsvlOP_        = iConfig.getParameter<double>("btaggedcsvlOP")  ;
     btaggedcsvmOP_        = iConfig.getParameter<double>("btaggedcsvmOP")  ;
     btaggedcsvtOP_        = iConfig.getParameter<double>("btaggedcsvtOP")  ;
@@ -292,7 +294,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       double jetMass         (-1000); 
       double jetPrunedMass   (-1000); 
       double jetTrimmedMass  (-1000); 
-      double jetSoftDropMass (-1000); 
+      double jetSoftDropMass (-1000);
+      double jetDoubleB      (-1000); //EJS 
       int    vjetsjIdx0      (-1000); 
       int    vjetsjIdx1      (-1000); 
 
@@ -389,6 +392,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       jetPrunedMass   = masssmear * massCorr * (1 + jecShift_*unc) * (h_jetPrunedMass.product())->at(ijet) ;
       jetTrimmedMass  = masssmear * massCorr * (1 + jecShift_*unc) * (h_jetTrimmedMass.product())->at(ijet) ;
       jetSoftDropMass = masssmear * massCorr * (1 + jecShift_*unc) * (h_jetSoftDropMass.product())->at(ijet) ;
+      jetDoubleB      = (h_jetDoubleBAK8.product())->at(ijet) ; //EJS
       vjetsjIdx0      = int((h_vjetsjIdx0.product())->at(ijet)) ;
       vjetsjIdx1      = int((h_vjetsjIdx1.product())->at(ijet)) ;
 #if DEBUG
@@ -456,6 +460,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
           && vjetssj1CSV <  idxsjCSVMax_ 
           && subjetHighestCSV >= idxsjHighestCSVMin_
           && subjetHighestCSV <  idxsjHighestCSVMax_
+          && jetDoubleB >= idxjetDoubleBMin_  //EJS
+          && jetDoubleB < idxjetDoubleBMax_   //EJS
          ) { 
         jet.setDoubleBAK8   ( (h_jetDoubleBAK8.product())->at(ijet) ) ;  
         jet.setDoubleBCA15  ( (h_jetDoubleBCA15.product())->at(ijet) ) ;  

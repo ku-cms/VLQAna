@@ -50,7 +50,9 @@ class JetMaker {
     double idxjetnSubJetsMax_    ; 
     double idxsjMassMin_         ; 
     double idxsjCSVMin_          ; 
-    double idxsjCSVMax_          ; 
+    double idxsjCSVMax_          ;
+    double idxjetDoubleBMin_     ; //EJS
+    double idxjetDoubleBMax_     ; //EJS
     double idxsjHighestCSVMin_   ; 
     double idxsjHighestCSVMax_   ; 
   private:
