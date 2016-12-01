@@ -12,11 +12,12 @@ ElectronMaker::ElectronMaker (edm::ParameterSet const& iConfig, edm::ConsumesCol
   t_elE                 (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elELabel"))),
   t_elEta               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elEtaLabel"))),
   t_elHoE               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elHoELabel"))),
-  t_elIso03             (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elIso03Label"))),
+  t_elRelIsoEA          (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elRelIsoEALabel"))),
   t_elKey               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elKeyLabel"))),
   t_elPhi               (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elPhiLabel"))),
   t_elPt                (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elPtLabel"))),
   t_eldEtaIn            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("eldEtaInLabel"))),
+  t_eldEtaInSeed        (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("eldEtaInSeedLabel"))),
   t_eldPhiIn            (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("eldPhiInLabel"))),
   t_elfull5x5siee       (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elfull5x5sieeLabel"))),
   t_elhasMatchedConVeto (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elhasMatchedConVetoLabel"))),
@@ -50,11 +51,12 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   Handle<vector<float>> h_elE                  ; evt.getByToken(t_elE                 , h_elE                 ); 
   Handle<vector<float>> h_elEta                ; evt.getByToken(t_elEta               , h_elEta               ); 
   Handle<vector<float>> h_elHoE                ; evt.getByToken(t_elHoE               , h_elHoE               ); 
-  Handle<vector<float>> h_elIso03              ; evt.getByToken(t_elIso03             , h_elIso03             ); 
+  Handle<vector<float>> h_elRelIsoEA           ; evt.getByToken(t_elRelIsoEA          , h_elRelIsoEA          ); 
   Handle<vector<float>> h_elKey                ; evt.getByToken(t_elKey               , h_elKey               ); 
   Handle<vector<float>> h_elPhi                ; evt.getByToken(t_elPhi               , h_elPhi               ); 
   Handle<vector<float>> h_elPt                 ; evt.getByToken(t_elPt                , h_elPt                ); 
   Handle<vector<float>> h_eldEtaIn             ; evt.getByToken(t_eldEtaIn            , h_eldEtaIn            ); 
+  Handle<vector<float>> h_eldEtaInSeed         ; evt.getByToken(t_eldEtaInSeed        , h_eldEtaInSeed        ); 
   Handle<vector<float>> h_eldPhiIn             ; evt.getByToken(t_eldPhiIn            , h_eldPhiIn            ); 
   Handle<vector<float>> h_elfull5x5siee        ; evt.getByToken(t_elfull5x5siee       , h_elfull5x5siee       ); 
   Handle<vector<float>> h_elhasMatchedConVeto  ; evt.getByToken(t_elhasMatchedConVeto , h_elhasMatchedConVeto ); 
@@ -72,22 +74,22 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
     double elPt = (h_elPt.product())->at(iel) ; 
     double elAbsEta  = std::abs((h_elEta.product())->at(iel)) ; 
     double elscAbsEta  = std::abs((h_elscEta.product())->at(iel)) ; 
-    double elIso = (h_elIso03.product())->at(iel) ; 
-    double dEtaIn =(h_eldEtaIn.product())->at(iel);
-    double dPhiIn =(h_eldPhiIn.product())->at(iel);
-    double full5x5siee =(h_elfull5x5siee.product())->at(iel);
-    double HoE =(h_elHoE.product())->at(iel);
+    double elRelIsoEA = (h_elRelIsoEA.product())->at(iel) ; 
+    double dEtaInSeed = (h_eldEtaInSeed.product())->at(iel);
+    double dPhiIn = (h_eldPhiIn.product())->at(iel);
+    double full5x5siee = (h_elfull5x5siee.product())->at(iel);
+    double HoE = (h_elHoE.product())->at(iel);
     double Dxy = (h_elDxy.product())->at(iel);
-    double Dz =(h_elDz.product())->at(iel);
-    double ooEmooP =(h_elooEmooP.product())->at(iel);
-    double hasMatchedConVeto=(h_elhasMatchedConVeto.product())->at(iel);
-    double missHits=(h_elmissHits.product())->at(iel);
+    double Dz = (h_elDz.product())->at(iel);
+    double ooEmooP = (h_elooEmooP.product())->at(iel);
+    bool   hasMatchedConVeto = (h_elhasMatchedConVeto.product())->at(iel);
+    double missHits = (h_elmissHits.product())->at(iel);
     bool   isEB = elAbsEta < 1.479 ;
   
-    bool elisLoose  = passElId("LOOSE" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);
-    bool elisMedium = passElId("MEDIUM", isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits); 
-    bool elisTight  = passElId("TIGHT" , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);  
-    bool elisVeto   = passElId("VETO"  , isEB, dEtaIn, dPhiIn, full5x5siee, HoE, Dxy, Dz, ooEmooP, elIso, hasMatchedConVeto, missHits);  
+    bool elisLoose  = passElId("LOOSE" , isEB, dEtaInSeed, dPhiIn, full5x5siee, HoE, elRelIsoEA, ooEmooP, hasMatchedConVeto, missHits, Dxy, Dz);
+    bool elisMedium = passElId("MEDIUM", isEB, dEtaInSeed, dPhiIn, full5x5siee, HoE, elRelIsoEA, ooEmooP, hasMatchedConVeto, missHits, Dxy, Dz); 
+    bool elisTight  = passElId("TIGHT" , isEB, dEtaInSeed, dPhiIn, full5x5siee, HoE, elRelIsoEA, ooEmooP, hasMatchedConVeto, missHits, Dxy, Dz);  
+    bool elisVeto   = passElId("VETO"  , isEB, dEtaInSeed, dPhiIn, full5x5siee, HoE, elRelIsoEA, ooEmooP, hasMatchedConVeto, missHits, Dxy, Dz);  
 
     bool passId(false); 
     if (type_ == LOOSE  && elisLoose ) passId = true ;
@@ -108,13 +110,14 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
       electron.setE                 (h_elE                 .product()->at(iel)) ; 
       electron.setEta               (h_elEta               .product()->at(iel)) ; 
       electron.setHoE               (h_elHoE               .product()->at(iel)) ; 
-      electron.setIso03             (h_elIso03             .product()->at(iel)) ; 
+      electron.setIso03             (h_elRelIsoEA          .product()->at(iel)) ; 
       electron.setKey               (h_elKey               .product()->at(iel)) ; 
       electron.setMass              (elP4.Mag())                                ; 
       electron.setPhi               (h_elPhi               .product()->at(iel)) ; 
       electron.setPt                (h_elPt                .product()->at(iel)) ; 
       electron.setY                 (elP4.Rapidity())                           ; 
       electron.setdEtaIn            (h_eldEtaIn            .product()->at(iel)) ; 
+      electron.setdEtaInSeed        (h_eldEtaInSeed        .product()->at(iel)) ; 
       electron.setdPhiIn            (h_eldPhiIn            .product()->at(iel)) ; 
       electron.setfull5x5siee       (h_elfull5x5siee       .product()->at(iel)) ; 
       electron.sethasMatchedConVeto (h_elhasMatchedConVeto .product()->at(iel)) ; 
@@ -135,40 +138,42 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
 }
 
 
-bool ElectronMaker::passElId(string WP, bool isEB, float dEtaIn, float dPhiIn, float full5x5, float hoe, float d0, float dz, float ooemoop,float Iso03,bool conv,int missHits){ 
-   
+bool ElectronMaker::passElId(string WP, bool isEB, float dEtaInSeed, float dPhiIn, float full5x5siee, float HoE, float RelIsoEA, float ooEmooP, bool conv, int missHits, float Dxy, float Dz) { 
+
    bool pass = false;
+
    if(WP == "VETO"){
       if(isEB){
-         pass = (fabs(dEtaIn) < 0.0152) && (fabs(dPhiIn) < 0.216) && (full5x5 < 0.0114) && (hoe < 0.181) && (fabs(d0) < 0.0564) && (fabs(dz) < 0.472) && (ooemoop < 0.207) && (Iso03 < 0.126)  && !conv && (missHits <= 2);
+         pass = (fabs(dEtaInSeed) < 0.00749) && (fabs(dPhiIn) < 0.228) && (full5x5siee < 0.0115) && (HoE < 0.356) && (fabs(Dxy) < 0.05) && (fabs(Dz) < 0.10) && (ooEmooP < 0.299) && (RelIsoEA < 0.175)  && !conv && (missHits <= 2);
       }
       else{
-         pass = (fabs(dEtaIn) < 0.0113) && (fabs(dPhiIn) < 0.237) && (full5x5 < 0.0352) && (hoe < 0.116) && (fabs(d0) < 0.222) && (fabs(dz) < 0.921) && (ooemoop < 0.174) && (Iso03 < 0.144) && !conv && (missHits <= 3);
+         pass = (fabs(dEtaInSeed) < 0.00895) && (fabs(dPhiIn) < 0.213) && (full5x5siee < 0.037) && (HoE < 0.211) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.15 ) && (RelIsoEA < 0.159) && !conv && (missHits <= 3);
       }
    }
    else if(WP == "LOOSE"){
       if(isEB){
-         pass = (fabs(dEtaIn) < 0.0105) && (fabs(dPhiIn) < 0.115) && (full5x5 <  0.0103) && (hoe < 0.104) && (fabs(d0) < 0.0261) && (fabs(dz) < 0.41) && (ooemoop <  0.102) && (Iso03 < 0.0893)  && !conv && (missHits <= 2);
+         pass = (fabs(dEtaInSeed) < 0.00477) && (fabs(dPhiIn) < 0.222) && (full5x5siee <  0.011) && (HoE < 0.298) && (fabs(Dxy) < 0.05) && (fabs(Dz) < 0.10) && (ooEmooP <  0.241) && (RelIsoEA < 0.0994)  && !conv && (missHits <= 1);
       }
       else{
-         pass = (fabs(dEtaIn) < 0.00814) && (fabs(dPhiIn) < 0.182) && (full5x5 < 0.0301) && (hoe < 0.0897) && (fabs(d0) < 0.118) && (fabs(dz) < 0.822) && (ooemoop < 0.126) && (Iso03 < 0.121)  && !conv && (missHits <= 1);
+         pass = (fabs(dEtaInSeed) < 0.00868) && (fabs(dPhiIn) < 0.213) && (full5x5siee < 0.0314) && (HoE < 0.101 ) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.14 ) && (RelIsoEA < 0.107)  && !conv && (missHits <= 1);
       }
    }
    else if(WP == "MEDIUM"){
       if(isEB){
-         pass = (fabs(dEtaIn) < 0.0103) && (fabs(dPhiIn) < 0.0336) && (full5x5 < 0.0101) && (hoe < 0.0876) && (fabs(d0) < 0.0118) && (fabs(dz) < 0.373) && (ooemoop < 0.0174) && (Iso03 < 0.0766)  && !conv && (missHits <= 2);
+         pass = (fabs(dEtaInSeed) < 0.00311) && (fabs(dPhiIn) < 0.103 ) && (full5x5siee < 0.00998) && (HoE < 0.253 ) && (fabs(Dxy) < 0.05) && (fabs(Dz) < 0.10) && (ooEmooP < 0.134 ) && (RelIsoEA < 0.0695)  && !conv && (missHits <= 1);
       }
       else{
-         pass = (fabs(dEtaIn) < 0.00773) && (fabs(dPhiIn) < 0.114) && (full5x5 <  0.0283) && (hoe < 0.0678) && (fabs(d0) < 0.0739) && (fabs(dz) < 0.602) && (ooemoop < 0.0898) && (Iso03 < 0.0678) && !conv && (missHits <= 1);
+         pass = (fabs(dEtaInSeed) < 0.00609) && (fabs(dPhiIn) < 0.045) && (full5x5siee <  0.0298) && (HoE < 0.0878) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.13  ) && (RelIsoEA < 0.0821) && !conv && (missHits <= 1);
       }
    }
    else if(WP == "TIGHT"){
       if(isEB){
-         pass = (fabs(dEtaIn) < 0.00926) && (fabs(dPhiIn) < 0.0336) && (full5x5 < 0.0101) && (hoe < 0.0597) && (fabs(d0) < 0.0111) && (fabs(dz) <  0.466) && (ooemoop <  0.012) && (Iso03 < 0.0354)  && !conv && (missHits <= 2);
+         pass = (fabs(dEtaInSeed) < 0.00308) && (fabs(dPhiIn) < 0.0816) && (full5x5siee < 0.00998) && (HoE < 0.0414) && (fabs(Dxy) < 0.05) && (fabs(Dz) <  0.10) && (ooEmooP <  0.0129) && (RelIsoEA < 0.0588)  && !conv && (missHits <= 1);
       }
       else{
-         pass = (fabs(dEtaIn) < 0.00724) && (fabs(dPhiIn) < 0.0918) && (full5x5 < 0.0279) && (hoe < 0.0615) && (fabs(d0) < 0.0351) && (fabs(dz) < 0.417) && (ooemoop <  0.00999)  && (Iso03 < 0.0646) && !conv && (missHits <= 1);
+         pass = (fabs(dEtaInSeed) < 0.00605) && (fabs(dPhiIn) < 0.0394) && (full5x5siee < 0.0292) && (HoE < 0.0641) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP <  0.0129 )  && (RelIsoEA < 0.0571) && !conv && (missHits <= 1);
       }
    }
+
    return pass;
 } 
