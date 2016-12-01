@@ -8,6 +8,11 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
+options.register('skim', 'False',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Skim events?"
+    )
 options.register('zdecaymode', 'zmumu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
@@ -135,6 +140,11 @@ process.ana.STMin = cms.double(1000.)
 process.ana.vlqMass = cms.double(1000.) #M=1000
 process.ana.bosonMass = cms.double(91.2) #Z
 
+if options.skim == True: 
+  process.ana.NAK4Min = cms.uint32(3)
+  process.ana.HTMin = cms.double(200.)
+  process.ana.STMin = cms.double(0.)
+
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
          options.outFileName
@@ -156,6 +166,16 @@ process.p = cms.Path(
     *cms.ignore(process.ana)
     * process.finalEvents
     )
+
+if options.skim == True: 
+  process.out = cms.OutputModule("PoolOutputModule",
+      SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('p')
+        ),
+      fileName = cms.untracked.string('skim.root')
+      )
+  
+  process.outpath = cms.EndPath(process.out)
 
 #process.schedule = cms.Schedule(process.p)
 

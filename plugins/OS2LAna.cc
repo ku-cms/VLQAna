@@ -84,8 +84,10 @@ class OS2LAna : public edm::EDFilter {
     edm::ParameterSet BoostedZCandParams_        ; 
     edm::ParameterSet GenHSelParams_             ;
     edm::ParameterSet genParams_                 ;
+    const unsigned int NAK4Min_                  ;
     const double HTMin_                          ;
     const double STMin_                          ; 
+    const bool skim_                             ;
     const bool filterSignal_                     ;
     const bool additionalPlots_                  ;
     const std::string signalType_                ;
@@ -156,8 +158,10 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   BoostedZCandParams_     (iConfig.getParameter<edm::ParameterSet> ("BoostedZCandParams")),
   GenHSelParams_          (iConfig.getParameter<edm::ParameterSet> ("GenHSelParams")),
   genParams_              (iConfig.getParameter<edm::ParameterSet> ("genParams")),
+  NAK4Min_                (iConfig.getParameter<unsigned int>      ("NAK4Min")),
   HTMin_                  (iConfig.getParameter<double>            ("HTMin")),
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
+  skim_                   (iConfig.getParameter<bool>              ("skim")), 
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   additionalPlots_        (iConfig.getParameter<bool>              ("additionalPlots")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
@@ -277,6 +281,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (zdecayMode_ == "zelel") {cleanjets(goodAK4Jets, goodElectrons);} 
 
   HT htak4(goodAK4Jets) ; 
+
+  if ( skim_ ) {
+    if (zll.size() > 0 && goodAK4Jets.size() >= NAK4Min_ && htak4.getHT() > HTMin_) return true; 
+  }
 
   ////////////////////////////////////////////////////////// 
   //Fill N-1 selected plots for dilepton mass, Ht, ad Njets
