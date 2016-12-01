@@ -163,7 +163,7 @@ process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
     *process.cleanedEvents
-    *cms.ignore(process.ana)
+    *process.ana
     * process.finalEvents
     )
 
