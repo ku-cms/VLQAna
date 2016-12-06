@@ -35,6 +35,8 @@ Implementation:
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 
 #include "Analysis/VLQAna/interface/HT.h"
+#include "Analysis/VLQAna/interface/ElectronMaker.h"
+#include "Analysis/VLQAna/interface/MuonMaker.h"
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
@@ -79,6 +81,9 @@ class VLQAna : public edm::EDFilter {
     edm::EDGetTokenT<vector<int>>    t_lhewtids   ;
     edm::EDGetTokenT<vector<double>> t_lhewts     ;
 
+    ElectronMaker electronmaker                   ; 
+    MuonMaker muonmaker                           ; 
+
     JetMaker jetAK4maker                          ; 
     JetMaker jetAK8maker                          ; 
     JetMaker jetHTaggedmaker                      ; 
@@ -119,6 +124,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   t_htHat                 (consumes<double>         (iConfig.getParameter<edm::InputTag>("htHat"))),
   t_lhewtids              (consumes<vector<int>>    (iConfig.getParameter<edm::InputTag>("lhewtids"))),
   t_lhewts                (consumes<vector<double>> (iConfig.getParameter<edm::InputTag>("lhewts"))),
+  electronmaker           (iConfig.getParameter<edm::ParameterSet>("elselParams"),consumesCollector()),
+  muonmaker               (iConfig.getParameter<edm::ParameterSet>("muselParams"),consumesCollector()),
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet>("jetAK4selParams"), consumesCollector()), 
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet>("jetAK8selParams"), consumesCollector()), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet>("jetHTaggedselParams"), consumesCollector()), 
