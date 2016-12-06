@@ -31,4 +31,3 @@ ana = cms.EDFilter("VLQAna",
     storePreselEvts            = cms.bool(False), 
     doPreselOnly               = cms.bool(False), 
     )
-
