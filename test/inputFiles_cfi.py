@@ -1,6 +1,9 @@
 FileNames = {
     'FileNames': [
       ],
+    'FileNames_BpBp1800':[
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p1/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161122_174707/0000/B2GEDMNtuple_1.root', 
+      ],
     'FileNames_TpTp1200':[
       '/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161122_092031/0000/B2GEDMNtuple_4.root',
       ],
