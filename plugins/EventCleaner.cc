@@ -268,7 +268,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     //  double vtxRho = (h_vtxho.product())->at(ipv) ; 
     //  double vtxZ = (h_vtxZ.product())->at(ipv) ; 
     //  double vtxNdf = (h_vtxNdf.product())->at(ipv) ; 
-    //  if ( abs(vtxRho) < 2. && abs(vtxZ) <= 24. && vtxNdf > 4 ) ++npv ; 
+    //  if ( std::abs(vtxRho) < 2. && std:abs(vtxZ) <= 24. && vtxNdf > 4 ) ++npv ; 
     //}
     ////if ( npv < 1 ) return false ; 
 
@@ -280,7 +280,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       //Handle<GenEventInfoProduct> h_genEvtInfoProd; 
       //evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
       //evtwtGen = h_genEvtInfoProd->weight() ; 
-      //evtwtGen /= abs(evtwtGen) ; 
+      //evtwtGen /= std::abs(evtwtGen) ; 
       //if (h_genEvtInfoProd->binningValues().size()>0) htHat = h_genEvtInfoProd->binningValues()[0];
 
       Handle<LHEEventProduct> h_lheEvtProd;
