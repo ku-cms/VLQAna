@@ -90,6 +90,7 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetTopTaggedmaker                    ; 
     JetMaker jetAntiHTaggedmaker                  ; 
 
+    double leadingJetPtMin_                       ; 
     double HTMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
@@ -131,6 +132,7 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet>("jetHTaggedselParams"), consumesCollector()), 
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
+  leadingJetPtMin_        (iConfig.getParameter<double>           ("leadingJetPtMin")), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
@@ -193,6 +195,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //// Event pre-selection
   if (goodAK8Jets.size() < 1) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
+
+  //// Event pre-selection
+  if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_) return false ; 
+  h1_["cutflow"] -> Fill(6, evtwt) ; 
 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
   h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
@@ -292,12 +298,12 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   bool isOneOfABCD(isRegionA ^ isRegionB ^ isRegionC ^ isRegionD) ;
   if ( !storePreselEvts_ && isOneOfABCD == false) edm::LogInfo("ERROR ABCD") << ">>>> Check ABCD logic: Only one of A, B C, D should be true\n" ; 
 
-  if ( theHiggs != nullptr ) h1_["cutflow"] -> Fill(6, evtwt) ; 
-  if ( theTop != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
-  if ( isRegionA ) h1_["cutflow"] -> Fill(8, evtwt) ; 
-  if ( isRegionB ) h1_["cutflow"] -> Fill(9, evtwt) ; 
-  if ( isRegionC ) h1_["cutflow"] -> Fill(10, evtwt) ; 
-  if ( isRegionD ) h1_["cutflow"] -> Fill(11, evtwt) ; 
+  if ( theHiggs != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
+  if ( theTop != nullptr ) h1_["cutflow"] -> Fill(8, evtwt) ; 
+  if ( isRegionA ) h1_["cutflow"] -> Fill(9, evtwt) ; 
+  if ( isRegionB ) h1_["cutflow"] -> Fill(10, evtwt) ; 
+  if ( isRegionC ) h1_["cutflow"] -> Fill(11, evtwt) ; 
+  if ( isRegionD ) h1_["cutflow"] -> Fill(12, evtwt) ; 
 
   TLorentzVector p4_tprime, p4_TprimeDummy ; 
   double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0), MtprimeDummy_corr(0) ; 
@@ -717,18 +723,19 @@ void VLQAna::beginJob() {
 
   }
 
-  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 11, 0.5, 11.5) ;  
+  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 12, 0.5, 12.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1,  "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2,  "Trig.+PV") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3,  "N(AK4)>=4") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4,  "H_{T}>1000GeV") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4,  "H_{T}>H_{T}^{min}") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5,  "N(AK8)>=1") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6,  "N(H)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7,  "N(top)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8,  "RegionA") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9,  "RegionB") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "RegionC") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "RegionD") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6,  "p_{T}(AK8_{0})>p_{T}^{min}(AK8_{0})") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7,  "N(H)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8,  "N(top)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9,  "RegionA") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "RegionB") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "RegionC") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(12, "RegionD") ; 
 
   h1_["RegD_HT"] = fs->make<TH1D>("RegD_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
   h1_["RegD_HT_wts"] = fs->make<TH1D>("RegD_HT_wts", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 

@@ -85,7 +85,7 @@ options.parseArguments()
 hltpathsLoose = ["HLT_PFJet500_v"]
 
 hltpathsTest = ["AK8PFJet360_TrimMass30_v",
-                "HLT_AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_v",
+                "HLT_AK8DiPFJet300_200_TrimMass30_v",
                 "AK8PFHT700_TrimR0p1PT0p03Mass50_v",
                 "PFHT650_WideJetMJJ900DEtaJJ1p5_v",
                 "HLT_PFHT900_v"
@@ -97,6 +97,7 @@ if options.isData:
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
 
+leadingJetPtMin = 500
 HTMin=500
 if options.storePreselEvts:
   HTMin = options.HTMin
@@ -153,6 +154,7 @@ process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
 process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
 process.ana.HTMin = HTMin
+process.ana.leadingJetPtMin = leadingJetPtMin 
 
 process.anatest = process.ana.clone(
     runno                      = cms.InputTag("evtcleanertest","runno"), 
