@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.PickGenPart_cfi import *
 from Analysis.VLQAna.JetMaker_cfi import *
+from Analysis.VLQAna.ElectronMaker_cfi import *
+from Analysis.VLQAna.MuonMaker_cfi import *
+
 ana = cms.EDFilter("VLQAna", 
     runno                      = cms.InputTag("evtcleaner","runno"), 
     lumisec                    = cms.InputTag("evtcleaner","lumisec"), 
@@ -18,6 +21,8 @@ ana = cms.EDFilter("VLQAna",
     htHat                      = cms.InputTag("evtcleaner","htHat"),
     lhewtids                   = cms.InputTag("evtcleaner","lhewtids"),
     lhewts                     = cms.InputTag("evtcleaner","lhewts"), 
+    elselParams                = defaultElectronMakerParameters, 
+    muselParams                = defaultMuonMakerParameters, 
     jetAK4selParams            = defaultAK4JetSelectionParameters,
     jetAK8selParams            = defaultAK8CHSJetSelectionParameters,
     jetHTaggedselParams        = defaultCHSHJetSelectionParameters,
