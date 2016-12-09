@@ -2,22 +2,7 @@ FileNames = {
     'FileNames': [
       ],
     'FileNames_DY_pt_650ToInf':[
-      'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161119_100629/0000/B2GEDMNtuple_1.root',
       'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161119_100629/0000/B2GEDMNtuple_2.root',
-      'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161119_100629/0000/B2GEDMNtuple_3.root',
-      ],
-    'FileNames_SingleMuon_Run2016B':[
-      'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_1.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_2.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_3.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_4.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_5.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_6.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_7.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_8.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_9.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_10.root',
-        'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/SingleMuon/Run2016B/SingleMuon/Run2016B-PromptReco-v2_B2GAnaFW_80X_V2p1/161027_151657/0000/B2GEDMNtuple_11.root',
       ],
     'FileNames_BpBp1800':[
       '/store/group/phys_b2g/B2GAnaFW_80X_V2p1/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161122_174707/0000/B2GEDMNtuple_1.root', 
