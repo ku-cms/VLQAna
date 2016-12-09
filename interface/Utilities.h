@@ -63,7 +63,7 @@ struct Utilities {
 
     template <typename T>
     static bool sortByEta (const T& t1, const T& t2) {
-      return t1.getEta() > t2.getEta() ;  
+      return abs(t1.getEta()) > abs(t2.getEta()) ;  
     }
 
     template <typename T>
