@@ -200,6 +200,11 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( storePreselEvts_ || doPreselOnly_ ) { 
     h1_["Presel_HT"] -> Fill(htak4.getHT(), evtwt) ; 
 
+    if (goodAK8Jets.size() > 1) 
+      h1_["Presel_Mjj"] -> Fill( (goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()).Mag() ) ; 
+    else 
+      h1_["Presel_Mjj"] -> Fill( -1 ); 
+
     h1_["Presel_ptAK4_0"] -> Fill (goodAK4Jets.at(0).getPt(),evtwt) ;  
     h1_["Presel_ptAK4_1"] -> Fill (goodAK4Jets.at(1).getPt(),evtwt) ;  
     h1_["Presel_ptAK4_2"] -> Fill (goodAK4Jets.at(2).getPt(),evtwt) ;  
@@ -683,6 +688,7 @@ void VLQAna::beginJob() {
   if (storePreselEvts_ || doPreselOnly_) {
 
     h1_["Presel_HT"] = fs->make<TH1D>("Presel_HT", "H_{T};H_{T} [GeV];;",50,500,3000) ; 
+    h1_["Presel_Mjj"] = fs->make<TH1D>("Presel_Mjj", "M_{j1,j2} [GeV];;",50,500,3000) ; 
 
     h1_["Presel_ptAK4_0"] = fs->make<TH1D>("Presel_ptAK4_0", "p_{T} AK4;p_{T} (1st AK4 jet) [GeV];;",50,0,2000) ; 
     h1_["Presel_ptAK4_1"] = fs->make<TH1D>("Presel_ptAK4_1", "p_{T} AK4;p_{T} (2nd AK4 jet) [GeV];;",50,0,2000) ; 
