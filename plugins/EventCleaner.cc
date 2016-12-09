@@ -233,8 +233,10 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       hltdecisions[0] = 1;
     }
     if ( cleanEvents_ ) {
-      if ( hltORAND_ == "OR" && !hltdecisions.any() ) {
-        return false ; 
+      if ( hltORAND_ == "OR" ) { 
+        if ( !hltdecisions.any() ) {
+          return false ; 
+        }
       }
       else if ( hltORAND_ == "AND" ) {
         int hltdecision = 1;
@@ -244,7 +246,7 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         if (hltdecision == 0) return false;
       }
       else {
-        edm::LogError("EventCleaner::hltdecison type not set") << " Set hltORAND to either OR or AND !!!!";
+        edm::LogError("EventCleaner::hltdecison type set to") << hltORAND_ << ". Not acceptable!!! Set hltORAND to either OR or AND !!!!";
         return false;
       }
     }
