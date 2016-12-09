@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('skim', 'False',
+options.register('skim', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
@@ -36,7 +36,7 @@ options.register('doPUReweightingOfficial', True,
 options.register('filterSignal', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
-    "Select only tZtt or bZbZ modes"
+    "Select only tZXX or bZXX modes"
     )
 options.register('signalType', '',
     VarParsing.multiplicity.singleton,
@@ -58,7 +58,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_QCD_HT1000to1500',
+options.register('FileNames', 'FileNames_DY_pt_650ToInf',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -69,9 +69,8 @@ options.register('optimizeReco', True,
     "Optimize mass reconstruction"
     )
 
-options.setDefault('maxEvents', -1)
+options.setDefault('maxEvents', 10000)
 options.parseArguments()
-print options
 
 hltpaths = []
 if options.isData:
@@ -81,9 +80,11 @@ if options.isData:
   options.applyLeptonSFs = False 
   options.applyBTagSFs   = False 
   options.applyDYNLOCorr = False 
+  options.doPUReweightingOfficial = False
   if options.zdecaymode == "zmumu":
     hltpaths = [
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
+        #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
+        "HLT_Mu22_v" 
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
@@ -93,7 +94,9 @@ if options.isData:
     sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
 
 if options.filterSignal == True and len(options.signalType) == 0:
-  sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!")  
+  sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
+ 
+print options
 
 process = cms.Process("OS2LAna")
 
@@ -109,6 +112,7 @@ process.source = cms.Source(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.isData = options.isData 
@@ -127,24 +131,25 @@ process.ana = ana.clone(
     applyBTagSFs = cms.bool(options.applyBTagSFs),
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     optimizeReco = cms.bool(options.optimizeReco),
+    skim = cms.bool(options.skim),
     )
 process.ana.elselParams.elidtype = cms.string(options.lepID)
 process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
-process.ana.BoostedZCandParams.ptMin = cms.double(80.)
+#process.ana.BoostedZCandParams.ptMin = cms.double(100.) #never used this module
 process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
 process.ana.STMin = cms.double(1000.)
 process.ana.vlqMass = cms.double(1000.) #M=1000
 process.ana.bosonMass = cms.double(91.2) #Z
 
-if options.skim == True: 
+if options.skim: 
   process.ana.NAK4Min = cms.uint32(3)
   process.ana.HTMin = cms.double(200.)
   process.ana.STMin = cms.double(0.)
-
+ 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
          options.outFileName
@@ -167,14 +172,14 @@ process.p = cms.Path(
     * process.finalEvents
     )
 
-if options.skim == True: 
+if options.skim: 
   process.out = cms.OutputModule("PoolOutputModule",
       SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
         ),
       fileName = cms.untracked.string('skim.root')
       )
-  
+   
   process.outpath = cms.EndPath(process.out)
 
 #process.schedule = cms.Schedule(process.p)
