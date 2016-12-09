@@ -46,6 +46,7 @@ def main():
   group_xsec = {}
   group_intlumi = {}
   dataset_xsec = {}
+  dataset_nevt = {} 
 
   ### Open and read the dataset_list_for_merging
   dataset_list_for_merging = open(options.dataset_list_for_merging, 'r')
@@ -71,6 +72,7 @@ def main():
       else:
         group_xsec[group] = -1.
       dataset_xsec[dataset] = xsec 
+      dataset_nevt[dataset] = nevt
 
   ### Final output file
   filename = 'Final_histograms'
@@ -95,16 +97,11 @@ def main():
 
       ### Open input ROOT file
       root_file = TFile(dataset)
-<<<<<<< HEAD
       #htemp = root_file.Get(os.path.join(options.analyzer_module,'allEvents/hEventCount'))
       htemp = root_file.Get(os.path.join('allEvents/hEventCount'))
       #nEventsAll = htemp.GetBinContent(1)
       nEventsAll = htemp.Integral()
       #nEventsAll = dataset_nevt[dataset]#*23443.424/2 
-=======
-      htemp = root_file.Get(os.path.join(options.analyzer_module,'cutflow'))
-      nEventsAll = htemp.GetBinContent(1)
->>>>>>> origin
       scale = 1.
       if group_xsec[group] > 0.:
         if group_intlumi[group] > 0.:
