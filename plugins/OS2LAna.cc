@@ -216,8 +216,28 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else edm::LogError("OS2LAna::filter") << " >>>> WrongleptonType: " << lep << " Check lep name !!!" ;
 
   if (filterSignal_) {
-    if (*h_evttype.product()!=signalType_) return false ;
-    else  h1_["signalEvts"] -> Fill(1) ;
+     if(skim_){
+        if( signalType_.empty()){
+           //cout << *h_evttype.product() << endl; 
+           if      (*h_evttype.product() == "EvtType_MC_bZbZ"){h1_["signalEvts_all"] -> Fill(1);}
+           else if (*h_evttype.product() == "EvtType_MC_bZbH"){h1_["signalEvts_all"] -> Fill(2);}
+           else if (*h_evttype.product() == "EvtType_MC_bZtW"){h1_["signalEvts_all"] -> Fill(3);}
+           else if (*h_evttype.product() == "EvtType_MC_bHbH"){h1_["signalEvts_all"] -> Fill(4);}
+           else if (*h_evttype.product() == "EvtType_MC_bHtW"){h1_["signalEvts_all"] -> Fill(5);}
+           else if (*h_evttype.product() == "EvtType_MC_tWtW"){h1_["signalEvts_all"] -> Fill(6);}
+           else if (*h_evttype.product() == "EvtType_MC_tZtZ"){h1_["signalEvts_all"] -> Fill(7);}
+           else if (*h_evttype.product() == "EvtType_MC_tZtH"){h1_["signalEvts_all"] -> Fill(8);}
+           else if (*h_evttype.product() == "EvtType_MC_tZbW"){h1_["signalEvts_all"] -> Fill(9);}
+           else if (*h_evttype.product() == "EvtType_MC_tHtH"){h1_["signalEvts_all"] -> Fill(10);}
+           else if (*h_evttype.product() == "EvtType_MC_tHbW"){h1_["signalEvts_all"] -> Fill(11);}
+           else if (*h_evttype.product() == "EvtType_MC_bWbW"){h1_["signalEvts_all"] -> Fill(12);}
+        }
+        else{edm::LogError(">>>>ERROR>>>>OS2LAna >>>>  Please do not specify any signal type when skimming the signal" );}
+     }
+     else{
+        if (*h_evttype.product()!=signalType_) return false ;
+        else  h1_["signalEvts"] -> Fill(1) ;
+    }
   }
 
   const bool hltdecision(*h_hltdecision.product()) ; 
@@ -283,41 +303,35 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   HT htak4(goodAK4Jets) ; 
 
   if ( skim_ ) {
-    if (zll.size() > 0 && goodAK4Jets.size() >= NAK4Min_ && htak4.getHT() > HTMin_) return true; 
+    if (zll.size() == 1 && goodAK4Jets.size() >= NAK4Min_ && htak4.getHT() > HTMin_) return true; 
   }
 
   ////////////////////////////////////////////////////////// 
   //Fill N-1 selected plots for dilepton mass, Ht, ad Njets
   //////////////////////////////////////////////////////////
 
-  //Fill Z mass: >=3 jets, HT > 300
-  if (goodAK4Jets.size() > 2 && htak4.getHT() > HTMin_){
-    for (auto idilepton : dileptons) h1_["mass_z"+lep+lep+"_pre"] -> Fill(idilepton.getMass(), evtwt) ; 
-  }
-  //at least one Z cand in event
-  if(zll.size() > 0) {h1_["cutflow"] -> Fill(2, evtwt) ;}
+  //exactly one Z cand in event
+  if(zll.size() == 1) {h1_["cutflow"] -> Fill(2, evtwt) ;}
   else return false ;
-
-  //Fill Njets: HT > 300 && Z mass
-  if (htak4.getHT() > HTMin_){h1_["nak4_pre"] -> Fill(goodAK4Jets.size(), evtwt) ;} 
 
   //at least 3 AK4 jets in event
   if (goodAK4Jets.size() > 2 ) {h1_["cutflow"] -> Fill(3, evtwt) ;} 
   else return false;
 
-  //Fill HT: >=3 jets, && Z mass
-  h1_["ht_pre"] -> Fill(htak4.getHT(), evtwt) ; 
-
-  // at least HT > 150 in event
+  // at least HT > 200 in event
   if ( htak4.getHT() > HTMin_ ) h1_["cutflow"] -> Fill(4, evtwt) ;  
   else return false ; 
-
-  //deltaPhi(MET,lep)
 
   ///////////////////////////////////////////// 
   // fill rest of the plots after pre-selection
   /////////////////////////////////////////////
-
+  // for (auto izll : zll){
+  //cout << "Z pt" << izll.getPt() << endl;
+  //}
+  cout  << "next event " << endl;  
+  //for (auto izll : zll) h1_["mass_z"+lep+lep+"_pre"] -> Fill(izll.getMass(), evtwt) ;
+  h1_["nak4_pre"] -> Fill(goodAK4Jets.size(), evtwt) ;
+  
   double ST = htak4.getHT() ;
   ST += zll.at(0).getPt() + goodMet.at(0).getFullPt(); 
   h1_["st_pre"] -> Fill(ST, evtwt) ;   
@@ -681,7 +695,19 @@ void OS2LAna::beginJob() {
   else if ( zdecayMode_ == "zelel") {lep = "el";}
   else edm::LogError("OS2LAna::beginJob") << " >>>> WrongleptonType: " << lep << " Check lep name !!!" ;
 
-  if (filterSignal_){h1_["signalEvts"] = fs->make<TH1D>("signalEvts", "signalEvts", 2, 0.5, 2.5) ;}
+  if (filterSignal_){
+    if(skim_){
+      const int nCh = 12;
+      const char *channel[nCh] = {"bZbZ", "bZbH", "bZtW", "bHbH", "bHtW", "tWtW",
+                                  "tZtZ", "tZtH", "tZbW", "tHtH", "tHbW", "bWbW"};
+      h1_["signalEvts_all"] = fs->make<TH1D>("signalEvts_all", "All signal events", 12, 0.5, 12.5) ;
+      for (int i=1;i<=nCh;i++) h1_["signalEvts_all"]->GetXaxis()->SetBinLabel(i,channel[i-1]);
+    }
+    else{
+      h1_["signalEvts"] = fs->make<TH1D>("signalEvts", "signal events", 2, 0.5, 2.5) ;
+    }
+  }
+
   h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 8, 0.5, 8.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "Trig.+l^{+}l^{-}") ;
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "75 #lt M(l^{+}l^{-}) #lt 105") ; 
@@ -693,6 +719,16 @@ void OS2LAna::beginJob() {
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "S_{T} #geq 1000") ; 
   //h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(AK8) #geq 1") ; //this is not the event cut
 
+  // b-tagging efficiency maps:
+  h2_["pt_eta_b_all"] = fs->make<TH2D>("pt_eta_b_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_all"] = fs->make<TH2D>("pt_eta_c_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_all"] = fs->make<TH2D>("pt_eta_l_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  
+  h2_["pt_eta_b_btagged"] = fs->make<TH2D>("pt_eta_b_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_c_btagged"] = fs->make<TH2D>("pt_eta_c_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+  h2_["pt_eta_l_btagged"] = fs->make<TH2D>("pt_eta_l_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
+
+  if (!skim_){
   TFileDirectory pre = fs->mkdir ("pre");
   TFileDirectory sig = fs->mkdir ("sig");
   TFileDirectory cnt = fs->mkdir ("cnt");
@@ -766,15 +802,6 @@ void OS2LAna::beginJob() {
   h1_["yBprime"] = sig.make<TH1D>("yBprime", ";y(B quark);;" , 40 ,-4. ,4.) ; 
   h1_["mBprime"] = sig.make<TH1D>("mBprime", ";M(B quark) [GeV];;" ,100 ,0., 2000.) ; 
 
-  // b-tagging efficiency maps:
-  h2_["pt_eta_b_all"] = fs->make<TH2D>("pt_eta_b_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_c_all"] = fs->make<TH2D>("pt_eta_c_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_l_all"] = fs->make<TH2D>("pt_eta_l_all", "b flavoured jets;p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-
-  h2_["pt_eta_b_btagged"] = fs->make<TH2D>("pt_eta_b_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_c_btagged"] = fs->make<TH2D>("pt_eta_c_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-  h2_["pt_eta_l_btagged"] = fs->make<TH2D>("pt_eta_l_btagged", "b flavoured jets (b-tagged);p_{T} [GeV];#eta;", 50, 0., 1000., 80, -4, 4) ; 
-
   // plots to study B mass recontruction
   if (optimizeReco_){
     h1_["genZ"] = sig.make<TH1D>("genZ", ";M (Gen Z Boson) [GeV];;", 20, 0., 200.);
@@ -804,7 +831,7 @@ void OS2LAna::beginJob() {
     h1_["Dxy_EB_el_pre"] = pre.make<TH1D>("Dxy_EB_el_pre", ";d0 (EB);;", 100,-0.1,0.1) ;
     h1_["Dxy_EE_el_pre"] = pre.make<TH1D>("Dxy_EE_el_pre", ";d0 (EE);;", 100,-0.1,0.1) ;
   }
-
+  }
 }
 
 double OS2LAna::GetDYNLOCorr(const double dileppt) {
