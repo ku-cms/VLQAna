@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('skim', True,
+options.register('skim', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
@@ -58,7 +58,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_TpTp1200',
+options.register('FileNames', 'FileNames_DY_pt_650ToInf',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -69,7 +69,7 @@ options.register('optimizeReco', True,
     "Optimize mass reconstruction"
     )
 
-options.setDefault('maxEvents', 10000)
+options.setDefault('maxEvents', -1)
 options.parseArguments()
 
 hltpaths = []
