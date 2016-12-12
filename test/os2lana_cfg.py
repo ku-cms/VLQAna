@@ -33,7 +33,7 @@ options.register('doPUReweightingOfficial', True,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
-options.register('filterSignal', False,
+options.register('filterSignal', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Select only tZXX or bZXX modes"
@@ -69,7 +69,7 @@ options.register('optimizeReco', True,
     "Optimize mass reconstruction"
     )
 
-options.setDefault('maxEvents', 20000)
+options.setDefault('maxEvents', 10000)
 options.parseArguments()
 
 hltpaths = []
@@ -93,8 +93,12 @@ if options.isData:
   else:
     sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
 
-if options.filterSignal == True and len(options.signalType) == 0:
-  sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
+if options.filterSignal == True: 
+   print 'signal type = ', len(options.signalType), 'skim : ', options.skim
+   if options.skim :
+     if len(options.signalType) != 0: sys.exit("!!!Error: Please do not specify any signal type when skimming the signal MC!!!")
+   elif len(options.signalType) == 0:
+     sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
  
 print options
 
@@ -142,7 +146,7 @@ process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
-#process.ana.BoostedZCandParams.ptMin = cms.double(100.) #never used this module
+process.ana.ZCandParams.ptMin = cms.double(100.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
 process.ana.STMin = cms.double(1000.)
@@ -177,6 +181,7 @@ process.p = cms.Path(
     )
 
 if options.skim: 
+  outCommand = ['keep *', 'drop *_evtcleaner_*_*', 'drop *_TriggerResults_*_*']#remove unwanted new branches OS2LAna
   process.out = cms.OutputModule("PoolOutputModule",
       SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
