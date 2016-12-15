@@ -51,6 +51,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/JetID.h"
 #include "Analysis/VLQAna/interface/MassReco.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
+#include "Analysis/VLQAna/interface/ApplyTriggerSFs.h"
 
 #include <TFile.h>
 #include <TF1.h>
@@ -94,22 +95,23 @@ class OS2LAna : public edm::EDFilter {
     const bool additionalPlots_                  ;
     const std::string signalType_                ;
     const std::string zdecayMode_                ;
-    const bool optimizeReco_                     ;
-    const bool sys_                              ;
+   //const bool optimizeReco_                     ;
     const bool btagsf_bcUp_                      ;
     const bool btagsf_bcDown_                    ;
     const bool btagsf_lUp_                       ;
     const bool btagsf_lDown_                     ;
     const bool PileupUp_                         ;
-    const bool PileupDown_ ;   
-    const double vlqMass_                        ;
-    const double bosonMass_                      ;
+    const bool PileupDown_                       ;   
+   //const double vlqMass_                        ;
+   //const double bosonMass_                      ;
     const bool applyLeptonSFs_                   ;
+    const bool applyTriggerSFs_                  ;
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     ApplyLeptonSFs lepsfs                        ;
+    ApplyTriggerSFs triggersfs                   ;
     METMaker metmaker                            ;
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
@@ -139,15 +141,15 @@ void OS2LAna::fillAdditionalPlots( vlq::ElectronCollection goodElectrons,double 
     if(fabs(scEta) <= 1.479){
       h1_["Eta_EB_el_pre"]-> Fill(goodElectrons.at(iele).getEta(), evtwt);
       h1_["Iso03_EB_el_pre"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
-      h1_["dEtaIn_EB_el_pre"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
+      h1_["dEtaInSeed_EB_el_pre"]->Fill(goodElectrons.at(iele).getdEtaInSeed(), evtwt);
       h1_["dPhiIn_EB_el_pre"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
       h1_["Dz_EB_el_pre"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
       h1_["Dxy_EB_el_pre"]->Fill(goodElectrons.at(iele).getDxy(), evtwt);
     }
-    else if  (fabs(scEta > 1.479) && fabs(scEta < 2.5)){
+    else if  (fabs(scEta) > 1.479 && fabs(scEta) < 2.5){
       h1_["Eta_EE_el_pre"]->Fill(goodElectrons.at(iele).getEta(), evtwt);
       h1_["Iso03_EE_el_pre"]->Fill(goodElectrons.at(iele).getIso03(), evtwt);
-      h1_["dEtaIn_EE_el_pre"]->Fill(goodElectrons.at(iele).getdEtaIn(), evtwt);
+      h1_["dEtaInSeed_EE_el_pre"]->Fill(goodElectrons.at(iele).getdEtaInSeed(), evtwt);
       h1_["dPhiIn_EE_el_pre"]->Fill(goodElectrons.at(iele).getdPhiIn(), evtwt);
       h1_["Dz_EE_el_pre"]->Fill(goodElectrons.at(iele).getDz(), evtwt);
       h1_["Dxy_EE_el_pre"]->Fill(goodElectrons.at(iele).getDxy(), evtwt);
@@ -177,19 +179,19 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   additionalPlots_        (iConfig.getParameter<bool>              ("additionalPlots")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
   zdecayMode_             (iConfig.getParameter<std::string>       ("zdecayMode")),
-  optimizeReco_           (iConfig.getParameter<bool>              ("optimizeReco")),
-  sys_                    (iConfig.getParameter<bool>              ("sys")),
+  //optimizeReco_           (iConfig.getParameter<bool>              ("optimizeReco")),
   btagsf_bcUp_            (iConfig.getParameter<bool>              ("btagsf_bcUp")),
   btagsf_bcDown_          (iConfig.getParameter<bool>              ("btagsf_bcDown")),
   btagsf_lUp_             (iConfig.getParameter<bool>              ("btagsf_lUp")),
   btagsf_lDown_           (iConfig.getParameter<bool>              ("btagsf_lDown")),
   PileupUp_               (iConfig.getParameter<bool>              ("PileupUp")),
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
-  vlqMass_                (iConfig.getParameter<double>            ("vlqMass")),
-  bosonMass_              (iConfig.getParameter<double>            ("bosonMass")),
+  //vlqMass_                (iConfig.getParameter<double>            ("vlqMass")),
+  //bosonMass_              (iConfig.getParameter<double>            ("bosonMass")),
   applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
-  applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")), 
-  applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")), 
+  applyTriggerSFs_        (iConfig.getParameter<bool>              ("applyTriggerSFs")),
+  applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
+  applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
@@ -207,14 +209,12 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   fnamebtagSF_            (iConfig.getParameter<std::string>       ("fnamebtagSF")),
   btagsfutils_            (new BTagSFUtils(fnamebtagSF_,BTagEntry::OP_MEDIUM,30., 670., 30., 670., 20., 1000.))
 {
-/*
   produces<vlq::JetCollection>("tjets") ; 
   produces<vlq::JetCollection>("wjets") ; 
   produces<vlq::JetCollection>("bjets") ; 
   produces<vlq::JetCollection>("jets") ; 
   produces<vlq::CandidateCollection>("zllcands") ; 
-*/
-   produces<double>("PreWeight");
+  produces<double>("PreWeight");
 }
 
 
@@ -305,6 +305,15 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       evtwt *= lepsfs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepsfs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ;}
   }
 
+  if (applyTriggerSFs_ && *h_evttype.product() != "EvtType_Data") {
+    if ( zdecayMode_ == "zmumu" ){
+      evtwt *= triggersfs.TrigSFMu1(goodMuons.at(0).getPt(),goodMuons.at(0).getEta())*triggersfs.TrigSFMu2(goodMuons.at(1).getPt(),goodMuons.at(1).getEta());
+    }
+    else if ( zdecayMode_ == "zelel" ){
+      evtwt *=0.968256;
+    }
+  }
+  
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
   //Z mass candidate filter: 75 < M < 105, lead pt > 45, 2nd pt > 25, Z pt > 100
@@ -331,17 +340,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   } 
  
   //at least one Z cand in event
-  if(zll.size() > 0) {h1_["cutflow"] -> Fill(2, evtwt) ;}
+  if(zll.size() == 1) {h1_["cutflow"] -> Fill(2, evtwt) ;}
   else return false ;
   
-  //at least 3 AK4 jets in event
-  if (goodAK4Jets.size() > 2 ) {h1_["cutflow"] -> Fill(3, evtwt) ;} 
-  else return false;
-
   // at least HT > 200 in event
   HT htak4(goodAK4Jets) ; 
-  if ( htak4.getHT() > HTMin_ ) h1_["cutflow"] -> Fill(4, evtwt) ;  
+  if ( htak4.getHT() > HTMin_ ) h1_["cutflow"] -> Fill(3, evtwt) ;  
   else return false ; 
+
+  //at least 3 AK4 jets in event
+  if (goodAK4Jets.size() > 2 ) {h1_["cutflow"] -> Fill(4, evtwt) ;} 
+  else return false;
 
   if (skim_){
      //fill jet flavor pt and eta for b-tagging efficiencies 
@@ -359,23 +368,23 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
            }
         }
      }
-  std::auto_ptr<double> ptr_evtwt ( new double(evtwt) ) ; 
-  evt.put(ptr_evtwt, "PreWeight");
-  return true;
+
+  //return true;
   }
 
   ///////////////////////////////////////////// 
   // fill rest of the plots after pre-selection
   /////////////////////////////////////////////
- 
+  double ST = htak4.getHT() ;
+  ST += zll.at(0).getPt() + goodMet.at(0).getFullPt(); 
+
+  if (!skim_){ 
   for (auto izll : zll) {
      h1_["mass_z"+lep+lep+"_pre"] -> Fill(izll.getMass(), evtwt) ;
      h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), evtwt) ; 
   }
   h1_["nak4_pre"] -> Fill(goodAK4Jets.size(), evtwt) ;
-  
-  double ST = htak4.getHT() ;
-  ST += zll.at(0).getPt() + goodMet.at(0).getFullPt(); 
+  h1_["ht_pre"] -> Fill(htak4.getHT(), evtwt);
   h1_["st_pre"] -> Fill(ST, evtwt) ;   
 
   //ak4 jet plots
@@ -415,11 +424,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   // Z pt
   for (auto izll : zll) h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), evtwt) ;
-
+  }
   //========================================================
   // Preselection done, proceeding with control selections
   //========================================================
-
+  double presel_wt = evtwt;
   double btagsf(1) ;
   double btagsf_bcUp(1) ; 
   double btagsf_bcDown(1) ; 
@@ -438,7 +447,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
        flhads.push_back(jet.getHadronFlavour()) ; 
      }
 
-     btagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetAK4maker.idxjetCSVDiscMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+     btagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetAK4maker.idxjetCSVDiscMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ;
+    
      // bTag SF along with sys. unc. options
      if (btagsf_bcUp_)
         evtwt *= btagsf_bcUp;
@@ -453,7 +463,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   //fill control plots
-  if ( goodBTaggedAK4Jets.size() > 0 && ST < 700) {
+  if ( goodBTaggedAK4Jets.size() > 0 && ST < 700 && !skim_ ){
     for (auto izll : zll) {
       h1_["mass_z"+lep+lep+"_cnt"] -> Fill(izll.getMass(), evtwt) ;  
       h1_["pt_z"+lep+lep+"_cnt"] -> Fill(izll.getPt(), evtwt) ; 
@@ -489,7 +499,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       h1_[Form("cvsak4jet%d_cnt", j+1)] -> Fill(goodAK4Jets.at(j).getCSV(), evtwt) ;
     }
     h1_["phi_jet1MET_cnt"] -> Fill( (goodAK4Jets.at(0).getP4()).DeltaPhi(goodMet.at(0).getP4()), evtwt);
-  }
+   }//control
 
   //===========================================================
   // Control selection done, proceeding with signal selections
@@ -502,11 +512,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //else return false ; 
 
   // leading jet pt > 100 GeV
-  if (goodAK4Jets.at(0).getPt() > 100){h1_["cutflow"] -> Fill(5, evtwt) ; }
+  if (goodAK4Jets.at(0).getPt() > 100){h1_["cutflow"] -> Fill(5, presel_wt) ; }
   else return false;
 
   // 2nd laeding jet pt > 50 GeV
-  if (goodAK4Jets.at(1).getPt() > 50){h1_["cutflow"] -> Fill(6, evtwt) ; }
+  if (goodAK4Jets.at(1).getPt() > 50){h1_["cutflow"] -> Fill(6, presel_wt) ; }
   else return false;
 
   // at least one b-jet 
@@ -514,8 +524,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else return false;
 
   // ST > 1000 GeV
-  //if ( ST > STMin_ ) h1_["cutflow"] -> Fill(8, evtwt) ;  
-  //else return false ; 
+  if ( ST > STMin_ ) h1_["cutflow"] -> Fill(8, evtwt) ;  
+  else return false ; 
 
   // get AK8, top, b, Z, and W jets
   vlq::JetCollection goodAK8Jets, goodHTaggedJets, goodWTaggedJets, goodTopTaggedJets;
@@ -541,6 +551,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   ///////////////////////////////////////
   // fill all the plots in signal region
   ///////////////////////////////////////
+  if( !skim_){
   for (auto izll : zll) {
     h1_["mass_z"+lep+lep] -> Fill(izll.getMass(), evtwt) ;  
     h1_["pt_z"+lep+lep] -> Fill(izll.getPt(), evtwt) ; 
@@ -604,6 +615,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     //h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
     h1_["softdropmak82nd"] -> Fill((goodAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
   }
+  }
 /*
   //// Make B->bZ and T->tZ->bWZ candidates
   TLorentzVector tp_p4, bp_p4;
@@ -630,7 +642,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["ptBprime"]->Fill(bp_p4.Pt(), evtwt) ; 
   h1_["yBprime"] ->Fill(bp_p4.Rapidity(), evtwt) ; 
   h1_["mBprime"] ->Fill(bp_p4.Mag(), evtwt) ;
-*/
+
   //Do mass reconstruction
   MassReco reco;
 
@@ -706,19 +718,21 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   h1_["chi2_chi"] ->Fill(chi2_result.first, evtwt);
   h1_["sqrtChi2"] ->Fill(sqrt(chi2_result.first), evtwt);
   h1_["chi2_mass"] ->Fill(chi2_result.second, evtwt);
-/*
+*/
   std::auto_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
   std::auto_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
   std::auto_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
   std::auto_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
   std::auto_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zll) ) ; 
-
+  std::auto_ptr<double> ptr_evtwt ( new double(presel_wt) ) ; 
+  
   evt.put(ptr_tjets, "tjets") ; 
   evt.put(ptr_wjets, "wjets") ; 
   evt.put(ptr_bjets, "bjets") ; 
   evt.put(ptr_jets , "jets")  ; 
   evt.put(ptr_zllcands , "zllcands")  ; 
-*/
+  evt.put(ptr_evtwt, "PreWeight");
+
   return true ; 
 }
 
@@ -741,15 +755,15 @@ void OS2LAna::beginJob() {
     }
   }
 
-  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 7, 0.5, 7.5) ;  
+  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 8, 0.5, 8.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1, "Trig.+l^{+}l^{-}") ;
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "75 #lt M(l^{+}l^{-}) #lt 105") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "N(AK4) #geq 3") ;
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "H_{T} #geq 150") ;
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2, "75 #lt M(l^{+}l^{-}) #lt 105") ;
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3, "H_{T} #geq 200") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4, "N(AK4) #geq 3") ;
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5, "leading jet pt > 100") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6, "2nd jet pt > 50") ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7, "N(b jet) #geq 1") ; 
-  //h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "S_{T} #geq 1000") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8, "S_{T} #geq 1000") ; 
   //h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9, "N(AK8) #geq 1") ; //this is not the event cut
 
   if(skim_){
@@ -836,7 +850,7 @@ void OS2LAna::beginJob() {
   h1_["ptBprime"]  = sig.make<TH1D>("ptBprime", ";p_{T}(B quark) [GeV];;" , 100, 0., 2000.) ; 
   h1_["yBprime"] = sig.make<TH1D>("yBprime", ";y(B quark);;" , 40 ,-4. ,4.) ; 
   h1_["mBprime"] = sig.make<TH1D>("mBprime", ";M(B quark) [GeV];;" ,100 ,0., 2000.) ; 
-*/
+
   // plots to study B mass recontruction
   if (optimizeReco_){
     h1_["genZ"] = sig.make<TH1D>("genZ", ";M (Gen Z Boson) [GeV];;", 20, 0., 200.);
@@ -850,15 +864,15 @@ void OS2LAna::beginJob() {
   h1_["chi2_chi"] = sig.make<TH1D>("chi2_chi", ";#chi^{2};;", 100, 0., 500.);
   h1_["sqrtChi2"] = sig.make<TH1D>("sqrtChi2", ";#chi;;", 100, 0., 500.);
   h1_["chi2_mass"] = sig.make<TH1D>("chi_mass", ";M_{#chi^{2}}(B);;", 180, 200., 2000.);
-
+*/
   //electrons specific varaibles in EE and EB at preselection level
   if (zdecayMode_ == "zelel" && additionalPlots_){
     h1_["Eta_EB_el_pre"] = pre.make<TH1D>("Eta_EB_el_pre", ";Eta (EB);;", 100,-4,4) ;
     h1_["Eta_EE_el_pre"] = pre.make<TH1D>("Eta_EE_el_pre", ";Eta (EE);;", 100,-4,4) ;
     h1_["Iso03_EB_el_pre"] = pre.make<TH1D>("Iso03_EB_el_pre", ";Iso03 (EB);;", 100,0,0.3) ;
     h1_["Iso03_EE_el_pre"] = pre.make<TH1D>("Iso03_EE_el_pre", ";Iso03 (EE);;", 100,0,0.3) ;
-    h1_["dEtaIn_EB_el_pre"] = pre.make<TH1D>("dEtaIn_EB_el_pre", ";dEtaIn (EB);;", 200,-0.05,0.05) ;
-    h1_["dEtaIn_EE_el_pre"] = pre.make<TH1D>("dEtaIn_EE_el_pre", ";dEtaIn (EE);;", 200,-0.05,0.05) ;
+    h1_["dEtaInSeed_EB_el_pre"] = pre.make<TH1D>("dEtaInSeed_EB_el_pre", ";dEtaInSeed (EB);;", 200,-0.05,0.05) ;
+    h1_["dEtaInSeed_EE_el_pre"] = pre.make<TH1D>("dEtaInSeed_EE_el_pre", ";dEtaInSeed (EE);;", 200,-0.05,0.05) ;
     h1_["dPhiIn_EB_el_pre"] = pre.make<TH1D>("dPhiIn_EB_el_pre", ";dPhiIn (EB);;", 100,-0.2,0.2) ;
     h1_["dPhiIn_EE_el_pre"] = pre.make<TH1D>("dPhiIn_EE_el_pre", ";dPhiIn (EE);;", 100,-0.2,0.2);
     h1_["Dz_EB_el_pre"] = pre.make<TH1D>("Dz_EB_el_pre",";dZ (EB);;", 200,-0.1,0.1) ;

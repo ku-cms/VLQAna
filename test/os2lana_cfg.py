@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('skim', False,
+options.register('skim', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
@@ -33,7 +33,7 @@ options.register('doPUReweightingOfficial', True,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
-options.register('filterSignal', True,
+options.register('filterSignal', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Select only tZXX or bZXX modes"
@@ -48,10 +48,15 @@ options.register('applyLeptonSFs', True,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.register('applyBTagSFs', True,
+options.register('applyBTagSFs', False,#until new SFs arrive
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
+    )
+options.register('applyTriggerSFs', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Apply trigger SFs to the MC"
     )
 options.register('applyDYNLOCorr', False, ### Set to true only for DY process ### Only EWK NLO k-factor is applied
     VarParsing.multiplicity.singleton,
@@ -63,12 +68,17 @@ options.register('FileNames', 'FileNames_DY_pt_650ToInf',
     VarParsing.varType.string,
     "Name of list of input files"
     )
-options.register('optimizeReco', True,
+#options.register('optimizeReco', True,
+#    VarParsing.multiplicity.singleton,
+#    VarParsing.varType.bool,
+#    "Optimize mass reconstruction"
+#    )
+options.register('sys', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
-    "Optimize mass reconstruction"
+    "Do systematics"
     )
-
+   
 options.setDefault('maxEvents', -1)
 options.parseArguments()
 
@@ -76,15 +86,16 @@ hltpaths = []
 if options.isData:
   options.filterSignal = False 
   options.signalType = "" 
-  options.optimizeReco = False
+  #options.optimizeReco = False
   options.applyLeptonSFs = False 
+  options.applyTriggerSFs= False
   options.applyBTagSFs   = False 
   options.applyDYNLOCorr = False 
   options.doPUReweightingOfficial = False
   if options.zdecaymode == "zmumu":
     hltpaths = [
         #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
-        "HLT_Mu24_v" 
+        "HLT_IsoMu24_v" 
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
@@ -138,7 +149,7 @@ process.ana = ana.clone(
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
     applyBTagSFs = cms.bool(options.applyBTagSFs),
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
-    optimizeReco = cms.bool(options.optimizeReco),
+    #optimizeReco = cms.bool(options.optimizeReco),
     skim = cms.bool(options.skim),
     )
 process.ana.elselParams.elidtype = cms.string(options.lepID)
@@ -150,13 +161,71 @@ process.ana.ZCandParams.ptMin = cms.double(100.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
 process.ana.STMin = cms.double(1000.)
-process.ana.vlqMass = cms.double(1000.) #M=1000
-process.ana.bosonMass = cms.double(91.2) #Z
+process.ana.NAK4Min = cms.uint32(3)
+process.ana.HTMin = cms.double(200.)
+#process.ana.vlqMass = cms.double(1000.) #M=1000
+#process.ana.bosonMass = cms.double(91.2) #Z
 
 if options.skim: 
-  process.ana.NAK4Min = cms.uint32(3)
-  process.ana.HTMin = cms.double(200.)
   process.ana.STMin = cms.double(0.)
+
+if options.sys and not options.skim:
+
+  process.anabcUp = process.ana.clone(
+    btagsf_bcUp = cms.bool(True),
+    )
+
+  process.anabcDown = process.ana.clone(
+    btagsf_bcDown = cms.bool(True),
+    )
+  
+  process.analightUp = process.ana.clone(
+    btagsf_lUp = cms.bool(True),
+    )
+  
+  process.analightDown = process.ana.clone(
+    btagsf_lDown = cms.bool(True),
+    )
+  
+  process.anaJecUp = process.ana.clone()
+  process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
+  process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
+  process.anaJecUp.jetAK8selParams.jecShift = cms.double(1.)
+  process.anaJecUp.jetHTaggedselParams.jecShift = cms.double(1.)
+  process.anaJecUp.jetWTaggedselParams.jecShift = cms.double(1.)
+  process.anaJecUp.jetTopTaggedselParams.jecShift = cms.double(1.)
+  
+  process.anaJecDown = process.ana.clone()
+  process.anaJecDown.jetAK4selParams.jecShift = cms.double(-1.)
+  process.anaJecDown.jetAK4BTaggedselParams.jecShift = cms.double(-1.)
+  process.anaJecDown.jetAK8selParams.jecShift = cms.double(-1.)
+  process.anaJecDown.jetHTaggedselParams.jecShift = cms.double(-1.)
+  process.anaJecDown.jetWTaggedselParams.jecShift = cms.double(-1.)
+  process.anaJecDown.jetTopTaggedselParams.jecShift = cms.double(-1.)
+
+  process.anaJerUp = process.ana.clone()
+  process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2.)
+  process.anaJecUp.jetAK4BTaggedselParams.jerShift = cms.int32(2.)
+  process.anaJerUp.jetAK8selParams.jerShift = cms.int32(2.)
+  process.anaJecUp.jetHTaggedselParams.jerShift = cms.int32(2.)
+  process.anaJecUp.jetWTaggedselParams.jerShift = cms.double(2.)
+  process.anaJecUp.jetTopTaggedselParams.jerShift = cms.double(2.)
+
+  process.anaJerDown = process.ana.clone()
+  process.anaJerDown.jetAK4selParams.jerShift = cms.int32(0.)
+  process.anaJerDown.jetAK4BTaggedselParams.jerShift = cms.int32(0.)
+  process.anaJerDown.jetAK8selParams.jerShift = cms.int32(0.)
+  process.anaJecDown.jetHTaggedselParams.jerShift = cms.int32(0.)
+  process.anaJecDown.jetWTaggedselParams.jerShift = cms.double(0.)
+  process.anaJecDown.jetTopTaggedselParams.jerShift = cms.double(0.)
+
+  process.anaPileupUp = process.ana.clone(
+    PileupUp = cms.bool(True),
+    )
+  
+  process.anaPileupDown = process.ana.clone(
+    PileupDown = cms.bool(True),
+    )
  
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
@@ -172,12 +241,29 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.load("Analysis.VLQAna.VLQCandProducer_cff")
 
-process.p = cms.Path(
+if options.sys:
+  process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
-    *process.cleanedEvents
+    *cms.ignore(process.ana)
+    *cms.ignore(process.anabcUp)
+    *cms.ignore(process.anabcDown)
+    *cms.ignore(process.analightUp)
+    *cms.ignore(process.analightDown)
+    *cms.ignore(process.anaJecUp)
+    *cms.ignore(process.anaJecDown)
+    *cms.ignore(process.anaJerUp)
+    *cms.ignore(process.anaJerDown)
+    *cms.ignore(process.anaPileupUp)
+    *cms.ignore(process.anaPileupDown)
+)
+else:
+  process.p = cms.Path(
+    process.allEvents
+    *process.evtcleaner
+    #*process.cleanedEvents
     *process.ana
-    * process.finalEvents
+    #* process.finalEvents
     )
 
 if options.skim: 
@@ -187,6 +273,7 @@ if options.skim:
         SelectEvents = cms.vstring('p')
         ),
       fileName = cms.untracked.string('skim.root'),
+      outputCommands = cms.untracked.vstring(outCommand )
       )
    
   process.outpath = cms.EndPath(process.out)

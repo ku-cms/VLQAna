@@ -10,7 +10,7 @@ config.General.transferLogs = True
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'os2lana_cfg.py'
-config.JobType.pyCfgParams = [DATA, MODE, FILTERSIGNAL,'applyBTagSFs=False', DYNLO,'optimizeReco=False','skim=True']
+config.JobType.pyCfgParams = [DATA, MODE, FILTERSIGNAL,'applyBTagSFs=False', 'applyTriggerSFs=False', DYNLO,'skim=True']
 config.JobType.inputFiles = ['2016_25ns_Spring_PUXsec65740nb50.root','PUDistMC_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU.root','scalefactors_v4.root','2016_25ns_Spring_PUXsec69200nb50.root','Spring16_25nsV6_MC_L2Relative_AK8PFchs.txt','2016_25ns_Spring_PUXsec72660nb50.root','Spring16_25nsV6_MC_L3Absolute_AK8PFchs.txt','CSVv2_ichep.csv','Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt','Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt']
 
 config.section_("Data")
