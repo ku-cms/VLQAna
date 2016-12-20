@@ -130,9 +130,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load("Analysis.VLQAna.EventCleaner_cff")
-process.evtcleaner.File_PUDistData= cms.string('2016_25ns_Spring_PUXsec69200nb50.root')
-process.evtcleaner.File_PUDistDataLow =  cms.string('2016_25ns_Spring_PUXsec65740nb50.root')
-process.evtcleaner.File_PUDistDataHigh = cms.string('2016_25ns_Spring_PUXsec72660nb50.root')
+process.evtcleaner.File_PUDistData= cms.string('RunII2016_PUXsec69000nb.root')
+process.evtcleaner.File_PUDistDataLow =  cms.string('RunII2016_PUXsec65550nb.root')
+process.evtcleaner.File_PUDistDataHigh = cms.string('RunII2016_PUXsec72450nb.root')
 process.evtcleaner.File_PUDistMC = cms.string('PUDistMC_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU.root')
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
@@ -152,12 +152,14 @@ process.ana = ana.clone(
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     #optimizeReco = cms.bool(options.optimizeReco),
     skim = cms.bool(options.skim),
+    fnamebtagSF = cms.string('CSVv2_ichep.csv'),
+    File_DYNLOCorr = cms.string('scalefactors_v4.root'),
     )
 process.ana.elselParams.elidtype = cms.string(options.lepID)
 process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
-process.ana.lepsfsParams.lepidtype = cms.string(options.lepID)
-process.ana.lepsfsParams.zdecayMode = cms.string(options.zdecaymode)
+process.ana.lepIdSFsParams.lepidtype = cms.string(options.lepID)
+process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
 process.ana.ZCandParams.ptMin = cms.double(100.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
@@ -273,7 +275,7 @@ if options.skim:
       SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
         ),
-      fileName = cms.untracked.string('skim.root'),
+      fileName = cms.untracked.string('os2lana_skim.root'),
       outputCommands = cms.untracked.vstring(outCommand )
       )
    

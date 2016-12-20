@@ -102,10 +102,10 @@ class OS2LAna : public edm::EDFilter {
     const bool btagsf_lDown_                     ;
     const bool PileupUp_                         ;
     const bool PileupDown_                       ;   
-   //const double vlqMass_                        ;
-   //const double bosonMass_                      ;
-    const bool applyLeptonSFs_                   ;
-    const bool applyTriggerSFs_                  ;
+   //const double vlqMass_                         ;
+   //const double bosonMass_                       ;
+    const bool applyLeptonIDSFs_                 ;
+    const bool applyLeptonTrigSFs_                  ;
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
     const std::string fname_DYNLOCorr_           ; 
@@ -188,13 +188,13 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
   //vlqMass_                (iConfig.getParameter<double>            ("vlqMass")),
   //bosonMass_              (iConfig.getParameter<double>            ("bosonMass")),
-  applyLeptonSFs_         (iConfig.getParameter<bool>              ("applyLeptonSFs")), 
-  applyTriggerSFs_        (iConfig.getParameter<bool>              ("applyTriggerSFs")),
+  applyLeptonIDSFs_       (iConfig.getParameter<bool>              ("applyLeptonIDSFs")), 
+  applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
-  lepIdSFs                  (iConfig.getParameter<edm::ParameterSet> ("lepIdSFsParams")),
+  lepIdSFs                (iConfig.getParameter<edm::ParameterSet> ("lepIdSFsParams")),
   metmaker                (iConfig.getParameter<edm::ParameterSet> ("metselParams"),consumesCollector()),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector()),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
@@ -298,14 +298,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   //get lepton ID and Iso SF
-  if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") {
+  if (applyLeptonIDSFs_ && *h_evttype.product() != "EvtType_Data") {
     if ( zdecayMode_ == "zmumu" ){
       evtwt *= lepIdSFs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepIdSFs(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) ;}
     else if ( zdecayMode_ == "zelel" ){ 
       evtwt *= lepIdSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepIdSFs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ;}
   }
 
-  if (applyTriggerSFs_ && *h_evttype.product() != "EvtType_Data") {
+  if (applyLeptonTrigSFs_ && *h_evttype.product() != "EvtType_Data") {
     if ( zdecayMode_ == "zmumu" ){
       evtwt *= lepTrigSFs.TrigSFMu1(goodMuons.at(0).getPt(),goodMuons.at(0).getEta())*lepTrigSFs.TrigSFMu2(goodMuons.at(1).getPt(),goodMuons.at(1).getEta());
     }
