@@ -147,6 +147,7 @@ process.ana = ana.clone(
     signalType = cms.string(options.signalType),
     zdecayMode = cms.string(options.zdecaymode),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
+    applyTriggerSFs = cms.bool(options.applyTriggerSFs),
     applyBTagSFs = cms.bool(options.applyBTagSFs),
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     #optimizeReco = cms.bool(options.optimizeReco),

@@ -76,5 +76,5 @@ ana = cms.EDFilter("OS2LAna",
     #jetHTaggedselParams        = defaultPuppiHJetSelectionParameters,
     #jetWTaggedselParams        = defaultPuppiWJetSelectionParameters,
     #jetTopTaggedselParams      = defaultPuppiTJetSelectionParameters,
-    genParams                  = getSelectParams,
+    #genParams                  = getSelectParams,
     )

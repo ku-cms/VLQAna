@@ -19,10 +19,10 @@ parser.add_option('--channel', metavar='S', type='string', action='store',
                   dest='channel',
                   help='skim type')
 
-parser.add_option('--signal', metavar='S', type='int', action='store',
-                  default = '0',
-                  dest='signal',
-                  help='check signal MC or not')
+#parser.add_option('--signal', metavar='S', type='int', action='store',
+#                  default = '0',
+#                  dest='signal',
+#                  help='check signal MC or not')
 
 parser.add_option('--isData', metavar='I', type='int', action='store',
                   default=0,
@@ -52,23 +52,21 @@ user = options.user
 #set the parameter options in os2lana.py
 if options.isData == 1:
     isData  = 'isData=True'
-    #puOfficial = 'doPUReweightingOfficial=False'
-    #applySF = 'applyLeptonSFs=False'
 else:
     isData = 'isData=False'
-    #puOfficial = 'doPUReweightingOfficial=True'
-    #applySF = 'applyLeptonSFs=True'
-
+   
 if 'Zmumu' in options.channel:
     mode = 'zdecaymode=zmumu'
-    print 'Submitting jobs for muon channel in control region -------->'
+    print 'Submitting jobs for muon channel -------->'
     if options.isData:
         jobList = list_Zmumu_data()
     else: jobList = list_MC()
 elif 'Zelel' in options.channel:
     mode = 'zdecaymode=zelel'
-    print 'Submitting jobs for electron channel in control region -------->'
-    jobList = list_Zelel_data
+    print 'Submitting jobs for electron channel -------->'
+    if options.isData:
+        jobList = list_Zelel_data()
+    else: jobList = list_MC()
 
 for job in jobList:
     print job  
@@ -87,8 +85,7 @@ for job in jobList:
     a5 = a4.replace( 'DUMMY_OUTPUT_PATH', "'"+'/store/group/phys_b2g/'+user+'/'+options.channel+"/'")
     a6 = a5.replace( 'DATA', "'"+isData+"'")
     a7 = a6.replace( 'MODE', "'"+mode+"'")
-    #a8 = a7.replace( 'LEPSF', "'"+applySF+"'")
-    #a9 = a8.replace( 'PUOFF', "'"+puOfficial+"'")
+   
     if 'Tprime' in baseList[1] or 'Bprime' in baseList[1]:
         a8 = a7.replace( 'FILTERSIGNAL', "'filterSignal=True'")     
     else:

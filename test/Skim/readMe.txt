@@ -12,6 +12,7 @@ ln -s ../Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt .
 ln -s ../Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt .
 ln -s ../os2lana_cfg.py .
 ln -s ../scalefactors_v4.root .
+ln -s ../inputFiles_cfi.py .
 
 2. Edit allJobList.py accordingly to parse the dataset names and parameter options for os2lana_cfg.py
 
