@@ -44,14 +44,14 @@ Implementation:
 #include "Analysis/VLQAna/interface/ElectronMaker.h"
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/HT.h"
-#include "Analysis/VLQAna/interface/ApplyLeptonSFs.h"
+#include "Analysis/VLQAna/interface/ApplyLeptonIDSFs.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
 #include "Analysis/VLQAna/interface/METMaker.h"
 //#include "Analysis/VLQAna/interface/PickGenPart.h"
 #include "Analysis/VLQAna/interface/JetID.h"
 #include "Analysis/VLQAna/interface/MassReco.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
-#include "Analysis/VLQAna/interface/ApplyTriggerSFs.h"
+#include "Analysis/VLQAna/interface/ApplyLeptonTrigSFs.h"
 
 #include <TFile.h>
 #include <TF1.h>
@@ -110,8 +110,8 @@ class OS2LAna : public edm::EDFilter {
     const bool applyDYNLOCorr_                   ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
-    ApplyLeptonSFs lepsfs                        ;
-    ApplyTriggerSFs triggersfs                   ;
+    ApplyLeptonIDSFs lepIdSFs                    ;
+    ApplyLeptonTrigSFs lepTrigSFs                ;
     METMaker metmaker                            ;
     MuonMaker muonmaker                          ; 
     ElectronMaker electronmaker                  ; 
@@ -194,7 +194,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
-  lepsfs                  (iConfig.getParameter<edm::ParameterSet> ("lepsfsParams")),
+  lepIdSFs                  (iConfig.getParameter<edm::ParameterSet> ("lepIdSFsParams")),
   metmaker                (iConfig.getParameter<edm::ParameterSet> ("metselParams"),consumesCollector()),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector()),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
@@ -300,14 +300,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //get lepton ID and Iso SF
   if (applyLeptonSFs_ && *h_evttype.product() != "EvtType_Data") {
     if ( zdecayMode_ == "zmumu" ){
-      evtwt *= lepsfs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepsfs(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) ;}
+      evtwt *= lepIdSFs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepIdSFs(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) ;}
     else if ( zdecayMode_ == "zelel" ){ 
-      evtwt *= lepsfs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepsfs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ;}
+      evtwt *= lepIdSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepIdSFs(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ;}
   }
 
   if (applyTriggerSFs_ && *h_evttype.product() != "EvtType_Data") {
     if ( zdecayMode_ == "zmumu" ){
-      evtwt *= triggersfs.TrigSFMu1(goodMuons.at(0).getPt(),goodMuons.at(0).getEta())*triggersfs.TrigSFMu2(goodMuons.at(1).getPt(),goodMuons.at(1).getEta());
+      evtwt *= lepTrigSFs.TrigSFMu1(goodMuons.at(0).getPt(),goodMuons.at(0).getEta())*lepTrigSFs.TrigSFMu2(goodMuons.at(1).getPt(),goodMuons.at(1).getEta());
     }
     else if ( zdecayMode_ == "zelel" ){
       evtwt *=0.968256;

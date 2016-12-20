@@ -4,7 +4,7 @@
 class ApplyLeptonTrigSFs {
   public:
    
-    ~ApplyTriggerSFs () {} 
+    ~ApplyLeptonTrigSFs () {} 
     double TrigSFMu1(double pt, double eta){
       double sf_=0.0; 
       if(pt > 500.) pt = 499.9;
