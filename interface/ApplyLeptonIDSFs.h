@@ -1,7 +1,7 @@
-#ifndef ANALYSIS_VLQANA_APPLYLEPTONSFS_HH
-#define ANALYSIS_VLQANA_APPLYLEPTONSFS_HH
+#ifndef ANALYSIS_VLQANA_APPLYLEPTONIDSFS_HH
+#define ANALYSIS_VLQANA_APPLYLEPTONIDSFS_HH
 
-class ApplyLeptonSFs {
+class ApplyLeptonIDSFs {
   public:
     enum LEPTONIDTYPES_t {LOOSE, TIGHT} ; 
     ApplyLeptonSFs (edm::ParameterSet const& pars) : 
