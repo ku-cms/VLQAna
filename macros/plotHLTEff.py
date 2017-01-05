@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 
+usage='''
+Usage: 
+python plotHLTEff.py singleT_Trig.root HT
+python plotHLTEff.py singleT_Trig.root Mjj
+
+The first argument is the filename, the second argument is the histogram name used to plot the efficiency
+'''
+
 import sys, ROOT
+
+if len(sys.argv) < 3:
+  sys.exit(usage)
 
 sys.argv.append('-b')
 
