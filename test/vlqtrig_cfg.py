@@ -82,7 +82,7 @@ options.register('FileNames', 'FileNames',
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
 
-hltpathsLoose = ["HLT_PFJet500_v"]
+hltpathsLoose = ["HLT_PFJet320_v"]
 
 hltpathsTest = ["AK8PFJet360_TrimMass30_v",
                 "HLT_AK8DiPFJet300_200_TrimMass30_v",
