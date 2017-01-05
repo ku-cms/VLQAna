@@ -91,6 +91,7 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAntiHTaggedmaker                  ; 
 
     double leadingJetPtMin_                       ; 
+    double leadingJetPrunedMassMin_               ; 
     double HTMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
@@ -133,6 +134,7 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
   leadingJetPtMin_        (iConfig.getParameter<double>           ("leadingJetPtMin")), 
+  leadingJetPrunedMassMin_(iConfig.getParameter<double>           ("leadingJetPrunedMassMin")), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
@@ -193,11 +195,12 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetAK8maker(evt, goodAK8Jets); 
 
   //// Event pre-selection
-  if (goodAK8Jets.size() < 1) return false ; 
+  if (goodAK8Jets.size() < 2) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
 
   //// Event pre-selection
-  if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_) return false ; 
+  if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_ 
+      && goodAK8Jets.at(0).getPrunedMass() < leadingJetPrunedMassMin_) return false ; 
   h1_["cutflow"] -> Fill(6, evtwt) ; 
 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
