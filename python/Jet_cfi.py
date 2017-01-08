@@ -90,13 +90,13 @@ defaultAK8CHSJetParameters = defaultAK4JetParameters.clone(
     )
 
 defaultCHSJetSubstructureParameters = cms.PSet( 
-    jettau1Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"), 
-    jettau2Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"),  
-    jettau3Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"),  
-    jetPrunedMassLabel      = cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"),
-    jetTrimmedMassLabel     = cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"),
-    jetFilteredMassLabel    = cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"),
-    jetSoftDropMassLabel    = cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"),
+    jettau1Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau1CHS"), 
+    jettau2Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau2CHS"),  
+    jettau3Label            = cms.InputTag("jetsAK8CHS", "jetAK8CHStau3CHS"),  
+    jetPrunedMassLabel      = cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMassCHS"),
+    jetTrimmedMassLabel     = cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMassCHS"),
+    jetFilteredMassLabel    = cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMassCHS"),
+    jetSoftDropMassLabel    = cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMassCHS"),
     vjetsjIdx0Label         = cms.InputTag("jetsAK8CHS", "jetAK8CHSvSubjetIndex0"),  
     vjetsjIdx1Label         = cms.InputTag("jetsAK8CHS", "jetAK8CHSvSubjetIndex1"),  
     )
