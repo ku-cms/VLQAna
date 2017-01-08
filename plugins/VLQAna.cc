@@ -677,6 +677,17 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   tree_->Fill();
 
+  //// Lepton veto 
+  vlq::ElectronCollection goodElectrons; 
+  electronmaker(evt, goodElectrons) ;
+
+  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  vlq::MuonCollection goodMuons; 
+  muonmaker(evt, goodMuons) ; 
+
+  h1_["nmu"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
   return true;
 
 
@@ -807,6 +818,9 @@ void VLQAna::beginJob() {
   h1_["RegB_mtprime_corr_toptagsfDown"] = fs->make<TH1D>("RegB_mtprime_corr_toptagsfDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegB_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegB_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+
+  h1_["nel"] = fs->make<TH1D>("nel", ";N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmu"] = fs->make<TH1D>("nmu", ";N(muons);Events;;",5,-0.5,4.5) ;
 
 }
 
