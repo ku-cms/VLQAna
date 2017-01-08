@@ -95,7 +95,8 @@ if options.isData:
   if options.zdecaymode == "zmumu":
     hltpaths = [
         #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
-        "HLT_IsoMu24_v" 
+        "HLT_IsoMu24_v",
+        "HLT_IsoTkMu24_v"
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
