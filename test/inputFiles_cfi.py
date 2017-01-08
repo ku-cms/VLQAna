@@ -1,6 +1,9 @@
 FileNames = {
     'FileNames': [
       ],
+    'FileNames_SingleMuon_v2p4':[
+      'root://eoscms.cern.ch//eos/cms/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016B-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_133516/0000/B2GEDMNtuple_10.root', 
+      ],
     'FileNames_DY':[
       'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p1/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161119_100629/0000/B2GEDMNtuple_2.root',
       ],
