@@ -31,7 +31,8 @@ ElectronMaker::ElectronMaker (edm::ParameterSet const& iConfig, edm::ConsumesCol
   t_elscEta             (iC.consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("elscEtaLabel"))),
   elPtMin_              (iConfig.getParameter<double>("elPtMin")), 
   elPtMax_              (iConfig.getParameter<double>("elPtMax")), 
-  elAbsEtaMax_          (iConfig.getParameter<double>("elAbsEtaMax"))
+  elAbsEtaMax_          (iConfig.getParameter<double>("elAbsEtaMax")),
+  applyIso_             (iConfig.getParameter<bool>("applyIso"))
 {
   std::string elidtypestr = iConfig.getParameter<std::string>("elidtype") ;
   if ( elidtypestr == "LOOSE" ) type_ = LOOSE ; 
@@ -147,7 +148,7 @@ bool ElectronMaker::passElId(string WP, bool isEB, float dEtaInSeed, float dPhiI
          pass = (fabs(dEtaInSeed) < 0.00749) && (fabs(dPhiIn) < 0.228) && (full5x5siee < 0.0115) && (HoE < 0.356) && (fabs(Dxy) < 0.05) && (fabs(Dz) < 0.10) && (ooEmooP < 0.299) && (RelIsoEA < 0.175)  && !conv && (missHits <= 2);
       }
       else{
-         pass = (fabs(dEtaInSeed) < 0.00895) && (fabs(dPhiIn) < 0.213) && (full5x5siee < 0.037) && (HoE < 0.211) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.15 ) && (RelIsoEA < 0.159) && !conv && (missHits <= 3);
+         pass = (fabs(dEtaInSeed) < 0.00895) && (fabs(dPhiIn) < 0.213) && (full5x5siee < 0.037) && (HoE < 0.211) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.15 ) && ( applyIso_ ? (RelIsoEA < 0.159) : 1 ) && !conv && (missHits <= 3);
       }
    }
    else if(WP == "LOOSE"){
@@ -163,7 +164,7 @@ bool ElectronMaker::passElId(string WP, bool isEB, float dEtaInSeed, float dPhiI
          pass = (fabs(dEtaInSeed) < 0.00311) && (fabs(dPhiIn) < 0.103 ) && (full5x5siee < 0.00998) && (HoE < 0.253 ) && (fabs(Dxy) < 0.05) && (fabs(Dz) < 0.10) && (ooEmooP < 0.134 ) && (RelIsoEA < 0.0695)  && !conv && (missHits <= 1);
       }
       else{
-         pass = (fabs(dEtaInSeed) < 0.00609) && (fabs(dPhiIn) < 0.045) && (full5x5siee <  0.0298) && (HoE < 0.0878) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.13  ) && (RelIsoEA < 0.0821) && !conv && (missHits <= 1);
+         pass = (fabs(dEtaInSeed) < 0.00609) && (fabs(dPhiIn) < 0.045) && (full5x5siee <  0.0298) && (HoE < 0.0878) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP < 0.13  ) && ( applyIso_ ? (RelIsoEA < 0.0821) : 1 ) && !conv && (missHits <= 1);
       }
    }
    else if(WP == "TIGHT"){
@@ -171,7 +172,7 @@ bool ElectronMaker::passElId(string WP, bool isEB, float dEtaInSeed, float dPhiI
          pass = (fabs(dEtaInSeed) < 0.00308) && (fabs(dPhiIn) < 0.0816) && (full5x5siee < 0.00998) && (HoE < 0.0414) && (fabs(Dxy) < 0.05) && (fabs(Dz) <  0.10) && (ooEmooP <  0.0129) && (RelIsoEA < 0.0588)  && !conv && (missHits <= 1);
       }
       else{
-         pass = (fabs(dEtaInSeed) < 0.00605) && (fabs(dPhiIn) < 0.0394) && (full5x5siee < 0.0292) && (HoE < 0.0641) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP <  0.0129 )  && (RelIsoEA < 0.0571) && !conv && (missHits <= 1);
+         pass = (fabs(dEtaInSeed) < 0.00605) && (fabs(dPhiIn) < 0.0394) && (full5x5siee < 0.0292) && (HoE < 0.0641) && (fabs(Dxy) < 0.10) && (fabs(Dz) < 0.20) && (ooEmooP <  0.0129 )  && ( applyIso_ ? (RelIsoEA < 0.0571) : 1 ) && !conv && (missHits <= 1);
       }
    }
 
