@@ -73,7 +73,7 @@ options.register('FileNames', 'FileNames_DY_pt_650ToInf',
 #    VarParsing.varType.bool,
 #    "Optimize mass reconstruction"
 #    )
-options.register('sys', False,
+options.register('syst', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do systematics"
@@ -173,7 +173,7 @@ process.ana.HTMin = cms.double(200.)
 if options.skim: 
   process.ana.STMin = cms.double(0.)
 
-if options.sys and not options.skim:
+if options.syst and not options.skim:
 
   process.anabcUp = process.ana.clone(
     btagsf_bcUp = cms.bool(True),
@@ -208,20 +208,20 @@ if options.sys and not options.skim:
   process.anaJecDown.jetTopTaggedselParams.jecShift = cms.double(-1.)
 
   process.anaJerUp = process.ana.clone()
-  process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2.)
-  process.anaJecUp.jetAK4BTaggedselParams.jerShift = cms.int32(2.)
-  process.anaJerUp.jetAK8selParams.jerShift = cms.int32(2.)
-  process.anaJecUp.jetHTaggedselParams.jerShift = cms.int32(2.)
-  process.anaJecUp.jetWTaggedselParams.jerShift = cms.double(2.)
-  process.anaJecUp.jetTopTaggedselParams.jerShift = cms.double(2.)
+  process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2)
+  process.anaJecUp.jetAK4BTaggedselParams.jerShift = cms.int32(2)
+  process.anaJerUp.jetAK8selParams.jerShift = cms.int32(2)
+  process.anaJecUp.jetHTaggedselParams.jerShift = cms.int32(2)
+  process.anaJecUp.jetWTaggedselParams.jerShift = cms.int32(2)
+  process.anaJecUp.jetTopTaggedselParams.jerShift = cms.int32(2)
 
   process.anaJerDown = process.ana.clone()
-  process.anaJerDown.jetAK4selParams.jerShift = cms.int32(0.)
-  process.anaJerDown.jetAK4BTaggedselParams.jerShift = cms.int32(0.)
-  process.anaJerDown.jetAK8selParams.jerShift = cms.int32(0.)
-  process.anaJecDown.jetHTaggedselParams.jerShift = cms.int32(0.)
-  process.anaJecDown.jetWTaggedselParams.jerShift = cms.double(0.)
-  process.anaJecDown.jetTopTaggedselParams.jerShift = cms.double(0.)
+  process.anaJerDown.jetAK4selParams.jerShift = cms.int32(0)
+  process.anaJerDown.jetAK4BTaggedselParams.jerShift = cms.int32(0)
+  process.anaJerDown.jetAK8selParams.jerShift = cms.int32(0)
+  process.anaJecDown.jetHTaggedselParams.jerShift = cms.int32(0)
+  process.anaJecDown.jetWTaggedselParams.jerShift = cms.int32(0)
+  process.anaJecDown.jetTopTaggedselParams.jerShift = cms.int32(0)
 
   process.anaPileupUp = process.ana.clone(
     PileupUp = cms.bool(True),
@@ -245,11 +245,15 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.load("Analysis.VLQAna.VLQCandProducer_cff")
 
-if options.sys:
+if options.syst and not options.skim:
   process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
-    *cms.ignore(process.ana)
+    *process.cleanedEvents
+    *cms.ignore(
+      process.ana
+      *process.finalEvents
+      )
     *cms.ignore(process.anabcUp)
     *cms.ignore(process.anabcDown)
     *cms.ignore(process.analightUp)
@@ -265,9 +269,9 @@ else:
   process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
-    #*process.cleanedEvents
+    *process.cleanedEvents
     *process.ana
-    #* process.finalEvents
+    *process.finalEvents
     )
 
 if options.skim: 
