@@ -26,7 +26,7 @@ ana = cms.EDFilter("VLQAna",
       applyIso = cms.bool(False), 
       ), 
     muselParams                = defaultMuonMakerParameters.clone(
-      muidtype = cms.string("TIGHT"), 
+      muidtype = cms.string("LOOSE"), 
       muPtMin = cms.double(47),
       muIsoMin = cms.double(0.00),
       muIsoMax = cms.double(1000), 

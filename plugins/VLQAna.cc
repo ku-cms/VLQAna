@@ -681,12 +681,46 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::ElectronCollection goodElectrons; 
   electronmaker(evt, goodElectrons) ;
 
-  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
-
   vlq::MuonCollection goodMuons; 
   muonmaker(evt, goodMuons) ; 
 
+  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
   h1_["nmu"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  for (vlq::Electron el : goodElectrons ) {
+    h1_["elIsoDR"] ->Fill(el.getIso03()) ; 
+    //// Get 2D isolation
+    std::pair<double, double> el_drmin_ptrel(Utilities::drmin_pTrel<vlq::Electron, vlq::Jet>(el, goodAK4Jets)) ;
+    h2_["elIso2D"] -> Fill(el_drmin_ptrel.first, el_drmin_ptrel.second) ;
+  }
+
+  for (vlq::Muon mu : goodMuons ) {
+    h1_["muIsoDR"] ->Fill(mu.getIso04()) ; 
+    //// Get 2D isolation
+    std::pair<double, double> mu_drmin_ptrel(Utilities::drmin_pTrel<vlq::Muon, vlq::Jet>(mu, goodAK4Jets)) ;
+    h2_["muIso2D"] -> Fill(mu_drmin_ptrel.first, mu_drmin_ptrel.second) ;
+  }
+
+
+  //// Apply 2D isolation
+  CandidateCleaner cleanleptons(0.4,40); //// The second argument is for lepton 2D iso, setting to -1 disables it
+
+  cleanleptons(goodElectrons,goodAK4Jets) ;
+  cleanleptons(goodMuons,goodAK4Jets) ;
+
+  cleanleptons(goodElectrons,goodAK8Jets) ;
+  cleanleptons(goodMuons,goodAK8Jets) ;
+
+  h1_["nelAfter2DIso"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmuAfter2DIso"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  for (vlq::Electron e : goodElectrons ) {
+    h1_["elIsoDRAfter2DIso"] ->Fill(e.getIso03()) ; 
+  }
+
+  for (vlq::Muon mu : goodMuons ) {
+    h1_["muIsoDRAfter2DIso"] ->Fill(mu.getIso04()) ; 
+  }
 
   return true;
 
@@ -819,8 +853,20 @@ void VLQAna::beginJob() {
   h1_["RegB_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegB_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegB_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
 
-  h1_["nel"] = fs->make<TH1D>("nel", ";N(electrons);Events;;",5,-0.5,4.5) ;
-  h1_["nmu"] = fs->make<TH1D>("nmu", ";N(muons);Events;;",5,-0.5,4.5) ;
+  h1_["nel"] = fs->make<TH1D>("nel", "nel;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmu"] = fs->make<TH1D>("nmu", "nmu;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["elIsoDR"] = fs->make<TH1D>("elIsoDR", "elIsoDR;Electron rel. iso in #DeltaR < 0.4, EA corr.;Events;;",200,0,10) ;
+  h1_["muIsoDR"] = fs->make<TH1D>("muIsoDR", "muIsoDR;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Events;;",200,0.,10) ;
+
+  h2_["elIso2D"] = fs->make<TH2D>("elIso2D", "elIso2D;#DeltaR(e,jet);p_{T}^{rel} [GeV];Events;",20,0,4,200,0,10) ;
+  h2_["muIso2D"] = fs->make<TH2D>("muIso2D", "muIso2D;#DeltaR(#mu,jet);p_{T}^{rel} [GeV];Events;",20,0,4,200,0.,10) ;
+
+  h1_["nelAfter2DIso"] = fs->make<TH1D>("nelAfter2DIso", "nelAfter2DIso;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmuAfter2DIso"] = fs->make<TH1D>("nmuAfter2DIso", "nmuAfter2DIso;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["elIsoDRAfter2DIso"] = fs->make<TH1D>("elIsoDRAfter2DIso", "elIsoDRAfter2DIso;Electron rel. iso in #DeltaR < 0.4, EA corr.;Events;;",200,0,10) ;
+  h1_["muIsoDRAfter2DIso"] = fs->make<TH1D>("muIsoDRAfter2DIso", "muIsoDRAfter2DIso;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Events;;",200,0.,10) ;
 
 }
 
