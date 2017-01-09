@@ -859,8 +859,8 @@ void VLQAna::beginJob() {
   h1_["elIsoDR"] = fs->make<TH1D>("elIsoDR", "elIsoDR;Electron rel. iso in #DeltaR < 0.4, EA corr.;Events;;",200,0,10) ;
   h1_["muIsoDR"] = fs->make<TH1D>("muIsoDR", "muIsoDR;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Events;;",200,0.,10) ;
 
-  h2_["elIso2D"] = fs->make<TH2D>("elIso2D", "elIso2D;#DeltaR(e,jet);p_{T}^{rel} [GeV];Events;",20,0,4,200,0,10) ;
-  h2_["muIso2D"] = fs->make<TH2D>("muIso2D", "muIso2D;#DeltaR(#mu,jet);p_{T}^{rel} [GeV];Events;",20,0,4,200,0.,10) ;
+  h2_["elIso2D"] = fs->make<TH2D>("elIso2D", "elIso2D;#DeltaR(e,jet);p_{T}^{rel} [GeV];Events;",20,0,4,200,0,100) ;
+  h2_["muIso2D"] = fs->make<TH2D>("muIso2D", "muIso2D;#DeltaR(#mu,jet);p_{T}^{rel} [GeV];Events;",20,0,4,200,0.,100) ;
 
   h1_["nelAfter2DIso"] = fs->make<TH1D>("nelAfter2DIso", "nelAfter2DIso;N(electrons);Events;;",5,-0.5,4.5) ;
   h1_["nmuAfter2DIso"] = fs->make<TH1D>("nmuAfter2DIso", "nmuAfter2DIso;N(muons);Events;;",5,-0.5,4.5) ;
