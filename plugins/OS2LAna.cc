@@ -329,7 +329,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
   
   // jet cleaning w.r.t dileptons
-  CandidateCleaner cleanjets(0.4);
+  CandidateCleaner cleanjets(0.4, -1); //// The second argument is for lepton 2D iso, setting to -1 disables it
   if (zdecayMode_ == "zmumu") {
      cleanjets(goodAK4Jets, goodMuons);
      cleanjets(goodBTaggedAK4Jets, goodMuons);
