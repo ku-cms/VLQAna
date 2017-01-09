@@ -142,6 +142,16 @@ process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOff
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
+if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
+  for par in ['jetAK8selParams', 'jetHTaggedselParams', 'jetWTaggedselParams', 'jetTopTaggedselParams']:
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
+
 ### Z candidate and jet selections 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
