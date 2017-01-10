@@ -100,7 +100,8 @@ if options.isData:
         ]
   elif options.zdecaymode == "zelel":
     hltpaths = [
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"
+        #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
         ]
   else:
     sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
