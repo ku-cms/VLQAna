@@ -132,10 +132,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load("Analysis.VLQAna.EventCleaner_cff")
-process.evtcleaner.File_PUDistData= cms.string('RunII2016_PUXsec69000nb.root')
-process.evtcleaner.File_PUDistDataLow =  cms.string('RunII2016_PUXsec65550nb.root')
-process.evtcleaner.File_PUDistDataHigh = cms.string('RunII2016_PUXsec72450nb.root')
-process.evtcleaner.File_PUDistMC = cms.string('PUDistMC_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU.root')
+process.evtcleaner.File_PUDistData= cms.string('RunII2016Rereco_25ns_PUXsec69000nb.root')
+process.evtcleaner.File_PUDistDataLow =  cms.string('RunII2016Rereco_25ns_PUXsec65550nb.root')
+process.evtcleaner.File_PUDistDataHigh = cms.string('RunII2016Rereco_25ns_PUXsec72450nb.root')
+process.evtcleaner.File_PUDistMC = cms.string('PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root')
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
