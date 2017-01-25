@@ -63,7 +63,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_DY_pt_650ToInf',
+options.register('FileNames', 'FileNames_DY',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
