@@ -92,19 +92,19 @@ if options.isData:
   options.applyBTagSFs   = False 
   options.applyDYNLOCorr = False 
   options.doPUReweightingOfficial = False
-  if options.zdecaymode == "zmumu":
-    hltpaths = [
-        #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
-        "HLT_IsoMu24_v",
-        "HLT_IsoTkMu24_v"
-        ]
-  elif options.zdecaymode == "zelel":
-    hltpaths = [
-        #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
-        ]
-  else:
-    sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
+if options.zdecaymode == "zmumu":
+  hltpaths = [
+      #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
+      "HLT_IsoMu24_v",
+      "HLT_IsoTkMu24_v"
+      ]
+elif options.zdecaymode == "zelel":
+  hltpaths = [
+      #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+      ]
+else:
+  sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
 
 if options.filterSignal == True: 
    print 'signal type = ', len(options.signalType), 'skim : ', options.skim
@@ -143,15 +143,15 @@ process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOff
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
-if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
-  for par in ['jetAK8selParams', 'jetHTaggedselParams', 'jetWTaggedselParams', 'jetTopTaggedselParams']:
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
+#if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
+#  for par in ['jetAK8selParams', 'jetHTaggedselParams', 'jetWTaggedselParams', 'jetTopTaggedselParams']:
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
+#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
 
 ### Z candidate and jet selections 
 process.ana = ana.clone(
