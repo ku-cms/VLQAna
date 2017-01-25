@@ -106,6 +106,9 @@ elif options.zdecaymode == "zelel":
 else:
   sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
 
+if options.skim: 
+  hltpaths = []
+
 if options.filterSignal == True: 
    print 'signal type = ', len(options.signalType), 'skim : ', options.skim
    if options.skim :
@@ -180,6 +183,12 @@ process.ana.NAK4Min = cms.uint32(3)
 process.ana.HTMin = cms.double(200.)
 #process.ana.vlqMass = cms.double(1000.) #M=1000
 #process.ana.bosonMass = cms.double(91.2) #Z
+if options.skim: 
+  process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
+  process.ana.jetAK8selParams.jetPtMin = cms.double(170) 
+  process.ana.jetWTaggedselParams.jetPtMin = cms.double(170) 
+  process.ana.jetHTaggedselParams.jetPtMin = cms.double(170) 
+  process.ana.jetWTaggedselParams.jetPtMin = cms.double(300) 
 
 if options.skim: 
   process.ana.STMin = cms.double(0.)
