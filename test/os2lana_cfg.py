@@ -68,11 +68,11 @@ options.register('FileNames', 'FileNames_DY',
     VarParsing.varType.string,
     "Name of list of input files"
     )
-#options.register('optimizeReco', True,
-#    VarParsing.multiplicity.singleton,
-#    VarParsing.varType.bool,
-#    "Optimize mass reconstruction"
-#    )
+options.register('massReco', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Optimize mass reconstruction"
+    )
 options.register('syst', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -86,7 +86,6 @@ hltpaths = []
 if options.isData:
   options.filterSignal = False 
   options.signalType = "" 
-  #options.optimizeReco = False
   options.applyLeptonSFs = False 
   options.applyTriggerSFs= False
   options.applyBTagSFs   = False 
@@ -165,7 +164,6 @@ process.ana = ana.clone(
     applyTriggerSFs = cms.bool(options.applyTriggerSFs),
     applyBTagSFs = cms.bool(options.applyBTagSFs),
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
-    #optimizeReco = cms.bool(options.optimizeReco),
     skim = cms.bool(options.skim),
     fnamebtagSF = cms.string('CSVv2_ichep.csv'),
     File_DYNLOCorr = cms.string('scalefactors_v4.root'),
@@ -285,6 +283,19 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
 )
+elif options.massReco:
+  process.load('Analysis.VLQAna.MassReco_cfi')
+  process.massReco.ptMin = cms.double(150.)
+  process.massReco.zdecaymode = cms.string(options.zdecaymode)
+  process.massReco.signalType = cms.string(options.signalType)
+  process.p = cms.Path(
+    process.allEvents
+    *process.evtcleaner
+    *process.cleanedEvents
+    *process.ana
+    *process.massReco
+    *process.finalEvents
+    )
 else:
   process.p = cms.Path(
     process.allEvents
@@ -305,6 +316,7 @@ if options.skim:
       )
    
   process.outpath = cms.EndPath(process.out)
+
 
 #process.schedule = cms.Schedule(process.p)
 
