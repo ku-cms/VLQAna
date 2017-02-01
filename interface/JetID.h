@@ -104,7 +104,7 @@ class JetID : public Selector<int>  {
     } else if ( quality_ == TIGHTLEPVETO ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
-      set("CEF", 0.99);
+      set("CEF", 0.9);
       set("NEF", 0.9);
       set("NCH", 0);
       set("MUE", 0.8);      
