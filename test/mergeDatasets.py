@@ -121,21 +121,22 @@ def main():
 
       # open input ROOT file
       root_file = TFile(input_root_file)
-      htemp = root_file.Get(os.path.join(options.analyzer_module,'h1_CutFlow_unw'))
-      nEventsAll = htemp.GetBinContent(1)
-      nEventsStored = htemp.GetBinContent(2)
+      hall = root_file.Get(os.path.join(options.analyzer_module,'allEvents','hEventCount_wt'))
+      hstored = root_file.Get(os.path.join(options.analyzer_module,'finalEvents','hEventCount_wt'))
+      nEventsAll = hall.Integral(1)
+      nEventsStored = hall.Integral(2)
       scale = 1.
 
-      htemp2 = root_file.Get(os.path.join(options.analyzer_module,'h1_fatjet_pt'))
-      htemp2_b = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_b'))
-      htemp2_bfromg = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_bfromg'))
-      htemp2_c = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_c'))
-      htemp2_l = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_l'))
-      nFatjet = htemp2.GetEntries()
-      nFatjet_b = htemp2_b.GetEntries()
-      nFatjet_bfromg = htemp2_bfromg.GetEntries()
-      nFatjet_c = htemp2_c.GetEntries()
-      nFatjet_l = htemp2_l.GetEntries()
+      hall2 = root_file.Get(os.path.join(options.analyzer_module,'h1_fatjet_pt'))
+      hall2_b = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_b'))
+      hall2_bfromg = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_bfromg'))
+      hall2_c = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_c'))
+      hall2_l = root_file.Get(os.path.join(options.analyzer_module,'FatJet_pt_all_l'))
+      nFatjet = hall2.GetEntries()
+      nFatjet_b = hall2_b.GetEntries()
+      nFatjet_bfromg = hall2_bfromg.GetEntries()
+      nFatjet_c = hall2_c.GetEntries()
+      nFatjet_l = hall2_l.GetEntries()
 
       if group_xs[group] > 0.:
         if group_L[group] > 0.:
@@ -165,14 +166,14 @@ def main():
       for h in range(0, nHistos):
         histoName = root_file.Get(options.analyzer_module).GetListOfKeys()[h].GetName()
         #print histoName
-        htemp = root_file.Get(os.path.join(options.analyzer_module,histoName))
+        hall = root_file.Get(os.path.join(options.analyzer_module,histoName))
 
         if histoName not in final_histos.keys():
-          final_histos[histoName] = copy.deepcopy(htemp)
+          final_histos[histoName] = copy.deepcopy(hall)
           final_histos[histoName].SetName(group + '__' + histoName)
           final_histos[histoName].Scale(scale)
         else:
-          final_histos[histoName].Add(htemp, scale)
+          final_histos[histoName].Add(hall, scale)
 
 
     print ''
