@@ -9,7 +9,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('outFileName', 'hh4b.root',
+options.register('outFileName', 'hh4b',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Output file name"
@@ -48,7 +48,15 @@ options.register('printEvtNo', False,
 options.setDefault('maxEvents', -1)
 options.parseArguments()
 
-hltpaths = ['HLT_PFHT650_v', 'HLT_PFHT800_v', 'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v', 'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_v', 'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v', 'HLT_AK8PFJet360_TrimMass30_v']
+hltpaths = ['HLT_PFHT800_v', 
+            'HLT_PFHT900_v', 
+            'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v', 
+            'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v', 
+            'HLT_AK8PFJet360_TrimMass30_v',
+            'HLT_AK8PFHT650_TrimR0p1PT0p03Mass50_v',
+            'AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_v',
+            ]
+
 if options.isData: 
     options.doBTagSFUnc = False 
     options.jerShift = 0 
@@ -69,7 +77,7 @@ process.source = cms.Source(
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string(
-         options.outFileName
+         options.outFileName+".root"
          )
        )
 
@@ -80,6 +88,7 @@ process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 from Analysis.VLQAna.HH4b_cff import *
+
 process.hh4bchs = hh4b.clone(
     jetAK8selParams  = defaultAK8CHSJetSelectionParameters.clone(
       jetPtMin                  = cms.double(0),
@@ -121,6 +130,16 @@ if options.isData:
       "Spring16_25nsV6_DATA_L3Absolute_AK8PFchs.txt",
       "Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt")  
 
+if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
+  for par in ['jetAK8selParams', 'jetHTaggedselParams']:
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
+    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
+
 process.hh4bpuppi = process.hh4bchs.clone(
     jetAK8selParams  = defaultAK8PuppiJetSelectionParameters.clone(
       jetPtMin                  = cms.double(200),
@@ -146,7 +165,7 @@ process.p = cms.Path(
     *process.evtcleaner
     *process.cleanedEvents
     *process.hh4bchs
-    *process.hh4bpuppi
+    #*process.hh4bpuppi
     * process.finalEvents
     )
 
