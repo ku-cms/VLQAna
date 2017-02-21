@@ -98,7 +98,7 @@ defaultCHSHJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     )
 
 ### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a
-defaultCHSWJetSelectionParameters = defaultCHSHJetSelectionParameters.clone(
+defaultCHSWJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jetPtMin            = cms.double(200),
     jetPrunedMassMin    = cms.double(65) ,
     jetPrunedMassMax    = cms.double(105) ,
@@ -173,7 +173,7 @@ defaultPuppiHJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clon
     )
 
 ### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a
-defaultPuppiWJetSelectionParameters = defaultPuppiHJetSelectionParameters.clone(
+defaultPuppiWJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clone(
     jetPtMin            = cms.double(200),
     jetSoftDropMassMin  = cms.double(65) ,
     jetSoftDropMassMax  = cms.double(105) ,
