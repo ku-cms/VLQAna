@@ -163,6 +163,7 @@ class BTagSFUtils {
       for ( auto idx : index(jetpts) ) {
         BTagEntry::JetFlavor fl = jetfls.at(idx.first) ; 
         double pt = jetpts.at(idx.first) ; 
+        if (pt < 0.001) continue;
         double uncscale(1.) ; 
         if ( fl == 0 || fl == 1) {
           if ( pt < bfl_ptMin_ ) { pt = 20.01 ; uncscale *= 2 ; } 
@@ -190,6 +191,8 @@ class BTagSFUtils {
         double dsfUp = sfUp - sf ; 
         double dsfDown = sfDown - sf ;
         double eff = 1.0;
+        if (pt < 0.001) continue;
+        if (abs(eta) > 2.4) continue;
         eff = BTagSFUtils::getBTagEff(pt,eta,flhad) ; 
         double uncscale = uncscales.at(idx.first) ; 
         sfs.push_back(sf) ; 
