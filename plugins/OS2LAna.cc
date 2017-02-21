@@ -271,27 +271,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
   }
 
-  if (maketree_ && evtno < 0) {
-    vlq::GenParticleCollection vlqGen = genpart(evt) ;
-    vlq::GenParticleCollection::const_iterator itrGen;
-    for(vlq::GenParticle p : vlqGen) { 
-      os2ltree_.t_genPartPt        .push_back(p.getP4().Pt());
-      os2ltree_.t_genPartPhi       .push_back(p.getP4().Phi());
-      os2ltree_.t_genPartEta       .push_back(p.getP4().Eta());
-      os2ltree_.t_genPartE         .push_back(p.getP4().E());
-      os2ltree_.t_genPartID        .push_back(p.getPdgID());
-      os2ltree_.t_genPartStatus    .push_back(p.getStatus());
-      os2ltree_.t_genPartMom1ID    .push_back(p.getMom0PdgID());
-      os2ltree_.t_genPartMom2ID    .push_back(p.getMom1PdgID());
-      os2ltree_.t_genPartDau1ID    .push_back(p.getDau0PdgID());
-      os2ltree_.t_genPartDau2ID    .push_back(p.getDau1PdgID());
-      os2ltree_.t_genPartMom1Status.push_back(p.getMom0Status());
-      os2ltree_.t_genPartMom2Status.push_back(p.getMom1Status());
-      os2ltree_.t_genPartDau1Status.push_back(p.getDau0Status());
-      os2ltree_.t_genPartDau2Status.push_back(p.getDau1Status());
-    }
-  }
-
   double evtwt(1.0);
   if (PileupUp_)         evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVHigh.product()) ; 
   else if (PileupDown_)  evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVLow.product()) ;
@@ -759,6 +738,33 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     os2ltree_.t_btagsf_bcDown = btagsf_bcDown;
     os2ltree_.t_btagsf_lUp = btagsf_lUp;
     os2ltree_.t_btagsf_lDown = btagsf_lDown;
+
+    if ( evtno < 0) {
+      vlq::GenParticleCollection vlqGen = genpart(evt) ;
+      for(vlq::GenParticle p : vlqGen) { 
+        os2ltree_.t_genPartPt        .push_back(p.getP4().Pt());
+        os2ltree_.t_genPartPhi       .push_back(p.getP4().Phi());
+        os2ltree_.t_genPartEta       .push_back(p.getP4().Eta());
+        os2ltree_.t_genPartE         .push_back(p.getP4().E());
+        os2ltree_.t_genPartID        .push_back(p.getPdgID());
+        os2ltree_.t_genPartStatus    .push_back(p.getStatus());
+        os2ltree_.t_genPartMom1ID    .push_back(p.getMom0PdgID());
+        os2ltree_.t_genPartMom2ID    .push_back(p.getMom1PdgID());
+        os2ltree_.t_genPartDau1ID    .push_back(p.getDau0PdgID());
+        os2ltree_.t_genPartDau2ID    .push_back(p.getDau1PdgID());
+        os2ltree_.t_genPartMom1Status.push_back(p.getMom0Status());
+        os2ltree_.t_genPartMom2Status.push_back(p.getMom1Status());
+        os2ltree_.t_genPartDau1Status.push_back(p.getDau0Status());
+        os2ltree_.t_genPartDau2Status.push_back(p.getDau1Status());
+      }
+    }
+
+    for( vlq::Met m : goodMet ) { 
+      os2ltree_.t_metPt .push_back(m.getPt());
+      os2ltree_.t_metPhi.push_back(m.getPhi());
+      os2ltree_.t_metEta.push_back(m.getEta());
+      os2ltree_.t_metE  .push_back(m.getP4().E());
+    }
 
     tree_->Fill(); 
   } //// maketree
