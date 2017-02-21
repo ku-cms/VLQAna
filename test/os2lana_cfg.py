@@ -234,7 +234,6 @@ if options.skim:
   process.ana.jetAK8selParams.jetPtMin = cms.double(170) 
   process.ana.jetWTaggedselParams.jetPtMin = cms.double(170) 
   process.ana.jetHTaggedselParams.jetPtMin = cms.double(170) 
-  process.ana.jetWTaggedselParams.jetPtMin = cms.double(300) 
   process.ana.STMin = cms.double(0.)
 else: 
   if options.syst: 
@@ -250,44 +249,44 @@ else:
     process.analightDown = process.ana.clone(
         btagsf_lDown = cms.bool(True),
         )
-  process.anaJecUp = process.ana.clone()
-  process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
-  process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
-  process.anaJecUp.jetAK8selParams.jecShift = cms.double(1.)
-  process.anaJecUp.jetHTaggedselParams.jecShift = cms.double(1.)
-  process.anaJecUp.jetWTaggedselParams.jecShift = cms.double(1.)
-  process.anaJecUp.jetTopTaggedselParams.jecShift = cms.double(1.)
+    process.anaJecUp = process.ana.clone()
+    process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
+    process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
+    process.anaJecUp.jetAK8selParams.jecShift = cms.double(1.)
+    process.anaJecUp.jetHTaggedselParams.jecShift = cms.double(1.)
+    process.anaJecUp.jetWTaggedselParams.jecShift = cms.double(1.)
+    process.anaJecUp.jetTopTaggedselParams.jecShift = cms.double(1.)
 
-  process.anaJecDown = process.ana.clone()
-  process.anaJecDown.jetAK4selParams.jecShift = cms.double(-1.)
-  process.anaJecDown.jetAK4BTaggedselParams.jecShift = cms.double(-1.)
-  process.anaJecDown.jetAK8selParams.jecShift = cms.double(-1.)
-  process.anaJecDown.jetHTaggedselParams.jecShift = cms.double(-1.)
-  process.anaJecDown.jetWTaggedselParams.jecShift = cms.double(-1.)
-  process.anaJecDown.jetTopTaggedselParams.jecShift = cms.double(-1.)
+    process.anaJecDown = process.ana.clone()
+    process.anaJecDown.jetAK4selParams.jecShift = cms.double(-1.)
+    process.anaJecDown.jetAK4BTaggedselParams.jecShift = cms.double(-1.)
+    process.anaJecDown.jetAK8selParams.jecShift = cms.double(-1.)
+    process.anaJecDown.jetHTaggedselParams.jecShift = cms.double(-1.)
+    process.anaJecDown.jetWTaggedselParams.jecShift = cms.double(-1.)
+    process.anaJecDown.jetTopTaggedselParams.jecShift = cms.double(-1.)
 
-  process.anaJerUp = process.ana.clone()
-  process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2)
-  process.anaJecUp.jetAK4BTaggedselParams.jerShift = cms.int32(2)
-  process.anaJerUp.jetAK8selParams.jerShift = cms.int32(2)
-  process.anaJecUp.jetHTaggedselParams.jerShift = cms.int32(2)
-  process.anaJecUp.jetWTaggedselParams.jerShift = cms.int32(2)
-  process.anaJecUp.jetTopTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp = process.ana.clone()
+    process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2)
+    process.anaJecUp.jetAK4BTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp.jetAK8selParams.jerShift = cms.int32(2)
+    process.anaJecUp.jetHTaggedselParams.jerShift = cms.int32(2)
+    process.anaJecUp.jetWTaggedselParams.jerShift = cms.int32(2)
+    process.anaJecUp.jetTopTaggedselParams.jerShift = cms.int32(2)
 
-  process.anaJerDown = process.ana.clone()
-  process.anaJerDown.jetAK4selParams.jerShift = cms.int32(0)
-  process.anaJerDown.jetAK4BTaggedselParams.jerShift = cms.int32(0)
-  process.anaJerDown.jetAK8selParams.jerShift = cms.int32(0)
-  process.anaJecDown.jetHTaggedselParams.jerShift = cms.int32(0)
-  process.anaJecDown.jetWTaggedselParams.jerShift = cms.int32(0)
-  process.anaJecDown.jetTopTaggedselParams.jerShift = cms.int32(0)
+    process.anaJerDown = process.ana.clone()
+    process.anaJerDown.jetAK4selParams.jerShift = cms.int32(0)
+    process.anaJerDown.jetAK4BTaggedselParams.jerShift = cms.int32(0)
+    process.anaJerDown.jetAK8selParams.jerShift = cms.int32(0)
+    process.anaJecDown.jetHTaggedselParams.jerShift = cms.int32(0)
+    process.anaJecDown.jetWTaggedselParams.jerShift = cms.int32(0)
+    process.anaJecDown.jetTopTaggedselParams.jerShift = cms.int32(0)
 
-  process.anaPileupUp = process.ana.clone(
-      PileupUp = cms.bool(True),
-      )
-  process.anaPileupDown = process.ana.clone(
-      PileupDown = cms.bool(True),
-      )
+    process.anaPileupUp = process.ana.clone(
+        PileupUp = cms.bool(True),
+        )
+    process.anaPileupDown = process.ana.clone(
+        PileupDown = cms.bool(True),
+        )
 
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
