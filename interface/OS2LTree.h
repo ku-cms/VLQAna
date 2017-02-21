@@ -15,9 +15,6 @@ namespace os2l {
       unsigned int t_evtInfoRunNumber;
       ULong64_t    t_evtInfoEventNumber;
 
-      //std::vector<std::pair<std::string, bool> > t_trigDecision ;
-      //std::vector<tuple<std::string, bool,int> > t_trigDecision ;
-
       int ta_npv;
       int t_puNtrueInt;
 
@@ -233,8 +230,6 @@ namespace os2l {
         tree->Branch("t_TriggerBitTree"      ,&t_TriggerBitTree );
         tree->Branch("t_TriggerPrescaleTree" ,&t_TriggerPrescaleTree );
 
-        //tree->Branch("t_trigDecision"        , "vector< std::pair <std::string, bool>>"  , &t_trigDecision );
-
         tree->Branch("ta_npv"       ,&ta_npv       ,"ta_npv/I" );
         tree->Branch("t_puNtrueInt" ,&t_puNtrueInt ,"t_puNtrueInt/i");
 
@@ -261,14 +256,14 @@ namespace os2l {
         tree->Branch("t_muonIsPFMuon"  ,&t_muonIsPFMuon ); 
         tree->Branch("t_muonIsTracker" ,&t_muonIsTracker); 
 
-        tree->Branch("t_jetAK4Pt"                ,&t_jetAK4Pt );
-        tree->Branch("t_jetAK4Phi"               ,&t_jetAK4Phi );
-        tree->Branch("t_jetAK4Eta"               ,&t_jetAK4Eta );
-        tree->Branch("t_jetAK4E"                 ,&t_jetAK4E );
-        tree->Branch("t_jetAK4CSV"               ,&t_jetAK4CSV );
-        tree->Branch("t_jetAK4Mass"              ,&t_jetAK4Mass );
-        tree->Branch("t_jetAK4HadronFlavour"     ,&t_jetAK4HadronFlavour );
-        tree->Branch("t_jetAK4PartonFlavour"     ,&t_jetAK4PartonFlavour );
+        tree->Branch("t_jetAK4Pt"             ,&t_jetAK4Pt );
+        tree->Branch("t_jetAK4Phi"            ,&t_jetAK4Phi );
+        tree->Branch("t_jetAK4Eta"            ,&t_jetAK4Eta );
+        tree->Branch("t_jetAK4E"              ,&t_jetAK4E );
+        tree->Branch("t_jetAK4CSV"            ,&t_jetAK4CSV );
+        tree->Branch("t_jetAK4Mass"           ,&t_jetAK4Mass );
+        tree->Branch("t_jetAK4HadronFlavour"  ,&t_jetAK4HadronFlavour );
+        tree->Branch("t_jetAK4PartonFlavour"  ,&t_jetAK4PartonFlavour );
 
         tree->Branch("t_jetAK4BPt"            ,&t_jetAK4BPt );
         tree->Branch("t_jetAK4BPhi"           ,&t_jetAK4BPhi );
@@ -282,56 +277,56 @@ namespace os2l {
         tree->Branch("t_HT", &t_HT, "t_HT/D") ; 
         tree->Branch("t_ST", &t_ST, "t_ST/D") ; 
 
-        tree->Branch("t_btagsf"          , &t_btagsf, "t_btagsf/D" );
-        tree->Branch("t_btagsf_bcUp"     , &t_btagsf_bcUp, "t_btagsf_bcUp/D" );
-        tree->Branch("t_btagsf_bcDown"   , &t_btagsf_bcDown, "t_btagsf_bcDown/D" );
-        tree->Branch("t_btagsf_lUp"      , &t_btagsf_lUp, "t_btagsf_lUp/D" );
-        tree->Branch("t_btagsf_lDown"    , &t_btagsf_lDown, "t_btagsf_lDown/D" );    
+        tree->Branch("t_btagsf"        ,&t_btagsf, "t_btagsf/D" );
+        tree->Branch("t_btagsf_bcUp"   ,&t_btagsf_bcUp, "t_btagsf_bcUp/D" );
+        tree->Branch("t_btagsf_bcDown" ,&t_btagsf_bcDown, "t_btagsf_bcDown/D" );
+        tree->Branch("t_btagsf_lUp"    ,&t_btagsf_lUp, "t_btagsf_lUp/D" );
+        tree->Branch("t_btagsf_lDown"  ,&t_btagsf_lDown, "t_btagsf_lDown/D" );    
 
-        tree->Branch("t_jetAK8Pt"               , &t_jetAK8Pt );
-        tree->Branch("t_jetAK8Phi"              , &t_jetAK8Phi );
-        tree->Branch("t_jetAK8Eta"              , &t_jetAK8Eta );
-        tree->Branch("t_jetAK8E"                , &t_jetAK8E );
-        tree->Branch("t_jetAK8CSV"              , &t_jetAK8CSV );
-        tree->Branch("t_jetAK8Mass"             , &t_jetAK8Mass );
-        tree->Branch("t_jetAK8HadronFlavour"    , &t_jetAK8HadronFlavour );
-        tree->Branch("t_jetAK8PartonFlavour"    , &t_jetAK8PartonFlavour );
-        tree->Branch("t_jetAK8_tau1"            , &t_jetAK8_tau1        );
-        tree->Branch("t_jetAK8_tau2"            , &t_jetAK8_tau2        );
-        tree->Branch("t_jetAK8_tau3"            , &t_jetAK8_tau3        );
-        tree->Branch("t_jetAK8_MassPruned"      , &t_jetAK8_MassPruned  );
-        tree->Branch("t_jetAK8_SoftDropMass"    , &t_jetAK8_SoftDropMass);
-        tree->Branch("t_jetAK8_NSubJets"        , &t_jetAK8_NSubJets    );
+        tree->Branch("t_jetAK8Pt"            ,&t_jetAK8Pt );
+        tree->Branch("t_jetAK8Phi"           ,&t_jetAK8Phi );
+        tree->Branch("t_jetAK8Eta"           ,&t_jetAK8Eta );
+        tree->Branch("t_jetAK8E"             ,&t_jetAK8E );
+        tree->Branch("t_jetAK8CSV"           ,&t_jetAK8CSV );
+        tree->Branch("t_jetAK8Mass"          ,&t_jetAK8Mass );
+        tree->Branch("t_jetAK8HadronFlavour" ,&t_jetAK8HadronFlavour );
+        tree->Branch("t_jetAK8PartonFlavour" ,&t_jetAK8PartonFlavour );
+        tree->Branch("t_jetAK8_tau1"         ,&t_jetAK8_tau1        );
+        tree->Branch("t_jetAK8_tau2"         ,&t_jetAK8_tau2        );
+        tree->Branch("t_jetAK8_tau3"         ,&t_jetAK8_tau3        );
+        tree->Branch("t_jetAK8_MassPruned"   ,&t_jetAK8_MassPruned  );
+        tree->Branch("t_jetAK8_SoftDropMass" ,&t_jetAK8_SoftDropMass);
+        tree->Branch("t_jetAK8_NSubJets"     ,&t_jetAK8_NSubJets    );
 
-        tree->Branch("t_jetAK4GenJetPt"         ,&t_jetAK4GenJetPt );
-        tree->Branch("t_jetAK4GenJetPhi"        ,&t_jetAK4GenJetPhi );
-        tree->Branch("t_jetAK4GenJetEta"        ,&t_jetAK4GenJetEta );
-        tree->Branch("t_jetAK4GenJetE"          ,&t_jetAK4GenJetE );
+        tree->Branch("t_jetAK4GenJetPt"  ,&t_jetAK4GenJetPt );
+        tree->Branch("t_jetAK4GenJetPhi" ,&t_jetAK4GenJetPhi );
+        tree->Branch("t_jetAK4GenJetEta" ,&t_jetAK4GenJetEta );
+        tree->Branch("t_jetAK4GenJetE"   ,&t_jetAK4GenJetE );
 
-        tree->Branch("t_jetAK4BGenJetPt"        ,&t_jetAK4BGenJetPt );
-        tree->Branch("t_jetAK4BGenJetPhi"       ,&t_jetAK4BGenJetPhi );
-        tree->Branch("t_jetAK4BGenJetEta"       ,&t_jetAK4BGenJetEta );
-        tree->Branch("t_jetAK4BGenJetE"         ,&t_jetAK4BGenJetE );
+        tree->Branch("t_jetAK4BGenJetPt"  ,&t_jetAK4BGenJetPt );
+        tree->Branch("t_jetAK4BGenJetPhi" ,&t_jetAK4BGenJetPhi );
+        tree->Branch("t_jetAK4BGenJetEta" ,&t_jetAK4BGenJetEta );
+        tree->Branch("t_jetAK4BGenJetE"   ,&t_jetAK4BGenJetE );
 
-        tree->Branch("t_jetAK8GenJetPt"         ,&t_jetAK8GenJetPt );
-        tree->Branch("t_jetAK8GenJetPhi"        ,&t_jetAK8GenJetPhi );
-        tree->Branch("t_jetAK8GenJetEta"        ,&t_jetAK8GenJetEta );
-        tree->Branch("t_jetAK8GenJetE"          ,&t_jetAK8GenJetE );
+        tree->Branch("t_jetAK8GenJetPt"  ,&t_jetAK8GenJetPt );
+        tree->Branch("t_jetAK8GenJetPhi" ,&t_jetAK8GenJetPhi );
+        tree->Branch("t_jetAK8GenJetEta" ,&t_jetAK8GenJetEta );
+        tree->Branch("t_jetAK8GenJetE"   ,&t_jetAK8GenJetE );
 
-        tree->Branch("t_genPartPt"              ,&t_genPartPt        );
-        tree->Branch("t_genPartPhi"             ,&t_genPartPhi       );
-        tree->Branch("t_genPartEta"             ,&t_genPartEta       );
-        tree->Branch("t_genPartE"               ,&t_genPartE         );
-        tree->Branch("t_genPartID"              ,&t_genPartID        );
-        tree->Branch("t_genPartStatus"          ,&t_genPartStatus    );
-        tree->Branch("t_genPartMom1ID"          ,&t_genPartMom1ID    );
-        tree->Branch("t_genPartMom2ID"          ,&t_genPartMom2ID    );
-        tree->Branch("t_genPartDau1ID"          ,&t_genPartDau1ID    );
-        tree->Branch("t_genPartDau2ID"          ,&t_genPartDau2ID    );
-        tree->Branch("t_genPartMom1Status"      ,&t_genPartMom1Status);
-        tree->Branch("t_genPartMom2Status"      ,&t_genPartMom2Status);
-        tree->Branch("t_genPartDau1Status"      ,&t_genPartDau1Status);
-        tree->Branch("t_genPartDau2Status"      ,&t_genPartDau2Status);
+        tree->Branch("t_genPartPt"         ,&t_genPartPt        );
+        tree->Branch("t_genPartPhi"        ,&t_genPartPhi       );
+        tree->Branch("t_genPartEta"        ,&t_genPartEta       );
+        tree->Branch("t_genPartE"          ,&t_genPartE         );
+        tree->Branch("t_genPartID"         ,&t_genPartID        );
+        tree->Branch("t_genPartStatus"     ,&t_genPartStatus    );
+        tree->Branch("t_genPartMom1ID"     ,&t_genPartMom1ID    );
+        tree->Branch("t_genPartMom2ID"     ,&t_genPartMom2ID    );
+        tree->Branch("t_genPartDau1ID"     ,&t_genPartDau1ID    );
+        tree->Branch("t_genPartDau2ID"     ,&t_genPartDau2ID    );
+        tree->Branch("t_genPartMom1Status" ,&t_genPartMom1Status);
+        tree->Branch("t_genPartMom2Status" ,&t_genPartMom2Status);
+        tree->Branch("t_genPartDau1Status" ,&t_genPartDau1Status);
+        tree->Branch("t_genPartDau2Status" ,&t_genPartDau2Status);
 
         tree->Branch("t_metPt"  ,&t_metPt );
         tree->Branch("t_metPhi" ,&t_metPhi);

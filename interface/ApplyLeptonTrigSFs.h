@@ -3,27 +3,27 @@
 
 class ApplyLeptonTrigSFs {
   public:
-   
+
     ~ApplyLeptonTrigSFs () {} 
     double TrigSFMu1(double pt, double eta){
       double sf_=0.0; 
       if(pt > 500.) pt = 499.9;
       if(pt > 10 && pt <= 20){     
-	if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.470;
-	else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.565;
-	else if(eta <= -1.2     && eta > -1.6)    sf_ = 0.603;
-	else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.591;
-	else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.612;
-	else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.612;
-	else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.591;
-	else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.603;
-	else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.565;
-	else if(eta < 2.4       && eta > 2.1)     sf_ = 0.470 ;
-          }
+        if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.470;
+        else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.565;
+        else if(eta <= -1.2     && eta > -1.6)    sf_ = 0.603;
+        else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.591;
+        else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.612;
+        else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.612;
+        else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.591;
+        else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.603;
+        else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.565;
+        else if(eta < 2.4       && eta > 2.1)     sf_ = 0.470 ;
+      }
       else if(pt > 20 && pt <= 25){
-	if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.778;
-	else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.902;
-	else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.947;
+        if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.778;
+        else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.902;
+        else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.947;
         else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.914;
         else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.930;
         else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.930;
@@ -33,41 +33,41 @@ class ApplyLeptonTrigSFs {
         else if(eta < 2.4       && eta > 2.1)     sf_ = 0.778 ;          
       }
       else if(pt > 25 && pt <= 30){
-	if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.817;
-	else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.920;
-	else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.956;
-	else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.917;
-	else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.931;
-	else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.931;
-	else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.917;
-	else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.956;
-	else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.920;
-	else if(eta < 2.4       && eta > 2.1)     sf_ = 0.817;
+        if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.817;
+        else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.920;
+        else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.956;
+        else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.917;
+        else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.931;
+        else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.931;
+        else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.917;
+        else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.956;
+        else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.920;
+        else if(eta < 2.4       && eta > 2.1)     sf_ = 0.817;
       }
-      
+
       else if(pt > 30 && pt <= 35){
-	if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.842;
-	else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.928;
-	else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.960;
-	else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.916;
-	else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.932;
-	else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.932;
-	else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.916;
-	else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.960;
-	else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.928;
-	else if(eta < 2.4       && eta > 2.1)     sf_ = 0.842;
+        if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.842;
+        else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.928;
+        else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.960;
+        else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.916;
+        else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.932;
+        else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.932;
+        else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.916;
+        else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.960;
+        else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.928;
+        else if(eta < 2.4       && eta > 2.1)     sf_ = 0.842;
       }
       else if(pt > 35 && pt <= 40){
-	if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.858;
-	else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.934;
-	else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.962;
-	else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.916;
-	else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.932;
-	else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.932;
-	else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.916;
-	else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.962;
-	else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.934;
-	else if(eta < 2.4       && eta > 2.1)     sf_ = 0.858;
+        if     (eta <= -2.1     && eta > -2.4)    sf_ = 0.858;
+        else if(eta <= -1.6     && eta > -2.1)    sf_ = 0.934;
+        else if(eta <= -1.2     && eta > -2.1)    sf_ = 0.962;
+        else if(eta <= -0.8     && eta > -1.2)    sf_ = 0.916;
+        else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.932;
+        else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.932;
+        else if(eta <= 1.2      && eta > 0.8)     sf_ = 0.916;
+        else if(eta <= 1.6      && eta > 1.2)     sf_ = 0.962;
+        else if(eta <= 2.1      && eta > 1.6)     sf_ = 0.934;
+        else if(eta < 2.4       && eta > 2.1)     sf_ = 0.858;
       }
 
       else if(pt > 40 && pt <= 50){
@@ -288,20 +288,20 @@ class ApplyLeptonTrigSFs {
         else if(eta < 2.4       && eta > 2.1)     sf_ = 0.800;
       }
       /*
-      else if(pt > 20 && pt <= 25){
-        if     (eta <= -2.1     && eta > -2.4)    sf_ = ;
-        else if(eta <= -1.6     && eta > -2.1)    sf_ = ;
-        else if(eta <= -1.2     && eta > -2.1)    sf_ = ;
-        else if(eta <= -0.8     && eta > -1.2)    sf_ = ;
-        else if(eta <= 0.0      && eta > -0.8)    sf_ = ;
-        else if(eta <= 0.8      && eta > 0.0)     sf_ = ;
-        else if(eta <= 1.2      && eta > 0.8)     sf_ = ;
-        else if(eta <= 1.6      && eta > 1.2)     sf_ = ;
-        else if(eta <= 2.1      && eta > 1.6)     sf_ = ;
-        else if(eta < 2.4       && eta > 2.1)     sf_ = ;
-      }
-      */
-       return sf_ ; 
+         else if(pt > 20 && pt <= 25){
+         if     (eta <= -2.1     && eta > -2.4)    sf_ = ;
+         else if(eta <= -1.6     && eta > -2.1)    sf_ = ;
+         else if(eta <= -1.2     && eta > -2.1)    sf_ = ;
+         else if(eta <= -0.8     && eta > -1.2)    sf_ = ;
+         else if(eta <= 0.0      && eta > -0.8)    sf_ = ;
+         else if(eta <= 0.8      && eta > 0.0)     sf_ = ;
+         else if(eta <= 1.2      && eta > 0.8)     sf_ = ;
+         else if(eta <= 1.6      && eta > 1.2)     sf_ = ;
+         else if(eta <= 2.1      && eta > 1.6)     sf_ = ;
+         else if(eta < 2.4       && eta > 2.1)     sf_ = ;
+         }
+         */
+      return sf_ ; 
     }
   private: 
     double sf_ ;
@@ -310,6 +310,6 @@ class ApplyLeptonTrigSFs {
     //    TrigSFEl1(double pt, double eta);
     //TrigSFEL2(double pt, double eta);
 
-   
+
 };
 #endif 
