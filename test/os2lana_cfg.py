@@ -129,7 +129,7 @@ if options.skim:
 
 if options.filterSignal == True: 
   print 'signal type = ', len(options.signalType), 'skim : ', options.skim
-  if options.skim :
+  if options.skim or options.maketree:
     if len(options.signalType) != 0: sys.exit("!!!Error: Please do not specify any signal type when skimming the signal MC!!!")
   elif len(options.signalType) == 0:
     sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
