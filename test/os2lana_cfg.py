@@ -185,7 +185,7 @@ process.ana = ana.clone(
     fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
     File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
     )
-process.ana.genParams.debug = cms.bool(True)
+process.ana.genParams.debug = cms.bool(False)
 process.ana.jetAK4selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
 process.ana.jetAK4BTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
 process.ana.jetAK8selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
@@ -219,10 +219,10 @@ process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepIdSFsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
-if options.zdecaymode = "zelel": 
+if options.zdecaymode == "zelel": 
   process.ana.DilepCandParams.ptMaxLeadingLep = cms.double(120)
   process.ana.ZCandParams.ptMaxLeadingLep = cms.double(120)
-elif options.zdecaymode = "zmumu": 
+elif options.zdecaymode == "zmumu": 
   process.ana.DilepCandParams.ptMaxLeadingLep = cms.double(45)
   process.ana.ZCandParams.ptMaxLeadingLep = cms.double(45)
 process.ana.ZCandParams.ptMin = cms.double(100.)
