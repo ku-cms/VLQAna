@@ -183,6 +183,7 @@ process.ana = ana.clone(
     skim = cms.bool(options.skim),
     maketree = cms.bool(options.maketree), 
     fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
+    fnameSJbtagSF = cms.string(os.path.join(dataPath,'subjet_CSVv2_Moriond17_B_H.csv')),
     File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
     )
 process.ana.genParams.debug = cms.bool(False)
