@@ -130,6 +130,7 @@ class OS2LAna : public edm::EDFilter {
     const std::string fnamebtagSF_               ;
     const std::string btageffmap_                ;
     std::unique_ptr<BTagSFUtils> btagsfutils_    ; 
+    std::unique_ptr<BTagSFUtils> sjbtagsfutils_  ; 
 
     const bool maketree_ ;
     TTree* tree_ ; 
@@ -215,6 +216,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   fnamebtagSF_            (iConfig.getParameter<std::string>       ("fnamebtagSF")),
   btageffmap_             (iConfig.getParameter<std::string>       ("btageffmap")),
   btagsfutils_            (new BTagSFUtils(fnamebtagSF_,BTagEntry::OP_MEDIUM,20., 1000., 20., 1000., 20., 1000.,btageffmap_)),
+  sjbtagsfutils_          (new BTagSFUtils(fnamebtagSF_,BTagEntry::OP_LOOSE,30., 450., 30., 450., 20., 1000.,btageffmap_)),
   maketree_               (iConfig.getParameter<bool>("maketree"))
 
 {
@@ -225,6 +227,16 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   produces<vlq::JetCollection>("jets") ; 
   produces<vlq::CandidateCollection>("zllcands") ; 
   produces<double>("PreWeight");
+  produces<double>("btagsf");
+  produces<double>("btagsfbcUp");
+  produces<double>("btagsfbcDown");
+  produces<double>("btagsflUp");
+  produces<double>("btagsflDown");
+  produces<double>("sjbtagsf");
+  produces<double>("sjbtagsfbcUp");
+  produces<double>("sjbtagsfbcDown");
+  produces<double>("sjbtagsflUp");
+  produces<double>("sjbtagsflDown");
   produces<double>("finalWeight");
 }
 
@@ -250,20 +262,22 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const int runno(*h_runno.product()) ;
   const int lumisec(*h_lumisec.product()) ;
 
+  int signalType(-1);
   if (filterSignal_) {
     if(skim_ && signalType_.empty()){ 
-      if      (*h_evttype.product() == "EvtType_MC_bZbZ"){h1_["signalEvts_all"] -> Fill(1);}
-      else if (*h_evttype.product() == "EvtType_MC_bZbH"){h1_["signalEvts_all"] -> Fill(2);}
-      else if (*h_evttype.product() == "EvtType_MC_bZtW"){h1_["signalEvts_all"] -> Fill(3);}
-      else if (*h_evttype.product() == "EvtType_MC_bHbH"){h1_["signalEvts_all"] -> Fill(4);}
-      else if (*h_evttype.product() == "EvtType_MC_bHtW"){h1_["signalEvts_all"] -> Fill(5);}
-      else if (*h_evttype.product() == "EvtType_MC_tWtW"){h1_["signalEvts_all"] -> Fill(6);}
-      else if (*h_evttype.product() == "EvtType_MC_tZtZ"){h1_["signalEvts_all"] -> Fill(7);}
-      else if (*h_evttype.product() == "EvtType_MC_tZtH"){h1_["signalEvts_all"] -> Fill(8);}
-      else if (*h_evttype.product() == "EvtType_MC_tZbW"){h1_["signalEvts_all"] -> Fill(9);}
-      else if (*h_evttype.product() == "EvtType_MC_tHtH"){h1_["signalEvts_all"] -> Fill(10);}
-      else if (*h_evttype.product() == "EvtType_MC_tHbW"){h1_["signalEvts_all"] -> Fill(11);}
-      else if (*h_evttype.product() == "EvtType_MC_bWbW"){h1_["signalEvts_all"] -> Fill(12);}
+      if      (*h_evttype.product() == "EvtType_MC_bZbZ") signalType = 1; 
+      else if (*h_evttype.product() == "EvtType_MC_bZbH") signalType = 2; 
+      else if (*h_evttype.product() == "EvtType_MC_bZtW") signalType = 3; 
+      else if (*h_evttype.product() == "EvtType_MC_bHbH") signalType = 4; 
+      else if (*h_evttype.product() == "EvtType_MC_bHtW") signalType = 5; 
+      else if (*h_evttype.product() == "EvtType_MC_tWtW") signalType = 6; 
+      else if (*h_evttype.product() == "EvtType_MC_tZtZ") signalType = 7; 
+      else if (*h_evttype.product() == "EvtType_MC_tZtH") signalType = 8; 
+      else if (*h_evttype.product() == "EvtType_MC_tZbW") signalType = 9; 
+      else if (*h_evttype.product() == "EvtType_MC_tHtH") signalType = 10; 
+      else if (*h_evttype.product() == "EvtType_MC_tHbW") signalType = 11; 
+      else if (*h_evttype.product() == "EvtType_MC_bWbW") signalType = 12; 
+      h1_["signalEvts_all"] -> Fill(signalType);
     }
     else{
       if (*h_evttype.product()!=signalType_) return false ;
@@ -374,7 +388,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodAK8Jets, goodMuons); 
   cleanjets(goodAK8Jets, goodElectrons); 
 
-  double presel_wt = evtwt;
+  double presel_wt(evtwt);
   double btagsf(1) ;
   double btagsf_bcUp(1) ; 
   double btagsf_bcDown(1) ; 
@@ -408,14 +422,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       evtwt *= btagsf;
   }
 
-  //std::cout << " presel_wt " << presel_wt << " evtwt " << evtwt 
-  //  << " btagsf " << btagsf 
-  //  << " evtwt_bcUp " << presel_wt*btagsf_bcUp 
-  //  << " evtwt_bcDown " << presel_wt*btagsf_bcDown_ 
-  //  << " evtwt_lUp " << presel_wt*btagsf_lUp 
-  //  << " evtwt_lDown " << presel_wt*btagsf_lDown_ 
-  //  << " cvsv2 " << jetAK4BTaggedmaker.idxjetCSVDiscMin_ << std::endl;
-
   double ST(htak4.getHT() + zll.at(0).getPt() + goodMet.at(0).getFullPt()); 
 
   if (goodAK4Jets.at(0).getPt() > 100 ) {
@@ -444,9 +450,35 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodTopTaggedJets, goodMuons); 
   cleanjets(goodTopTaggedJets, goodElectrons); 
 
+  double sjbtagsf(1) ;
+  double sjbtagsf_bcUp(1) ; 
+  double sjbtagsf_bcDown(1) ; 
+  double sjbtagsf_lUp(1) ; 
+  double sjbtagsf_lDown(1) ; 
+  if ( applyBTagSFs_ ) {
+    std::vector<double>csvs;
+    std::vector<double>pts;
+    std::vector<double>etas;
+    std::vector<int>   flhads;
+
+    for (vlq::Jet jet : goodHTaggedJets) {
+      csvs.push_back(jet.getCSVSubjet0()) ; 
+      csvs.push_back(jet.getCSVSubjet1()) ; 
+      pts.push_back(jet.getPtSubjet0()) ; 
+      pts.push_back(jet.getPtSubjet1()) ; 
+      etas.push_back(jet.getEtaSubjet0()) ; 
+      etas.push_back(jet.getEtaSubjet1()) ; 
+      flhads.push_back(jet.getHadronFlavourSubjet0()) ; 
+      flhads.push_back(jet.getHadronFlavourSubjet1()) ; 
+    }
+
+    sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
+
+  }
+
   if ( skim_ ) {
 
-    h1_["ht_preSel_bfFit"] -> Fill(htak4.getHT(), evtwt);
+    h1_["ht_preSel_bfFit"] -> Fill(htak4.getHT(), presel_wt);
     //fill jet flavor pt and eta for b-tagging efficiencies 
     if (goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50){// not sure if we should also cut on ST
       for (vlq::Jet jet : goodAK4Jets) {
@@ -464,9 +496,29 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
 
     std::unique_ptr<double> ptr_fevtwt ( new double(evtwt) ) ;
-    std::unique_ptr<double> ptr_evtwt ( new double(presel_wt) ) ;
+    std::unique_ptr<double> ptr_prewt ( new double(presel_wt) ) ;
+    std::unique_ptr<double> ptr_btagsf          ( new double(btagsf         ) ) ;
+    std::unique_ptr<double> ptr_btagsf_bcUp     ( new double(btagsf_bcUp    ) ) ;
+    std::unique_ptr<double> ptr_btagsf_bcDown   ( new double(btagsf_bcDown  ) ) ;
+    std::unique_ptr<double> ptr_btagsf_lUp      ( new double(btagsf_lUp     ) ) ;
+    std::unique_ptr<double> ptr_btagsf_lDown    ( new double(btagsf_lDown   ) ) ;
+    std::unique_ptr<double> ptr_sjbtagsf        ( new double(sjbtagsf       ) ) ;
+    std::unique_ptr<double> ptr_sjbtagsf_bcUp   ( new double(sjbtagsf_bcUp  ) ) ;
+    std::unique_ptr<double> ptr_sjbtagsf_bcDown ( new double(sjbtagsf_bcDown) ) ;
+    std::unique_ptr<double> ptr_sjbtagsf_lUp    ( new double(sjbtagsf_lUp   ) ) ;
+    std::unique_ptr<double> ptr_sjbtagsf_lDown  ( new double(sjbtagsf_lDown ) ) ;
     evt.put(std::move(ptr_fevtwt), "finalWeight");
-    evt.put(std::move(ptr_evtwt), "PreWeight");
+    evt.put(std::move(ptr_prewt), "PreWeight");
+    evt.put(std::move(ptr_btagsf         ), "btagsf"         );
+    evt.put(std::move(ptr_btagsf_bcUp    ), "btagsfbcUp"    );
+    evt.put(std::move(ptr_btagsf_bcDown  ), "btagsfbcDown"  );
+    evt.put(std::move(ptr_btagsf_lUp     ), "btagsflUp"     );
+    evt.put(std::move(ptr_btagsf_lDown   ), "btagsflDown"   );
+    evt.put(std::move(ptr_sjbtagsf       ), "sjbtagsf"       );
+    evt.put(std::move(ptr_sjbtagsf_bcUp  ), "sjbtagsfbcUp"  );
+    evt.put(std::move(ptr_sjbtagsf_bcDown), "sjbtagsfbcDown");
+    evt.put(std::move(ptr_sjbtagsf_lUp   ), "sjbtagsflUp"   );
+    evt.put(std::move(ptr_sjbtagsf_lDown ), "sjbtagsflDown" );
 
     if(goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50 && goodBTaggedAK4Jets.size() > 0 && ST > STMin_){
       std::unique_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
@@ -493,50 +545,50 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     else edm::LogError("OS2LAna::filter") << " >>>> WrongleptonType: " << lep << " Check lep name !!!" ;
 
     for (auto izll : zll) {
-      h1_["mass_z"+lep+lep+"_pre"] -> Fill(izll.getMass(), evtwt) ;
-      h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), evtwt) ; 
+      h1_["mass_z"+lep+lep+"_pre"] -> Fill(izll.getMass(), presel_wt) ;
+      h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), presel_wt) ; 
     }
-    h1_["nak4_pre"] -> Fill(goodAK4Jets.size(), evtwt) ;
-    h1_["ht_pre"] -> Fill(htak4.getHT(), evtwt);
-    h1_["st_pre"] -> Fill(ST, evtwt) ;   
+    h1_["nak4_pre"] -> Fill(goodAK4Jets.size(), presel_wt) ;
+    h1_["ht_pre"] -> Fill(htak4.getHT(), presel_wt);
+    h1_["st_pre"] -> Fill(ST, presel_wt) ;   
 
     //// Ak4 jet plots
     for(int j=0; j<3; ++j){
-      h1_[Form("ptak4jet%d_pre", j+1)]  -> Fill(goodAK4Jets.at(j).getPt(), evtwt) ; 
-      h1_[Form("etaak4jet%d_pre", j+1)] -> Fill(goodAK4Jets.at(j).getEta(), evtwt) ;
-      h1_[Form("cvsak4jet%d_pre", j+1)] -> Fill(goodAK4Jets.at(j).getCSV(), evtwt) ;
+      h1_[Form("ptak4jet%d_pre", j+1)]  -> Fill(goodAK4Jets.at(j).getPt(), presel_wt) ; 
+      h1_[Form("etaak4jet%d_pre", j+1)] -> Fill(goodAK4Jets.at(j).getEta(), presel_wt) ;
+      h1_[Form("cvsak4jet%d_pre", j+1)] -> Fill(goodAK4Jets.at(j).getCSV(), presel_wt) ;
     }
-    h1_["phi_jet1MET_pre"] -> Fill( (goodAK4Jets.at(0).getP4()).DeltaPhi(goodMet.at(0).getP4()), evtwt);
+    h1_["phi_jet1MET_pre"] -> Fill( (goodAK4Jets.at(0).getP4()).DeltaPhi(goodMet.at(0).getP4()), presel_wt);
 
     //// npv
     h1_["npv_noweight_pre"] -> Fill(npv, *h_evtwtGen.product()); 
-    h1_["npv_pre"] -> Fill(npv, evtwt);
+    h1_["npv_pre"] -> Fill(npv, presel_wt);
 
     //// met
-    h1_["met_pre"] -> Fill(goodMet.at(0).getFullPt(), evtwt);
-    h1_["metPhi_pre"] -> Fill(goodMet.at(0).getFullPhi(), evtwt);
+    h1_["met_pre"] -> Fill(goodMet.at(0).getFullPt(), presel_wt);
+    h1_["metPhi_pre"] -> Fill(goodMet.at(0).getFullPhi(), presel_wt);
 
     //// Lepton specfic properties
     if ( zdecayMode_ == "zmumu" ){       
       for(int l=0; l<2; ++l){
-        h1_["pt_"+lep+Form("%d_pre", l+1)]  -> Fill(goodMuons.at(l).getPt(), evtwt) ; 
-        h1_["eta_"+lep+Form("%d_pre", l+1)]  -> Fill(goodMuons.at(l).getEta(), evtwt) ; 
+        h1_["pt_"+lep+Form("%d_pre", l+1)]  -> Fill(goodMuons.at(l).getPt(), presel_wt) ; 
+        h1_["eta_"+lep+Form("%d_pre", l+1)]  -> Fill(goodMuons.at(l).getEta(), presel_wt) ; 
       } 
 
-      h1_["dr_mumu_pre"]-> Fill( (goodMuons.at(0).getP4()).DeltaR(goodMuons.at(1).getP4()), evtwt );
+      h1_["dr_mumu_pre"]-> Fill( (goodMuons.at(0).getP4()).DeltaR(goodMuons.at(1).getP4()), presel_wt);
     }
     else if (zdecayMode_ == "zelel" ) {
       for(int l=0; l<2; ++l){
-        h1_["pt_"+lep+Form("%d_pre", l+1)]   -> Fill(goodElectrons.at(l).getPt(), evtwt) ; 
-        h1_["eta_"+lep+Form("%d_pre", l+1)]  -> Fill(goodElectrons.at(l).getEta(), evtwt) ; 
+        h1_["pt_"+lep+Form("%d_pre", l+1)]   -> Fill(goodElectrons.at(l).getPt(), presel_wt) ; 
+        h1_["eta_"+lep+Form("%d_pre", l+1)]  -> Fill(goodElectrons.at(l).getEta(), presel_wt) ; 
       } 
 
-      h1_["dr_elel_pre"]-> Fill( (goodElectrons.at(0).getP4()).DeltaR(goodElectrons.at(1).getP4()), evtwt );
-      if(additionalPlots_) fillAdditionalPlots(goodElectrons,evtwt);
+      h1_["dr_elel_pre"]-> Fill( (goodElectrons.at(0).getP4()).DeltaR(goodElectrons.at(1).getP4()), presel_wt);
+      if(additionalPlots_) fillAdditionalPlots(goodElectrons, presel_wt);
     }
 
     //// Z pt
-    for (auto izll : zll) h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), evtwt) ;
+    for (auto izll : zll) h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), presel_wt) ;
 
     //========================================================
     // Preselection done, proceeding with control selections
@@ -657,7 +709,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   } //// if not skim  and not maketree
 
   if ( maketree_ ) {
+
     os2ltree_.clearTreeVectors();
+
+    os2ltree_.t_signalType = signalType ; 
 
     os2ltree_.ta_npv = npv ; 
     os2ltree_.t_evtInfoEventNumber =  evtno ; 
@@ -703,41 +758,99 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
 
     for (vlq::Jet bjet : goodBTaggedAK4Jets) {
-      os2ltree_.t_jetAK4BPt              .push_back(bjet.getPt());
-      os2ltree_.t_jetAK4BPhi             .push_back(bjet.getPhi());
-      os2ltree_.t_jetAK4BEta             .push_back(bjet.getEta());
-      os2ltree_.t_jetAK4BE               .push_back((bjet.getP4()).E());
-      os2ltree_.t_jetAK4BCSV             .push_back(bjet.getCSV());
-      os2ltree_.t_jetAK4BMass            .push_back(bjet.getMass());
-      os2ltree_.t_jetAK4BHadronFlavour   .push_back(bjet.getHadronFlavour());
-      os2ltree_.t_jetAK4BPartonFlavour   .push_back(bjet.getPartonFlavour());
+      os2ltree_.t_jetAK4BPt            .push_back(bjet.getPt());
+      os2ltree_.t_jetAK4BPhi           .push_back(bjet.getPhi());
+      os2ltree_.t_jetAK4BEta           .push_back(bjet.getEta());
+      os2ltree_.t_jetAK4BE             .push_back((bjet.getP4()).E());
+      os2ltree_.t_jetAK4BCSV           .push_back(bjet.getCSV());
+      os2ltree_.t_jetAK4BMass          .push_back(bjet.getMass());
+      os2ltree_.t_jetAK4BHadronFlavour .push_back(bjet.getHadronFlavour());
+      os2ltree_.t_jetAK4BPartonFlavour .push_back(bjet.getPartonFlavour());
     }
 
     for (vlq::Jet ak8 : goodAK8Jets) {
-      os2ltree_.t_jetAK8Pt               .push_back(ak8.getPt());
-      os2ltree_.t_jetAK8Phi              .push_back(ak8.getPhi());
-      os2ltree_.t_jetAK8Eta              .push_back(ak8.getEta());
-      os2ltree_.t_jetAK8E                .push_back((ak8.getP4()).E());
-      os2ltree_.t_jetAK8CSV              .push_back(ak8.getCSV());
-      os2ltree_.t_jetAK8Mass             .push_back(ak8.getMass());
-      os2ltree_.t_jetAK8HadronFlavour    .push_back(ak8.getHadronFlavour());
-      os2ltree_.t_jetAK8PartonFlavour    .push_back(ak8.getPartonFlavour());
-      os2ltree_.t_jetAK8_tau1            .push_back(ak8.getTau1());
-      os2ltree_.t_jetAK8_tau2            .push_back(ak8.getTau2());
-      os2ltree_.t_jetAK8_tau3            .push_back(ak8.getTau3());
-      os2ltree_.t_jetAK8_MassPruned      .push_back(ak8.getPrunedMass());
-      os2ltree_.t_jetAK8_SoftDropMass    .push_back(ak8.getSoftDropMass());
-      os2ltree_.t_jetAK8_NSubJets        .push_back(ak8.getNSubjets());
+      os2ltree_.t_jetAK8Pt            .push_back(ak8.getPt());
+      os2ltree_.t_jetAK8Phi           .push_back(ak8.getPhi());
+      os2ltree_.t_jetAK8Eta           .push_back(ak8.getEta());
+      os2ltree_.t_jetAK8E             .push_back((ak8.getP4()).E());
+      os2ltree_.t_jetAK8CSV           .push_back(ak8.getCSV());
+      os2ltree_.t_jetAK8Mass          .push_back(ak8.getMass());
+      os2ltree_.t_jetAK8HadronFlavour .push_back(ak8.getHadronFlavour());
+      os2ltree_.t_jetAK8PartonFlavour .push_back(ak8.getPartonFlavour());
+      os2ltree_.t_jetAK8_tau1         .push_back(ak8.getTau1());
+      os2ltree_.t_jetAK8_tau2         .push_back(ak8.getTau2());
+      os2ltree_.t_jetAK8_tau3         .push_back(ak8.getTau3());
+      os2ltree_.t_jetAK8_MassPruned   .push_back(ak8.getPrunedMass());
+      os2ltree_.t_jetAK8_SoftDropMass .push_back(ak8.getSoftDropMass());
+      os2ltree_.t_jetAK8_NSubJets     .push_back(ak8.getNSubjets());
+    }
+
+    for (vlq::Jet wjet : goodWTaggedJets) {
+      os2ltree_.t_jetWJetPt            .push_back(wjet.getPt());
+      os2ltree_.t_jetWJetPhi           .push_back(wjet.getPhi());
+      os2ltree_.t_jetWJetEta           .push_back(wjet.getEta());
+      os2ltree_.t_jetWJetE             .push_back((wjet.getP4()).E());
+      os2ltree_.t_jetWJetCSV           .push_back(wjet.getCSV());
+      os2ltree_.t_jetWJetMass          .push_back(wjet.getMass());
+      os2ltree_.t_jetWJetHadronFlavour .push_back(wjet.getHadronFlavour());
+      os2ltree_.t_jetWJetPartonFlavour .push_back(wjet.getPartonFlavour());
+      os2ltree_.t_jetWJet_tau1         .push_back(wjet.getTau1());
+      os2ltree_.t_jetWJet_tau2         .push_back(wjet.getTau2());
+      os2ltree_.t_jetWJet_tau3         .push_back(wjet.getTau3());
+      os2ltree_.t_jetWJet_MassPruned   .push_back(wjet.getPrunedMass());
+      os2ltree_.t_jetWJet_SoftDropMass .push_back(wjet.getSoftDropMass());
+      os2ltree_.t_jetWJet_NSubJets     .push_back(wjet.getNSubjets());
+    }
+
+    for (vlq::Jet hjet : goodHTaggedJets) {
+      os2ltree_.t_jetHJetPt            .push_back(hjet.getPt());
+      os2ltree_.t_jetHJetPhi           .push_back(hjet.getPhi());
+      os2ltree_.t_jetHJetEta           .push_back(hjet.getEta());
+      os2ltree_.t_jetHJetE             .push_back((hjet.getP4()).E());
+      os2ltree_.t_jetHJetCSV           .push_back(hjet.getCSV());
+      os2ltree_.t_jetHJetMass          .push_back(hjet.getMass());
+      os2ltree_.t_jetHJetHadronFlavour .push_back(hjet.getHadronFlavour());
+      os2ltree_.t_jetHJetPartonFlavour .push_back(hjet.getPartonFlavour());
+      os2ltree_.t_jetHJet_tau1         .push_back(hjet.getTau1());
+      os2ltree_.t_jetHJet_tau2         .push_back(hjet.getTau2());
+      os2ltree_.t_jetHJet_tau3         .push_back(hjet.getTau3());
+      os2ltree_.t_jetHJet_MassPruned   .push_back(hjet.getPrunedMass());
+      os2ltree_.t_jetHJet_SoftDropMass .push_back(hjet.getSoftDropMass());
+      os2ltree_.t_jetHJet_NSubJets     .push_back(hjet.getNSubjets());
+    }
+
+    for (vlq::Jet tjet : goodTopTaggedJets) {
+      os2ltree_.t_jetTopJetPt            .push_back(tjet.getPt());
+      os2ltree_.t_jetTopJetPhi           .push_back(tjet.getPhi());
+      os2ltree_.t_jetTopJetEta           .push_back(tjet.getEta());
+      os2ltree_.t_jetTopJetE             .push_back((tjet.getP4()).E());
+      os2ltree_.t_jetTopJetCSV           .push_back(tjet.getCSV());
+      os2ltree_.t_jetTopJetMass          .push_back(tjet.getMass());
+      os2ltree_.t_jetTopJetHadronFlavour .push_back(tjet.getHadronFlavour());
+      os2ltree_.t_jetTopJetPartonFlavour .push_back(tjet.getPartonFlavour());
+      os2ltree_.t_jetTopJet_tau1         .push_back(tjet.getTau1());
+      os2ltree_.t_jetTopJet_tau2         .push_back(tjet.getTau2());
+      os2ltree_.t_jetTopJet_tau3         .push_back(tjet.getTau3());
+      os2ltree_.t_jetTopJet_MassPruned   .push_back(tjet.getPrunedMass());
+      os2ltree_.t_jetTopJet_SoftDropMass .push_back(tjet.getSoftDropMass());
+      os2ltree_.t_jetTopJet_NSubJets     .push_back(tjet.getNSubjets());
     }
 
     os2ltree_.t_HT = htak4.getHT();
     os2ltree_.t_ST = ST;
 
+    os2ltree_.t_presel_wt = presel_wt;
+    os2ltree_.t_evtwt = evtwt;
     os2ltree_.t_btagsf = btagsf;
     os2ltree_.t_btagsf_bcUp = btagsf_bcUp;
     os2ltree_.t_btagsf_bcDown = btagsf_bcDown;
     os2ltree_.t_btagsf_lUp = btagsf_lUp;
     os2ltree_.t_btagsf_lDown = btagsf_lDown;
+    os2ltree_.t_sjbtagsf = sjbtagsf;
+    os2ltree_.t_sjbtagsf_bcUp = sjbtagsf_bcUp;
+    os2ltree_.t_sjbtagsf_bcDown = sjbtagsf_bcDown;
+    os2ltree_.t_sjbtagsf_lUp = sjbtagsf_lUp;
+    os2ltree_.t_sjbtagsf_lDown = sjbtagsf_lDown;
 
     if ( evtno < 0) {
       vlq::GenParticleCollection vlqGen = genpart(evt) ;
