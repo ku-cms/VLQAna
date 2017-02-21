@@ -429,13 +429,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       evtwt *= btagsf;
   }
 
-  std::cout << " presel_wt " << presel_wt << " evtwt " << evtwt 
-    << " btagsf " << btagsf 
-    << " evtwt_bcUp " << presel_wt*btagsf_bcUp 
-    << " evtwt_bcDown " << presel_wt*btagsf_bcDown_ 
-    << " evtwt_lUp " << presel_wt*btagsf_lUp 
-    << " evtwt_lDown " << presel_wt*btagsf_lDown_ 
-    << " cvsv2 " << jetAK4BTaggedmaker.idxjetCSVDiscMin_ << std::endl;
+  //std::cout << " presel_wt " << presel_wt << " evtwt " << evtwt 
+  //  << " btagsf " << btagsf 
+  //  << " evtwt_bcUp " << presel_wt*btagsf_bcUp 
+  //  << " evtwt_bcDown " << presel_wt*btagsf_bcDown_ 
+  //  << " evtwt_lUp " << presel_wt*btagsf_lUp 
+  //  << " evtwt_lDown " << presel_wt*btagsf_lDown_ 
+  //  << " cvsv2 " << jetAK4BTaggedmaker.idxjetCSVDiscMin_ << std::endl;
 
   double ST(htak4.getHT() + zll.at(0).getPt() + goodMet.at(0).getFullPt()); 
 
