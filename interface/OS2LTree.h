@@ -59,9 +59,6 @@ namespace os2l {
       std::vector<float>  t_jetAK4Mass;
       std::vector<float>  t_jetAK4HadronFlavour;
       std::vector<float>  t_jetAK4PartonFlavour;
-      std::vector<bool>   t_jetAK4tightJetId;
-      std::vector<bool>   t_jetAK4looseJetId;
-      std::vector<bool>   t_jetAK4tightLepVetoJetId;
 
       std::vector<float>  t_jetAK4BPt;
       std::vector<float>  t_jetAK4BEta;
@@ -106,10 +103,6 @@ namespace os2l {
       std::vector<float>  t_jetAK8_MassPruned;
       std::vector<float>  t_jetAK8_SoftDropMass;
       std::vector<float>  t_jetAK8_NSubJets;
-
-      std::vector<bool>   t_jetAK8tightJetId;
-      std::vector<bool>   t_jetAK8looseJetId;
-      std::vector<bool>   t_jetAK8tightLepVetoJetId;
 
       std::vector<float>  t_genPartPt;
       std::vector<float>  t_genPartEta;
@@ -162,47 +155,38 @@ namespace os2l {
         t_muonIsPFMuon .clear();
         t_muonIsTracker.clear();
 
-        //t_jetAK4P4           .clear(); 
         t_jetAK4Pt           .clear();
-        t_jetAK4Eta           .clear();
-        t_jetAK4Phi           .clear();
-        t_jetAK4E           .clear();
+        t_jetAK4Eta          .clear();
+        t_jetAK4Phi          .clear();
+        t_jetAK4E            .clear();
         t_jetAK4CSV          .clear(); 
         t_jetAK4Mass         .clear();
         t_jetAK4HadronFlavour.clear();
         t_jetAK4PartonFlavour.clear();
-        t_jetAK4tightJetId.clear();
-        t_jetAK4looseJetId.clear();
-        t_jetAK4tightLepVetoJetId.clear();
 
-        //t_jetAK4BP4          .clear(); 
         t_jetAK4BPt           .clear();
-        t_jetAK4BEta           .clear();
-        t_jetAK4BPhi           .clear();
-        t_jetAK4BE           .clear();
-        t_jetAK4BCSV         .clear(); 
+        t_jetAK4BEta          .clear();
+        t_jetAK4BPhi          .clear();
+        t_jetAK4BE            .clear();
+        t_jetAK4BCSV          .clear(); 
         t_jetAK4BMass         .clear();
         t_jetAK4BHadronFlavour.clear();
         t_jetAK4BPartonFlavour.clear();
 
-        //t_jetAK8P4           .clear();
-        t_jetAK8Pt           .clear();
+        t_jetAK8Pt            .clear();
         t_jetAK8Eta           .clear();
         t_jetAK8Phi           .clear();
-        t_jetAK8E           .clear();
-        t_jetAK8CSV          .clear();
-        t_jetAK8Mass         .clear();
-        t_jetAK8HadronFlavour.clear();
-        t_jetAK8PartonFlavour.clear();
-        t_jetAK8_tau1        .clear();
-        t_jetAK8_tau2        .clear();
-        t_jetAK8_tau3        .clear();
-        t_jetAK8_MassPruned  .clear();
-        t_jetAK8_SoftDropMass.clear();
-        t_jetAK8_NSubJets    .clear();
-        t_jetAK8tightJetId.clear();
-        t_jetAK8looseJetId.clear();
-        t_jetAK8tightLepVetoJetId.clear();
+        t_jetAK8E             .clear();
+        t_jetAK8CSV           .clear();
+        t_jetAK8Mass          .clear();
+        t_jetAK8HadronFlavour .clear();
+        t_jetAK8PartonFlavour .clear();
+        t_jetAK8_tau1         .clear();
+        t_jetAK8_tau2         .clear();
+        t_jetAK8_tau3         .clear();
+        t_jetAK8_MassPruned   .clear();
+        t_jetAK8_SoftDropMass .clear();
+        t_jetAK8_NSubJets     .clear();
 
         t_jetAK4GenJetPt     .clear();
         t_jetAK4GenJetPhi     .clear();
@@ -288,9 +272,6 @@ namespace os2l {
         tree->Branch("t_jetAK4Mass"              ,&t_jetAK4Mass );
         tree->Branch("t_jetAK4HadronFlavour"     ,&t_jetAK4HadronFlavour );
         tree->Branch("t_jetAK4PartonFlavour"     ,&t_jetAK4PartonFlavour );
-        tree->Branch("t_jetAK4tightJetId"        ,&t_jetAK4tightJetId );
-        tree->Branch("t_jetAK4looseJetId"        ,&t_jetAK4looseJetId );
-        tree->Branch("t_jetAK4tightLepVetoJetId" ,&t_jetAK4tightLepVetoJetId );
 
         tree->Branch("t_jetAK4BPt"            ,&t_jetAK4BPt );
         tree->Branch("t_jetAK4BPhi"           ,&t_jetAK4BPhi );
@@ -324,9 +305,6 @@ namespace os2l {
         tree->Branch("t_jetAK8_MassPruned"      , &t_jetAK8_MassPruned  );
         tree->Branch("t_jetAK8_SoftDropMass"    , &t_jetAK8_SoftDropMass);
         tree->Branch("t_jetAK8_NSubJets"        , &t_jetAK8_NSubJets    );
-        tree->Branch("t_jetAK8tightJetId"       , &t_jetAK8tightJetId );
-        tree->Branch("t_jetAK8looseJetId"       , &t_jetAK8looseJetId );
-        tree->Branch("t_jetAK8tightLepVetoJetId", &t_jetAK8tightLepVetoJetId );
 
         tree->Branch("t_jetAK4GenJetPt"         ,&t_jetAK4GenJetPt );
         tree->Branch("t_jetAK4GenJetPhi"        ,&t_jetAK4GenJetPhi );

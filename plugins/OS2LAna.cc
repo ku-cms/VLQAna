@@ -429,7 +429,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       evtwt *= btagsf;
   }
 
-  //std::cout << " presel_wt " << presel_wt << " evtwt " << evtwt << " btagsf " << btagsf << " cvsv2 " << jetAK4BTaggedmaker.idxjetCSVDiscMin_ << std::endl;
+  std::cout << " presel_wt " << presel_wt << " evtwt " << evtwt 
+    << " btagsf " << btagsf 
+    << " evtwt_bcUp " << presel_wt*btagsf_bcUp 
+    << " evtwt_bcDown " << presel_wt*btagsf_bcDown_ 
+    << " evtwt_lUp " << presel_wt*btagsf_lUp 
+    << " evtwt_lDown " << presel_wt*btagsf_lDown_ 
+    << " cvsv2 " << jetAK4BTaggedmaker.idxjetCSVDiscMin_ << std::endl;
 
   double ST(htak4.getHT() + zll.at(0).getPt() + goodMet.at(0).getFullPt()); 
 
@@ -726,9 +732,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       os2ltree_.t_jetAK4BMass            .push_back(bjet.getMass());
       os2ltree_.t_jetAK4BHadronFlavour   .push_back(bjet.getHadronFlavour());
       os2ltree_.t_jetAK4BPartonFlavour   .push_back(bjet.getPartonFlavour());
-      os2ltree_.t_jetAK4tightJetId       .push_back(0);
-      os2ltree_.t_jetAK4looseJetId       .push_back(0);
-      os2ltree_.t_jetAK4tightLepVetoJetId.push_back(0);
     }
 
     for (vlq::Jet ak8 : goodAK8Jets) {
@@ -746,9 +749,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       os2ltree_.t_jetAK8_MassPruned      .push_back(ak8.getPrunedMass());
       os2ltree_.t_jetAK8_SoftDropMass    .push_back(ak8.getSoftDropMass());
       os2ltree_.t_jetAK8_NSubJets        .push_back(ak8.getNSubjets());
-      os2ltree_.t_jetAK8tightJetId       .push_back(0);
-      os2ltree_.t_jetAK8looseJetId       .push_back(0);
-      os2ltree_.t_jetAK8tightLepVetoJetId.push_back(0);
     }
 
     os2ltree_.t_HT = htak4.getHT();
