@@ -266,7 +266,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   int signalType(-1);
   if (filterSignal_) {
-    if(skim_ && signalType_.empty()){ 
+    if( (skim_ || maketree_ ) && signalType_.empty() ){ 
       if      (*h_evttype.product() == "EvtType_MC_bZbZ") signalType = 1; 
       else if (*h_evttype.product() == "EvtType_MC_bZbH") signalType = 2; 
       else if (*h_evttype.product() == "EvtType_MC_bZtW") signalType = 3; 
@@ -891,7 +891,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 void OS2LAna::beginJob() {
 
   if (filterSignal_){
-    if(skim_){
+    if(skim_ || maketree_){
       const int nCh = 12;
       const char *channel[nCh] = {"bZbZ", "bZbH", "bZtW", "bHbH", "bHtW", "tWtW",
         "tZtZ", "tZtH", "tZbW", "tHtH", "tHbW", "bWbW"};
