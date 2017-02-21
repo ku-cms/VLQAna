@@ -13,7 +13,7 @@ options.register('skim', True,
     VarParsing.varType.bool,
     "Skim events?"
     )
-options.register('newJECPayloadNames', '',
+options.register('newJECPayloadNames', 'Summer16_23Sep2016V4_MC',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
