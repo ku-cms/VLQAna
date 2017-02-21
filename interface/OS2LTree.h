@@ -125,44 +125,41 @@ namespace os2l {
       std::vector<float>  t_metE;
 
       void clearTreeVectors() {
-        t_TriggerNameTree.clear();
-        t_TriggerBitTree.clear();
-        t_TriggerPrescaleTree.clear();
-        //t_puNtrueInt.clear();
+        t_TriggerNameTree     .clear();
+        t_TriggerBitTree      .clear();
+        t_TriggerPrescaleTree .clear();
 
-        //t_elecP4       .clear();
-        t_elPt       .clear();
-        t_elPhi       .clear();
-        t_elEta       .clear();
-        t_elE       .clear();
-        t_elCharge    .clear();
-        t_elIso03     .clear();
-        t_elecIsLoose .clear(); 
-        t_elecIsMedium.clear(); 
-        t_elecIsTight .clear(); 
-        t_elecIsVeto  .clear();
+        t_elPt                .clear();
+        t_elPhi               .clear();
+        t_elEta               .clear();
+        t_elE                 .clear();
+        t_elCharge            .clear();
+        t_elIso03             .clear();
+        t_elecIsLoose         .clear(); 
+        t_elecIsMedium        .clear(); 
+        t_elecIsTight         .clear(); 
+        t_elecIsVeto          .clear();
 
-        //t_muonP4       .clear();
-        t_muPt       .clear();
-        t_muPhi       .clear();
-        t_muEta       .clear();
-        t_muE       .clear();
-        t_muCharge     .clear();
-        t_muIso04      .clear();
-        t_muonIsTight  .clear();
-        t_muonIsLoose  .clear();
-        t_muonIsGlobal .clear();
-        t_muonIsPFMuon .clear();
-        t_muonIsTracker.clear();
+        t_muPt                .clear();
+        t_muPhi               .clear();
+        t_muEta               .clear();
+        t_muE                 .clear();
+        t_muCharge            .clear();
+        t_muIso04             .clear();
+        t_muonIsTight         .clear();
+        t_muonIsLoose         .clear();
+        t_muonIsGlobal        .clear();
+        t_muonIsPFMuon        .clear();
+        t_muonIsTracker       .clear();
 
-        t_jetAK4Pt           .clear();
-        t_jetAK4Eta          .clear();
-        t_jetAK4Phi          .clear();
-        t_jetAK4E            .clear();
-        t_jetAK4CSV          .clear(); 
-        t_jetAK4Mass         .clear();
-        t_jetAK4HadronFlavour.clear();
-        t_jetAK4PartonFlavour.clear();
+        t_jetAK4Pt            .clear();
+        t_jetAK4Eta           .clear();
+        t_jetAK4Phi           .clear();
+        t_jetAK4E             .clear();
+        t_jetAK4CSV           .clear(); 
+        t_jetAK4Mass          .clear();
+        t_jetAK4HadronFlavour .clear();
+        t_jetAK4PartonFlavour .clear();
 
         t_jetAK4BPt           .clear();
         t_jetAK4BEta          .clear();
@@ -188,40 +185,40 @@ namespace os2l {
         t_jetAK8_SoftDropMass .clear();
         t_jetAK8_NSubJets     .clear();
 
-        t_jetAK4GenJetPt     .clear();
+        t_jetAK4GenJetPt      .clear();
         t_jetAK4GenJetPhi     .clear();
-        t_jetAK4GenJetEta    .clear();
-        t_jetAK4GenJetE      .clear();
+        t_jetAK4GenJetEta     .clear();
+        t_jetAK4GenJetE       .clear();
         
         t_jetAK4BGenJetPt     .clear();
-        t_jetAK4BGenJetPhi     .clear();
+        t_jetAK4BGenJetPhi    .clear();
         t_jetAK4BGenJetEta    .clear();
         t_jetAK4BGenJetE      .clear();
 
-        t_jetAK8GenJetPt           .clear();
-        t_jetAK8GenJetEta           .clear();
-        t_jetAK8GenJetPhi           .clear();
-        t_jetAK8GenJetE           .clear();
+        t_jetAK8GenJetPt      .clear();
+        t_jetAK8GenJetEta     .clear();
+        t_jetAK8GenJetPhi     .clear();
+        t_jetAK8GenJetE       .clear();
 
-        t_genPartPt         .clear();
-        t_genPartPhi         .clear();
-        t_genPartEta         .clear();
-        t_genPartE         .clear();
-        t_genPartID         .clear();
-        t_genPartStatus     .clear();
-        t_genPartMom1ID     .clear();
-        t_genPartMom2ID     .clear();
-        t_genPartDau1ID     .clear();
-        t_genPartDau2ID     .clear();
-        t_genPartMom1Status .clear();
-        t_genPartMom2Status .clear();
-        t_genPartDau1Status .clear();
-        t_genPartDau2Status .clear();
+        t_genPartPt           .clear();
+        t_genPartPhi          .clear();
+        t_genPartEta          .clear();
+        t_genPartE            .clear();
+        t_genPartID           .clear();
+        t_genPartStatus       .clear();
+        t_genPartMom1ID       .clear();
+        t_genPartMom2ID       .clear();
+        t_genPartDau1ID       .clear();
+        t_genPartDau2ID       .clear();
+        t_genPartMom1Status   .clear();
+        t_genPartMom2Status   .clear();
+        t_genPartDau1Status   .clear();
+        t_genPartDau2Status   .clear();
 
-        t_metPt.clear(); 
-        t_metPhi.clear();
-        t_metEta.clear();
-        t_metE.clear();
+        t_metPt               .clear(); 
+        t_metPhi              .clear();
+        t_metEta              .clear();
+        t_metE                .clear();
          
         return ; 
       } //// clearTreeVectors 
