@@ -128,6 +128,7 @@ class OS2LAna : public edm::EDFilter {
     std::map<std::string, TH2D*> h2_             ; 
     PickGenPart genpart                          ;
     const std::string fnamebtagSF_               ;
+    const std::string fnameSJbtagSF_             ;
     const std::string btageffmap_                ;
     std::unique_ptr<BTagSFUtils> btagsfutils_    ; 
     std::unique_ptr<BTagSFUtils> sjbtagsfutils_  ; 
@@ -214,9 +215,10 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetTopTaggedselParams"),consumesCollector()),   
   genpart                 (genParams_, consumesCollector()),
   fnamebtagSF_            (iConfig.getParameter<std::string>       ("fnamebtagSF")),
+  fnameSJbtagSF_          (iConfig.getParameter<std::string>       ("fnameSJbtagSF")),
   btageffmap_             (iConfig.getParameter<std::string>       ("btageffmap")),
   btagsfutils_            (new BTagSFUtils(fnamebtagSF_,BTagEntry::OP_MEDIUM,20., 1000., 20., 1000., 20., 1000.,btageffmap_)),
-  sjbtagsfutils_          (new BTagSFUtils(fnamebtagSF_,BTagEntry::OP_LOOSE,30., 450., 30., 450., 20., 1000.,btageffmap_)),
+  sjbtagsfutils_          (new BTagSFUtils(fnameSJbtagSF_,BTagEntry::OP_LOOSE,30., 450., 30., 450., 20., 1000.,btageffmap_)),
   maketree_               (iConfig.getParameter<bool>("maketree"))
 
 {
