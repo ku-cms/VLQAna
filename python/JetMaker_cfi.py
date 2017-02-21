@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.JetID_cfi import * 
 
-###https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X#Supported_Algorithms_and_Operati
-CSVv2L = 0.460 
-CSVv2M = 0.800 
-CSVv2T = 0.935 
+###https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco
+CSVv2L = 0.5426
+CSVv2M = 0.8484
+CSVv2T = 0.9535
 
 defaultAK4JetSelectionParameters = cms.PSet(
     jettype                   = cms.string('AK4JET'),
@@ -15,7 +15,7 @@ defaultAK4JetSelectionParameters = cms.PSet(
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
-    jecUncPayloadName         = cms.string("Summer16_23Sep2016V3_MC_Uncertainty_AK4PFchs.txt"), 
+    jecUncPayloadName         = cms.string("Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt"), 
     jecAK8GroomedPayloadNames = cms.vstring(), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
@@ -43,10 +43,10 @@ defaultAK8CHSJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
-    jecUncPayloadName         = cms.string("Summer16_23Sep2016V3_MC_Uncertainty_AK8PFchs.txt"),
+    jecUncPayloadName         = cms.string("Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt"),
     jecAK8GroomedPayloadNames = cms.vstring(
-      "Summer16_23Sep2016V3_MC_L2Relative_AK8PFchs.txt", 
-      "Summer16_23Sep2016V3_MC_L3Absolute_AK8PFchs.txt"), 
+      "Summer16_23Sep2016V4_MC_L2Relative_AK8PFchs.txt", 
+      "Summer16_23Sep2016V4_MC_L3Absolute_AK8PFchs.txt"), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),
@@ -87,19 +87,23 @@ defaultCHSTJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     subjetHighestCSVMin = cms.double(CSVv2L) ,
     )
 
+### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a (W tag)
 defaultCHSHJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jetPtMin            = cms.double(300),
-    jettau2Bytau1Min    = cms.double(0.0) ,
-    jettau2Bytau1Max    = cms.double(0.6) ,
     jetPrunedMassMin    = cms.double(105) ,
     jetPrunedMassMax    = cms.double(135) ,
+    jettau2Bytau1Min    = cms.double(0.0) ,
+    jettau2Bytau1Max    = cms.double(0.6) ,
     subjetCSVMin        = cms.double(CSVv2L) ,
     )
 
+### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a
 defaultCHSWJetSelectionParameters = defaultCHSHJetSelectionParameters.clone(
     jetPtMin            = cms.double(200),
     jetPrunedMassMin    = cms.double(65) ,
     jetPrunedMassMax    = cms.double(105) ,
+    jettau2Bytau1Min    = cms.double(0.0) ,
+    jettau2Bytau1Max    = cms.double(0.6) ,
     )
 
 defaultBTaggedCHSAK8JetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
@@ -114,10 +118,10 @@ defaultAK8PuppiJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     scaleJetP4                = cms.bool(False),
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
-    jecUncPayloadName         = cms.string("Summer16_23Sep2016V3_MC_Uncertainty_AK8PFPuppi.txt"),
+    jecUncPayloadName         = cms.string("Summer16_23Sep2016V4_MC_Uncertainty_AK8PFPuppi.txt"),
     jecAK8GroomedPayloadNames = cms.vstring(
-      "Summer16_23Sep2016V3_MC_L2Relative_AK8PFPuppi.txt", 
-      "Summer16_23Sep2016V3_MC_L3Absolute_AK8PFPuppi.txt"), 
+      "Summer16_23Sep2016V4_MC_L2Relative_AK8PFPuppi.txt", 
+      "Summer16_23Sep2016V4_MC_L3Absolute_AK8PFPuppi.txt"), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),
@@ -158,22 +162,25 @@ defaultPuppiTJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clon
     subjetHighestCSVMin = cms.double(CSVv2L) ,
     )
 
+### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a (W tag)
 defaultPuppiHJetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clone(
     jetPtMin            = cms.double(300),
-    jettau2Bytau1Min    = cms.double(0.0) ,
-    jettau2Bytau1Max    = cms.double(0.6) ,
     jetSoftDropMassMin  = cms.double(105) ,
     jetSoftDropMassMax  = cms.double(135) ,
+    jettau2Bytau1Min    = cms.double(0.0) ,
+    jettau2Bytau1Max    = cms.double(0.55) ,
     subjetCSVMin        = cms.double(CSVv2L) ,
     )
 
+### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a
 defaultPuppiWJetSelectionParameters = defaultPuppiHJetSelectionParameters.clone(
     jetPtMin            = cms.double(200),
-    jetPrunedMassMin    = cms.double(65) ,
-    jetPrunedMassMax    = cms.double(105) ,
+    jetSoftDropMassMin  = cms.double(65) ,
+    jetSoftDropMassMax  = cms.double(105) ,
+    jettau2Bytau1Min    = cms.double(0.0) ,
+    jettau2Bytau1Max    = cms.double(0.55) ,
     )
 
 defaultBTaggedPuppiAK8JetSelectionParameters = defaultAK8PuppiJetSelectionParameters.clone(
     jetCSVDiscMin       = cms.double(CSVv2M),
     )
-

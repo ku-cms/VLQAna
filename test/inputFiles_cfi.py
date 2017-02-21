@@ -7,17 +7,34 @@ FileNames = {
     'FileNames_DY':[
       'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_10.root', 
       ],
-    'FileNames_BpBp1800':[
-      '/store/group/phys_b2g/B2GAnaFW_80X_V2p1/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161122_174707/0000/B2GEDMNtuple_1.root', 
+    'FileNames_TpTp800':[
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_1.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_10.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_11.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_12.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_13.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_14.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_15.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_16.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_17.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_18.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_19.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_2.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_20.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_21.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_22.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_23.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_24.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_3.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_4.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_5.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_6.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_7.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_8.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_9.root',
       ],
     'FileNames_TpTp1200':[
-      '/store/group/phys_b2g/B2GAnaFW_80X_V2p1/TprimeTprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p1/161122_092031/0000/B2GEDMNtuple_4.root',
-      ],
-    'FileNames_TT':[
-      '/store/user/grauco/B2GAnaFW/B2GAnaFW_80X_V2p1/TT_TuneCUETP8M1_13TeV-powheg-pythia8/B2GAnaFW_80X_V2p1/161021_085128/0000/B2GEDMNtuple_105.root'
-      ],
-    'FileNames_BG2000': [
-      '/store/group/phys_b2g/B2GAnaFW_80X_V2p1/BulkGravTohhTohbbhbb_narrow_M-2000_13TeV-madgraph/RunIISpring16MiniAODv2/BulkGravTohhTohbbhbb_narrow_M-2000_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1_B2GAnaFW_80X_V2p1/161013_161735/0000/B2GEDMNtuple_1.root'
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_200051/0000/B2GEDMNtuple_1.root', 
       ],
   'FileNames_JetHT_Run2016H': [
     '/store/group/phys_b2g/B2GAnaFW_80X_V2p3/JetHT/Run2016H/JetHT/Run2016H-PromptReco-v3_B2GAnaFW_80X_V2p3/170106_185946/0000/B2GEDMNtuple_1.root',

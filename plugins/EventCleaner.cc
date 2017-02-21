@@ -148,8 +148,8 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   consumes<ULong64_t>               (l_evtno         ) ; 
   consumes<std::vector<std::string>, edm::InRun>(l_trigName) ; 
   consumes<std::vector<float>>      (l_trigBit       ) ; 
-  consumes<bool>                   (l_BadChargedCandidateFilter) ; 
-  consumes<bool>                   (l_BadPFMuonFilter) ; 
+  consumes<bool>                    (l_BadChargedCandidateFilter) ; 
+  consumes<bool>                    (l_BadPFMuonFilter) ; 
   consumes<std::vector<std::string>, edm::InRun>(l_metFiltersName) ; 
   consumes<std::vector<float>>      (l_metFiltersBit ) ; 
   consumes<std::vector<float>>      (l_vtxRho        ) ; 

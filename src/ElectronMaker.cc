@@ -73,7 +73,6 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
   for (unsigned iel = 0; iel < (h_elPt.product())->size(); ++iel) {
 
     double elPt = (h_elPt.product())->at(iel) ; 
-    double elAbsEta  = std::abs((h_elEta.product())->at(iel)) ; 
     double elscAbsEta  = std::abs((h_elscEta.product())->at(iel)) ; 
     double elRelIsoEA = (h_elRelIsoEA.product())->at(iel) ; 
     double dEtaInSeed = (h_eldEtaInSeed.product())->at(iel);
@@ -85,7 +84,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
     double ooEmooP = (h_elooEmooP.product())->at(iel);
     bool   hasMatchedConVeto = (h_elhasMatchedConVeto.product())->at(iel);
     double missHits = (h_elmissHits.product())->at(iel);
-    bool   isEB = elAbsEta < 1.479 ;
+    bool   isEB = elscAbsEta <= 1.479 ;
   
     bool elisLoose  = passElId("LOOSE" , isEB, dEtaInSeed, dPhiIn, full5x5siee, HoE, elRelIsoEA, ooEmooP, hasMatchedConVeto, missHits, Dxy, Dz);
     bool elisMedium = passElId("MEDIUM", isEB, dEtaInSeed, dPhiIn, full5x5siee, HoE, elRelIsoEA, ooEmooP, hasMatchedConVeto, missHits, Dxy, Dz); 
@@ -99,7 +98,7 @@ void ElectronMaker::operator () (edm::Event& evt, vlq::ElectronCollection& elect
     else if (type_ == VETO   && elisVeto  ) passId = true ;
     else passId = false ; 
     
-    if (elPt > elPtMin_ && elPt < elPtMax_ && elAbsEta < elAbsEtaMax_ && passId ){
+    if (elPt > elPtMin_ && elPt < elPtMax_ && elscAbsEta < elAbsEtaMax_ && passId ){
       vlq::Electron electron ; 
       TLorentzVector  elP4;
       elP4.SetPtEtaPhiE( (h_elPt.product())->at(iel), (h_elEta.product())->at(iel), (h_elPhi.product())->at(iel), (h_elE.product())->at(iel) ) ;

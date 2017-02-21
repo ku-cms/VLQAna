@@ -1,6 +1,8 @@
 #ifndef ANALYSIS_INTERFACE_BTAGSFUTILS_H
 #define ANALYSIS_INTERFACE_BTAGSFUTILS_H
 #include <TF1.h>
+#include <TFile.h>
+#include <TH2D.h>
 #include <map>
 
 #include "Analysis/VLQAna/interface/Utilities.h"
@@ -24,13 +26,16 @@ class BTagSFUtils {
     const double lfl_ptMin_ ;
     const double lfl_ptMax_ ;
 
+    const std::string btageffmap_ ; 
+
   public: 
 
     BTagSFUtils (const std::string reader, 
         const BTagEntry::OperatingPoint op,
         const double bfl_ptMin, const double bfl_ptMax,
         const double cfl_ptMin, const double cfl_ptMax,
-        const double lfl_ptMin, const double lfl_ptMax 
+        const double lfl_ptMin, const double lfl_ptMax, 
+        const std::string btageffmap
         ) : 
       calib_          (new BTagCalibration("CSVv2",reader)), 
       reader_         (new BTagCalibrationReader(op,"central")), 
@@ -42,7 +47,8 @@ class BTagSFUtils {
       cfl_ptMin_ (cfl_ptMin),
       cfl_ptMax_ (cfl_ptMax),
       lfl_ptMin_ (lfl_ptMin),
-      lfl_ptMax_ (lfl_ptMax) 
+      lfl_ptMax_ (lfl_ptMax), 
+      btageffmap_(btageffmap)
   {
     reader_->load(*calib_,     // calibration instance
         BTagEntry::BTagEntry::FLAV_B,     // btag flavour
@@ -88,10 +94,10 @@ class BTagSFUtils {
       readerUp_       (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"up")), 
       readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")),
       op_(BTagEntry::OP_LOOSE),
-      bfl_ptMin_ (30.),
-      bfl_ptMax_ (420.),
-      cfl_ptMin_ (30.),
-      cfl_ptMax_ (420.),
+      bfl_ptMin_ (20.),
+      bfl_ptMax_ (1000.),
+      cfl_ptMin_ (20.),
+      cfl_ptMax_ (1000.),
       lfl_ptMin_ (20.),
       lfl_ptMax_ (1000.) 
   {
@@ -159,8 +165,8 @@ class BTagSFUtils {
         double pt = jetpts.at(idx.first) ; 
         double uncscale(1.) ; 
         if ( fl == 0 || fl == 1) {
-          if ( pt < bfl_ptMin_ ) { pt = 30.01 ; uncscale *= 2 ; } 
-          if ( pt > bfl_ptMax_ ) { pt = 419.99 ; uncscale *= 2 ; } 
+          if ( pt < bfl_ptMin_ ) { pt = 20.01 ; uncscale *= 2 ; } 
+          if ( pt > bfl_ptMax_ ) { pt = 999.99 ; uncscale *= 2 ; } 
           if ( fl == 1 ) uncscale *= 2 ; 
         }
         else {
@@ -184,8 +190,7 @@ class BTagSFUtils {
         double dsfUp = sfUp - sf ; 
         double dsfDown = sfDown - sf ;
         double eff = 1.0;
-        if ( op_ == BTagEntry::OP_LOOSE) eff = BTagSFUtils::getBTagEff_CSVv2L(pt,flhad) ; 
-        else if ( op_ == BTagEntry::OP_MEDIUM) eff = BTagSFUtils::getBTagEff_CSVv2M(pt,flhad) ; 
+        eff = BTagSFUtils::getBTagEff(pt,eta,flhad) ; 
         double uncscale = uncscales.at(idx.first) ; 
         sfs.push_back(sf) ; 
         sfsUp.push_back(sfUp) ; 
@@ -241,33 +246,35 @@ class BTagSFUtils {
       return ; 
     }
 
-    static double getBTagEff_CSVv2L (double pt, double jetFl) {
+    double getBTagEff (double pt, double eta, double jetFl) {
 
-      //std::string hname="";
-      //if (jetFl == 5) hname="b_sub1And2PtR";
-      //else if (jetFl == 4) hname="c_sub1And2PtR";
-      //else if (jetFl == 0) hname="light_sub1And2PtR"; 
-      //TFile f(btageffFile_.c_str());
-      //TH1D* heff = dynamic_cast<TH1D*>( f.Get(hname.c_str()) ) ; 
-      //int bin = heff->FindBin(pt) ;
-      //if ( bin < 1 ) eff = 0; 
-      //else  { 
-      //  if ( bin > heff->GetNbinsX() ) bin = heff->GetNbinsX(); 
-      //  eff = heff->GetBinContent( bin ) ; 
-      //}
-      //delete heff ;
-      //f.Close();
+      std::unique_ptr<TFile>f_effmap = std::unique_ptr<TFile>(new TFile(btageffmap_.c_str())) ;
+      std::unique_ptr<TH2D>h2_btageffmap_b = std::unique_ptr<TH2D>(dynamic_cast<TH2D*>(f_effmap->Get("eff_b"))) ; 
+      std::unique_ptr<TH2D>h2_btageffmap_c = std::unique_ptr<TH2D>(dynamic_cast<TH2D*>(f_effmap->Get("eff_c"))) ; 
+      std::unique_ptr<TH2D>h2_btageffmap_l = std::unique_ptr<TH2D>(dynamic_cast<TH2D*>(f_effmap->Get("eff_l"))) ; 
 
       double eff(1) ; 
       jetFl = abs(jetFl) ; 
-      if ( pt > 0 ) {
-        if (jetFl == 5) eff = 0.8 ; 
-        else if (jetFl == 4) eff = 0.3 ; 
-        else if (jetFl == 0) eff = 0.1 ; 
-        else eff = 0.; 
+
+      if (jetFl == 5 && pt >= bfl_ptMin_)  {
+        int binpt = h2_btageffmap_b->GetXaxis()->FindBin(pt);
+        int bineta = h2_btageffmap_b->GetYaxis()->FindBin(eta);
+        eff = h2_btageffmap_b->GetBinContent(binpt, bineta) ; 
+      }
+      else if (jetFl == 4 && pt >= cfl_ptMin_)  {
+        int binpt = h2_btageffmap_c->GetXaxis()->FindBin(pt);
+        int bineta = h2_btageffmap_c->GetYaxis()->FindBin(eta);
+        eff = h2_btageffmap_c->GetBinContent(binpt, bineta) ; 
+      }
+      else if (jetFl == 0 && pt >= lfl_ptMin_)  {
+        int binpt = h2_btageffmap_l->GetXaxis()->FindBin(pt);
+        int bineta = h2_btageffmap_l->GetYaxis()->FindBin(eta);
+        eff = h2_btageffmap_l->GetBinContent(binpt, bineta) ; 
       }
       else eff = 0.; 
+
       return eff ;
+
     }
 
     static double getBTagEff_CSVv2M (double pt, double jetFl) {

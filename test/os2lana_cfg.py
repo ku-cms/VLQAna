@@ -1,4 +1,4 @@
-import sys
+import os, sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -9,6 +9,16 @@ options.register('isData', False,
     "Is data?"
     )
 options.register('skim', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Skim events?"
+    )
+options.register('newJECPayloadNames', '',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
+    )
+options.register('maketree', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
@@ -48,12 +58,17 @@ options.register('applyLeptonSFs', True,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.register('applyBTagSFs', False,#until new SFs arrive
+options.register('applyBTagSFs', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
     )
-options.register('applyTriggerSFs', True,
+options.register('btageffmap', "bpbpbZb1200_bTagEff.root",#until new SFs arrive
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
+    )
+options.register('applyLeptonTrigSFs', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply trigger SFs to the MC"
@@ -78,19 +93,22 @@ options.register('syst', False,
     VarParsing.varType.bool,
     "Do systematics"
     )
-   
+
 options.setDefault('maxEvents', -1)
 options.parseArguments()
+
+dataPath = '../data/'
 
 hltpaths = []
 if options.isData:
   options.filterSignal = False 
   options.signalType = "" 
   options.applyLeptonSFs = False 
-  options.applyTriggerSFs= False
+  options.applyLeptonTrigSFs= False
   options.applyBTagSFs   = False 
   options.applyDYNLOCorr = False 
   options.doPUReweightingOfficial = False
+
 if options.zdecaymode == "zmumu":
   hltpaths = [
       #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
@@ -100,7 +118,8 @@ if options.zdecaymode == "zmumu":
 elif options.zdecaymode == "zelel":
   hltpaths = [
       #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
-      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+      #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+      "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
       ]
 else:
   sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
@@ -109,12 +128,12 @@ if options.skim:
   hltpaths = []
 
 if options.filterSignal == True: 
-   print 'signal type = ', len(options.signalType), 'skim : ', options.skim
-   if options.skim :
-     if len(options.signalType) != 0: sys.exit("!!!Error: Please do not specify any signal type when skimming the signal MC!!!")
-   elif len(options.signalType) == 0:
-     sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
- 
+  print 'signal type = ', len(options.signalType), 'skim : ', options.skim
+  if options.skim :
+    if len(options.signalType) != 0: sys.exit("!!!Error: Please do not specify any signal type when skimming the signal MC!!!")
+  elif len(options.signalType) == 0:
+    sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
+
 print options
 
 process = cms.Process("OS2LAna")
@@ -122,22 +141,28 @@ process = cms.Process("OS2LAna")
 from inputFiles_cfi import * 
 
 process.source = cms.Source(
-    "PoolSource",
-    fileNames = cms.untracked.vstring(
-      FileNames[options.FileNames]
+  "PoolSource",
+  fileNames = cms.untracked.vstring(
+    FileNames[options.FileNames]
     ) 
+  )
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string(
+      options.outFileName
+      )
     )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options  = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load("Analysis.VLQAna.EventCleaner_cff")
-process.evtcleaner.File_PUDistData= cms.string('RunII2016Rereco_25ns_PUXsec69000nb.root')
-process.evtcleaner.File_PUDistDataLow =  cms.string('RunII2016Rereco_25ns_PUXsec65550nb.root')
-process.evtcleaner.File_PUDistDataHigh = cms.string('RunII2016Rereco_25ns_PUXsec72450nb.root')
-process.evtcleaner.File_PUDistMC = cms.string('PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root')
+process.evtcleaner.File_PUDistData      = cms.string(os.path.join(dataPath,'RunII2016Rereco_25ns_PUXsec69000nb.root'))
+process.evtcleaner.File_PUDistDataLow   = cms.string(os.path.join(dataPath,'RunII2016Rereco_25ns_PUXsec65550nb.root'))
+process.evtcleaner.File_PUDistDataHigh  = cms.string(os.path.join(dataPath,'RunII2016Rereco_25ns_PUXsec72450nb.root'))
+process.evtcleaner.File_PUDistMC        = cms.string(os.path.join(dataPath,'PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root'))
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
@@ -145,29 +170,49 @@ process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOff
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
-#if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
-#  for par in ['jetAK8selParams', 'jetHTaggedselParams', 'jetWTaggedselParams', 'jetTopTaggedselParams']:
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
-#    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
-
 ### Z candidate and jet selections 
 process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
     signalType = cms.string(options.signalType),
     zdecayMode = cms.string(options.zdecaymode),
     applyLeptonSFs = cms.bool(options.applyLeptonSFs),
-    applyTriggerSFs = cms.bool(options.applyTriggerSFs),
+    applyLeptonTrigSFs = cms.bool(options.applyLeptonTrigSFs),
     applyBTagSFs = cms.bool(options.applyBTagSFs),
+    btageffmap = cms.string(os.path.join(dataPath,options.btageffmap)), 
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     skim = cms.bool(options.skim),
-    fnamebtagSF = cms.string('CSVv2_ichep.csv'),
-    File_DYNLOCorr = cms.string('scalefactors_v4.root'),
+    maketree = cms.bool(options.maketree), 
+    fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
+    File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
     )
+process.ana.jetAK4selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
+process.ana.jetAK4BTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
+process.ana.jetAK8selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
+process.ana.jetHTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
+process.ana.jetWTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
+process.ana.jetTopTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
+masscorr = ['L2Relative', 'L3Absolute']
+for i,c in enumerate(masscorr): masscorr[i] = os.path.join(dataPath,options.newJECPayloadNames+"_"+c+"_AK8PFchs.txt")
+print "jec payload ", masscorr
+process.ana.jetAK8selParams.jecAK8GroomedPayloadNames = cms.vstring(masscorr)
+process.ana.jetHTaggedselParams.jecAK8GroomedPayloadNames = cms.vstring(masscorr)
+process.ana.jetWTaggedselParams.jecAK8GroomedPayloadNames = cms.vstring(masscorr)
+process.ana.jetTopTaggedselParams.jecAK8GroomedPayloadNames = cms.vstring(masscorr)
+if options.newJECPayloadNames != '':
+  corrections = ['L1FastJet', 'L2Relative', 'L3Absolute']
+  ak4chsCorr = []
+  for c in corrections: ak4chsCorr.append(os.path.join(dataPath,options.newJECPayloadNames+"_"+c+"_AK4PFchs.txt"))
+  ak8chsCorr = []
+  for c in corrections: ak8chsCorr.append(os.path.join(dataPath,options.newJECPayloadNames+"_"+c+"_AK8PFchs.txt"))
+  print "ak4chsCorr ", ak4chsCorr
+  print "ak8chsCorr ", ak8chsCorr
+  process.ana.jetAK4selParams.newJECPayloadNames = cms.vstring(ak4chsCorr)
+  process.ana.jetAK4BTaggedselParams.newJECPayloadNames = cms.vstring(ak4chsCorr)
+  process.ana.jetAK8selParams.newJECPayloadNames = cms.vstring(ak8chsCorr)
+  process.ana.jetHTaggedselParams.newJECPayloadNames = cms.vstring(ak8chsCorr)
+  process.ana.jetWTaggedselParams.newJECPayloadNames = cms.vstring(ak8chsCorr)
+  process.ana.jetTopTaggedselParams.newJECPayloadNames = cms.vstring(ak8chsCorr)
+
 process.ana.elselParams.elidtype = cms.string(options.lepID)
 process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
@@ -176,39 +221,35 @@ process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
 process.ana.ZCandParams.ptMin = cms.double(100.)
 process.ana.jetAK8selParams.jetPtMin = cms.double(200) 
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
-process.ana.STMin = cms.double(1000.)
 process.ana.NAK4Min = cms.uint32(3)
-process.ana.HTMin = cms.double(200.)
-#process.ana.vlqMass = cms.double(1000.) #M=1000
-#process.ana.bosonMass = cms.double(91.2) #Z
+if options.maketree:
+  process.ana.STMin = cms.double(400.)
+  process.ana.HTMin = cms.double(200.)
+else: 
+  process.ana.STMin = cms.double(0.)
+  process.ana.HTMin = cms.double(200.)
+
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
   process.ana.jetAK8selParams.jetPtMin = cms.double(170) 
   process.ana.jetWTaggedselParams.jetPtMin = cms.double(170) 
   process.ana.jetHTaggedselParams.jetPtMin = cms.double(170) 
   process.ana.jetWTaggedselParams.jetPtMin = cms.double(300) 
-
-if options.skim: 
   process.ana.STMin = cms.double(0.)
-
-if options.syst and not options.skim:
-
-  process.anabcUp = process.ana.clone(
-    btagsf_bcUp = cms.bool(True),
-    )
-
-  process.anabcDown = process.ana.clone(
-    btagsf_bcDown = cms.bool(True),
-    )
-  
-  process.analightUp = process.ana.clone(
-    btagsf_lUp = cms.bool(True),
-    )
-  
-  process.analightDown = process.ana.clone(
-    btagsf_lDown = cms.bool(True),
-    )
-  
+else: 
+  if options.syst: 
+    process.anabcUp = process.ana.clone(
+        btagsf_bcUp = cms.bool(True),
+        )
+    process.anabcDown = process.ana.clone(
+        btagsf_bcDown = cms.bool(True),
+        )
+    process.analightUp = process.ana.clone(
+        btagsf_lUp = cms.bool(True),
+        )
+    process.analightDown = process.ana.clone(
+        btagsf_lDown = cms.bool(True),
+        )
   process.anaJecUp = process.ana.clone()
   process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
   process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
@@ -216,7 +257,7 @@ if options.syst and not options.skim:
   process.anaJecUp.jetHTaggedselParams.jecShift = cms.double(1.)
   process.anaJecUp.jetWTaggedselParams.jecShift = cms.double(1.)
   process.anaJecUp.jetTopTaggedselParams.jecShift = cms.double(1.)
-  
+
   process.anaJecDown = process.ana.clone()
   process.anaJecDown.jetAK4selParams.jecShift = cms.double(-1.)
   process.anaJecDown.jetAK4BTaggedselParams.jecShift = cms.double(-1.)
@@ -242,18 +283,11 @@ if options.syst and not options.skim:
   process.anaJecDown.jetTopTaggedselParams.jerShift = cms.int32(0)
 
   process.anaPileupUp = process.ana.clone(
-    PileupUp = cms.bool(True),
-    )
-  
+      PileupUp = cms.bool(True),
+      )
   process.anaPileupDown = process.ana.clone(
-    PileupDown = cms.bool(True),
-    )
- 
-process.TFileService = cms.Service("TFileService",
-       fileName = cms.string(
-         options.outFileName
-         )
-       )
+      PileupDown = cms.bool(True),
+      )
 
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
@@ -282,7 +316,7 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
-)
+    )
 elif options.massReco:
   process.load('Analysis.VLQAna.MassReco_cfi')
   process.massReco.ptMin = cms.double(150.)
@@ -308,13 +342,13 @@ else:
 if options.skim: 
   outCommand = ['keep *', 'drop *_evtcleaner_*_*', 'drop *_TriggerResults_*_*']#remove unwanted new branches OS2LAna
   process.out = cms.OutputModule("PoolOutputModule",
-      SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p')
-        ),
-      fileName = cms.untracked.string('os2lana_skim.root'),
-      outputCommands = cms.untracked.vstring(outCommand )
-      )
-   
+    SelectEvents = cms.untracked.PSet(
+      SelectEvents = cms.vstring('p')
+      ),
+    fileName = cms.untracked.string('os2lana_skim.root'),
+    outputCommands = cms.untracked.vstring(outCommand )
+    )
+
   process.outpath = cms.EndPath(process.out)
 
 

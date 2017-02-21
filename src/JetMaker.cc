@@ -271,10 +271,10 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     if (jetID_(evt, ijet, retjetid) == false) continue ;
 
     double jetCSVDisc = (h_jetCSV.product())->at(ijet); 
-    if (jetPt      < idxjetPtMin_       || 
-        jetPt      >  idxjetPtMax_      ||
-        jetCSVDisc < idxjetCSVDiscMin_  ||
-        jetCSVDisc >  idxjetCSVDiscMax_ 
+    if (jetPt      < idxjetPtMin_      || 
+        jetPt      > idxjetPtMax_      ||
+        jetCSVDisc < idxjetCSVDiscMin_ ||
+        jetCSVDisc > idxjetCSVDiscMax_ 
        ) continue ; 
 
     TLorentzVector genJetP4;
