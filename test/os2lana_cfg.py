@@ -147,6 +147,12 @@ process.source = cms.Source(
     ) 
   )
 
+if options.data:
+  import FWCore.PythonUtilities.LumiList as LumiList
+  process.source.lumisToProcess = LumiList.LumiList(
+      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt"
+      ).getVLuminosityBlockRange()
+
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
       options.outFileName
