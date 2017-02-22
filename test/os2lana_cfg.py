@@ -220,6 +220,8 @@ process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepIdSFsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
+process.ana.lepTrigSFsParams.zdecayMode = cms.string(options.zdecaymode)
+if options.zdecaymode == "zelel": process.ana.lepTrigSFsParams.eltrigeffmap = cms.string(os.path.join(dataPath,"ElectronTriggerSF.root")) 
 if options.zdecaymode == "zelel": 
   process.ana.DilepCandParams.ptMaxLeadingLep = cms.double(120)
   process.ana.ZCandParams.ptMaxLeadingLep = cms.double(120)
@@ -234,7 +236,7 @@ if options.maketree:
   process.ana.STMin = cms.double(400.)
   process.ana.HTMin = cms.double(200.)
 else: 
-  process.ana.STMin = cms.double(0.)
+  process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
 
 if options.skim: 
