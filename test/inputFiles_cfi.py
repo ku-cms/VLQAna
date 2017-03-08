@@ -1,4 +1,7 @@
 FileNames = {
+    'test': [
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016B-23Sep2016-v3_B2GAnaFW_80X_v2p4/161221_152050/0000/B2GEDMNtuple_754.root',
+      ],
     'FileNames': [
       ],
     'FileNames_SingleMuon_v2p4':[
