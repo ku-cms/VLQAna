@@ -52,6 +52,11 @@ def compareHLTEff(num, den, samplenum, sampleden, tagnum, tagden, etabin):
   var = sys.argv[1]
   run = sys.argv[2]
 
+  if etabin == "py0": etalabel = "0.0 < |#eta| < 0.434"
+  elif etabin == "py1": etalabel = "0.434 < |#eta| < 0.868"
+  elif etabin == "py2": etalabel = "0.868 < |#eta| < 1.3"
+  else: etalabel = "0.0 < |#eta| < 1.3"
+
   fjetht = ROOT.TFile(num,"READ")
   fqcd = ROOT.TFile(den,"READ")
 
@@ -94,12 +99,13 @@ def compareHLTEff(num, den, samplenum, sampleden, tagnum, tagden, etabin):
   h.GetXaxis().SetRangeUser(700,3000)
   h.GetXaxis().SetTitleSize(0)
   h.GetXaxis().SetLabelSize(0)
+  h.GetYaxis().SetTitle("Trigger efficiency")
 
   leg = ROOT.TLegend(0.5,0.5,0.88,0.78,"","brNDC")
   leg.SetBorderSize(0)
   leg.SetFillColor(0)
   leg.SetTextSize(0.050)
-  leg.SetHeader(run)
+  leg.SetHeader(etalabel)
   leg.AddEntry(effqcd,effqcd.GetTitle(),"lpe")
   leg.AddEntry(effjetht   ,effjetht.GetTitle(),"lpe")
   leg.Draw()
@@ -115,7 +121,7 @@ def compareHLTEff(num, den, samplenum, sampleden, tagnum, tagden, etabin):
   gratio.SetMinimum(0.6)
   gratio.SetMaximum(1.6)
   gratio.GetHistogram().GetXaxis().SetRangeUser(700,3000)
-  gratio.GetHistogram().GetXaxis().SetTitle(h.GetXaxis().GetTitle())
+  gratio.GetHistogram().GetXaxis().SetTitle("M_{red}(jj) [GeV]")
   gratio.GetHistogram().GetYaxis().SetTitle(gratio.GetTitle())
   gratio.GetXaxis().SetTitleSize(0.12)
   gratio.GetXaxis().SetLabelSize(0.12)
@@ -138,18 +144,18 @@ def compareHLTEff(num, den, samplenum, sampleden, tagnum, tagden, etabin):
 def plotHLTEff (den, num, sample, tag) :
 
   fden = ROOT.TFile(den, "READ")
-  
+
   fnum = ROOT.TFile(num, "READ")
-  
+
   hden = fden.Get(sample+"__mjjred_deta_MJSel")
   hnum = fnum.Get(sample+"__mjjred_deta_MJSel")
-  
+
   hxden = fden.Get(sample+"__mjjred_MJSel")
   hxnum = fnum.Get(sample+"__mjjred_MJSel")
-  
-  hxden.Rebin(2)
-  hxnum.Rebin(2)
-  
+
+  hxden.Rebin(4)
+  hxnum.Rebin(4)
+
   c0 = ROOT.TCanvas(tag+"_mjjred_MJSel_all_pass","",800,600)
   c0.cd()
   c0.SetLogy()
