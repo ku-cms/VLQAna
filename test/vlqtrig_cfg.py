@@ -13,12 +13,12 @@ options.register('outFileName', 'singleT_Trig',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('hltORAND', 'AND',
+options.register('hltORAND', 'OR',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "OR or AND HLT paths?"
     )
-options.register('cleanEvents', True,
+options.register('cleanEvents', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Clean events using EventCleaner?"
@@ -82,8 +82,14 @@ options.register('FileNames', 'FileNames',
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
 
-hltpaths = ["HLT_PFHT650_v"]
-hltpathstest = ["HLT_PFHT650_v","HLT_PFHT800_v"]
+hltpathsLoose = ["HLT_PFJet320_v"]
+
+hltpathsTest = ["AK8PFJet360_TrimMass30_v",
+                "HLT_AK8DiPFJet300_200_TrimMass30_v",
+                "AK8PFHT700_TrimR0p1PT0p03Mass50_v",
+                "PFHT650_WideJetMJJ900DEtaJJ1p5_v",
+                "HLT_PFHT900_v"
+                ]
 
 if options.isData:
     options.doBTagSFUnc = False 
@@ -91,11 +97,12 @@ if options.isData:
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
 
+leadingJetPtMin = 400.
 HTMin=500
 if options.storePreselEvts:
   HTMin = options.HTMin
 
-process = cms.Process("VLQAna")
+process = cms.Process("Trig")
 
 from inputFiles_cfi import * 
 process.source = cms.Source("PoolSource",
@@ -112,16 +119,24 @@ process.TFileService = cms.Service("TFileService",
       )
     )
 
+from Analysis.EventCounter.eventcounter_cfi import eventCounter
+process.allEvents = eventCounter.clone(isData=options.isData)
+process.finalEvents = eventCounter.clone(isData=options.isData)
+
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltORAND = cms.string (options.hltORAND)  
-process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
+process.evtcleaner.hltPaths = cms.vstring (hltpathsLoose)  
 process.evtcleaner.cleanEvents = cms.bool(options.cleanEvents)
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 process.evtcleaner.storeLHEWts = options.storeLHEWts
 
+process.evtcleanerden = process.evtcleaner.clone(
+    cleanEvents = cms.bool(True),
+    )
+
 process.evtcleanertest = process.evtcleaner.clone(
-    hltPaths = cms.vstring (hltpathstest)
+    hltPaths = cms.vstring (hltpathsTest),
     )
 
 process.load("Analysis.VLQAna.VLQAna_cfi") 
@@ -141,6 +156,7 @@ process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
 process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
 process.ana.HTMin = HTMin
+process.ana.leadingJetPtMin = leadingJetPtMin 
 
 process.anatest = process.ana.clone(
     runno                      = cms.InputTag("evtcleanertest","runno"), 
@@ -160,35 +176,14 @@ process.anatest = process.ana.clone(
     lhewts                     = cms.InputTag("evtcleanertest","lhewts"), 
     )
 
-from Analysis.EventCounter.eventcounter_cfi import eventCounter
-process.allEvents = eventCounter.clone(isData=options.isData)
-process.cleanedEvents = eventCounter.clone(isData=options.isData)
-process.cleanedEventstest = eventCounter.clone(isData=options.isData)
-process.finalEvents = eventCounter.clone(isData=options.isData)
-process.finalEventstest = eventCounter.clone(isData=options.isData)
-
 process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
-    *process.cleanedEvents
-    *process.ana 
+    *cms.ignore(process.ana) 
+    *process.evtcleanerden
+    *process.evtcleanertest
+    *process.anatest
     *process.finalEvents
     )
 
-process.ptest = cms.Path(
-    process.allEvents
-    *process.evtcleanertest
-    *process.cleanedEventstest
-    *process.anatest
-    *process.finalEventstest
-    )
-
-process.out = cms.OutputModule("PoolOutputModule",
-        SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('evtcleaner')),
-            )
-
-process.schedule = cms.Schedule(process.p,process.ptest)
-
-#process.outpath = cms.EndPath(process.out)
-
-open('dump.py','w').write(process.dumpPython())
+open('dump_trig.py','w').write(process.dumpPython())

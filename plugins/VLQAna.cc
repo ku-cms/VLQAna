@@ -35,6 +35,8 @@ Implementation:
 #include "AnalysisDataFormats/BoostedObjects/interface/Jet.h"
 
 #include "Analysis/VLQAna/interface/HT.h"
+#include "Analysis/VLQAna/interface/ElectronMaker.h"
+#include "Analysis/VLQAna/interface/MuonMaker.h"
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
@@ -79,12 +81,17 @@ class VLQAna : public edm::EDFilter {
     edm::EDGetTokenT<vector<int>>    t_lhewtids   ;
     edm::EDGetTokenT<vector<double>> t_lhewts     ;
 
+    ElectronMaker electronmaker                   ; 
+    MuonMaker muonmaker                           ; 
+
     JetMaker jetAK4maker                          ; 
     JetMaker jetAK8maker                          ; 
     JetMaker jetHTaggedmaker                      ; 
     JetMaker jetTopTaggedmaker                    ; 
     JetMaker jetAntiHTaggedmaker                  ; 
 
+    double leadingJetPtMin_                       ; 
+    double leadingJetPrunedMassMin_               ; 
     double HTMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
@@ -119,11 +126,15 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   t_htHat                 (consumes<double>         (iConfig.getParameter<edm::InputTag>("htHat"))),
   t_lhewtids              (consumes<vector<int>>    (iConfig.getParameter<edm::InputTag>("lhewtids"))),
   t_lhewts                (consumes<vector<double>> (iConfig.getParameter<edm::InputTag>("lhewts"))),
+  electronmaker           (iConfig.getParameter<edm::ParameterSet>("elselParams"),consumesCollector()),
+  muonmaker               (iConfig.getParameter<edm::ParameterSet>("muselParams"),consumesCollector()),
   jetAK4maker             (iConfig.getParameter<edm::ParameterSet>("jetAK4selParams"), consumesCollector()), 
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet>("jetAK8selParams"), consumesCollector()), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet>("jetHTaggedselParams"), consumesCollector()), 
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
+  leadingJetPtMin_        (iConfig.getParameter<double>           ("leadingJetPtMin")), 
+  leadingJetPrunedMassMin_(iConfig.getParameter<double>           ("leadingJetPrunedMassMin")), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
@@ -184,14 +195,24 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetAK8maker(evt, goodAK8Jets); 
 
   //// Event pre-selection
-  if (goodAK8Jets.size() < 1) return false ; 
+  if (goodAK8Jets.size() < 2) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
+
+  //// Event pre-selection
+  if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_ 
+      && goodAK8Jets.at(0).getPrunedMass() < leadingJetPrunedMassMin_) return false ; 
+  h1_["cutflow"] -> Fill(6, evtwt) ; 
 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
   h1_["npv"] -> Fill(*h_npv.product(), evtwt); 
 
   if ( storePreselEvts_ || doPreselOnly_ ) { 
     h1_["Presel_HT"] -> Fill(htak4.getHT(), evtwt) ; 
+
+    if (goodAK8Jets.size() > 1) 
+      h1_["Presel_Mjj"] -> Fill( (goodAK8Jets.at(0).getP4() + goodAK8Jets.at(1).getP4()).Mag() ) ; 
+    else 
+      h1_["Presel_Mjj"] -> Fill( -1 ); 
 
     h1_["Presel_ptAK4_0"] -> Fill (goodAK4Jets.at(0).getPt(),evtwt) ;  
     h1_["Presel_ptAK4_1"] -> Fill (goodAK4Jets.at(1).getPt(),evtwt) ;  
@@ -280,12 +301,12 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   bool isOneOfABCD(isRegionA ^ isRegionB ^ isRegionC ^ isRegionD) ;
   if ( !storePreselEvts_ && isOneOfABCD == false) edm::LogInfo("ERROR ABCD") << ">>>> Check ABCD logic: Only one of A, B C, D should be true\n" ; 
 
-  if ( theHiggs != nullptr ) h1_["cutflow"] -> Fill(6, evtwt) ; 
-  if ( theTop != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
-  if ( isRegionA ) h1_["cutflow"] -> Fill(8, evtwt) ; 
-  if ( isRegionB ) h1_["cutflow"] -> Fill(9, evtwt) ; 
-  if ( isRegionC ) h1_["cutflow"] -> Fill(10, evtwt) ; 
-  if ( isRegionD ) h1_["cutflow"] -> Fill(11, evtwt) ; 
+  if ( theHiggs != nullptr ) h1_["cutflow"] -> Fill(7, evtwt) ; 
+  if ( theTop != nullptr ) h1_["cutflow"] -> Fill(8, evtwt) ; 
+  if ( isRegionA ) h1_["cutflow"] -> Fill(9, evtwt) ; 
+  if ( isRegionB ) h1_["cutflow"] -> Fill(10, evtwt) ; 
+  if ( isRegionC ) h1_["cutflow"] -> Fill(11, evtwt) ; 
+  if ( isRegionD ) h1_["cutflow"] -> Fill(12, evtwt) ; 
 
   TLorentzVector p4_tprime, p4_TprimeDummy ; 
   double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0), MtprimeDummy_corr(0) ; 
@@ -656,8 +677,60 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   tree_->Fill();
 
-  return true;
+  //// Lepton veto 
+  vlq::ElectronCollection goodElectrons; 
+  electronmaker(evt, goodElectrons) ;
 
+  vlq::MuonCollection goodMuons; 
+  muonmaker(evt, goodMuons) ; 
+
+  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmu"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  int nel_passreliso(0), nmu_passreliso(0);
+
+  for (vlq::Electron el : goodElectrons ) {
+    h1_["elIsoDR"] ->Fill(el.getIso03(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    //// Get 2D isolation
+    std::pair<double, double> el_drmin_ptrel(Utilities::drmin_pTrel<vlq::Electron, vlq::Jet>(el, goodAK4Jets)) ;
+    h2_["elIso2D"] -> Fill(el_drmin_ptrel.first, el_drmin_ptrel.second,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+    //// Get rel. iso
+    if (el.getIso03() < 0.0571) ++nel_passreliso; 
+  }
+
+  for (vlq::Muon mu : goodMuons ) {
+    h1_["muIsoDR"] ->Fill(mu.getIso04(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    //// Get 2D isolation
+    std::pair<double, double> mu_drmin_ptrel(Utilities::drmin_pTrel<vlq::Muon, vlq::Jet>(mu, goodAK4Jets)) ;
+    h2_["muIso2D"] -> Fill(mu_drmin_ptrel.first, mu_drmin_ptrel.second,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+    //// Get rel. iso
+    if ( mu.getIso04() < 0.3) ++nmu_passreliso ;
+  }
+
+  h1_["nelAfterRelIso"] -> Fill(nel_passreliso,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmuAfterRelIso"] -> Fill(nmu_passreliso,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  //// Apply 2D isolation
+  CandidateCleaner cleanleptons(0.4,40); //// The second argument is for lepton 2D iso, setting to -1 disables it
+
+  cleanleptons(goodElectrons,goodAK4Jets) ;
+  cleanleptons(goodMuons,goodAK4Jets) ;
+
+  cleanleptons(goodElectrons,goodAK8Jets) ;
+  cleanleptons(goodMuons,goodAK8Jets) ;
+
+  h1_["nelAfter2DIso"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmuAfter2DIso"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  for (vlq::Electron el : goodElectrons ) {
+    h1_["elIsoDRAfter2DIso"] ->Fill(el.getIso03(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+  }
+
+  for (vlq::Muon mu : goodMuons ) {
+    h1_["muIsoDRAfter2DIso"] ->Fill(mu.getIso04(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+  }
+
+  return true;
 
 }
 
@@ -676,6 +749,7 @@ void VLQAna::beginJob() {
   if (storePreselEvts_ || doPreselOnly_) {
 
     h1_["Presel_HT"] = fs->make<TH1D>("Presel_HT", "H_{T};H_{T} [GeV];;",50,500,3000) ; 
+    h1_["Presel_Mjj"] = fs->make<TH1D>("Presel_Mjj", "M_{j1,j2} [GeV];;",50,500,3000) ; 
 
     h1_["Presel_ptAK4_0"] = fs->make<TH1D>("Presel_ptAK4_0", "p_{T} AK4;p_{T} (1st AK4 jet) [GeV];;",50,0,2000) ; 
     h1_["Presel_ptAK4_1"] = fs->make<TH1D>("Presel_ptAK4_1", "p_{T} AK4;p_{T} (2nd AK4 jet) [GeV];;",50,0,2000) ; 
@@ -704,18 +778,19 @@ void VLQAna::beginJob() {
 
   }
 
-  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 11, 0.5, 11.5) ;  
+  h1_["cutflow"] = fs->make<TH1D>("cutflow", "cut flow", 12, 0.5, 12.5) ;  
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(1,  "All") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(2,  "Trig.+PV") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(3,  "N(AK4)>=4") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4,  "H_{T}>1000GeV") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(4,  "H_{T}>H_{T}^{min}") ; 
   h1_["cutflow"] -> GetXaxis() -> SetBinLabel(5,  "N(AK8)>=1") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6,  "N(H)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7,  "N(top)>0") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8,  "RegionA") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9,  "RegionB") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "RegionC") ; 
-  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "RegionD") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(6,  "p_{T}(AK8_{0})>p_{T}^{min}(AK8_{0})") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(7,  "N(H)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(8,  "N(top)>0") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(9,  "RegionA") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(10, "RegionB") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(11, "RegionC") ; 
+  h1_["cutflow"] -> GetXaxis() -> SetBinLabel(12, "RegionD") ; 
 
   h1_["RegD_HT"] = fs->make<TH1D>("RegD_HT", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
   h1_["RegD_HT_wts"] = fs->make<TH1D>("RegD_HT_wts", "H_{T};H_{T} [GeV];;",50,1000,3000) ; 
@@ -784,6 +859,24 @@ void VLQAna::beginJob() {
   h1_["RegB_mtprime_corr_toptagsfDown"] = fs->make<TH1D>("RegB_mtprime_corr_toptagsfDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegB_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegB_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+
+  h1_["nel"] = fs->make<TH1D>("nel", "nel;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmu"] = fs->make<TH1D>("nmu", "nmu;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["elIsoDR"] = fs->make<TH1D>("elIsoDR", "elIsoDR;Electron rel. iso in #DeltaR < 0.4, EA corr.;Electrons;;",200,0,10) ;
+  h1_["muIsoDR"] = fs->make<TH1D>("muIsoDR", "muIsoDR;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Muons;;",200,0.,10) ;
+
+  h2_["elIso2D"] = fs->make<TH2D>("elIso2D", "elIso2D;#DeltaR(e,jet);p_{T}^{rel} [GeV];Electrons;",20,0,4,200,0,100) ;
+  h2_["muIso2D"] = fs->make<TH2D>("muIso2D", "muIso2D;#DeltaR(#mu,jet);p_{T}^{rel} [GeV];Muons;",20,0,4,200,0.,100) ;
+
+  h1_["nelAfterRelIso"] = fs->make<TH1D>("nelAfterRelIso", "nelAfterRelIso;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmuAfterRelIso"] = fs->make<TH1D>("nmuAfterRelIso", "nmuAfterRelIso;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["nelAfter2DIso"] = fs->make<TH1D>("nelAfter2DIso", "nelAfter2DIso;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmuAfter2DIso"] = fs->make<TH1D>("nmuAfter2DIso", "nmuAfter2DIso;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["elIsoDRAfter2DIso"] = fs->make<TH1D>("elIsoDRAfter2DIso", "elIsoDRAfter2DIso;Electron rel. iso in #DeltaR < 0.4, EA corr.;Events;;",200,0,10) ;
+  h1_["muIsoDRAfter2DIso"] = fs->make<TH1D>("muIsoDRAfter2DIso", "muIsoDRAfter2DIso;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Events;;",200,0.,10) ;
 
 }
 

@@ -23,7 +23,7 @@ options.register('cleanEvents', False,
     VarParsing.varType.bool,
     "Clean events using EventCleaner?"
     )
-options.register('doPUReweightingOfficial', False,
+options.register('doPUReweightingOfficial', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
@@ -73,7 +73,7 @@ options.register('storeLHEWts', False,
     VarParsing.varType.bool,
     "Store LHE wts?"
     )
-options.register('FileNames', 'JetHT_2016G',
+options.register('FileNames', 'FileNames_TbtH1500',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -119,7 +119,19 @@ process.evtcleaner.isData = options.isData
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 process.evtcleaner.storeLHEWts = options.storeLHEWts
 
-process.load("Analysis.VLQAna.VLQAna_cfi") 
+from Analysis.VLQAna.VLQAna_cfi import *
+
+if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
+  for par in ['jetAK8selParams', 'jetHTaggedselParams', 'jetAntiHTaggedselParams', 'jetTopTaggedselParams']:
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
+    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
+
+process.ana = ana.clone()
 process.ana.doBTagSFUnc = options.doBTagSFUnc
 process.ana.jetAK4selParams.jecShift = options.jecShift 
 process.ana.jetAK4selParams.jerShift = options.jerShift 
