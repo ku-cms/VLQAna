@@ -8,4 +8,5 @@ defaultElectronMakerParameters = cms.PSet(
     elPtMin = cms.double(25),
     elPtMax = cms.double(10000),
     elAbsEtaMax = cms.double(2.4),
+    applyIso = cms.bool(True), 
     )

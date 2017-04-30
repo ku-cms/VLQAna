@@ -88,9 +88,11 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAK8maker                          ; 
     JetMaker jetHTaggedmaker                      ; 
     JetMaker jetTopTaggedmaker                    ; 
+    JetMaker jetAntiTopTaggedmaker                    ; 
     JetMaker jetAntiHTaggedmaker                  ; 
 
     double leadingJetPtMin_                       ; 
+    double leadingJetPrunedMassMin_               ; 
     double HTMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
@@ -131,8 +133,10 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetAK8maker             (iConfig.getParameter<edm::ParameterSet>("jetAK8selParams"), consumesCollector()), 
   jetHTaggedmaker         (iConfig.getParameter<edm::ParameterSet>("jetHTaggedselParams"), consumesCollector()), 
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
+  jetAntiTopTaggedmaker   (iConfig.getParameter<edm::ParameterSet>("jetAntiTopTaggedselParams"), consumesCollector()),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
   leadingJetPtMin_        (iConfig.getParameter<double>           ("leadingJetPtMin")), 
+  leadingJetPrunedMassMin_(iConfig.getParameter<double>           ("leadingJetPrunedMassMin")), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
@@ -193,11 +197,12 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetAK8maker(evt, goodAK8Jets); 
 
   //// Event pre-selection
-  if (goodAK8Jets.size() < 1) return false ; 
+  if (goodAK8Jets.size() < 2) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
 
   //// Event pre-selection
-  if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_) return false ; 
+  if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_ 
+      && goodAK8Jets.at(0).getPrunedMass() < leadingJetPrunedMassMin_) return false ; 
   h1_["cutflow"] -> Fill(6, evtwt) ; 
 
   h1_["npv_noreweight"] -> Fill(*h_npv.product(), *h_evtwtGen.product()); 
@@ -228,17 +233,19 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   }
 
-  vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets ; 
+  vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets, antiTopTaggedJets ; 
 
   jetHTaggedmaker(evt, goodHTaggedJets);
   jetTopTaggedmaker(evt, goodTopTaggedJets);
   jetAntiHTaggedmaker(evt, antiHTaggedJets);
+  jetAntiTopTaggedmaker(evt, antiTopTaggedJets);
 
   unsigned nAK4      (goodAK4Jets.size());
   unsigned nAK8      (goodAK8Jets.size());
   unsigned nHiggs    (goodHTaggedJets.size()); 
   unsigned nTop      (goodTopTaggedJets.size()); 
   unsigned nAntiHiggs(antiHTaggedJets.size()); 
+  unsigned nAntiTop(antiTopTaggedJets.size()); 
 
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
@@ -249,7 +256,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::unique_ptr<vlq::Jet> theHiggs ;  
   std::unique_ptr<vlq::Jet> theTop ;
   std::unique_ptr<vlq::Jet> theAntiHiggs ; 
-
+  std::unique_ptr<vlq::Jet> theAntiTop ;
   if (nTop > 0) {
 
     theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(goodTopTaggedJets.at(0))) ; 
@@ -279,15 +286,29 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     else isRegionNotABCD = true ;
 
   }
-  else {
+  else if (nAntiTop > 0){
+
+    theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antiTopTaggedJets.at(0))) ;
 
     if (nHiggs > 0) {
-      theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(goodHTaggedJets.at(0))) ; 
-      isRegionC = true;
+      for (vlq::Jet& hjet : goodHTaggedJets) {
+        double dphi = abs((theAntiTop->getP4()).DeltaPhi(hjet.getP4())) ;  
+        if (dphi > 2.0) {
+          theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet)) ; 
+          isRegionC = true;
+          break ;
+        }
+      }
     } //// isRegionC 
     else if (nAntiHiggs > 0) {
-      theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antiHTaggedJets.at(0))) ; 
-      isRegionA = true;
+      for (vlq::Jet& antihjet : antiHTaggedJets) {
+        double dphi = abs((theAntiTop->getP4()).DeltaPhi(antihjet.getP4())) ;  
+        if (dphi > 2.0) {
+          theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)) ; 
+          isRegionA = true;
+          break ;
+        }
+      }
     } //// isRegionA 
     else isRegionNotABCD = true ;
 
@@ -305,8 +326,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( isRegionC ) h1_["cutflow"] -> Fill(11, evtwt) ; 
   if ( isRegionD ) h1_["cutflow"] -> Fill(12, evtwt) ; 
 
-  TLorentzVector p4_tprime, p4_TprimeDummy ; 
-  double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0), MtprimeDummy_corr(0) ; 
+  TLorentzVector p4_tprime, p4_TprimeDummy, p4_TprimeDummyA, p4_TprimeDummyC ; 
+  double Mtprime(0), Mtprime_corr(0), MtprimeDummy(0), MtprimeDummy_corr(0), MtprimeDummyA(0), MtprimeDummyC(0) ; 
 
   if (isRegionD) {
     p4_tprime = theTop->getP4() + theHiggs->getP4() ; 
@@ -318,7 +339,17 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     MtprimeDummy = p4_TprimeDummy.Mag() ; 
     MtprimeDummy_corr = MtprimeDummy - theTop->getSoftDropMass() - theAntiHiggs->getPrunedMass() + 172.5 + 125. ; 
   }
-
+  else if (isRegionA) {
+    p4_TprimeDummyA = theAntiTop->getP4() + theAntiHiggs->getP4() ; 
+    MtprimeDummyA = p4_TprimeDummyA.Mag() ; 
+//    MtprimeDummyA_corr = MtprimeDummyA - theAntiTop->getSoftDropMass() - theAntiHiggs->getPrunedMass() + 172.5 + 125. ; 
+  }
+  else if (isRegionC) {
+    p4_TprimeDummyC = theAntiTop->getP4() + theHiggs->getP4() ; 
+    MtprimeDummyC = p4_TprimeDummyC.Mag() ; 
+//    MtprimeDummyC_corr = MtprimeDummyC - theAntiTop->getSoftDropMass() - theHiggs->getPrunedMass() + 172.5 + 125. ; 
+  }
+ 
   double evtwtHT(1), evtwtHTUp(1), evtwtHTDown(1);
   double toptagsf(1), toptagsfUp(1), toptagsfDown(1);
   double btagsf(1), btagsf_bcUp(1), btagsf_bcDown(1), btagsf_lUp(1), btagsf_lDown(1) ; 
@@ -354,6 +385,16 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       sjpts .push_back( (theTop->getPtSubjet1()) ); 
       sjetas.push_back( (theTop->getEtaSubjet1()) ); 
       sjfls .push_back( (theTop->getHadronFlavourSubjet1()) ); 
+    }
+    if ( theAntiTop != nullptr ){
+      sjcsvs.push_back( (theAntiTop->getCSVSubjet0()) ); 
+      sjpts .push_back( (theAntiTop->getPtSubjet0()) ); 
+      sjetas.push_back( (theAntiTop->getEtaSubjet0()) ); 
+      sjfls .push_back( (theAntiTop->getHadronFlavourSubjet0()) ); 
+      sjcsvs.push_back( (theAntiTop->getCSVSubjet1()) ); 
+      sjpts .push_back( (theAntiTop->getPtSubjet1()) ); 
+      sjetas.push_back( (theAntiTop->getEtaSubjet1()) ); 
+      sjfls .push_back( (theAntiTop->getHadronFlavourSubjet1()) ); 
     }
 
     if ( theHiggs != nullptr ) {
@@ -481,6 +522,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.btagsf_lDown_ = btagsf_lDown ; 
   selectedevt_.mtprime_ = Mtprime ;
   selectedevt_.mtprimeDummy_ = MtprimeDummy ;
+  selectedevt_.mtprimeDummyA_ = MtprimeDummyA ;
+  selectedevt_.mtprimeDummyC_ = MtprimeDummyC ;
   selectedevt_.ht_ = htak4.getHT();
   selectedevt_.nAK4_ = int(nAK4);
   selectedevt_.nAK8_ = int(nAK8);
@@ -672,10 +715,102 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.hadronFlavourSJ1TopTagged.push_back(jet.getHadronFlavourSubjet1()) ;
   }
 
+  jets_.idxAntiTopTagged             .clear() ; jets_.idxAntiTopTagged             .reserve(antiTopTaggedJets.size()) ;   
+  jets_.ptAntiTopTagged              .clear() ; jets_.ptAntiTopTagged              .reserve(antiTopTaggedJets.size()) ;   
+  jets_.etaAntiTopTagged             .clear() ; jets_.etaAntiTopTagged             .reserve(antiTopTaggedJets.size()) ;   
+  jets_.phiAntiTopTagged             .clear() ; jets_.phiAntiTopTagged             .reserve(antiTopTaggedJets.size()) ;   
+  jets_.MAntiTopTagged               .clear() ; jets_.MAntiTopTagged               .reserve(antiTopTaggedJets.size()) ;   
+  jets_.SoftDropMassAntiTopTagged    .clear() ; jets_.SoftDropMassAntiTopTagged    .reserve(antiTopTaggedJets.size()) ;   
+  jets_.PrunedMassAntiTopTagged      .clear() ; jets_.PrunedMassAntiTopTagged      .reserve(antiTopTaggedJets.size()) ;   
+  jets_.tau1AntiTopTagged            .clear() ; jets_.tau1AntiTopTagged            .reserve(antiTopTaggedJets.size()) ;   
+  jets_.tau2AntiTopTagged            .clear() ; jets_.tau2AntiTopTagged            .reserve(antiTopTaggedJets.size()) ;   
+  jets_.tau3AntiTopTagged            .clear() ; jets_.tau3AntiTopTagged            .reserve(antiTopTaggedJets.size()) ;   
+  jets_.csvAntiTopTagged             .clear() ; jets_.csvAntiTopTagged             .reserve(antiTopTaggedJets.size()) ;   
+  jets_.partonFlavourAntiTopTagged   .clear() ; jets_.partonFlavourAntiTopTagged   .reserve(antiTopTaggedJets.size()) ;   
+  jets_.hadronFlavourAntiTopTagged   .clear() ; jets_.hadronFlavourAntiTopTagged   .reserve(antiTopTaggedJets.size()) ;   
+  jets_.doubleBAntiTopTagged         .clear() ; jets_.doubleBAntiTopTagged         .reserve(antiTopTaggedJets.size()) ;   
+  jets_.sj0CSVAntiTopTagged          .clear() ; jets_.sj0CSVAntiTopTagged          .reserve(antiTopTaggedJets.size()) ;   
+  jets_.sj1CSVAntiTopTagged          .clear() ; jets_.sj1CSVAntiTopTagged          .reserve(antiTopTaggedJets.size()) ;   
+  jets_.hadronFlavourSJ0AntiTopTagged.clear() ; jets_.hadronFlavourSJ0AntiTopTagged.reserve(antiTopTaggedJets.size()) ;   
+  jets_.hadronFlavourSJ1AntiTopTagged.clear() ; jets_.hadronFlavourSJ1AntiTopTagged.reserve(antiTopTaggedJets.size()) ;   
+
+  for (vlq::Jet jet : antiTopTaggedJets) {
+    jets_.idxAntiTopTagged             .push_back(jet.getIndex()) ; 
+    jets_.ptAntiTopTagged              .push_back(jet.getPt()) ; 
+    jets_.etaAntiTopTagged             .push_back(jet.getEta()) ; 
+    jets_.phiAntiTopTagged             .push_back(jet.getPhi()) ; 
+    jets_.MAntiTopTagged               .push_back(jet.getMass()) ; 
+    jets_.SoftDropMassAntiTopTagged    .push_back(jet.getSoftDropMass()) ;
+    jets_.PrunedMassAntiTopTagged      .push_back(jet.getPrunedMass()) ;
+    jets_.tau1AntiTopTagged            .push_back(jet.getTau1()) ;
+    jets_.tau2AntiTopTagged            .push_back(jet.getTau2()) ;
+    jets_.tau3AntiTopTagged            .push_back(jet.getTau3()) ;
+    jets_.csvAntiTopTagged             .push_back(jet.getCSV());
+    jets_.partonFlavourAntiTopTagged   .push_back(jet.getPartonFlavour());
+    jets_.hadronFlavourAntiTopTagged   .push_back(jet.getHadronFlavour());
+    jets_.doubleBAntiTopTagged         .push_back(jet.getDoubleBAK8()) ;
+    jets_.sj0CSVAntiTopTagged          .push_back(jet.getCSVSubjet0()) ;
+    jets_.sj1CSVAntiTopTagged          .push_back(jet.getCSVSubjet1()) ;
+    jets_.hadronFlavourSJ0AntiTopTagged.push_back(jet.getHadronFlavourSubjet0()) ;
+    jets_.hadronFlavourSJ1AntiTopTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+  }
+
   tree_->Fill();
 
-  return true;
+  //// Lepton veto 
+  vlq::ElectronCollection goodElectrons; 
+  electronmaker(evt, goodElectrons) ;
 
+  vlq::MuonCollection goodMuons; 
+  muonmaker(evt, goodMuons) ; 
+
+  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmu"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  int nel_passreliso(0), nmu_passreliso(0);
+
+  for (vlq::Electron el : goodElectrons ) {
+    h1_["elIsoDR"] ->Fill(el.getIso03(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    //// Get 2D isolation
+    std::pair<double, double> el_drmin_ptrel(Utilities::drmin_pTrel<vlq::Electron, vlq::Jet>(el, goodAK4Jets)) ;
+    h2_["elIso2D"] -> Fill(el_drmin_ptrel.first, el_drmin_ptrel.second,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+    //// Get rel. iso
+    if (el.getIso03() < 0.0571) ++nel_passreliso; 
+  }
+
+  for (vlq::Muon mu : goodMuons ) {
+    h1_["muIsoDR"] ->Fill(mu.getIso04(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    //// Get 2D isolation
+    std::pair<double, double> mu_drmin_ptrel(Utilities::drmin_pTrel<vlq::Muon, vlq::Jet>(mu, goodAK4Jets)) ;
+    h2_["muIso2D"] -> Fill(mu_drmin_ptrel.first, mu_drmin_ptrel.second,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+    //// Get rel. iso
+    if ( mu.getIso04() < 0.3) ++nmu_passreliso ;
+  }
+
+  h1_["nelAfterRelIso"] -> Fill(nel_passreliso,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmuAfterRelIso"] -> Fill(nmu_passreliso,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  //// Apply 2D isolation
+  CandidateCleaner cleanleptons(0.4,40); //// The second argument is for lepton 2D iso, setting to -1 disables it
+
+  cleanleptons(goodElectrons,goodAK4Jets) ;
+  cleanleptons(goodMuons,goodAK4Jets) ;
+
+  cleanleptons(goodElectrons,goodAK8Jets) ;
+  cleanleptons(goodMuons,goodAK8Jets) ;
+
+  h1_["nelAfter2DIso"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nmuAfter2DIso"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+
+  for (vlq::Electron el : goodElectrons ) {
+    h1_["elIsoDRAfter2DIso"] ->Fill(el.getIso03(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+  }
+
+  for (vlq::Muon mu : goodMuons ) {
+    h1_["muIsoDRAfter2DIso"] ->Fill(mu.getIso04(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+  }
+
+  return true;
 
 }
 
@@ -804,6 +939,24 @@ void VLQAna::beginJob() {
   h1_["RegB_mtprime_corr_toptagsfDown"] = fs->make<TH1D>("RegB_mtprime_corr_toptagsfDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtUp"] = fs->make<TH1D>("RegB_mtprime_corr_htwtUp", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
   h1_["RegB_mtprime_corr_htwtDown"] = fs->make<TH1D>("RegB_mtprime_corr_htwtDown", "M(T) - M(H-jet) - M(top-jet) + M(H) + M(top);M(T) [GeV];;",80,500,2500) ; 
+
+  h1_["nel"] = fs->make<TH1D>("nel", "nel;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmu"] = fs->make<TH1D>("nmu", "nmu;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["elIsoDR"] = fs->make<TH1D>("elIsoDR", "elIsoDR;Electron rel. iso in #DeltaR < 0.4, EA corr.;Electrons;;",200,0,10) ;
+  h1_["muIsoDR"] = fs->make<TH1D>("muIsoDR", "muIsoDR;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Muons;;",200,0.,10) ;
+
+  h2_["elIso2D"] = fs->make<TH2D>("elIso2D", "elIso2D;#DeltaR(e,jet);p_{T}^{rel} [GeV];Electrons;",20,0,4,200,0,100) ;
+  h2_["muIso2D"] = fs->make<TH2D>("muIso2D", "muIso2D;#DeltaR(#mu,jet);p_{T}^{rel} [GeV];Muons;",20,0,4,200,0.,100) ;
+
+  h1_["nelAfterRelIso"] = fs->make<TH1D>("nelAfterRelIso", "nelAfterRelIso;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmuAfterRelIso"] = fs->make<TH1D>("nmuAfterRelIso", "nmuAfterRelIso;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["nelAfter2DIso"] = fs->make<TH1D>("nelAfter2DIso", "nelAfter2DIso;N(electrons);Events;;",5,-0.5,4.5) ;
+  h1_["nmuAfter2DIso"] = fs->make<TH1D>("nmuAfter2DIso", "nmuAfter2DIso;N(muons);Events;;",5,-0.5,4.5) ;
+
+  h1_["elIsoDRAfter2DIso"] = fs->make<TH1D>("elIsoDRAfter2DIso", "elIsoDRAfter2DIso;Electron rel. iso in #DeltaR < 0.4, EA corr.;Events;;",200,0,10) ;
+  h1_["muIsoDRAfter2DIso"] = fs->make<TH1D>("muIsoDRAfter2DIso", "muIsoDRAfter2DIso;Muon rel. iso. in #DeltaR < 0.3, #delta#beta corr.;Events;;",200,0.,10) ;
 
 }
 

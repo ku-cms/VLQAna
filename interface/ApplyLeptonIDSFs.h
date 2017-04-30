@@ -14,228 +14,160 @@ class ApplyLeptonIDSFs {
     else edm::LogError("ApplyLeptonSF") << " >>>> WrongElectronIdType: " << type_<< " Check lepton id type !!!" ; 
   }
     ~ApplyLeptonIDSFs () {} 
-    double operator () (double pt, double eta){
+    double IDSF (double pt, double eta){
       if (type_ == TIGHT && zdecayMode_ == "zelel"){
-        if(pt > 200.) pt = 200.; 
+        if(pt > 150.) pt = 150.; 
         if(pt > 10 && pt <= 20){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.813559;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.7737;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.89243;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.94086;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.901515;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.916256;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.933333;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ =  1.01456;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ =  0.796923;
-          else if(eta < 2.5       && eta > 2.0)     sf_ =  0.829341;
+          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.806567 ;
+          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.828571 ;
+          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 1.03286;
+          else if(eta <= -0.8     && eta > -1.4442) sf_ = 1.00775;
+          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.940722;
+          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.945876;
+          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.98977;
+          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 1.03398;
+          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.827485;
+          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.797015;
         }
-        else if(pt > 20 && pt <= 30){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.87269  ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.837255 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.937685 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.934363 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.925373 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.951941 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.934741 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.909366;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.852071 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.880077 ;
+        else if(pt > 20 && pt <= 35){
+          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.882459  ;
+          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.927487 ;
+          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 1.00759 ;
+          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.972039 ;
+          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.952998 ;
+          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.981997 ;
+          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.975207 ;
+          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.974874;
+          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.908938 ;
+          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.863322 ;
         }
-        else if(pt > 30 && pt <= 40){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.930195  ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.901563 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.946392  ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.954829 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.932127 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.948563 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.9939628 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.945833 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.914861 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.916279 ;
+        else if(pt > 35 && pt <= 50){
+          if(eta <= -2.0          && eta > -2.5)    sf_ =  0.918841 ;
+          else if(eta <= -1.566   && eta > -2.0)    sf_ =  0.966988;
+          else if(eta <= -1.4442  && eta > -1.566)  sf_ =  0.988196 ;
+          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.974667 ;
+          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.953457 ;
+          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.979812 ;
+          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.974633 ;
+          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.966387 ;
+          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.957823 ;
+          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.907801 ;
         }
-        else if(pt > 40 && pt <= 50){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.942611 ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.933426 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.945073 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.953103 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.932615 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.953867 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.94528 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.927066 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.938441 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.942737 ;
+        else if(pt > 50 && pt <= 90){
+          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.940397 ;
+          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.980964 ;
+          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.995392 ;
+          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.971675 ;
+          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.953086 ;
+          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.977528 ;
+          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.978934 ;
+          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.979907 ;
+          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.968553 ;
+          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.937622 ;
         }
-        else if(pt > 50 && pt <=200){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.954116 ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.946753 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.95679 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.953428 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.939009 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.95414 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.953608 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.936267 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.967742 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.949735 ;
+        else if(pt > 90 && pt <=150){
+          if(eta <= -2.0          && eta > -2.5)    sf_ = 1.05109 ;
+          else if(eta <= -1.566   && eta > -2.0)    sf_ = 1.00592 ;
+          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 1.10411 ;
+          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.989486 ;
+          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.975496 ;
+          else if(eta <= 0.8      && eta > 0.0)     sf_ = 1.01189 ;
+          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 1.01073 ;
+          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 1.00716 ;
+          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.988263 ;
+          else if(eta < 2.5       && eta > 2.0)     sf_ = 1.02136 ;
         }
       }//end TIGHT and zelel
-      if (type_ == LOOSE  && zdecayMode_ == "zelel"){
-        if(pt > 200.) pt = 200.; 
-        if(pt > 10 && pt <= 20){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.917582  ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.817717 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.898678 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.965135 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.961353 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.919431 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.957075 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.97852 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.864111 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.896959 ;
-        }
-        else if(pt > 20 && pt <= 30){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.950617 ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.905138 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.943609 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.957031 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.956975 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.971466 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.960938 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.954802 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.915436 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.945551 ;
-        }
-        else if(pt > 30 && pt <= 40){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 0.991474 ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.962485 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.97274 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.976932 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.966705 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.977012 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.971231 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.964029 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.96831 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.976134 ;
-        }
-        else if(pt > 40 && pt <= 50){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 1.001116 ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.983259 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.973171 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.979303 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.971678 ;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.981441 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.977199 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.964591 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 0.985523 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.990868 ;
-        }
-        else if(pt > 50 && pt <= 200){
-          if(eta <= -2.0          && eta > -2.5)    sf_ = 1.00456 ;
-          else if(eta <= -1.566   && eta > -2.0)    sf_ = 0.990099 ;
-          else if(eta <= -1.4442  && eta > -1.566)  sf_ = 0.980746 ;
-          else if(eta <= -0.8     && eta > -1.4442) sf_ = 0.98174 ;
-          else if(eta <= 0.0      && eta > -0.8)    sf_ = 0.973205;
-          else if(eta <= 0.8      && eta > 0.0)     sf_ = 0.984946 ;
-          else if(eta <= 1.4442   && eta > 0.8)     sf_ = 0.982833 ;
-          else if(eta <= 1.566    && eta > 1.4442)  sf_ = 0.976077 ;
-          else if(eta <= 2.0      && eta > 1.566)   sf_ = 1.0022 ;
-          else if(eta < 2.5       && eta > 2.0)     sf_ = 0.99666 ;
-        }
-      }//end LOOSE and zelel
-      if (type_ == LOOSE && zdecayMode_ == "zmumu"){
-        if(pt > 200.) pt = 200.; 
-        if (pt > 20 && pt <= 25){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 1.00257;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 1.00047;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.995499;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.977091;
-        }
-        else if (pt > 25 && pt <= 30){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.997522;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.99901;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.992138;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.991379;
-        }
-        else if (pt > 30 && pt <= 40){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.995137;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.99912;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.996141;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.996729;
-        }
-        else if (pt > 40 && pt <= 50){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.994269;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998493;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.995362;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.996736;
-        }
-        else if (pt > 50 && pt <= 60){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998696;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.997555;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.996281;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.992798;
-        }
-        else if (pt > 60 && pt <= 100){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.98288;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.99412;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.991941;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.991625;
-        } 
-        else if (pt > 100 && pt <= 200){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.952418;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 1.00357;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 1.0;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 1.00099;
-        }
-      }//LOOSE and zmumu
+
       if (type_ == TIGHT && zdecayMode_ == "zmumu"){
-        if(pt > 200.) pt = 200.;
+        if(pt > 120.) pt = 120.;
         if (pt > 20 && pt <= 25){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.985294;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.991418;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.909183;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.908376;
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.975305;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.986312;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.972437;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.986361;
         }
         else if (pt > 25 && pt <= 30){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.975853;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.989645;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.966866;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.970763;
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.973942;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.986158;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.970745;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.983009;
         }
         else if (pt > 30 && pt <= 40){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.973918;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.990198;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.971573;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.975881;
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.969471;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.987881;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.973607;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.984386;
         }
         else if (pt > 40 && pt <= 50){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.969894;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.990848;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.970849;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.976182;
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.972574;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.990532;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.974868;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.9859;
         }
         else if (pt > 50 && pt <= 60){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.972266;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.971497;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.991589;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.981064;
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.967713;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.985438;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.974566;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.981911;
         }
-        else if (pt > 60 && pt <= 100){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.975218;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.989786;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.968216;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.973523;
-        }
-        else if (pt > 100 && pt <= 200){
-          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.91808;
-          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 1.01349;
-          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 1.02714;
-          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.987644;
+        else if (pt > 60 && pt <= 120){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.963148;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.988777;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.974918;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.992158;
         }
       }//TIGHT and zmumu
       return sf_ ; 
     }
+
+    double IsoSF(double pt, double eta){
+      if (type_ == TIGHT && zdecayMode_ == "zmumu"){
+        if(pt > 120.) pt = 120.;
+        if (pt > 20 && pt <= 25){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.983849;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.991505;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.995189;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.98476;
+        }
+        else if (pt > 25 && pt <= 30){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.991877;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.995906;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 1.00043;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.993309;
+        }
+        else if (pt > 30 && pt <= 40){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.996227;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.997965;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999432;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.993728;
+        }
+        else if (pt > 40 && pt <= 50){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998324;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998013;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.997695;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.995297;
+        }
+        else if (pt > 50 && pt <= 60){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998603;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998345;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999144;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.996805;
+        }
+        else if (pt > 60 && pt <= 120){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 1.00152;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.999213;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999122;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.99878;
+        }
+      }//TIGHT and zmumu                                                                                                                                                                                                       
+      return sf_ ;
+    }
+
   private: 
     double sf_ ;
     const std::string zdecayMode_ ; 
     LEPTONIDTYPES_t type_ ; 
+
 };
 #endif 

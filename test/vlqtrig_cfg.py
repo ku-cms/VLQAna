@@ -82,7 +82,7 @@ options.register('FileNames', 'FileNames',
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
 
-hltpathsLoose = ["HLT_PFJet500_v"]
+hltpathsLoose = ["HLT_PFJet320_v"]
 
 hltpathsTest = ["AK8PFJet360_TrimMass30_v",
                 "HLT_AK8DiPFJet300_200_TrimMass30_v",
@@ -97,7 +97,7 @@ if options.isData:
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
 
-leadingJetPtMin = 500
+leadingJetPtMin = 400.
 HTMin=500
 if options.storePreselEvts:
   HTMin = options.HTMin
@@ -110,6 +110,8 @@ process.source = cms.Source("PoolSource",
       FileNames[options.FileNames]
       )
     )
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
