@@ -90,8 +90,10 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAK8maker                          ; 
     JetMaker jetHTaggedmaker                      ; 
     JetMaker jetTopTaggedmaker                    ; 
-    JetMaker jetAntiTopTaggedmaker                    ; 
-    JetMaker jetAntiHTaggedmaker                  ; 
+    JetMaker jetAntiTopTaggedmaker                ; 
+    JetMaker jetAntiHTaggedmaker                  ;
+ 
+    EventShapeVariables eventshapes               ;
 
     double leadingJetPtMin_                       ; 
     double leadingJetPrunedMassMin_               ; 
@@ -249,7 +251,9 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   unsigned nAntiHiggs(antiHTaggedJets.size()); 
   unsigned nAntiTop(antiTopTaggedJets.size()); 
 
-  EventShapeVariables eventshapes(goodAK4Jets);
+
+  /// Create Event Shape Varibless
+  eventshapes(goodAK4Jets);
   
   double isotropy     (eventshapes.isotropy());	
   double circularity  (eventshapes.circularity());
