@@ -43,6 +43,8 @@ Implementation:
 #include "Analysis/VLQAna/interface/TtHTree.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
+#include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
+
 #include <TF1.h>
 #include <TH1D.h>
 #include <TH2D.h>
@@ -246,6 +248,17 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   unsigned nTop      (goodTopTaggedJets.size()); 
   unsigned nAntiHiggs(antiHTaggedJets.size()); 
   unsigned nAntiTop(antiTopTaggedJets.size()); 
+
+  EventShapeVariables eventshapes(goodAK4Jets);
+  
+  double isotropy     (eventshapes.isotropy());	
+  double circularity  (eventshapes.circularity());
+  double sphericity   (eventshapes.sphericity());
+  double aplanarity   (eventshapes.aplanarity());
+  double C            (eventshapes.C());
+  double D            (eventshapes.D());
+  double thrust       (eventshapes.thrust());
+  double thrustminor  (eventshapes.thrustminor());
 
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
@@ -533,7 +546,15 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.isRegionD_ = isRegionD ; 
   selectedevt_.isRegionNotABCD_ = isRegionNotABCD;
   selectedevt_.lhewts_ = lhe_ids_wts;
-  selectedevt_.htHat_ = htHat ; 
+  selectedevt_.htHat_ = htHat ;
+  selectedevt_.isotropy_ = isotropy ;
+  selectedevt_.circularity_ = circularity ;
+  selectedevt_.sphericity_ = sphericity ;
+  selectedevt_.aplanarity_ = aplanarity ;
+  selectedevt_.C_ = C ;
+  selectedevt_.D_ = D ;
+  selectedevt_.thrust_ = thrust ;
+  selectedevt_.thrustminor_ = thrustminor ; 
 
   jets_.idxAK4             .clear() ; jets_.idxAK4             .reserve(goodAK4Jets.size()) ;   
   jets_.ptAK4              .clear() ; jets_.ptAK4              .reserve(goodAK4Jets.size()) ; 
