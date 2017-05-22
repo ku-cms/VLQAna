@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -110,7 +110,8 @@ process.TFileService = cms.Service("TFileService",
       options.outFileName+".root"
       )
     )
-
+#dataFilePath = "$CMSSW_BASE/src/Analysis/VLQAna/data/"
+dataFilePath = '../data/'
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltORAND = cms.string (options.hltORAND)  
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
@@ -118,19 +119,34 @@ process.evtcleaner.cleanEvents = cms.bool(options.cleanEvents)
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 process.evtcleaner.storeLHEWts = options.storeLHEWts
+process.evtcleaner.File_PUDistData      = cms.string(os.path.join(dataFilePath,'RunII2016Rereco_25ns_PUXsec69000nb.root'))
+process.evtcleaner.File_PUDistDataLow   = cms.string(os.path.join(dataFilePath,'RunII2016Rereco_25ns_PUXsec65550nb.root'))
+process.evtcleaner.File_PUDistDataHigh  = cms.string(os.path.join(dataFilePath,'RunII2016Rereco_25ns_PUXsec72450nb.root'))
+process.evtcleaner.File_PUDistMC        = cms.string(os.path.join(dataFilePath,'PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root'))
 
 from Analysis.VLQAna.VLQAna_cfi import *
 
 if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
-  for par in ['jetAK8selParams', 'jetHTaggedselParams', 'jetAntiHTaggedselParams', 'jetTopTaggedselParams']:
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
-    setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
+  for par in ['jetAK4selParams', 'jetAK8selParams', 'jetHTaggedselParams', 'jetAntiHTaggedselParams', 'jetTopTaggedselParams', 'jetAntiTopTaggedselParams']:
+    if 'AK4' in par:
+        jetType = 'AK4PFchs'
+    else:
+        jetType = 'AK8PFchs'
+        payLoadTypes = ['L2Relative', 'L3Absolute']
+        payLoadFiles = []
+        for payLoadType in payLoadTypes: payLoadFiles.append(os.path.join(dataFilePath,'Summer16_23Sep2016V4_MC_'+payLoadType+'_'+jetType+'.txt'))   
+        setattr(getattr(ana, par), 'jecAK8GroomedPayloadNames', cms.vstring(payLoadFiles))
 
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1CHS"))
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2CHS"))
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3CHS"))
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMassCHS"))
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMassCHS"))
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMassCHS"))
+        setattr(getattr(getattr(ana, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMassCHS"))
+    setattr(getattr(ana,par), 'jecUncPayloadName', cms.string(os.path.join(dataFilePath, 'Summer16_23Sep2016V4_MC_Uncertainty_'+jetType+'.txt')))
+
+ 
 process.ana = ana.clone()
 process.ana.doBTagSFUnc = options.doBTagSFUnc
 process.ana.jetAK4selParams.jecShift = options.jecShift 
@@ -149,9 +165,12 @@ process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
 process.ana.HTMin = HTMin
 
+
 process.anaCHS = process.ana.clone()
 
 from Analysis.VLQAna.JetMaker_cfi import *
+            
+
 process.anaPuppi = process.ana.clone(
     jetAK8selParams = defaultAK8PuppiJetSelectionParameters,
     jetHTaggedselParams = defaultPuppiHJetSelectionParameters,
