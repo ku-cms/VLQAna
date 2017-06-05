@@ -253,7 +253,11 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
 
   /// Create Event Shape Varibless
-  eventshapes(goodAK4Jets);
+  std::vector<math::XYZVector> inputVectors;
+  for ( vlq::Jet& hjet : goodHTaggedJets ){
+  	inputVectors.push_back(math::XYZVector(hjet.getP4().x(), hjet.getP4().y(), hjet.getP4().z()));
+  }
+  eventshapes(inputVectors);
   
   double isotropy     (eventshapes.isotropy());	
   double circularity  (eventshapes.circularity());
