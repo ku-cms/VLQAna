@@ -63,6 +63,16 @@ options.register('storePreselEvts', True,
     VarParsing.varType.bool,
     "Store pre-selected events after pre-selection", 
     )
+options.register('applyBTagSFs', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Apply b-tagging SFs to the MC"
+    )
+options.register('btageffmap', "TbtH_1200_LH_btagEff_loose.root",#until new SFs arrive
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
+    )
 options.register('doPreselOnly', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -89,7 +99,7 @@ if options.isData:
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
-
+    options.applyBTagSFs = True
 HTMin=1100
 if options.storePreselEvts:
   HTMin = options.HTMin
@@ -164,6 +174,9 @@ process.ana.jetAntiHTaggedselParams.jerShift = options.jerShift
 process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
 process.ana.HTMin = HTMin
+process.ana.applyBTagSFs = options.applyBTagSFs
+process.ana.btageffmap = cms.string(os.path.join(dataFilePath,options.btageffmap)) 
+process.ana.sjbtagSFcsv = cms.string(os.path.join(dataFilePath,"subjet_CSVv2_Moriond17_B_H.csv")) 
 
 
 process.anaCHS = process.ana.clone()

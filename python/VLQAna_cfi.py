@@ -48,5 +48,8 @@ ana = cms.EDFilter("VLQAna",
     HTMin                      = cms.double  (0.), 
     doBTagSFUnc                = cms.bool(False), 
     storePreselEvts            = cms.bool(False), 
-    doPreselOnly               = cms.bool(False), 
+    doPreselOnly               = cms.bool(False),
+    applyBTagSFs               = cms.bool(True),
+    btageffmap                 = cms.string("TbtH_1200_LH_btagEff_loose.root"),
+    sjbtagSFcsv                = cms.string('subjet_CSVv2_Moriond17_B_H.csv')
     )

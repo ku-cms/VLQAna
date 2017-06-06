@@ -100,7 +100,10 @@ class VLQAna : public edm::EDFilter {
     double HTMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
-
+    bool   applyBTagSFs_                          ;
+    const std::string btageffmap_                  ;
+    const std::string sjbtagSFcsv_                  ;
+ 
     edm::Service<TFileService> fs                 ; 
     std::map<std::string, TH1D*> h1_              ; 
     std::map<std::string, TH2D*> h2_              ; 
@@ -144,7 +147,11 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
-  btagsfutils_            (new BTagSFUtils())
+  applyBTagSFs_           (iConfig.getParameter<bool>             ("applyBTagSFs")),
+  btageffmap_             (iConfig.getParameter<std::string>      ("btageffmap")), 
+  sjbtagSFcsv_             (iConfig.getParameter<std::string>     ("sjbtagSFcsv")), 
+  btagsfutils_            (new BTagSFUtils(sjbtagSFcsv_,BTagEntry::OP_LOOSE,30.,450.,30.,450.,20.,1000.,btageffmap_))
+  
 {
 
 }
@@ -439,8 +446,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       sjfls .push_back( (theAntiHiggs->getHadronFlavourSubjet1()) ); 
     }
 
-    ////// Get btag SFs
-    //btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+    ////// Get btag SFis
+    if (applyBTagSFs_) btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   } //// if !isData
 
