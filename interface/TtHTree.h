@@ -43,6 +43,14 @@ class TtHEventInfoBranches {
     bool   isRegionC_;
     bool   isRegionD_;
     bool   isRegionNotABCD_;
+    double isotropy_;
+    double circularity_;
+    double sphericity_;
+    double aplanarity_;
+    double C_;
+    double D_;
+    double thrust_;
+    double thrustminor_;
     std::vector<std::pair<int, double> > lhewts_ ; 
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
@@ -82,6 +90,15 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_isRegionD").c_str(), &isRegionD_, "isRegionD/O");
       cutTree->Branch((name+"_isRegionNotABCD").c_str(), &isRegionNotABCD_, "isRegionNotABCD/O");
       cutTree->Branch((name+"_lhewts").c_str(), &lhewts_) ;  
+      cutTree->Branch((name+"_isotropy").c_str(), &isotropy_, "/D");
+      cutTree->Branch((name+"_circularity").c_str(), &circularity_, "/D");
+      cutTree->Branch((name+"_sphericity").c_str(), &sphericity_, "/D");
+      cutTree->Branch((name+"_aplanarity").c_str(), &aplanarity_, "/D");
+      cutTree->Branch((name+"_C").c_str(), &C_, "/D");
+      cutTree->Branch((name+"_D").c_str(), &D_, "/D");
+      cutTree->Branch((name+"_thrust").c_str(), &thrust_, "/D");
+      cutTree->Branch((name+"_thrustminor").c_str(), &thrustminor_, "/D");
+
     }
 
 };
