@@ -44,6 +44,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
 #include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
+#include "PhysicsTools/CandUtils/src/EventShapeVariables.cc"
 
 #include <TF1.h>
 #include <TH1D.h>
@@ -93,7 +94,6 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAntiTopTaggedmaker                ; 
     JetMaker jetAntiHTaggedmaker                  ;
  
-    EventShapeVariables eventshapes               ;
 
     double leadingJetPtMin_                       ; 
     double leadingJetPrunedMassMin_               ; 
@@ -103,7 +103,7 @@ class VLQAna : public edm::EDFilter {
     bool   applyBTagSFs_                          ;
     const std::string btageffmap_                  ;
     const std::string sjbtagSFcsv_                  ;
- 
+
     edm::Service<TFileService> fs                 ; 
     std::map<std::string, TH1D*> h1_              ; 
     std::map<std::string, TH2D*> h2_              ; 
@@ -151,7 +151,6 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   btageffmap_             (iConfig.getParameter<std::string>      ("btageffmap")), 
   sjbtagSFcsv_             (iConfig.getParameter<std::string>     ("sjbtagSFcsv")), 
   btagsfutils_            (new BTagSFUtils(sjbtagSFcsv_,BTagEntry::OP_LOOSE,30.,450.,30.,450.,20.,1000.,btageffmap_))
-  
 {
 
 }
@@ -262,9 +261,9 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   /// Create Event Shape Varibless
   std::vector<math::XYZVector> inputVectors;
   for ( vlq::Jet& hjet : goodHTaggedJets ){
-  	inputVectors.push_back(math::XYZVector(hjet.getP4().x(), hjet.getP4().y(), hjet.getP4().z()));
+  	inputVectors.push_back(math::XYZVector(hjet.getP4().X(), hjet.getP4().Y(), hjet.getP4().Z()));
   }
-  eventshapes(inputVectors);
+  EventShapeVariables eventshapes(inputVectors);
   
   double isotropy     (eventshapes.isotropy());	
   double circularity  (eventshapes.circularity());
@@ -446,7 +445,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       sjfls .push_back( (theAntiHiggs->getHadronFlavourSubjet1()) ); 
     }
 
-    ////// Get btag SFis
+    ////// Get btag SFs
     if (applyBTagSFs_) btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   } //// if !isData
