@@ -8,6 +8,8 @@ git cms-init
 
 git cms-merge-topic dmajumder:CMSSW_8_0_X_AnalysisDataFormats_BoostedObjects
 
+git cms-merge-topic jking79:NewEventShapeVariables
+
 git clone git@github.com:dmajumder/EventCounter.git Analysis/EventCounter
 
 git clone -b CMSSW_8_0_X_NewB2GAnaFW git@github.com:dmajumder/VLQAna.git Analysis/VLQAna

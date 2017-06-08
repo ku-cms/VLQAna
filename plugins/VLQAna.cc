@@ -44,6 +44,7 @@ Implementation:
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
 #include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
+#include "PhysicsTools/CandUtils/src/EventShapeVariables.cc"
 
 #include <TF1.h>
 #include <TH1D.h>
@@ -93,7 +94,6 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAntiTopTaggedmaker                ; 
     JetMaker jetAntiHTaggedmaker                  ;
  
-    EventShapeVariables eventshapes               ;
 
     double leadingJetPtMin_                       ; 
     double leadingJetPrunedMassMin_               ; 
@@ -103,7 +103,7 @@ class VLQAna : public edm::EDFilter {
     bool   applyBTagSFs_                          ;
     const std::string btageffmap_                  ;
     const std::string sjbtagSFcsv_                  ;
- 
+
     edm::Service<TFileService> fs                 ; 
     std::map<std::string, TH1D*> h1_              ; 
     std::map<std::string, TH2D*> h2_              ; 
@@ -151,7 +151,6 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   btageffmap_             (iConfig.getParameter<std::string>      ("btageffmap")), 
   sjbtagSFcsv_             (iConfig.getParameter<std::string>     ("sjbtagSFcsv")), 
   btagsfutils_            (new BTagSFUtils(sjbtagSFcsv_,BTagEntry::OP_LOOSE,30.,450.,30.,450.,20.,1000.,btageffmap_))
-  
 {
 
 }
@@ -261,10 +260,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   /// Create Event Shape Varibless
   std::vector<math::XYZVector> inputVectors;
-  for ( vlq::Jet& hjet : goodHTaggedJets ){
-  	inputVectors.push_back(math::XYZVector(hjet.getP4().x(), hjet.getP4().y(), hjet.getP4().z()));
+  for ( vlq::Jet& jet : goodAK4Jets ){
+  	inputVectors.push_back(math::XYZVector(jet.getP4().X(), jet.getP4().Y(), jet.getP4().Z()));
   }
-  eventshapes(inputVectors);
+  EventShapeVariables eventshapes(inputVectors);
   
   double isotropy     (eventshapes.isotropy());	
   double circularity  (eventshapes.circularity());
@@ -274,7 +273,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double D            (eventshapes.D());
   double thrust       (eventshapes.thrust());
   double thrustminor  (eventshapes.thrustminor());
-
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
   //// | C: Good H Anti-top | D: Good H Good top | 
@@ -446,7 +444,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       sjfls .push_back( (theAntiHiggs->getHadronFlavourSubjet1()) ); 
     }
 
-    ////// Get btag SFis
+    ////// Get btag SFs
     if (applyBTagSFs_) btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   } //// if !isData
@@ -609,6 +607,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVAK8          .clear() ; jets_.sj1CSVAK8          .reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ0AK8.clear() ; jets_.hadronFlavourSJ0AK8.reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ1AK8.clear() ; jets_.hadronFlavourSJ1AK8.reserve(goodAK8Jets.size()) ;  
+  jets_.sj0ptAK8            .clear() ; jets_.sj0ptAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1ptAK8            .clear() ; jets_.sj1ptAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj0etaAK8            .clear() ; jets_.sj0etaAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1etaAK8            .clear() ; jets_.sj1etaAK8           .reserve(goodAK8Jets.size()) ;
 
   for (vlq::Jet jet : goodAK8Jets) {
     jets_.idxAK8             .push_back(jet.getIndex()) ; 
@@ -629,6 +631,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAK8          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AK8.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AK8.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptAK8           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptAK8           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaAK8           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaAK8           .push_back(jet.getEtaSubjet1()) ;
   }
 
   jets_.idxHTagged             .clear() ; jets_.idxHTagged             .reserve(goodHTaggedJets.size()) ;   

@@ -90,14 +90,14 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_isRegionD").c_str(), &isRegionD_, "isRegionD/O");
       cutTree->Branch((name+"_isRegionNotABCD").c_str(), &isRegionNotABCD_, "isRegionNotABCD/O");
       cutTree->Branch((name+"_lhewts").c_str(), &lhewts_) ;  
-      cutTree->Branch((name+"_isotropy").c_str(), &isotropy_, "/D");
-      cutTree->Branch((name+"_circularity").c_str(), &circularity_, "/D");
-      cutTree->Branch((name+"_sphericity").c_str(), &sphericity_, "/D");
-      cutTree->Branch((name+"_aplanarity").c_str(), &aplanarity_, "/D");
-      cutTree->Branch((name+"_C").c_str(), &C_, "/D");
-      cutTree->Branch((name+"_D").c_str(), &D_, "/D");
-      cutTree->Branch((name+"_thrust").c_str(), &thrust_, "/D");
-      cutTree->Branch((name+"_thrustminor").c_str(), &thrustminor_, "/D");
+      cutTree->Branch((name+"_isotropy").c_str(), &isotropy_, "isotropy/D");
+      cutTree->Branch((name+"_circularity").c_str(), &circularity_, "circularity/D");
+      cutTree->Branch((name+"_sphericity").c_str(), &sphericity_, "sphericity/D");
+      cutTree->Branch((name+"_aplanarity").c_str(), &aplanarity_, "aplanarity/D");
+      cutTree->Branch((name+"_C").c_str(), &C_, "C/D");
+      cutTree->Branch((name+"_D").c_str(), &D_, "D/D");
+      cutTree->Branch((name+"_thrust").c_str(), &thrust_, "thrust/D");
+      cutTree->Branch((name+"_thrustminor").c_str(), &thrustminor_, "thrustminor/D");
 
     }
 
@@ -134,6 +134,10 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVAK8;
     std::vector<double> hadronFlavourSJ0AK8; 
     std::vector<double> hadronFlavourSJ1AK8; 
+    std::vector<double> sj0ptAK8;
+    std::vector<double> sj1ptAK8;
+    std::vector<double> sj0etaAK8;
+    std::vector<double> sj1etaAK8;
 
     std::vector<int> idxHTagged; 
     std::vector<double> ptHTagged;
@@ -245,6 +249,10 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVAK8",&sj1CSVAK8);
       cutTree->Branch("hadronFlavourSJ0AK8",&hadronFlavourSJ0AK8);
       cutTree->Branch("hadronFlavourSJ1AK8",&hadronFlavourSJ1AK8);
+      cutTree->Branch("sj0ptAK8",&sj0ptAK8);
+      cutTree->Branch("sj1ptAK8",&sj1ptAK8);
+      cutTree->Branch("sj0etaAK8",&sj0etaAK8);
+      cutTree->Branch("sj1etaAK8",&sj1etaAK8);
 
       cutTree->Branch("idxHTagged", &idxHTagged); 
       cutTree->Branch("ptHTagged", &ptHTagged); 

@@ -83,7 +83,7 @@ options.register('storeLHEWts', False,
     VarParsing.varType.bool,
     "Store LHE wts?"
     )
-options.register('FileNames', 'test',
+options.register('FileNames', 'TbtH_1200_LH',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
