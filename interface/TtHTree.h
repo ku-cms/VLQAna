@@ -134,6 +134,10 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVAK8;
     std::vector<double> hadronFlavourSJ0AK8; 
     std::vector<double> hadronFlavourSJ1AK8; 
+    std::vector<double> sj0ptAK8;
+    std::vector<double> sj1ptAK8;
+    std::vector<double> sj0etaAK8;
+    std::vector<double> sj1etaAK8;
 
     std::vector<int> idxHTagged; 
     std::vector<double> ptHTagged;
@@ -245,6 +249,10 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVAK8",&sj1CSVAK8);
       cutTree->Branch("hadronFlavourSJ0AK8",&hadronFlavourSJ0AK8);
       cutTree->Branch("hadronFlavourSJ1AK8",&hadronFlavourSJ1AK8);
+      cutTree->Branch("sj0ptAK8",&sj0ptAK8);
+      cutTree->Branch("sj1ptAK8",&sj1ptAK8);
+      cutTree->Branch("sj0etaAK8",&sj0etaAK8);
+      cutTree->Branch("sj1etaAK8",&sj1etaAK8);
 
       cutTree->Branch("idxHTagged", &idxHTagged); 
       cutTree->Branch("ptHTagged", &ptHTagged); 

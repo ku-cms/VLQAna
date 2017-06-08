@@ -260,8 +260,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   /// Create Event Shape Varibless
   std::vector<math::XYZVector> inputVectors;
-  for ( vlq::Jet& hjet : goodHTaggedJets ){
-  	inputVectors.push_back(math::XYZVector(hjet.getP4().X(), hjet.getP4().Y(), hjet.getP4().Z()));
+  for ( vlq::Jet& jet : goodAK4Jets ){
+  	inputVectors.push_back(math::XYZVector(jet.getP4().X(), jet.getP4().Y(), jet.getP4().Z()));
   }
   EventShapeVariables eventshapes(inputVectors);
   
@@ -273,7 +273,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double D            (eventshapes.D());
   double thrust       (eventshapes.thrust());
   double thrustminor  (eventshapes.thrustminor());
-
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
   //// | C: Good H Anti-top | D: Good H Good top | 
@@ -608,6 +607,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVAK8          .clear() ; jets_.sj1CSVAK8          .reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ0AK8.clear() ; jets_.hadronFlavourSJ0AK8.reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ1AK8.clear() ; jets_.hadronFlavourSJ1AK8.reserve(goodAK8Jets.size()) ;  
+  jets_.sj0ptAK8            .clear() ; jets_.sj0ptAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1ptAK8            .clear() ; jets_.sj1ptAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj0etaAK8            .clear() ; jets_.sj0etaAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1etaAK8            .clear() ; jets_.sj1etaAK8           .reserve(goodAK8Jets.size()) ;
 
   for (vlq::Jet jet : goodAK8Jets) {
     jets_.idxAK8             .push_back(jet.getIndex()) ; 
@@ -628,6 +631,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAK8          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AK8.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AK8.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptAK8           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptAK8           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaAK8           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaAK8           .push_back(jet.getEtaSubjet1()) ;
   }
 
   jets_.idxHTagged             .clear() ; jets_.idxHTagged             .reserve(goodHTaggedJets.size()) ;   
