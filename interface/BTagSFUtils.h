@@ -103,11 +103,11 @@ class BTagSFUtils {
   {
     reader_->load(*calib_,     // calibration instance
         BTagEntry::BTagEntry::FLAV_B,     // btag flavour
-        "lt") ;            // measurement type
+        "mujets") ;            // measurement type
 
     reader_->load(*calib_,     // calibration instance
         BTagEntry::BTagEntry::FLAV_C,     // btag flavour
-        "lt") ;            // measurement type
+        "mujets") ;            // measurement type
 
     reader_->load(*calib_,     // calibration instance
         BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
@@ -115,11 +115,11 @@ class BTagSFUtils {
 
     readerUp_->load(*calib_,   // calibration instance
         BTagEntry::BTagEntry::FLAV_B,     // btag flavour
-        "lt") ;            // measurement type
+        "mujets") ;            // measurement type
 
     readerUp_->load(*calib_,   // calibration instance
         BTagEntry::BTagEntry::FLAV_C,     // btag flavour
-        "lt") ;            // measurement type
+        "mujets") ;            // measurement type
 
     readerUp_->load(*calib_,   // calibration instance
         BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour
@@ -127,11 +127,11 @@ class BTagSFUtils {
 
     readerDown_->load(*calib_, // calibration instance
         BTagEntry::BTagEntry::FLAV_B,     // btag flavour
-        "lt") ;            // measurement type
+        "mujets") ;            // measurement type
 
     readerDown_->load(*calib_, // calibration instance
         BTagEntry::BTagEntry::FLAV_C,     // btag flavour
-        "lt") ;            // measurement type
+        "mujets") ;            // measurement type
 
     readerDown_->load(*calib_, // calibration instance
         BTagEntry::BTagEntry::FLAV_UDSG,  // btag flavour

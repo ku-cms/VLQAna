@@ -16,6 +16,8 @@ class TtHEventInfoBranches {
     double htHat_; 
     double EvtWeight_ ; 
     double EvtWtPV_;
+    double EvtWtPVBG_;
+    double EvtWtPVH_;
     double EvtWtPVLow_;
     double EvtWtPVHigh_;
     double EvtWtHT_;
@@ -43,6 +45,14 @@ class TtHEventInfoBranches {
     bool   isRegionC_;
     bool   isRegionD_;
     bool   isRegionNotABCD_;
+    double isotropy_;
+    double circularity_;
+    double sphericity_;
+    double aplanarity_;
+    double C_;
+    double D_;
+    double thrust_;
+    double thrustminor_;
     std::vector<std::pair<int, double> > lhewts_ ; 
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
@@ -54,6 +64,8 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_htHat").c_str(), &htHat_, (name+"_htHat/D").c_str()) ; 
       cutTree->Branch((name+"_EvtWeight").c_str(), &EvtWeight_, "EvtWeight/D");
       cutTree->Branch((name+"_EvtWtPV").c_str(), &EvtWtPV_, "EvtWtPV/D");
+      cutTree->Branch((name+"_EvtWtPVBG").c_str(), &EvtWtPVBG_, "EvtWtPVBG/D");
+      cutTree->Branch((name+"_EvtWtPVH").c_str(), &EvtWtPVH_, "EvtWtPVH/D");
       cutTree->Branch((name+"_EvtWtPVLow").c_str(), &EvtWtPVLow_, "EvtWtPVLow/D");
       cutTree->Branch((name+"_EvtWtPVHigh").c_str(), &EvtWtPVHigh_, "EvtWtPVHigh/D");
       cutTree->Branch((name+"_EvtWtHT").c_str(), &EvtWtHT_, "EvtWtHT/D");
@@ -82,6 +94,15 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_isRegionD").c_str(), &isRegionD_, "isRegionD/O");
       cutTree->Branch((name+"_isRegionNotABCD").c_str(), &isRegionNotABCD_, "isRegionNotABCD/O");
       cutTree->Branch((name+"_lhewts").c_str(), &lhewts_) ;  
+      cutTree->Branch((name+"_isotropy").c_str(), &isotropy_, "isotropy/D");
+      cutTree->Branch((name+"_circularity").c_str(), &circularity_, "circularity/D");
+      cutTree->Branch((name+"_sphericity").c_str(), &sphericity_, "sphericity/D");
+      cutTree->Branch((name+"_aplanarity").c_str(), &aplanarity_, "aplanarity/D");
+      cutTree->Branch((name+"_C").c_str(), &C_, "C/D");
+      cutTree->Branch((name+"_D").c_str(), &D_, "D/D");
+      cutTree->Branch((name+"_thrust").c_str(), &thrust_, "thrust/D");
+      cutTree->Branch((name+"_thrustminor").c_str(), &thrustminor_, "thrustminor/D");
+
     }
 
 };
@@ -117,6 +138,10 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVAK8;
     std::vector<double> hadronFlavourSJ0AK8; 
     std::vector<double> hadronFlavourSJ1AK8; 
+    std::vector<double> sj0ptAK8;
+    std::vector<double> sj1ptAK8;
+    std::vector<double> sj0etaAK8;
+    std::vector<double> sj1etaAK8;
 
     std::vector<int> idxHTagged; 
     std::vector<double> ptHTagged;
@@ -228,6 +253,10 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVAK8",&sj1CSVAK8);
       cutTree->Branch("hadronFlavourSJ0AK8",&hadronFlavourSJ0AK8);
       cutTree->Branch("hadronFlavourSJ1AK8",&hadronFlavourSJ1AK8);
+      cutTree->Branch("sj0ptAK8",&sj0ptAK8);
+      cutTree->Branch("sj1ptAK8",&sj1ptAK8);
+      cutTree->Branch("sj0etaAK8",&sj0etaAK8);
+      cutTree->Branch("sj1etaAK8",&sj1etaAK8);
 
       cutTree->Branch("idxHTagged", &idxHTagged); 
       cutTree->Branch("ptHTagged", &ptHTagged); 

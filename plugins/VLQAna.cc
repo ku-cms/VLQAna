@@ -43,6 +43,9 @@ Implementation:
 #include "Analysis/VLQAna/interface/TtHTree.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
+#include "Analysis/VLQAna/interface/EventShapeVariables.h"
+#include "Analysis/VLQAna/src/EventShapeVariables.cc"
+
 #include <TF1.h>
 #include <TH1D.h>
 #include <TH2D.h>
@@ -73,6 +76,8 @@ class VLQAna : public edm::EDFilter {
     edm::EDGetTokenT<string>         t_evttype    ;
     edm::EDGetTokenT<double>         t_evtwtGen   ;
     edm::EDGetTokenT<double>         t_evtwtPV    ;
+    edm::EDGetTokenT<double>         t_evtwtPVBG    ;
+    edm::EDGetTokenT<double>         t_evtwtPVH    ;
     edm::EDGetTokenT<double>         t_evtwtPVLow ;
     edm::EDGetTokenT<double>         t_evtwtPVHigh;
     edm::EDGetTokenT<unsigned>       t_npv        ;
@@ -88,14 +93,18 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetAK8maker                          ; 
     JetMaker jetHTaggedmaker                      ; 
     JetMaker jetTopTaggedmaker                    ; 
-    JetMaker jetAntiTopTaggedmaker                    ; 
-    JetMaker jetAntiHTaggedmaker                  ; 
+    JetMaker jetAntiTopTaggedmaker                ; 
+    JetMaker jetAntiHTaggedmaker                  ;
+ 
 
     double leadingJetPtMin_                       ; 
     double leadingJetPrunedMassMin_               ; 
     double HTMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
+    bool   applyBTagSFs_                          ;
+    const std::string btageffmap_                  ;
+    const std::string sjbtagSFcsv_                  ;
 
     edm::Service<TFileService> fs                 ; 
     std::map<std::string, TH1D*> h1_              ; 
@@ -120,6 +129,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   t_evttype               (consumes<string>         (iConfig.getParameter<edm::InputTag>("evttype"))),
   t_evtwtGen              (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtGen"))),
   t_evtwtPV               (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPV"))),
+  t_evtwtPVBG               (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPVBG"))),
+  t_evtwtPVH               (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPVH"))),
   t_evtwtPVLow            (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPVLow"))),
   t_evtwtPVHigh           (consumes<double>         (iConfig.getParameter<edm::InputTag>("evtwtPVHigh"))),
   t_npv                   (consumes<unsigned>       (iConfig.getParameter<edm::InputTag>("npv"))),
@@ -140,7 +151,10 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
-  btagsfutils_            (new BTagSFUtils())
+  applyBTagSFs_           (iConfig.getParameter<bool>             ("applyBTagSFs")),
+  btageffmap_             (iConfig.getParameter<std::string>      ("btageffmap")), 
+  sjbtagSFcsv_             (iConfig.getParameter<std::string>     ("sjbtagSFcsv")), 
+  btagsfutils_            (new BTagSFUtils(sjbtagSFcsv_,BTagEntry::OP_LOOSE,30.,450.,30.,450.,20.,1000.,btageffmap_))
 {
 
 }
@@ -159,6 +173,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<string>         h_evttype       ; evt.getByToken(t_evttype    , h_evttype    ) ; 
   Handle<double>         h_evtwtGen      ; evt.getByToken(t_evtwtGen   , h_evtwtGen   ) ; 
   Handle<double>         h_evtwtPV       ; evt.getByToken(t_evtwtPV    , h_evtwtPV    ) ; 
+  Handle<double>         h_evtwtPVBG     ; evt.getByToken(t_evtwtPVBG    , h_evtwtPVBG    ) ; 
+  Handle<double>         h_evtwtPVH      ; evt.getByToken(t_evtwtPVH    , h_evtwtPVH    ) ; 
   Handle<double>         h_evtwtPVLow    ; evt.getByToken(t_evtwtPVLow , h_evtwtPVLow ) ; 
   Handle<double>         h_evtwtPVHigh   ; evt.getByToken(t_evtwtPVHigh, h_evtwtPVHigh) ; 
   Handle<unsigned>       h_npv           ; evt.getByToken(t_npv        , h_npv        ) ; 
@@ -247,6 +263,22 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   unsigned nAntiHiggs(antiHTaggedJets.size()); 
   unsigned nAntiTop(antiTopTaggedJets.size()); 
 
+
+  /// Create Event Shape Varibless
+  std::vector<math::XYZVector> inputVectors;
+  for ( vlq::Jet& jet : goodAK4Jets ){
+  	inputVectors.push_back(math::XYZVector(jet.getP4().X(), jet.getP4().Y(), jet.getP4().Z()));
+  }
+  vlq::EventShapeVariables eventshapes(inputVectors);
+  
+  double isotropy     (eventshapes.isotropy());	
+  double circularity  (eventshapes.circularity());
+  double sphericity   (eventshapes.sphericity());
+  double aplanarity   (eventshapes.aplanarity());
+  double C            (eventshapes.C());
+  double D            (eventshapes.D());
+  double thrust       (eventshapes.thrust());
+  double thrustminor  (eventshapes.thrustminor());
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
   //// | C: Good H Anti-top | D: Good H Good top | 
@@ -419,7 +451,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
 
     ////// Get btag SFs
-    btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+    if (applyBTagSFs_) btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   } //// if !isData
 
@@ -505,6 +537,8 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.evtno_ = int(evtno);
   selectedevt_.EvtWeight_ = double(*h_evtwtGen.product());
   selectedevt_.EvtWtPV_ = double(*h_evtwtPV.product()) ; 
+  selectedevt_.EvtWtPVBG_ = double(*h_evtwtPVBG.product()) ; 
+  selectedevt_.EvtWtPVH_ = double(*h_evtwtPVH.product()) ; 
   selectedevt_.EvtWtPVLow_ = double(*h_evtwtPVLow.product()) ; 
   selectedevt_.EvtWtPVHigh_ = double(*h_evtwtPVHigh.product()) ; 
   selectedevt_.EvtWtHT_ = evtwtHT;
@@ -533,7 +567,15 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.isRegionD_ = isRegionD ; 
   selectedevt_.isRegionNotABCD_ = isRegionNotABCD;
   selectedevt_.lhewts_ = lhe_ids_wts;
-  selectedevt_.htHat_ = htHat ; 
+  selectedevt_.htHat_ = htHat ;
+  selectedevt_.isotropy_ = isotropy ;
+  selectedevt_.circularity_ = circularity ;
+  selectedevt_.sphericity_ = sphericity ;
+  selectedevt_.aplanarity_ = aplanarity ;
+  selectedevt_.C_ = C ;
+  selectedevt_.D_ = D ;
+  selectedevt_.thrust_ = thrust ;
+  selectedevt_.thrustminor_ = thrustminor ; 
 
   jets_.idxAK4             .clear() ; jets_.idxAK4             .reserve(goodAK4Jets.size()) ;   
   jets_.ptAK4              .clear() ; jets_.ptAK4              .reserve(goodAK4Jets.size()) ; 
@@ -573,6 +615,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVAK8          .clear() ; jets_.sj1CSVAK8          .reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ0AK8.clear() ; jets_.hadronFlavourSJ0AK8.reserve(goodAK8Jets.size()) ;  
   jets_.hadronFlavourSJ1AK8.clear() ; jets_.hadronFlavourSJ1AK8.reserve(goodAK8Jets.size()) ;  
+  jets_.sj0ptAK8            .clear() ; jets_.sj0ptAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1ptAK8            .clear() ; jets_.sj1ptAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj0etaAK8            .clear() ; jets_.sj0etaAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1etaAK8            .clear() ; jets_.sj1etaAK8           .reserve(goodAK8Jets.size()) ;
 
   for (vlq::Jet jet : goodAK8Jets) {
     jets_.idxAK8             .push_back(jet.getIndex()) ; 
@@ -593,6 +639,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAK8          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AK8.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AK8.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptAK8           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptAK8           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaAK8           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaAK8           .push_back(jet.getEtaSubjet1()) ;
   }
 
   jets_.idxHTagged             .clear() ; jets_.idxHTagged             .reserve(goodHTaggedJets.size()) ;   
