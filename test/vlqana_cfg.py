@@ -13,7 +13,7 @@ options.register('outFileName', 'singleT',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('hltORAND', 'AND',
+options.register('hltORAND', 'OR',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "OR or AND HLT paths?"
@@ -68,7 +68,7 @@ options.register('applyBTagSFs', True,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
     )
-options.register('btageffmap', "TbtH_1200_LH_btagEff_loose.root",#until new SFs arrive
+options.register('btageffmap', "btagEff_TtH_1200_loose.root",#until new SFs arrive
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
@@ -83,7 +83,7 @@ options.register('storeLHEWts', False,
     VarParsing.varType.bool,
     "Store LHE wts?"
     )
-options.register('FileNames', 'TbtH_1200_LH',
+options.register('FileNames', 'test',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -92,14 +92,36 @@ options.register('FileNames', 'TbtH_1200_LH',
 options.setDefault('maxEvents', -1000)
 options.parseArguments()
 
-hltpaths = ["HLT_PFHT800_v"]
 
+#hltpaths = ["HLT_PFJet320_v"]
+#Run2016B-G
+#hltpathsOr = [
+#               "HLT_AK8PFJet360_TrimMass30_v", 
+#              "HLT_AK8DiPFJet280_200_TrimMass30_v",
+#              "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v",
+#              "HLT_AK8PFJet450_v",
+#             ]
+#Run2016H
+#hltpathsOr = ["HLT_AK8PFJet360_TrimMass30_v", 
+#              "HLT_AK8DiPFJet300_200_TrimMass30_v",
+#              "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v",
+#              "HLT_AK8PFJet450_v",
+#             ]
+
+hltpathsOr = ["HLT_AK8PFJet360_TrimMass30_v", 
+              "HLT_AK8DiPFJet300_200_TrimMass30_v",
+              "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v",
+              "HLT_AK8PFJet450_v",
+              "HLT_AK8DiPFJet280_200_TrimMass30_v",
+              "HLT_PFHT800_v",
+              "HLT_PFHT900_v",
+             ]
 if options.isData:
     options.doBTagSFUnc = False 
     options.jerShift = 0 
     options.doPUReweightingOfficial=False 
     options.storeLHEWts=False
-    options.applyBTagSFs = True
+    options.applyBTagSFs = False
 HTMin=1100
 if options.storePreselEvts:
   HTMin = options.HTMin
@@ -124,7 +146,7 @@ process.TFileService = cms.Service("TFileService",
 dataFilePath = '../data/'
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltORAND = cms.string (options.hltORAND)  
-process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
+process.evtcleaner.hltPaths = cms.vstring (hltpathsOr)  
 process.evtcleaner.cleanEvents = cms.bool(options.cleanEvents)
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
@@ -133,6 +155,11 @@ process.evtcleaner.File_PUDistData      = cms.string(os.path.join(dataFilePath,'
 process.evtcleaner.File_PUDistDataLow   = cms.string(os.path.join(dataFilePath,'RunII2016Rereco_25ns_PUXsec65550nb.root'))
 process.evtcleaner.File_PUDistDataHigh  = cms.string(os.path.join(dataFilePath,'RunII2016Rereco_25ns_PUXsec72450nb.root'))
 process.evtcleaner.File_PUDistMC        = cms.string(os.path.join(dataFilePath,'PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root'))
+
+process.evtcleanerBG = process.evtcleaner.clone()
+process.evtcleanerBG.File_PUDistData = cms.string(os.path.join(dataFilePath, 'RunII2016Rereco_25ns_RunsBtoG_PUXsec69000nb.root'))
+process.evtcleanerH = process.evtcleaner.clone()
+process.evtcleanerH.File_PUDistData = cms.string(os.path.join(dataFilePath,'RunII2016Rereco_25ns_RunH_PUXsec69000nb.root'))
 
 from Analysis.VLQAna.VLQAna_cfi import *
 
@@ -218,6 +245,8 @@ process.finalEventsDoubleB = eventCounter.clone(isData=options.isData)
 process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
+    *process.evtcleanerBG
+    *process.evtcleanerH
     *process.cleanedEvents
     *process.anaCHS 
     *process.finalEvents
