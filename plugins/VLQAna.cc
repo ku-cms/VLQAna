@@ -289,62 +289,101 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::unique_ptr<vlq::Jet> theTop ;
   std::unique_ptr<vlq::Jet> theAntiHiggs ; 
   std::unique_ptr<vlq::Jet> theAntiTop ;
+
   if (nTop > 0) {
+    for (vlq::Jet& tjet : goodTopTaggedJets) {
+      if (tjet.getIsleading()) {
 
-    theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(goodTopTaggedJets.at(0))) ; 
+        theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(tjet)) ;
 
-    if (nHiggs > 0) {
-      for (vlq::Jet& hjet : goodHTaggedJets) {
-        double dphi = abs((theTop->getP4()).DeltaPhi(hjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet)) ; 
-          isRegionD = true ; 
-          break ; 
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIs2ndleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionD = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionD){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIs2ndleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionB = true;
+            }
+          }
         }
       }
-    } //// isRegionD 
-    else isRegionD = false ; 
+      else if (tjet.getIs2ndleading()) {         
+ 
+        theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(tjet)) ;
 
-    if (isRegionD == false && nAntiHiggs > 0) {
-      for (vlq::Jet& antihjet : antiHTaggedJets) {
-        double dphi = abs((theTop->getP4()).DeltaPhi(antihjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)) ; 
-          isRegionB = true ; 
-          break ; 
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIsleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionD = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionD){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIsleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionB = true;
+            }
+          }
         }
       }
-    } //// isRegionB
-    else isRegionNotABCD = true ;
-
+    }
   }
-  else if (nAntiTop > 0){
+  if (nAntiTop > 0 && (!isRegionD && !isRegionB)) {
+    for (vlq::Jet& antitjet : antiTopTaggedJets) {
+      if (antitjet.getIsleading()) {
+        theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antitjet));
 
-    theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antiTopTaggedJets.at(0))) ;
-
-    if (nHiggs > 0) {
-      for (vlq::Jet& hjet : goodHTaggedJets) {
-        double dphi = abs((theAntiTop->getP4()).DeltaPhi(hjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet)) ; 
-          isRegionC = true;
-          break ;
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIs2ndleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionC = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionC){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIs2ndleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionA = true;
+            }
+          }
         }
       }
-    } //// isRegionC 
-    else if (nAntiHiggs > 0) {
-      for (vlq::Jet& antihjet : antiHTaggedJets) {
-        double dphi = abs((theAntiTop->getP4()).DeltaPhi(antihjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)) ; 
-          isRegionA = true;
-          break ;
-        }
-      }
-    } //// isRegionA 
-    else isRegionNotABCD = true ;
+      else if (antitjet.getIs2ndleading()) {         
+ 
+        theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antitjet)) ;
 
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIsleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionC = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionC){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIsleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionA = true;
+            }
+          }
+        }
+        else {isRegionNotABCD = true;}
+      }
+    }
   }
+
+
 
   if ( !storePreselEvts_ && !isRegionA && !isRegionB && !isRegionC && !isRegionD ) return false ; 
 

@@ -143,7 +143,7 @@ process.TFileService = cms.Service("TFileService",
       )
     )
 #dataFilePath = "$CMSSW_BASE/src/Analysis/VLQAna/data/"
-dataFilePath = '../data/'
+dataFilePath = './'
 process.load("Analysis.VLQAna.EventCleaner_cff") 
 process.evtcleaner.hltORAND = cms.string (options.hltORAND)  
 process.evtcleaner.hltPaths = cms.vstring (hltpathsOr)  
@@ -211,36 +211,46 @@ process.anaCHS = process.ana.clone()
 from Analysis.VLQAna.JetMaker_cfi import *
             
 
-process.anaPuppi = process.ana.clone(
-    jetAK8selParams = defaultAK8PuppiJetSelectionParameters,
-    jetHTaggedselParams = defaultPuppiHJetSelectionParameters,
-    jetAntiHtaggedSelParams = defaultPuppiHJetSelectionParameters.clone(
-                                  subjetCSVMin = cms.double(-1000000),
-                                  subjetCSVMax = defaultPuppiHJetSelectionParameters.subjetCSVMin,
-                                  ),
-    jetTopTaggedselParams = defaultPuppiTJetSelectionParameters.clone(),
-    
-    )
-
-process.anaDoubleB = process.ana.clone(
-    jetHTaggedselParams = defaultCHSHJetSelectionParameters.clone(
-                                  subjetCSVMin = cms.double(-1000000),
-                                  subjetCSVMax = cms.double(1000000),
-                                  jetDoubleBMin = cms.double(0.8),
-                                  ),
-    jetAntiHTaggedSelParams = defaultCHSHJetSelectionParameters.clone(
-                                  subjetCSVMin = cms.double(-1000000),
-                                  subjetCSVMax = cms.double(1000000),
-                                  jetDoubleBMax = cms.double(0.8),
-                                  ),
-    )
+process.ana0p1 = process.ana.clone()
+process.ana0p3 = process.ana.clone(
+    jetTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
+       jettau3Bytau2Max = cms.double(0.57),
+    ),
+    jetAntiTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
+      subjetHighestCSVMin = cms.double(-1000000),
+      subjetHighestCSVMax = defaultCHSTJetSelectionParameters.subjetHighestCSVMin, 
+      jettau3Bytau2Max = cms.double(0.57),
+    ),
+)     
+process.ana1p0 = process.ana.clone(
+    jetTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
+       jettau3Bytau2Max = cms.double(0.67),
+    ),
+    jetAntiTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
+      subjetHighestCSVMin = cms.double(-1000000),
+      subjetHighestCSVMax = defaultCHSTJetSelectionParameters.subjetHighestCSVMin, 
+      jettau3Bytau2Max = cms.double(0.67),
+    ),
+)     
+process.ana3p0 = process.ana.clone(
+    jetTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
+       jettau3Bytau2Max = cms.double(0.81),
+    ),
+    jetAntiTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
+      subjetHighestCSVMin = cms.double(-1000000),
+      subjetHighestCSVMax = defaultCHSTJetSelectionParameters.subjetHighestCSVMin, 
+      jettau3Bytau2Max = cms.double(0.81),
+    ),
+)     
  
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
 process.cleanedEvents = eventCounter.clone(isData=options.isData)
 process.finalEvents = eventCounter.clone(isData=options.isData)
-process.finalEventsPuppi = eventCounter.clone(isData=options.isData)
-process.finalEventsDoubleB = eventCounter.clone(isData=options.isData)
+process.finalEvents0p1 = eventCounter.clone(isData=options.isData)
+process.finalEvents0p3 = eventCounter.clone(isData=options.isData)
+process.finalEvents1p0 = eventCounter.clone(isData=options.isData)
+process.finalEvents3p0 = eventCounter.clone(isData=options.isData)
 
 process.p = cms.Path(
     process.allEvents
@@ -251,26 +261,48 @@ process.p = cms.Path(
     *process.anaCHS 
     *process.finalEvents
     )
-
-process.pPuppi = cms.Path(
+process.p0p1 = cms.Path(
     process.allEvents
     *process.evtcleaner
-    *process.anaPuppi
-    *process.finalEventsPuppi
+    *process.evtcleanerBG
+    *process.evtcleanerH
+    *process.cleanedEvents
+    *process.ana0p1 
+    *process.finalEvents0p1
     )
-
-process.pDoubleB = cms.Path(
+process.p0p3 = cms.Path(
     process.allEvents
     *process.evtcleaner
-    *process.anaDoubleB
-    *process.finalEventsDoubleB
+    *process.evtcleanerBG
+    *process.evtcleanerH
+    *process.cleanedEvents
+    *process.ana0p3
+    *process.finalEvents0p3
+    )
+process.p1p0 = cms.Path(
+    process.allEvents
+    *process.evtcleaner
+    *process.evtcleanerBG
+    *process.evtcleanerH
+    *process.cleanedEvents
+    *process.ana1p0
+    *process.finalEvents1p0
+    )
+process.p3p0 = cms.Path(
+    process.allEvents
+    *process.evtcleaner
+    *process.evtcleanerBG
+    *process.evtcleanerH
+    *process.cleanedEvents
+    *process.ana3p0
+    *process.finalEvents3p0
     )
 
 process.out = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('evtcleaner')),
             )
 
-process.schedule = cms.Schedule(process.p)
+process.schedule = cms.Schedule(process.p0p1, process.p0p3, process.p1p0, process.p3p0)
 
 #process.outpath = cms.EndPath(process.out)
 

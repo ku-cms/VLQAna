@@ -521,7 +521,9 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
             jet.setNConsts      ( (h_jetcMultip.product())->at(ijet) + (h_jetnMultip.product())->at(ijet) ) ; 
             jet.setGroomedMassCorr (masssmear * massCorr * (1 + jecShift_*unc) ) ; 
             jet.setNSubjets (nsubjets) ; 
-            jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ; 
+            jet.setNSubjetsBTaggedCSVL (nsubjetsbtaggedcsvl) ;
+            if (ijet == 0) jet.setIsleading(true);
+            else if (ijet == 1) jet.setIs2ndleading(true) ;
           }
       else {
         continue ; 
