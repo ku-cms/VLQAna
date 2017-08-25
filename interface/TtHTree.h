@@ -142,6 +142,10 @@ class TtHJetInfoBranches {
     std::vector<double> sj1ptAK8;
     std::vector<double> sj0etaAK8;
     std::vector<double> sj1etaAK8;
+    std::vector<double> sj0phiAK8;
+    std::vector<double> sj1phiAK8;
+    std::vector<double> sj0EnergyAK8;
+    std::vector<double> sj1EnergyAK8;
 
     std::vector<int> idxHTagged; 
     std::vector<double> ptHTagged;
@@ -223,6 +227,46 @@ class TtHJetInfoBranches {
     std::vector<double> hadronFlavourSJ0AntiTopTagged; 
     std::vector<double> hadronFlavourSJ1AntiTopTagged;
  
+    std::vector<int> idxZTagged; 
+    std::vector<double> ptZTagged;
+    std::vector<double> etaZTagged;
+    std::vector<double> phiZTagged;
+    std::vector<double> MZTagged;
+    std::vector<double> SoftDropMassZTagged;
+    std::vector<double> PrunedMassZTagged;
+    std::vector<double> tau1ZTagged;
+    std::vector<double> tau2ZTagged;
+    std::vector<double> tau3ZTagged;
+    std::vector<double> csvZTagged;
+    std::vector<double> partonFlavourZTagged; 
+    std::vector<double> hadronFlavourZTagged; 
+
+    std::vector<double> doubleBZTagged;
+    std::vector<double> sj0CSVZTagged;
+    std::vector<double> sj1CSVZTagged;
+    std::vector<double> hadronFlavourSJ0ZTagged; 
+    std::vector<double> hadronFlavourSJ1ZTagged; 
+
+    std::vector<int> idxAntiZTagged; 
+    std::vector<double> ptAntiZTagged;
+    std::vector<double> etaAntiZTagged;
+    std::vector<double> phiAntiZTagged;
+    std::vector<double> MAntiZTagged;
+    std::vector<double> SoftDropMassAntiZTagged;
+    std::vector<double> PrunedMassAntiZTagged;
+    std::vector<double> tau1AntiZTagged;
+    std::vector<double> tau2AntiZTagged;
+    std::vector<double> tau3AntiZTagged;
+    std::vector<double> csvAntiZTagged;
+    std::vector<double> partonFlavourAntiZTagged; 
+    std::vector<double> hadronFlavourAntiZTagged; 
+
+    std::vector<double> doubleBAntiZTagged;
+    std::vector<double> sj0CSVAntiZTagged;
+    std::vector<double> sj1CSVAntiZTagged;
+    std::vector<double> hadronFlavourSJ0AntiZTagged; 
+    std::vector<double> hadronFlavourSJ1AntiZTagged;
+ 
     void RegisterTree(TTree *cutTree, std::string name="JetInfo") {
 
       cutTree->Branch("idxAK4", &idxAK4); 
@@ -257,6 +301,10 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1ptAK8",&sj1ptAK8);
       cutTree->Branch("sj0etaAK8",&sj0etaAK8);
       cutTree->Branch("sj1etaAK8",&sj1etaAK8);
+      cutTree->Branch("sj0phiAK8",&sj0phiAK8);
+      cutTree->Branch("sj1phiAK8",&sj1phiAK8);
+      cutTree->Branch("sj0EnergyAK8",&sj0EnergyAK8);
+      cutTree->Branch("sj1EnergyAK8",&sj1EnergyAK8);
 
       cutTree->Branch("idxHTagged", &idxHTagged); 
       cutTree->Branch("ptHTagged", &ptHTagged); 
@@ -338,6 +386,45 @@ class TtHJetInfoBranches {
       cutTree->Branch("hadronFlavourSJ0AntiTopTagged",&hadronFlavourSJ0AntiTopTagged);
       cutTree->Branch("hadronFlavourSJ1AntiTopTagged",&hadronFlavourSJ1AntiTopTagged);
 
+      cutTree->Branch("idxZTagged", &idxZTagged); 
+      cutTree->Branch("ptZTagged", &ptZTagged); 
+      cutTree->Branch("etaZTagged", &etaZTagged);
+      cutTree->Branch("phiZTagged", &phiZTagged);
+      cutTree->Branch("MZTagged", &MZTagged);
+      cutTree->Branch("SoftDropMassZTagged", &SoftDropMassZTagged);
+      cutTree->Branch("PrunedMassZTagged", &PrunedMassZTagged);
+      cutTree->Branch("tau1ZTagged", &tau1ZTagged);
+      cutTree->Branch("tau2ZTagged", &tau2ZTagged);
+      cutTree->Branch("tau3ZTagged", &tau3ZTagged);
+      cutTree->Branch("csvZTagged", &csvZTagged);
+      cutTree->Branch("partonFlavourZTagged", &partonFlavourZTagged);
+      cutTree->Branch("hadronFlavourZTagged", &hadronFlavourZTagged);
+
+      cutTree->Branch("doubleBZTagged",&doubleBZTagged);
+      cutTree->Branch("sj0CSVZTagged",&sj0CSVZTagged);
+      cutTree->Branch("sj1CSVZTagged",&sj1CSVZTagged);
+      cutTree->Branch("hadronFlavourSJ0ZTagged",&hadronFlavourSJ0ZTagged);
+      cutTree->Branch("hadronFlavourSJ1ZTagged",&hadronFlavourSJ1ZTagged);
+
+      cutTree->Branch("idxAntiZTagged", &idxAntiZTagged); 
+      cutTree->Branch("ptAntiZTagged", &ptAntiZTagged); 
+      cutTree->Branch("etaAntiZTagged", &etaAntiZTagged);
+      cutTree->Branch("phiAntiZTagged", &phiAntiZTagged);
+      cutTree->Branch("MAntiZTagged", &MAntiZTagged);
+      cutTree->Branch("SoftDropMassAntiZTagged", &SoftDropMassAntiZTagged);
+      cutTree->Branch("PrunedMassAntiZTagged", &PrunedMassAntiZTagged);
+      cutTree->Branch("tau1AntiZTagged", &tau1AntiZTagged);
+      cutTree->Branch("tau2AntiZTagged", &tau2AntiZTagged);
+      cutTree->Branch("tau3AntiZTagged", &tau3AntiZTagged);
+      cutTree->Branch("csvAntiZTagged", &csvAntiZTagged);
+      cutTree->Branch("partonFlavourAntiZTagged", &partonFlavourAntiZTagged);
+      cutTree->Branch("hadronFlavourAntiZTagged", &hadronFlavourAntiZTagged);
+
+      cutTree->Branch("doubleBAntiZTagged",&doubleBAntiZTagged);
+      cutTree->Branch("sj0CSVAntiZTagged",&sj0CSVAntiZTagged);
+      cutTree->Branch("sj1CSVAntiZTagged",&sj1CSVAntiZTagged);
+      cutTree->Branch("hadronFlavourSJ0AntiZTagged",&hadronFlavourSJ0AntiZTagged);
+      cutTree->Branch("hadronFlavourSJ1AntiZTagged",&hadronFlavourSJ1AntiZTagged);
     }
 
     //void ReadTree(TTree* tree, std::string name="JetInfo") {

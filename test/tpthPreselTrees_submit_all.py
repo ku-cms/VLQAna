@@ -49,8 +49,8 @@ def main():
     config.section_("JobType")
     config.JobType.pluginName = 'Analysis'
     config.JobType.psetName = 'vlqana_cfg.py' 
-    config.JobType.pyCfgParams = ['btageffmap=btagEff_TTJets_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
-    #config.JobType.pyCfgParams = ['btageffmap=btagEff_TtH_1200_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=900', 'storePreselEvts=True', 'storeLHEWts=False'] 
+    #config.JobType.pyCfgParams = ['btageffmap=btagEff_loose_QCDPT3200.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
+    config.JobType.pyCfgParams = ['btageffmap=btagEff_TbtH_2600_Width-10p_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
     #config.JobType.pyCfgParams = ['cleanEvents=True','isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=900', 'storePreselEvts=True'] 
     config.JobType.inputFiles = [
         '../data/PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root'
@@ -58,7 +58,7 @@ def main():
         ,'../data/RunII2016Rereco_25ns_PUXsec65550nb.root'
         ,'../data/RunII2016Rereco_25ns_PUXsec72450nb.root'
         ,'../data/RunII2016Rereco_25ns_RunsBtoG_PUXsec69000nb.root'
-        ,'../data/RunII2016Rereco_25ns_RunH_PUXsec69000nb.root
+        ,'../data/RunII2016Rereco_25ns_RunH_PUXsec69000nb.root'
         ,'../data/Summer16_23Sep2016V4_MC_L2Relative_AK8PFPuppi.txt'
         ,'../data/Summer16_23Sep2016V4_MC_L3Absolute_AK8PFPuppi.txt'
         ,'../data/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'
@@ -83,6 +83,23 @@ def main():
         ,'../data/btagEff_TtH_1500_loose.root'
         ,'../data/btagEff_TtH_1700_loose.root'
         ,'../data/btagEff_TtH_1800_loose.root'
+        ,'../data/btagEff_TbtH_2600_Width-10p_loose.root'
+        ,'../data/btagEff_loose_QCDHT300.root'
+        ,'../data/btagEff_loose_QCDHT500.root'
+        ,'../data/btagEff_loose_QCDHT700.root'
+        ,'../data/btagEff_loose_QCDHT1000.root'
+        ,'../data/btagEff_loose_QCDHT1500.root'
+        ,'../data/btagEff_loose_QCDHT2000.root'
+        ,'../data/btagEff_loose_QCDPT170.root'
+        ,'../data/btagEff_loose_QCDPT300.root'
+        ,'../data/btagEff_loose_QCDPT470.root'
+        ,'../data/btagEff_loose_QCDPT600.root'
+        ,'../data/btagEff_loose_QCDPT800.root'
+        ,'../data/btagEff_loose_QCDPT1000.root'
+        ,'../data/btagEff_loose_QCDPT1400.root'
+        ,'../data/btagEff_loose_QCDPT1800.root'
+        ,'../data/btagEff_loose_QCDPT2400.root'
+        ,'../data/btagEff_loose_QCDPT3200.root'
         ,'../data/subjet_CSVv2_Moriond17_B_H.csv'
         ]
     config.JobType.maxJobRuntimeMin = 2000

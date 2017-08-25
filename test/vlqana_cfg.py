@@ -164,7 +164,7 @@ process.evtcleanerH.File_PUDistData = cms.string(os.path.join(dataFilePath,'RunI
 from Analysis.VLQAna.VLQAna_cfi import *
 
 if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
-  for par in ['jetAK4selParams', 'jetAK8selParams', 'jetHTaggedselParams', 'jetAntiHTaggedselParams', 'jetTopTaggedselParams', 'jetAntiTopTaggedselParams']:
+  for par in ['jetAK4selParams', 'jetAK8selParams', 'jetHTaggedselParams', 'jetAntiHTaggedselParams', 'jetTopTaggedselParams', 'jetAntiTopTaggedselParams', 'jetZTaggedselParams', 'jetAntiZTaggedselParams']:
     if 'AK4' in par:
         jetType = 'AK4PFchs'
     else:
@@ -196,8 +196,14 @@ process.ana.jetTopTaggedselParams.jecShift = options.jecShift
 process.ana.jetTopTaggedselParams.jerShift = options.jerShift 
 process.ana.jetAntiHTaggedselParams.jecShift = options.jecShift 
 process.ana.jetAntiHTaggedselParams.jerShift = options.jerShift 
-#process.ana.jetTopTaggedselParams.jettau3Bytau2Max = options.topTagtau32
-#process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
+process.ana.jetAntiTopTaggedselParams.jecShift = options.jecShift 
+process.ana.jetAntiTopTaggedselParams.jerShift = options.jerShift 
+process.ana.jetZTaggedselParams.jecShift = options.jecShift 
+process.ana.jetZTaggedselParams.jerShift = options.jerShift 
+process.ana.jetAntiZTaggedselParams.jecShift = options.jecShift 
+process.ana.jetAntiZTaggedselParams.jerShift = options.jerShift 
+process.ana.jetTopTaggedselParams.jettau3Bytau2Max = options.topTagtau32
+process.ana.jetTopTaggedselParams.subjetHighestCSVMin = options.topTagBDisc
 process.ana.storePreselEvts = options.storePreselEvts
 process.ana.doPreselOnly = options.doPreselOnly
 process.ana.HTMin = HTMin
@@ -211,7 +217,6 @@ process.anaCHS = process.ana.clone()
 from Analysis.VLQAna.JetMaker_cfi import *
             
 
-process.ana0p1 = process.ana.clone()
 process.ana0p3 = process.ana.clone(
     jetTopTaggedselParams = defaultCHSTJetSelectionParameters.clone(
        jettau3Bytau2Max = cms.double(0.57),
@@ -261,15 +266,6 @@ process.p = cms.Path(
     *process.anaCHS 
     *process.finalEvents
     )
-process.p0p1 = cms.Path(
-    process.allEvents
-    *process.evtcleaner
-    *process.evtcleanerBG
-    *process.evtcleanerH
-    *process.cleanedEvents
-    *process.ana0p1 
-    *process.finalEvents0p1
-    )
 process.p0p3 = cms.Path(
     process.allEvents
     *process.evtcleaner
@@ -302,7 +298,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('evtcleaner')),
             )
 
-process.schedule = cms.Schedule(process.p0p1, process.p0p3, process.p1p0, process.p3p0)
+process.schedule = cms.Schedule(process.p, process.p0p3, process.p1p0, process.p3p0)
 
 #process.outpath = cms.EndPath(process.out)
 
