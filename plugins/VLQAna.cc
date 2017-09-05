@@ -95,6 +95,8 @@ class VLQAna : public edm::EDFilter {
     JetMaker jetTopTaggedmaker                    ; 
     JetMaker jetAntiTopTaggedmaker                ; 
     JetMaker jetAntiHTaggedmaker                  ;
+    JetMaker jetZTaggedmaker                      ; 
+    JetMaker jetAntiZTaggedmaker                    ; 
  
 
     double leadingJetPtMin_                       ; 
@@ -146,6 +148,8 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   jetTopTaggedmaker       (iConfig.getParameter<edm::ParameterSet>("jetTopTaggedselParams"), consumesCollector()),  
   jetAntiTopTaggedmaker   (iConfig.getParameter<edm::ParameterSet>("jetAntiTopTaggedselParams"), consumesCollector()),  
   jetAntiHTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiHTaggedselParams"), consumesCollector()), 
+  jetZTaggedmaker         (iConfig.getParameter<edm::ParameterSet>("jetZTaggedselParams"), consumesCollector()), 
+  jetAntiZTaggedmaker     (iConfig.getParameter<edm::ParameterSet>("jetAntiZTaggedselParams"), consumesCollector()), 
   leadingJetPtMin_        (iConfig.getParameter<double>           ("leadingJetPtMin")), 
   leadingJetPrunedMassMin_(iConfig.getParameter<double>           ("leadingJetPrunedMassMin")), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
@@ -249,12 +253,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   }
 
-  vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets, antiTopTaggedJets ; 
+  vlq::JetCollection goodHTaggedJets, goodTopTaggedJets, antiHTaggedJets, antiTopTaggedJets, goodZTaggedJets, antiZTaggedJets ; 
 
   jetHTaggedmaker(evt, goodHTaggedJets);
   jetTopTaggedmaker(evt, goodTopTaggedJets);
   jetAntiHTaggedmaker(evt, antiHTaggedJets);
   jetAntiTopTaggedmaker(evt, antiTopTaggedJets);
+  jetZTaggedmaker(evt, goodZTaggedJets);
+  jetAntiZTaggedmaker(evt, antiZTaggedJets);
 
   unsigned nAK4      (goodAK4Jets.size());
   unsigned nAK8      (goodAK8Jets.size());
@@ -289,62 +295,101 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   std::unique_ptr<vlq::Jet> theTop ;
   std::unique_ptr<vlq::Jet> theAntiHiggs ; 
   std::unique_ptr<vlq::Jet> theAntiTop ;
+
   if (nTop > 0) {
+    for (vlq::Jet& tjet : goodTopTaggedJets) {
+      if (tjet.getIsleading()) {
 
-    theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(goodTopTaggedJets.at(0))) ; 
+        theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(tjet)) ;
 
-    if (nHiggs > 0) {
-      for (vlq::Jet& hjet : goodHTaggedJets) {
-        double dphi = abs((theTop->getP4()).DeltaPhi(hjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet)) ; 
-          isRegionD = true ; 
-          break ; 
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIs2ndleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionD = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionD){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIs2ndleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionB = true;
+            }
+          }
         }
       }
-    } //// isRegionD 
-    else isRegionD = false ; 
+      else if (tjet.getIs2ndleading()) {         
+ 
+        theTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(tjet)) ;
 
-    if (isRegionD == false && nAntiHiggs > 0) {
-      for (vlq::Jet& antihjet : antiHTaggedJets) {
-        double dphi = abs((theTop->getP4()).DeltaPhi(antihjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)) ; 
-          isRegionB = true ; 
-          break ; 
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIsleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionD = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionD){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIsleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionB = true;
+            }
+          }
         }
       }
-    } //// isRegionB
-    else isRegionNotABCD = true ;
-
+    }
   }
-  else if (nAntiTop > 0){
+  if (nAntiTop > 0 && (!isRegionD && !isRegionB)) {
+    for (vlq::Jet& antitjet : antiTopTaggedJets) {
+      if (antitjet.getIsleading()) {
+        theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antitjet));
 
-    theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antiTopTaggedJets.at(0))) ;
-
-    if (nHiggs > 0) {
-      for (vlq::Jet& hjet : goodHTaggedJets) {
-        double dphi = abs((theAntiTop->getP4()).DeltaPhi(hjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet)) ; 
-          isRegionC = true;
-          break ;
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIs2ndleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionC = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionC){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIs2ndleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionA = true;
+            }
+          }
         }
       }
-    } //// isRegionC 
-    else if (nAntiHiggs > 0) {
-      for (vlq::Jet& antihjet : antiHTaggedJets) {
-        double dphi = abs((theAntiTop->getP4()).DeltaPhi(antihjet.getP4())) ;  
-        if (dphi > 2.0) {
-          theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)) ; 
-          isRegionA = true;
-          break ;
-        }
-      }
-    } //// isRegionA 
-    else isRegionNotABCD = true ;
+      else if (antitjet.getIs2ndleading()) {         
+ 
+        theAntiTop = std::unique_ptr<vlq::Jet>(new vlq::Jet(antitjet)) ;
 
+        if (nHiggs > 0) {
+          for (vlq::Jet& hjet : goodHTaggedJets){ 
+            if (hjet.getIsleading()){
+              theHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(hjet));
+              isRegionC = true; 
+            }
+          }
+        }
+        if (nAntiHiggs > 0 && !isRegionC){
+          for (vlq::Jet& antihjet : antiHTaggedJets){ 
+            if (antihjet.getIsleading()){ 
+              theAntiHiggs = std::unique_ptr<vlq::Jet>(new vlq::Jet(antihjet)); 
+              isRegionA = true;
+            }
+          }
+        }
+        else {isRegionNotABCD = true;}
+      }
+    }
   }
+
+
 
   if ( !storePreselEvts_ && !isRegionA && !isRegionB && !isRegionC && !isRegionD ) return false ; 
 
@@ -619,6 +664,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1ptAK8            .clear() ; jets_.sj1ptAK8           .reserve(goodAK8Jets.size()) ;
   jets_.sj0etaAK8            .clear() ; jets_.sj0etaAK8           .reserve(goodAK8Jets.size()) ;
   jets_.sj1etaAK8            .clear() ; jets_.sj1etaAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj0phiAK8            .clear() ; jets_.sj0phiAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1phiAK8            .clear() ; jets_.sj1phiAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj0EnergyAK8            .clear() ; jets_.sj0EnergyAK8           .reserve(goodAK8Jets.size()) ;
+  jets_.sj1EnergyAK8            .clear() ; jets_.sj1EnergyAK8           .reserve(goodAK8Jets.size()) ;
 
   for (vlq::Jet jet : goodAK8Jets) {
     jets_.idxAK8             .push_back(jet.getIndex()) ; 
@@ -643,6 +692,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1ptAK8           .push_back(jet.getPtSubjet1()) ;
     jets_.sj0etaAK8           .push_back(jet.getEtaSubjet0()) ;
     jets_.sj1etaAK8           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiAK8           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiAK8           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyAK8           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyAK8           .push_back(jet.getEnergySubjet1()) ;
   }
 
   jets_.idxHTagged             .clear() ; jets_.idxHTagged             .reserve(goodHTaggedJets.size()) ;   
@@ -803,6 +856,86 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAntiTopTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AntiTopTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AntiTopTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+  }
+
+  jets_.idxZTagged             .clear() ; jets_.idxZTagged             .reserve(goodZTaggedJets.size()) ;   
+  jets_.ptZTagged              .clear() ; jets_.ptZTagged              .reserve(goodZTaggedJets.size()) ;   
+  jets_.etaZTagged             .clear() ; jets_.etaZTagged             .reserve(goodZTaggedJets.size()) ;   
+  jets_.phiZTagged             .clear() ; jets_.phiZTagged             .reserve(goodZTaggedJets.size()) ;   
+  jets_.MZTagged               .clear() ; jets_.MZTagged               .reserve(goodZTaggedJets.size()) ;   
+  jets_.SoftDropMassZTagged    .clear() ; jets_.SoftDropMassZTagged    .reserve(goodZTaggedJets.size()) ;   
+  jets_.PrunedMassZTagged      .clear() ; jets_.PrunedMassZTagged      .reserve(goodZTaggedJets.size()) ;   
+  jets_.tau1ZTagged            .clear() ; jets_.tau1ZTagged            .reserve(goodZTaggedJets.size()) ;   
+  jets_.tau2ZTagged            .clear() ; jets_.tau2ZTagged            .reserve(goodZTaggedJets.size()) ;   
+  jets_.tau3ZTagged            .clear() ; jets_.tau3ZTagged            .reserve(goodZTaggedJets.size()) ;   
+  jets_.csvZTagged             .clear() ; jets_.csvZTagged             .reserve(goodZTaggedJets.size()) ;   
+  jets_.partonFlavourZTagged   .clear() ; jets_.partonFlavourZTagged   .reserve(goodZTaggedJets.size()) ;   
+  jets_.hadronFlavourZTagged   .clear() ; jets_.hadronFlavourZTagged   .reserve(goodZTaggedJets.size()) ;   
+  jets_.doubleBZTagged         .clear() ; jets_.doubleBZTagged         .reserve(goodZTaggedJets.size()) ;   
+  jets_.sj0CSVZTagged          .clear() ; jets_.sj0CSVZTagged          .reserve(goodZTaggedJets.size()) ;   
+  jets_.sj1CSVZTagged          .clear() ; jets_.sj1CSVZTagged          .reserve(goodZTaggedJets.size()) ;   
+  jets_.hadronFlavourSJ0ZTagged.clear() ; jets_.hadronFlavourSJ0ZTagged.reserve(goodZTaggedJets.size()) ;   
+  jets_.hadronFlavourSJ1ZTagged.clear() ; jets_.hadronFlavourSJ1ZTagged.reserve(goodZTaggedJets.size()) ;   
+
+  for (vlq::Jet jet : goodZTaggedJets) {
+    jets_.idxZTagged             .push_back(jet.getIndex()) ; 
+    jets_.ptZTagged              .push_back(jet.getPt()) ; 
+    jets_.etaZTagged             .push_back(jet.getEta()) ; 
+    jets_.phiZTagged             .push_back(jet.getPhi()) ; 
+    jets_.MZTagged               .push_back(jet.getMass()) ; 
+    jets_.SoftDropMassZTagged    .push_back(jet.getSoftDropMass()) ;
+    jets_.PrunedMassZTagged      .push_back(jet.getPrunedMass()) ;
+    jets_.tau1ZTagged            .push_back(jet.getTau1()) ;
+    jets_.tau2ZTagged            .push_back(jet.getTau2()) ;
+    jets_.tau3ZTagged            .push_back(jet.getTau3()) ;
+    jets_.csvZTagged             .push_back(jet.getCSV());
+    jets_.partonFlavourZTagged   .push_back(jet.getPartonFlavour());
+    jets_.hadronFlavourZTagged   .push_back(jet.getHadronFlavour());
+    jets_.doubleBZTagged         .push_back(jet.getDoubleBAK8()) ;
+    jets_.sj0CSVZTagged          .push_back(jet.getCSVSubjet0()) ;
+    jets_.sj1CSVZTagged          .push_back(jet.getCSVSubjet1()) ;
+    jets_.hadronFlavourSJ0ZTagged.push_back(jet.getHadronFlavourSubjet0()) ;
+    jets_.hadronFlavourSJ1ZTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+  }
+
+  jets_.idxAntiZTagged             .clear() ; jets_.idxAntiZTagged             .reserve(antiZTaggedJets.size()) ;   
+  jets_.ptAntiZTagged              .clear() ; jets_.ptAntiZTagged              .reserve(antiZTaggedJets.size()) ;   
+  jets_.etaAntiZTagged             .clear() ; jets_.etaAntiZTagged             .reserve(antiZTaggedJets.size()) ;   
+  jets_.phiAntiZTagged             .clear() ; jets_.phiAntiZTagged             .reserve(antiZTaggedJets.size()) ;   
+  jets_.MAntiZTagged               .clear() ; jets_.MAntiZTagged               .reserve(antiZTaggedJets.size()) ;   
+  jets_.SoftDropMassAntiZTagged    .clear() ; jets_.SoftDropMassAntiZTagged    .reserve(antiZTaggedJets.size()) ;   
+  jets_.PrunedMassAntiZTagged      .clear() ; jets_.PrunedMassAntiZTagged      .reserve(antiZTaggedJets.size()) ;   
+  jets_.tau1AntiZTagged            .clear() ; jets_.tau1AntiZTagged            .reserve(antiZTaggedJets.size()) ;   
+  jets_.tau2AntiZTagged            .clear() ; jets_.tau2AntiZTagged            .reserve(antiZTaggedJets.size()) ;   
+  jets_.tau3AntiZTagged            .clear() ; jets_.tau3AntiZTagged            .reserve(antiZTaggedJets.size()) ;   
+  jets_.csvAntiZTagged             .clear() ; jets_.csvAntiZTagged             .reserve(antiZTaggedJets.size()) ;   
+  jets_.partonFlavourAntiZTagged   .clear() ; jets_.partonFlavourAntiZTagged   .reserve(antiZTaggedJets.size()) ;   
+  jets_.hadronFlavourAntiZTagged   .clear() ; jets_.hadronFlavourAntiZTagged   .reserve(antiZTaggedJets.size()) ;   
+  jets_.doubleBAntiZTagged         .clear() ; jets_.doubleBAntiZTagged         .reserve(antiZTaggedJets.size()) ;   
+  jets_.sj0CSVAntiZTagged          .clear() ; jets_.sj0CSVAntiZTagged          .reserve(antiZTaggedJets.size()) ;   
+  jets_.sj1CSVAntiZTagged          .clear() ; jets_.sj1CSVAntiZTagged          .reserve(antiZTaggedJets.size()) ;   
+  jets_.hadronFlavourSJ0AntiZTagged.clear() ; jets_.hadronFlavourSJ0AntiZTagged.reserve(antiZTaggedJets.size()) ;   
+  jets_.hadronFlavourSJ1AntiZTagged.clear() ; jets_.hadronFlavourSJ1AntiZTagged.reserve(antiZTaggedJets.size()) ;   
+
+  for (vlq::Jet jet : antiZTaggedJets) {
+    jets_.idxAntiZTagged             .push_back(jet.getIndex()) ; 
+    jets_.ptAntiZTagged              .push_back(jet.getPt()) ; 
+    jets_.etaAntiZTagged             .push_back(jet.getEta()) ; 
+    jets_.phiAntiZTagged             .push_back(jet.getPhi()) ; 
+    jets_.MAntiZTagged               .push_back(jet.getMass()) ; 
+    jets_.SoftDropMassAntiZTagged    .push_back(jet.getSoftDropMass()) ;
+    jets_.PrunedMassAntiZTagged      .push_back(jet.getPrunedMass()) ;
+    jets_.tau1AntiZTagged            .push_back(jet.getTau1()) ;
+    jets_.tau2AntiZTagged            .push_back(jet.getTau2()) ;
+    jets_.tau3AntiZTagged            .push_back(jet.getTau3()) ;
+    jets_.csvAntiZTagged             .push_back(jet.getCSV());
+    jets_.partonFlavourAntiZTagged   .push_back(jet.getPartonFlavour());
+    jets_.hadronFlavourAntiZTagged   .push_back(jet.getHadronFlavour());
+    jets_.doubleBAntiZTagged         .push_back(jet.getDoubleBAK8()) ;
+    jets_.sj0CSVAntiZTagged          .push_back(jet.getCSVSubjet0()) ;
+    jets_.sj1CSVAntiZTagged          .push_back(jet.getCSVSubjet1()) ;
+    jets_.hadronFlavourSJ0AntiZTagged.push_back(jet.getHadronFlavourSubjet0()) ;
+    jets_.hadronFlavourSJ1AntiZTagged.push_back(jet.getHadronFlavourSubjet1()) ;
   }
 
   tree_->Fill();
