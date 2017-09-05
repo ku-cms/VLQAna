@@ -49,9 +49,9 @@ def main():
     config.section_("JobType")
     config.JobType.pluginName = 'Analysis'
     config.JobType.psetName = 'vlqana_cfg.py' 
-    #config.JobType.pyCfgParams = ['btageffmap=btagEff_loose_QCDPT3200.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
-    config.JobType.pyCfgParams = ['btageffmap=btagEff_TbtH_2600_Width-10p_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
-    #config.JobType.pyCfgParams = ['cleanEvents=True','isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=900', 'storePreselEvts=True'] 
+    config.JobType.pyCfgParams = ['btageffmap=btagEff_TTJets_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
+    #config.JobType.pyCfgParams = ['btageffmap=btagEff_TttH_2600_Width-10p_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
+    #config.JobType.pyCfgParams = ['cleanEvents=True','isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=0', 'storePreselEvts=True'] 
     config.JobType.inputFiles = [
         '../data/PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root'
         ,'../data/RunII2016Rereco_25ns_PUXsec69000nb.root'
@@ -84,6 +84,7 @@ def main():
         ,'../data/btagEff_TtH_1700_loose.root'
         ,'../data/btagEff_TtH_1800_loose.root'
         ,'../data/btagEff_TbtH_2600_Width-10p_loose.root'
+        ,'../data/btagEff_TttH_2600_Width-10p_loose.root'
         ,'../data/btagEff_loose_QCDHT300.root'
         ,'../data/btagEff_loose_QCDHT500.root'
         ,'../data/btagEff_loose_QCDHT700.root'
@@ -110,7 +111,7 @@ def main():
     config.Data.inputDBS = 'phys03'
     #config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
     config.Data.splitting = 'FileBased'
-#    config.Data.splitting = 'LumiBased'
+    #config.Data.splitting = 'LumiBased'
     config.Data.unitsPerJob = 1
     config.Data.ignoreLocality = False
     config.Data.publication = False     
@@ -146,7 +147,7 @@ def main():
 
         print "-->  ", job
         pd = job.split('/')[1] + job.split('/')[2].split('-')[0]
-        processing = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] + (job.split('/')[2]).split('-')[2] + (job.split('/')[2]).split('-')[0]+'_ver3' #for data
+        processing = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] + (job.split('/')[2]).split('-')[2] + (job.split('/')[2]).split('-')[0] #for data
         if (len(pd + '_' + processing)<=100): 
           config.General.requestName = pd + '_' + processing
         else:

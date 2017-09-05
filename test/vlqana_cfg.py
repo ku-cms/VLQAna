@@ -100,12 +100,14 @@ options.parseArguments()
 #              "HLT_AK8DiPFJet280_200_TrimMass30_v",
 #              "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v",
 #              "HLT_AK8PFJet450_v",
+#              "HLT_PFHT800_v",
 #             ]
 #Run2016H
 #hltpathsOr = ["HLT_AK8PFJet360_TrimMass30_v", 
 #              "HLT_AK8DiPFJet300_200_TrimMass30_v",
 #              "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v",
 #              "HLT_AK8PFJet450_v",
+#              "HLT_PFHT900_v",
 #             ]
 
 hltpathsOr = ["HLT_AK8PFJet360_TrimMass30_v", 
