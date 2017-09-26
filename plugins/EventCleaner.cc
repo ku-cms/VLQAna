@@ -168,7 +168,7 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   }
   t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
   if ( storeLHEWts_ ) {
-    consumes<LHERunInfoProduct>({"source"});
+    consumes<LHERunInfoProduct>({"externalLHEProducer"});
     t_lheEvtProd = consumes<LHEEventProduct>(l_lheEvtProd) ; 
   }
   produces<int>("evtno");

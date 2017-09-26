@@ -43,8 +43,8 @@ Implementation:
 #include "Analysis/VLQAna/interface/TtHTree.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
 
-#include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
-#include "PhysicsTools/CandUtils/src/EventShapeVariables.cc"
+#include "Analysis/VLQAna/interface/EventShapeVariables.h"
+#include "Analysis/VLQAna/src/EventShapeVariables.cc"
 
 #include <TF1.h>
 #include <TH1D.h>
@@ -275,7 +275,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   for ( vlq::Jet& jet : goodAK4Jets ){
   	inputVectors.push_back(math::XYZVector(jet.getP4().X(), jet.getP4().Y(), jet.getP4().Z()));
   }
-  EventShapeVariables eventshapes(inputVectors);
+  vlq::EventShapeVariables eventshapes(inputVectors);
   
   double isotropy     (eventshapes.isotropy());	
   double circularity  (eventshapes.circularity());
