@@ -195,32 +195,32 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double evtwt((*h_evtwtGen.product()) * (*h_evtwtPV.product())) ; 
   int npv(*h_npv.product()) ; 
   const double htHat((*h_htHat.product())) ; 
-
   h1_["cutflow"] -> Fill(1, evtwt) ; 
 
-  if ( isData && !hltdecision ) return false; 
+  //if ( isData && !hltdecision ) return false; 
+  if ( !hltdecision ) return false; 
 
   h1_["cutflow"] -> Fill(2, evtwt) ; 
 
   vlq::JetCollection goodAK4Jets;
   jetAK4maker(evt, goodAK4Jets) ;
-  //// Event pre-selection
+  // Event pre-selection
   if (goodAK4Jets.size() < 4) return false ; 
   h1_["cutflow"] -> Fill(3, evtwt) ; 
 
   HT htak4(goodAK4Jets) ; 
-  //// Event pre-selection
+  // Event pre-selection
   if (htak4.getHT() < HTMin_) return false ; 
   h1_["cutflow"] -> Fill(4, evtwt) ; 
 
   vlq::JetCollection goodAK8Jets; 
   jetAK8maker(evt, goodAK8Jets); 
 
-  //// Event pre-selection
+  // Event pre-selection
   if (goodAK8Jets.size() < 2) return false ; 
   h1_["cutflow"] -> Fill(5, evtwt) ; 
 
-  //// Event pre-selection
+  // Event pre-selection
   if (goodAK8Jets.at(0).getPt() < leadingJetPtMin_ 
       && goodAK8Jets.at(0).getPrunedMass() < leadingJetPrunedMassMin_) return false ; 
   h1_["cutflow"] -> Fill(6, evtwt) ; 
@@ -444,15 +444,10 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     //// This needs to be revisied when the top tag WP is updated
     if ( theTop != nullptr ){
-      if ( theTop->getPt() >= 400. && theTop->getPt() < 550.) {
-        toptagsf = 0.88 ;
-        toptagsfUp = 0.88+0.13 ; 
-        toptagsfDown = 0.88-0.13;
-      }
-      else if ( theTop != nullptr && theTop->getPt() >= 550.)  {
-        toptagsf = 0.94 ;
-        toptagsfUp = 0.94+0.29 ; 
-        toptagsfDown = 0.94-0.29;
+      if ( theTop->getPt() >= 400.) {
+        toptagsf = 1.03 ;
+        toptagsfUp = 1.09 ; 
+        toptagsfDown = 0.99;
       }
       sjcsvs.push_back( (theTop->getCSVSubjet0()) ); 
       sjpts .push_back( (theTop->getPtSubjet0()) ); 
@@ -496,7 +491,7 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
 
     ////// Get btag SFs
-    if (applyBTagSFs_) btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjHighestCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+    if (applyBTagSFs_) btagsfutils_-> getBTagSFs(sjcsvs, sjpts, sjetas, sjfls, jetHTaggedmaker.idxsjCSVMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
 
   } //// if !isData
 
@@ -716,6 +711,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVHTagged          .clear() ; jets_.sj1CSVHTagged          .reserve(goodHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0HTagged.clear() ; jets_.hadronFlavourSJ0HTagged.reserve(goodHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ1HTagged.clear() ; jets_.hadronFlavourSJ1HTagged.reserve(goodHTaggedJets.size()) ;   
+  jets_.sj0ptHTagged            .clear() ; jets_.sj0ptHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj1ptHTagged            .clear() ; jets_.sj1ptHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj0etaHTagged            .clear() ; jets_.sj0etaHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj1etaHTagged            .clear() ; jets_.sj1etaHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj0phiHTagged            .clear() ; jets_.sj0phiHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj1phiHTagged            .clear() ; jets_.sj1phiHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj0EnergyHTagged            .clear() ; jets_.sj0EnergyHTagged           .reserve(goodHTaggedJets.size()) ;
+  jets_.sj1EnergyHTagged            .clear() ; jets_.sj1EnergyHTagged           .reserve(goodHTaggedJets.size()) ;
 
   for (vlq::Jet jet : goodHTaggedJets) {
     jets_.idxHTagged             .push_back(jet.getIndex()) ; 
@@ -736,6 +739,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVHTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0HTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1HTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptHTagged           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptHTagged           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaHTagged           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaHTagged           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiHTagged           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiHTagged           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyHTagged           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyHTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
   jets_.idxAntiHTagged             .clear() ; jets_.idxAntiHTagged             .reserve(antiHTaggedJets.size()) ;   
@@ -756,6 +767,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVAntiHTagged          .clear() ; jets_.sj1CSVAntiHTagged          .reserve(antiHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0AntiHTagged.clear() ; jets_.hadronFlavourSJ0AntiHTagged.reserve(antiHTaggedJets.size()) ;   
   jets_.hadronFlavourSJ1AntiHTagged.clear() ; jets_.hadronFlavourSJ1AntiHTagged.reserve(antiHTaggedJets.size()) ;   
+  jets_.sj0ptAntiHTagged            .clear() ; jets_.sj0ptAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj1ptAntiHTagged            .clear() ; jets_.sj1ptAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj0etaAntiHTagged            .clear() ; jets_.sj0etaAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj1etaAntiHTagged            .clear() ; jets_.sj1etaAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj0phiAntiHTagged            .clear() ; jets_.sj0phiAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj1phiAntiHTagged            .clear() ; jets_.sj1phiAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj0EnergyAntiHTagged            .clear() ; jets_.sj0EnergyAntiHTagged           .reserve(antiHTaggedJets.size()) ;
+  jets_.sj1EnergyAntiHTagged            .clear() ; jets_.sj1EnergyAntiHTagged           .reserve(antiHTaggedJets.size()) ;
 
   for (vlq::Jet jet : antiHTaggedJets) {
     jets_.idxAntiHTagged             .push_back(jet.getIndex()) ; 
@@ -776,6 +795,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAntiHTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AntiHTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AntiHTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptAntiHTagged           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptAntiHTagged           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaAntiHTagged           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaAntiHTagged           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiAntiHTagged           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiAntiHTagged           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyAntiHTagged           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyAntiHTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
   jets_.idxTopTagged             .clear() ; jets_.idxTopTagged             .reserve(goodTopTaggedJets.size()) ;   
@@ -796,6 +823,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVTopTagged          .clear() ; jets_.sj1CSVTopTagged          .reserve(goodTopTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0TopTagged.clear() ; jets_.hadronFlavourSJ0TopTagged.reserve(goodTopTaggedJets.size()) ;   
   jets_.hadronFlavourSJ1TopTagged.clear() ; jets_.hadronFlavourSJ1TopTagged.reserve(goodTopTaggedJets.size()) ;   
+  jets_.sj0ptTopTagged            .clear() ; jets_.sj0ptTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj1ptTopTagged            .clear() ; jets_.sj1ptTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj0etaTopTagged            .clear() ; jets_.sj0etaTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj1etaTopTagged            .clear() ; jets_.sj1etaTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj0phiTopTagged            .clear() ; jets_.sj0phiTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj1phiTopTagged            .clear() ; jets_.sj1phiTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj0EnergyTopTagged            .clear() ; jets_.sj0EnergyTopTagged           .reserve(goodTopTaggedJets.size()) ;
+  jets_.sj1EnergyTopTagged            .clear() ; jets_.sj1EnergyTopTagged           .reserve(goodTopTaggedJets.size()) ;
 
   for (vlq::Jet jet : goodTopTaggedJets) {
     jets_.idxTopTagged             .push_back(jet.getIndex()) ; 
@@ -816,6 +851,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVTopTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0TopTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1TopTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptTopTagged           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptTopTagged           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaTopTagged           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaTopTagged           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiTopTagged           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiTopTagged           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyTopTagged           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyTopTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
   jets_.idxAntiTopTagged             .clear() ; jets_.idxAntiTopTagged             .reserve(antiTopTaggedJets.size()) ;   
@@ -836,6 +879,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVAntiTopTagged          .clear() ; jets_.sj1CSVAntiTopTagged          .reserve(antiTopTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0AntiTopTagged.clear() ; jets_.hadronFlavourSJ0AntiTopTagged.reserve(antiTopTaggedJets.size()) ;   
   jets_.hadronFlavourSJ1AntiTopTagged.clear() ; jets_.hadronFlavourSJ1AntiTopTagged.reserve(antiTopTaggedJets.size()) ;   
+  jets_.sj0ptAntiTopTagged            .clear() ; jets_.sj0ptAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj1ptAntiTopTagged            .clear() ; jets_.sj1ptAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj0etaAntiTopTagged            .clear() ; jets_.sj0etaAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj1etaAntiTopTagged            .clear() ; jets_.sj1etaAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj0phiAntiTopTagged            .clear() ; jets_.sj0phiAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj1phiAntiTopTagged            .clear() ; jets_.sj1phiAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj0EnergyAntiTopTagged            .clear() ; jets_.sj0EnergyAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
+  jets_.sj1EnergyAntiTopTagged            .clear() ; jets_.sj1EnergyAntiTopTagged           .reserve(antiTopTaggedJets.size()) ;
 
   for (vlq::Jet jet : antiTopTaggedJets) {
     jets_.idxAntiTopTagged             .push_back(jet.getIndex()) ; 
@@ -856,6 +907,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAntiTopTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AntiTopTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AntiTopTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptAntiTopTagged           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptAntiTopTagged           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaAntiTopTagged           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaAntiTopTagged           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiAntiTopTagged           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiAntiTopTagged           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyAntiTopTagged           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyAntiTopTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
   jets_.idxZTagged             .clear() ; jets_.idxZTagged             .reserve(goodZTaggedJets.size()) ;   
@@ -876,6 +935,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVZTagged          .clear() ; jets_.sj1CSVZTagged          .reserve(goodZTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0ZTagged.clear() ; jets_.hadronFlavourSJ0ZTagged.reserve(goodZTaggedJets.size()) ;   
   jets_.hadronFlavourSJ1ZTagged.clear() ; jets_.hadronFlavourSJ1ZTagged.reserve(goodZTaggedJets.size()) ;   
+  jets_.sj0ptZTagged            .clear() ; jets_.sj0ptZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj1ptZTagged            .clear() ; jets_.sj1ptZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj0etaZTagged            .clear() ; jets_.sj0etaZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj1etaZTagged            .clear() ; jets_.sj1etaZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj0phiZTagged            .clear() ; jets_.sj0phiZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj1phiZTagged            .clear() ; jets_.sj1phiZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj0EnergyZTagged            .clear() ; jets_.sj0EnergyZTagged           .reserve(goodZTaggedJets.size()) ;
+  jets_.sj1EnergyZTagged            .clear() ; jets_.sj1EnergyZTagged           .reserve(goodZTaggedJets.size()) ;
 
   for (vlq::Jet jet : goodZTaggedJets) {
     jets_.idxZTagged             .push_back(jet.getIndex()) ; 
@@ -896,6 +963,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVZTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0ZTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1ZTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptZTagged           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptZTagged           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaZTagged           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaZTagged           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiZTagged           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiZTagged           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyZTagged           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyZTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
   jets_.idxAntiZTagged             .clear() ; jets_.idxAntiZTagged             .reserve(antiZTaggedJets.size()) ;   
@@ -916,6 +991,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jets_.sj1CSVAntiZTagged          .clear() ; jets_.sj1CSVAntiZTagged          .reserve(antiZTaggedJets.size()) ;   
   jets_.hadronFlavourSJ0AntiZTagged.clear() ; jets_.hadronFlavourSJ0AntiZTagged.reserve(antiZTaggedJets.size()) ;   
   jets_.hadronFlavourSJ1AntiZTagged.clear() ; jets_.hadronFlavourSJ1AntiZTagged.reserve(antiZTaggedJets.size()) ;   
+  jets_.sj0ptAntiZTagged            .clear() ; jets_.sj0ptAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj1ptAntiZTagged            .clear() ; jets_.sj1ptAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj0etaAntiZTagged            .clear() ; jets_.sj0etaAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj1etaAntiZTagged            .clear() ; jets_.sj1etaAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj0phiAntiZTagged            .clear() ; jets_.sj0phiAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj1phiAntiZTagged            .clear() ; jets_.sj1phiAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj0EnergyAntiZTagged            .clear() ; jets_.sj0EnergyAntiZTagged           .reserve(antiZTaggedJets.size()) ;
+  jets_.sj1EnergyAntiZTagged            .clear() ; jets_.sj1EnergyAntiZTagged           .reserve(antiZTaggedJets.size()) ;
 
   for (vlq::Jet jet : antiZTaggedJets) {
     jets_.idxAntiZTagged             .push_back(jet.getIndex()) ; 
@@ -936,6 +1019,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1CSVAntiZTagged          .push_back(jet.getCSVSubjet1()) ;
     jets_.hadronFlavourSJ0AntiZTagged.push_back(jet.getHadronFlavourSubjet0()) ;
     jets_.hadronFlavourSJ1AntiZTagged.push_back(jet.getHadronFlavourSubjet1()) ;
+    jets_.sj0ptAntiZTagged           .push_back(jet.getPtSubjet0()) ;
+    jets_.sj1ptAntiZTagged           .push_back(jet.getPtSubjet1()) ;
+    jets_.sj0etaAntiZTagged           .push_back(jet.getEtaSubjet0()) ;
+    jets_.sj1etaAntiZTagged           .push_back(jet.getEtaSubjet1()) ;
+    jets_.sj0phiAntiZTagged           .push_back(jet.getPhiSubjet0()) ;
+    jets_.sj1phiAntiZTagged           .push_back(jet.getPhiSubjet1()) ;
+    jets_.sj0EnergyAntiZTagged           .push_back(jet.getEnergySubjet0()) ;
+    jets_.sj1EnergyAntiZTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
   tree_->Fill();

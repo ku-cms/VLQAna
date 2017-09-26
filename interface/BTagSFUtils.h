@@ -95,9 +95,9 @@ class BTagSFUtils {
       readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")),
       op_(BTagEntry::OP_LOOSE),
       bfl_ptMin_ (20.),
-      bfl_ptMax_ (1000.),
+      bfl_ptMax_ (450.),
       cfl_ptMin_ (20.),
-      cfl_ptMax_ (1000.),
+      cfl_ptMax_ (450.),
       lfl_ptMin_ (20.),
       lfl_ptMax_ (1000.) 
   {
@@ -167,7 +167,7 @@ class BTagSFUtils {
         double uncscale(1.) ; 
         if ( fl == 0 || fl == 1) {
           if ( pt < bfl_ptMin_ ) { pt = 20.01 ; uncscale *= 2 ; } 
-          if ( pt > bfl_ptMax_ ) { pt = 999.99 ; uncscale *= 2 ; } 
+          if ( pt > bfl_ptMax_ ) { pt = 449.99 ; uncscale *= 2 ; } 
           if ( fl == 1 ) uncscale *= 2 ; 
         }
         else {
@@ -214,10 +214,15 @@ class BTagSFUtils {
           std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
         }
 
-        double jetcsv = jetcsvs.at(idx.first) ; 
+        double jetcsv = jetcsvs.at(idx.first) ;
+        std::cout << "CSV is: " << jetcsv << std::endl;
+        std::cout << "pT is: " << pt << std::endl;
+        std::cout << "eta is: " << eta << std::endl;
+        std::cout << "eff is: " << eff << std::endl;
+ 
         if ( jetcsv >= csvMin ) { 
           btagsf *= sf ; 
-
+        std::cout << "jet passed, sf is: " << btagsf << std::endl;
           //// Get uncertainties 
           if ( fl == 0 || fl == 1) {
             btagsf_bcUp *= sfUpabs ; 
@@ -230,7 +235,9 @@ class BTagSFUtils {
 
         }
         else {
+        std::cout << "jet failed, pre-sf is: " << sf << std::endl;
           btagsf *= eff < 1 ? (1 - std::min(1.,eff*sf))/(1 - eff) : 0 ; 
+        std::cout << "sf is: " << btagsf << std::endl;
 
           //// Get uncertainties 
           if ( fl == 0 || fl == 1) {
@@ -258,7 +265,7 @@ class BTagSFUtils {
 
       double eff(1) ; 
       jetFl = abs(jetFl) ; 
-
+      eta = abs(eta);
       if (jetFl == 5 && pt >= bfl_ptMin_)  {
         int binpt = h2_btageffmap_b->GetXaxis()->FindBin(pt);
         int bineta = h2_btageffmap_b->GetYaxis()->FindBin(eta);
@@ -274,7 +281,8 @@ class BTagSFUtils {
         int bineta = h2_btageffmap_l->GetYaxis()->FindBin(eta);
         eff = h2_btageffmap_l->GetBinContent(binpt, bineta) ; 
       }
-      else eff = 0.; 
+      else{  eff = 0.;
+          }
 
       return eff ;
 

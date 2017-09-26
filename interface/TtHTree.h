@@ -166,6 +166,14 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVHTagged;
     std::vector<double> hadronFlavourSJ0HTagged; 
     std::vector<double> hadronFlavourSJ1HTagged; 
+    std::vector<double> sj0ptHTagged;
+    std::vector<double> sj1ptHTagged;
+    std::vector<double> sj0etaHTagged;
+    std::vector<double> sj1etaHTagged;
+    std::vector<double> sj0phiHTagged;
+    std::vector<double> sj1phiHTagged;
+    std::vector<double> sj0EnergyHTagged;
+    std::vector<double> sj1EnergyHTagged;
 
     std::vector<int> idxAntiHTagged; 
     std::vector<double> ptAntiHTagged;
@@ -186,6 +194,14 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVAntiHTagged;
     std::vector<double> hadronFlavourSJ0AntiHTagged; 
     std::vector<double> hadronFlavourSJ1AntiHTagged; 
+    std::vector<double> sj0ptAntiHTagged;
+    std::vector<double> sj1ptAntiHTagged;
+    std::vector<double> sj0etaAntiHTagged;
+    std::vector<double> sj1etaAntiHTagged;
+    std::vector<double> sj0phiAntiHTagged;
+    std::vector<double> sj1phiAntiHTagged;
+    std::vector<double> sj0EnergyAntiHTagged;
+    std::vector<double> sj1EnergyAntiHTagged;
 
     std::vector<int> idxTopTagged; 
     std::vector<double> ptTopTagged;
@@ -206,6 +222,14 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVTopTagged;
     std::vector<double> hadronFlavourSJ0TopTagged; 
     std::vector<double> hadronFlavourSJ1TopTagged; 
+    std::vector<double> sj0ptTopTagged;
+    std::vector<double> sj1ptTopTagged;
+    std::vector<double> sj0etaTopTagged;
+    std::vector<double> sj1etaTopTagged;
+    std::vector<double> sj0phiTopTagged;
+    std::vector<double> sj1phiTopTagged;
+    std::vector<double> sj0EnergyTopTagged;
+    std::vector<double> sj1EnergyTopTagged;
 
     std::vector<int> idxAntiTopTagged; 
     std::vector<double> ptAntiTopTagged;
@@ -226,6 +250,14 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVAntiTopTagged;
     std::vector<double> hadronFlavourSJ0AntiTopTagged; 
     std::vector<double> hadronFlavourSJ1AntiTopTagged;
+    std::vector<double> sj0ptAntiTopTagged;
+    std::vector<double> sj1ptAntiTopTagged;
+    std::vector<double> sj0etaAntiTopTagged;
+    std::vector<double> sj1etaAntiTopTagged;
+    std::vector<double> sj0phiAntiTopTagged;
+    std::vector<double> sj1phiAntiTopTagged;
+    std::vector<double> sj0EnergyAntiTopTagged;
+    std::vector<double> sj1EnergyAntiTopTagged;
  
     std::vector<int> idxZTagged; 
     std::vector<double> ptZTagged;
@@ -246,6 +278,14 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVZTagged;
     std::vector<double> hadronFlavourSJ0ZTagged; 
     std::vector<double> hadronFlavourSJ1ZTagged; 
+    std::vector<double> sj0ptZTagged;
+    std::vector<double> sj1ptZTagged;
+    std::vector<double> sj0etaZTagged;
+    std::vector<double> sj1etaZTagged;
+    std::vector<double> sj0phiZTagged;
+    std::vector<double> sj1phiZTagged;
+    std::vector<double> sj0EnergyZTagged;
+    std::vector<double> sj1EnergyZTagged;
 
     std::vector<int> idxAntiZTagged; 
     std::vector<double> ptAntiZTagged;
@@ -266,6 +306,14 @@ class TtHJetInfoBranches {
     std::vector<double> sj1CSVAntiZTagged;
     std::vector<double> hadronFlavourSJ0AntiZTagged; 
     std::vector<double> hadronFlavourSJ1AntiZTagged;
+    std::vector<double> sj0ptAntiZTagged;
+    std::vector<double> sj1ptAntiZTagged;
+    std::vector<double> sj0etaAntiZTagged;
+    std::vector<double> sj1etaAntiZTagged;
+    std::vector<double> sj0phiAntiZTagged;
+    std::vector<double> sj1phiAntiZTagged;
+    std::vector<double> sj0EnergyAntiZTagged;
+    std::vector<double> sj1EnergyAntiZTagged;
  
     void RegisterTree(TTree *cutTree, std::string name="JetInfo") {
 
@@ -325,6 +373,14 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVHTagged",&sj1CSVHTagged);
       cutTree->Branch("hadronFlavourSJ0HTagged",&hadronFlavourSJ0HTagged);
       cutTree->Branch("hadronFlavourSJ1HTagged",&hadronFlavourSJ1HTagged);
+      cutTree->Branch("sj0ptHTagged",&sj0ptHTagged);
+      cutTree->Branch("sj1ptHTagged",&sj1ptHTagged);
+      cutTree->Branch("sj0etaHTagged",&sj0etaHTagged);
+      cutTree->Branch("sj1etaHTagged",&sj1etaHTagged);
+      cutTree->Branch("sj0phiHTagged",&sj0phiHTagged);
+      cutTree->Branch("sj1phiHTagged",&sj1phiHTagged);
+      cutTree->Branch("sj0EnergyHTagged",&sj0EnergyHTagged);
+      cutTree->Branch("sj1EnergyHTagged",&sj1EnergyHTagged);
 
       cutTree->Branch("idxAntiHTagged", &idxAntiHTagged); 
       cutTree->Branch("ptAntiHTagged", &ptAntiHTagged); 
@@ -345,6 +401,14 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVAntiHTagged",&sj1CSVAntiHTagged);
       cutTree->Branch("hadronFlavourSJ0AntiHTagged",&hadronFlavourSJ0AntiHTagged);
       cutTree->Branch("hadronFlavourSJ1AntiHTagged",&hadronFlavourSJ1AntiHTagged);
+      cutTree->Branch("sj0ptAntiHTagged",&sj0ptAntiHTagged);
+      cutTree->Branch("sj1ptAntiHTagged",&sj1ptAntiHTagged);
+      cutTree->Branch("sj0etaAntiHTagged",&sj0etaAntiHTagged);
+      cutTree->Branch("sj1etaAntiHTagged",&sj1etaAntiHTagged);
+      cutTree->Branch("sj0phiAntiHTagged",&sj0phiAntiHTagged);
+      cutTree->Branch("sj1phiAntiHTagged",&sj1phiAntiHTagged);
+      cutTree->Branch("sj0EnergyAntiHTagged",&sj0EnergyAntiHTagged);
+      cutTree->Branch("sj1EnergyAntiHTagged",&sj1EnergyAntiHTagged);
 
       cutTree->Branch("idxTopTagged", &idxTopTagged); 
       cutTree->Branch("ptTopTagged", &ptTopTagged); 
@@ -365,6 +429,14 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVTopTagged",&sj1CSVTopTagged);
       cutTree->Branch("hadronFlavourSJ0TopTagged",&hadronFlavourSJ0TopTagged);
       cutTree->Branch("hadronFlavourSJ1TopTagged",&hadronFlavourSJ1TopTagged);
+      cutTree->Branch("sj0ptTopTagged",&sj0ptTopTagged);
+      cutTree->Branch("sj1ptTopTagged",&sj1ptTopTagged);
+      cutTree->Branch("sj0etaTopTagged",&sj0etaTopTagged);
+      cutTree->Branch("sj1etaTopTagged",&sj1etaTopTagged);
+      cutTree->Branch("sj0phiTopTagged",&sj0phiTopTagged);
+      cutTree->Branch("sj1phiTopTagged",&sj1phiTopTagged);
+      cutTree->Branch("sj0EnergyTopTagged",&sj0EnergyTopTagged);
+      cutTree->Branch("sj1EnergyTopTagged",&sj1EnergyTopTagged);
 
       cutTree->Branch("idxAntiTopTagged", &idxAntiTopTagged); 
       cutTree->Branch("ptAntiTopTagged", &ptAntiTopTagged); 
@@ -385,6 +457,14 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVAntiTopTagged",&sj1CSVAntiTopTagged);
       cutTree->Branch("hadronFlavourSJ0AntiTopTagged",&hadronFlavourSJ0AntiTopTagged);
       cutTree->Branch("hadronFlavourSJ1AntiTopTagged",&hadronFlavourSJ1AntiTopTagged);
+      cutTree->Branch("sj0ptAntiTopTagged",&sj0ptAntiTopTagged);
+      cutTree->Branch("sj1ptAntiTopTagged",&sj1ptAntiTopTagged);
+      cutTree->Branch("sj0etaAntiTopTagged",&sj0etaAntiTopTagged);
+      cutTree->Branch("sj1etaAntiTopTagged",&sj1etaAntiTopTagged);
+      cutTree->Branch("sj0phiAntiTopTagged",&sj0phiAntiTopTagged);
+      cutTree->Branch("sj1phiAntiTopTagged",&sj1phiAntiTopTagged);
+      cutTree->Branch("sj0EnergyAntiTopTagged",&sj0EnergyAntiTopTagged);
+      cutTree->Branch("sj1EnergyAntiTopTagged",&sj1EnergyAntiTopTagged);
 
       cutTree->Branch("idxZTagged", &idxZTagged); 
       cutTree->Branch("ptZTagged", &ptZTagged); 
@@ -405,6 +485,14 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVZTagged",&sj1CSVZTagged);
       cutTree->Branch("hadronFlavourSJ0ZTagged",&hadronFlavourSJ0ZTagged);
       cutTree->Branch("hadronFlavourSJ1ZTagged",&hadronFlavourSJ1ZTagged);
+      cutTree->Branch("sj0ptZTagged",&sj0ptZTagged);
+      cutTree->Branch("sj1ptZTagged",&sj1ptZTagged);
+      cutTree->Branch("sj0etaZTagged",&sj0etaZTagged);
+      cutTree->Branch("sj1etaZTagged",&sj1etaZTagged);
+      cutTree->Branch("sj0phiZTagged",&sj0phiZTagged);
+      cutTree->Branch("sj1phiZTagged",&sj1phiZTagged);
+      cutTree->Branch("sj0EnergyZTagged",&sj0EnergyZTagged);
+      cutTree->Branch("sj1EnergyZTagged",&sj1EnergyZTagged);
 
       cutTree->Branch("idxAntiZTagged", &idxAntiZTagged); 
       cutTree->Branch("ptAntiZTagged", &ptAntiZTagged); 
@@ -425,6 +513,14 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVAntiZTagged",&sj1CSVAntiZTagged);
       cutTree->Branch("hadronFlavourSJ0AntiZTagged",&hadronFlavourSJ0AntiZTagged);
       cutTree->Branch("hadronFlavourSJ1AntiZTagged",&hadronFlavourSJ1AntiZTagged);
+      cutTree->Branch("sj0ptAntiZTagged",&sj0ptAntiZTagged);
+      cutTree->Branch("sj1ptAntiZTagged",&sj1ptAntiZTagged);
+      cutTree->Branch("sj0etaAntiZTagged",&sj0etaAntiZTagged);
+      cutTree->Branch("sj1etaAntiZTagged",&sj1etaAntiZTagged);
+      cutTree->Branch("sj0phiAntiZTagged",&sj0phiAntiZTagged);
+      cutTree->Branch("sj1phiAntiZTagged",&sj1phiAntiZTagged);
+      cutTree->Branch("sj0EnergyAntiZTagged",&sj0EnergyAntiZTagged);
+      cutTree->Branch("sj1EnergyAntiZTagged",&sj1EnergyAntiZTagged);
     }
 
     //void ReadTree(TTree* tree, std::string name="JetInfo") {

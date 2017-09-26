@@ -44,16 +44,21 @@ ana = cms.EDFilter("VLQAna",
     jetAntiTopTaggedselParams  = defaultCHSTJetSelectionParameters.clone(
       subjetHighestCSVMin = cms.double(-1000000),
       subjetHighestCSVMax = defaultCHSTJetSelectionParameters.subjetHighestCSVMin, 
+      jettau3Bytau2Max    = cms.double(0.5) ,
       ),
     jetZTaggedselParams        = defaultCHSHJetSelectionParameters.clone(
       jetPrunedMassMin = cms.double(65.),
       jetPrunedMassMax = cms.double(105.),
+      subjetCSVMin = cms.double(-1000000),
+      jetPtMin = cms.double(200.),
       ),
     jetAntiZTaggedselParams        = defaultCHSHJetSelectionParameters.clone(
       jetPrunedMassMin = cms.double(65.),
       jetPrunedMassMax = cms.double(105.),
       subjetCSVMin = cms.double(-1000000),
-      subjetCSVMax = defaultCHSHJetSelectionParameters.subjetCSVMin,
+      jettau2Bytau1Max = cms.double(1.0),
+      jettau2Bytau1Min = cms.double(0.6),
+      jetPt = cms.double(200.)
       ),
     leadingJetPtMin            = cms.double  (400.), 
     leadingJetPrunedMassMin    = cms.double  (50.), 
