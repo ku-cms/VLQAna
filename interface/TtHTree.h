@@ -40,6 +40,10 @@ class TtHEventInfoBranches {
     double ht_ ; 
     int    nAK4_;
     int    nAK8_;
+    int    nEl_;
+    int    nMu_;
+    int    nCleanedEl_;
+    int    nCleanedMu_;
     bool   isRegionA_;
     bool   isRegionB_;
     bool   isRegionC_;
@@ -53,6 +57,14 @@ class TtHEventInfoBranches {
     double D_;
     double thrust_;
     double thrustminor_;
+    double isotropy_ExtraAK4_;
+    double circularity_ExtraAK4_;
+    double sphericity_ExtraAK4_;
+    double aplanarity_ExtraAK4_;
+    double C_ExtraAK4_;
+    double D_ExtraAK4_;
+    double thrust_ExtraAK4_;
+    double thrustminor_ExtraAK4_;
     std::vector<std::pair<int, double> > lhewts_ ; 
 
     void RegisterTree(TTree* cutTree, std::string name="SelectedEvents") {
@@ -88,6 +100,10 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_ht").c_str(), &ht_, "ht/D");
       cutTree->Branch((name+"_nAK4").c_str(), &nAK4_, "nAK4/I");
       cutTree->Branch((name+"_nAK8").c_str(), &nAK8_, "nAK8/I");
+      cutTree->Branch((name+"_nEl").c_str(), &nEl_, "nEl/I");
+      cutTree->Branch((name+"_nMu").c_str(), &nMu_, "nMu/I");
+      cutTree->Branch((name+"_nCleanedEl").c_str(), &nCleanedEl_, "nCleanedEl/I");
+      cutTree->Branch((name+"_nCleanedMu").c_str(), &nCleanedMu_, "nCleanedMu/I");
       cutTree->Branch((name+"_isRegionA").c_str(), &isRegionA_, "isRegionA/O");
       cutTree->Branch((name+"_isRegionB").c_str(), &isRegionB_, "isRegionB/O");
       cutTree->Branch((name+"_isRegionC").c_str(), &isRegionC_, "isRegionC/O");
@@ -102,6 +118,14 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_D").c_str(), &D_, "D/D");
       cutTree->Branch((name+"_thrust").c_str(), &thrust_, "thrust/D");
       cutTree->Branch((name+"_thrustminor").c_str(), &thrustminor_, "thrustminor/D");
+      cutTree->Branch((name+"_isotropy_ExtraAK4").c_str(), &isotropy_ExtraAK4_, "isotropy_ExtraAK4_/D");
+      cutTree->Branch((name+"_circularity_ExtraAK4").c_str(), &circularity_ExtraAK4_, "circularity_ExtraAK4_/D");
+      cutTree->Branch((name+"_sphericity_ExtraAK4").c_str(), &sphericity_ExtraAK4_, "sphericity_ExtraAK4_/D");
+      cutTree->Branch((name+"_aplanarity_ExtraAK4").c_str(), &aplanarity_ExtraAK4_, "aplanarity_ExtraAK4_/D");
+      cutTree->Branch((name+"_C_ExtraAK4").c_str(), &C_ExtraAK4_, "C_ExtraAK4_/D");
+      cutTree->Branch((name+"_D_ExtraAK4").c_str(), &D_ExtraAK4_, "D_ExtraAK4_/D");
+      cutTree->Branch((name+"_thrust_ExtraAK4").c_str(), &thrust_ExtraAK4_, "thrust_ExtraAK4_/D");
+      cutTree->Branch((name+"_thrustminor_ExtraAK4").c_str(), &thrustminor_ExtraAK4_, "thrustminor_ExtraAK4_/D");
 
     }
 
@@ -117,7 +141,16 @@ class TtHJetInfoBranches {
     std::vector<double> MAK4;
     std::vector<double> csvAK4;
     std::vector<double> partonFlavourAK4; 
-    std::vector<double> hadronFlavourAK4; 
+    std::vector<double> hadronFlavourAK4;
+ 
+    std::vector<int>  idxExtraAK4; 
+    std::vector<double> ptExtraAK4;
+    std::vector<double> etaExtraAK4;
+    std::vector<double> phiExtraAK4;
+    std::vector<double> MExtraAK4;
+    std::vector<double> csvExtraAK4;
+    std::vector<double> partonFlavourExtraAK4; 
+    std::vector<double> hadronFlavourExtraAK4; 
 
     std::vector<int> idxAK8; 
     std::vector<double> ptAK8;
@@ -326,6 +359,15 @@ class TtHJetInfoBranches {
       cutTree->Branch("partonFlavourAK4", &partonFlavourAK4);
       cutTree->Branch("hadronFlavourAK4", &hadronFlavourAK4);
 
+      cutTree->Branch("idxExtraAK4", &idxExtraAK4); 
+      cutTree->Branch("ptExtraAK4", &ptExtraAK4); 
+      cutTree->Branch("etaExtraAK4", &etaExtraAK4);
+      cutTree->Branch("phiExtraAK4", &phiExtraAK4);
+      cutTree->Branch("MExtraAK4", &MExtraAK4);
+      cutTree->Branch("csvExtraAK4", &csvExtraAK4);
+      cutTree->Branch("partonFlavourExtraAK4", &partonFlavourExtraAK4);
+      cutTree->Branch("hadronFlavourExtraAK4", &hadronFlavourExtraAK4);
+
       cutTree->Branch("idxAK8", &idxAK8); 
       cutTree->Branch("ptAK8", &ptAK8); 
       cutTree->Branch("etaAK8", &etaAK8);
@@ -525,6 +567,77 @@ class TtHJetInfoBranches {
 
     //void ReadTree(TTree* tree, std::string name="JetInfo") {
     //}
+};
+
+class TtHLeptonInfoBranches {
+  public:
+
+    std::vector<int>  idxEl; 
+    std::vector<double> ptEl;
+    std::vector<double> etaEl;
+    std::vector<double> phiEl;
+    std::vector<double> EEl;
+    std::vector<double> IsoDREl;
+    std::vector<double> dR_Iso2DEl;
+    std::vector<double> ptrel_Iso2DEl;
+    std::vector<double> IsoDRAfterIso2DEl;
+
+    std::vector<int>  idxCleanedEl; 
+    std::vector<double> ptCleanedEl;
+    std::vector<double> etaCleanedEl;
+    std::vector<double> phiCleanedEl;
+    std::vector<double> ECleanedEl;
+
+    std::vector<int>  idxMu; 
+    std::vector<double> ptMu;
+    std::vector<double> etaMu;
+    std::vector<double> phiMu;
+    std::vector<double> EMu;
+    std::vector<double> IsoDRMu;
+    std::vector<double> dR_Iso2DMu;
+    std::vector<double> ptrel_Iso2DMu;
+    std::vector<double> IsoDRAfterIso2DMu;
+
+    std::vector<int>  idxCleanedMu; 
+    std::vector<double> ptCleanedMu;
+    std::vector<double> etaCleanedMu;
+    std::vector<double> phiCleanedMu;
+    std::vector<double> ECleanedMu;
+
+    void RegisterTree(TTree *cutTree, std::string name="LeptonInfo") {
+
+      cutTree->Branch("idxEl", &idxEl); 
+      cutTree->Branch("ptEl", &ptEl); 
+      cutTree->Branch("etaEl", &etaEl);
+      cutTree->Branch("phiEl", &phiEl);
+      cutTree->Branch("EEl", &EEl);
+      cutTree->Branch("IsoDREl", &IsoDREl);
+      cutTree->Branch("dR_Iso2DEl", &dR_Iso2DEl);
+      cutTree->Branch("ptrel_Iso2DEl", &ptrel_Iso2DEl);
+      cutTree->Branch("IsoDRAfterIso2DEl", &IsoDRAfterIso2DEl);
+
+      cutTree->Branch("idxCleanedEl", &idxCleanedEl); 
+      cutTree->Branch("ptCleanedEl", &ptCleanedEl); 
+      cutTree->Branch("etaCleanedEl", &etaCleanedEl);
+      cutTree->Branch("phiCleanedEl", &phiCleanedEl);
+      cutTree->Branch("ECleanedEl", &ECleanedEl);
+
+      cutTree->Branch("idxMu", &idxMu); 
+      cutTree->Branch("ptMu", &ptMu); 
+      cutTree->Branch("etaMu", &etaMu);
+      cutTree->Branch("phiMu", &phiMu);
+      cutTree->Branch("EMu", &EMu);
+      cutTree->Branch("IsoDRMu", &IsoDRMu);
+      cutTree->Branch("dR_Iso2DMu", &dR_Iso2DMu);
+      cutTree->Branch("ptrel_Iso2DMu", &ptrel_Iso2DMu);
+      cutTree->Branch("IsoDRAfterIso2DMu", &IsoDRAfterIso2DMu);
+
+      cutTree->Branch("idxCleanedMu", &idxCleanedMu); 
+      cutTree->Branch("ptCleanedMu", &ptCleanedMu); 
+      cutTree->Branch("etaCleanedMu", &etaCleanedMu);
+      cutTree->Branch("phiCleanedMu", &phiCleanedMu);
+      cutTree->Branch("ECleanedMu", &ECleanedMu);
+    }
 
 };
 

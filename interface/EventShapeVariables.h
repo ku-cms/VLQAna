@@ -58,8 +58,10 @@ namespace vlq{
       ///
       ///
       double thrustminor( unsigned int numberOfSteps  = 100 ) const;
-
-
+      /// 		
+      ///	
+      ///
+      double thrustmajor( unsigned int numberOfSteps  = 100 ) const;
 
 
     private:

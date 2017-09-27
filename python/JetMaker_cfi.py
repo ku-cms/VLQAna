@@ -90,7 +90,7 @@ defaultCHSTJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
 
 ### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a (W tag)
 defaultCHSHJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
-    jetPtMin            = cms.double(200),
+    jetPtMin            = cms.double(300),
     jetPrunedMassMin    = cms.double(105) ,
     jetPrunedMassMax    = cms.double(135) ,
     jettau2Bytau1Min    = cms.double(0.0) ,

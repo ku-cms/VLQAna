@@ -84,7 +84,8 @@ vlq::EventShapeVariables::compMomentumTensor(double r) const
   // fill momentumTensor from inputVectors
   double norm = 0.;
   for ( int i = 0; i < (int)inputVectors_.size(); ++i ){
-    double p2 = inputVectors_[i].Dot(inputVectors_[i]);
+    double p2 = inputVectors_[i].P()*inputVectors_[i].P();
+    if( p2 == 0 ){ p2 = 1; }
     double pR = ( r == 2. ) ? p2 : TMath::Power(p2, 0.5*r);
     norm += pR;
     double pRminus2 = ( r == 2. ) ? 1. : TMath::Power(p2, 0.5*r - 1.);
@@ -174,7 +175,10 @@ vlq::EventShapeVariables::D(double r) const
 double
 vlq::EventShapeVariables::thrust( unsigned int numberOfSteps ) const
 {
-  const double deltaPhi=2*TMath::Pi()/numberOfSteps;
+
+	TVectorD eigenValues = compEigenValues(1);
+
+/*  const double deltaPhi=2*TMath::Pi()/numberOfSteps;
   const double deltaRho=TMath::Pi()/numberOfSteps;
   double thrust=-1;
   double phi=0;
@@ -198,7 +202,8 @@ vlq::EventShapeVariables::thrust( unsigned int numberOfSteps ) const
       }
     }
   }
-  return thrust;
+*/
+  return eigenValues(0);
 
 }
 
@@ -206,7 +211,9 @@ vlq::EventShapeVariables::thrust( unsigned int numberOfSteps ) const
 double
 vlq::EventShapeVariables::thrustminor( unsigned int numberOfSteps ) const
 {
-  const double deltaPhi=2*TMath::Pi()/numberOfSteps;
+
+	TVectorD eigenValues = compEigenValues(1);	
+ /* const double deltaPhi=2*TMath::Pi()/numberOfSteps;
   const double deltaRho=TMath::Pi()/numberOfSteps;
   double thrust=10;
   double phi=0;
@@ -236,6 +243,16 @@ vlq::EventShapeVariables::thrustminor( unsigned int numberOfSteps ) const
       }
     }
   }
-  return thrust;
+*/
+  return  eigenValues(1) ;
+}
+
+double
+vlq::EventShapeVariables::thrustmajor( unsigned int numberOfSteps ) const
+{
+
+	TVectorD eigenValues = compEigenValues(1);
+
+  	return  eigenValues(2) ;
 }
 

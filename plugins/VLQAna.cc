@@ -102,6 +102,7 @@ class VLQAna : public edm::EDFilter {
     double leadingJetPtMin_                       ; 
     double leadingJetPrunedMassMin_               ; 
     double HTMin_                                 ; 
+    double ExtraDRMin_                                 ; 
     bool   storePreselEvts_                       ; 
     bool   doPreselOnly_                          ; 
     bool   applyBTagSFs_                          ;
@@ -114,6 +115,7 @@ class VLQAna : public edm::EDFilter {
 
     TtHEventInfoBranches selectedevt_; 
     TtHJetInfoBranches jets_ ; 
+    TtHLeptonInfoBranches leptons_ ; 
     TTree* tree_ ; 
 
     std::unique_ptr<BTagSFUtils> btagsfutils_ ; 
@@ -153,6 +155,7 @@ VLQAna::VLQAna(const edm::ParameterSet& iConfig) :
   leadingJetPtMin_        (iConfig.getParameter<double>           ("leadingJetPtMin")), 
   leadingJetPrunedMassMin_(iConfig.getParameter<double>           ("leadingJetPrunedMassMin")), 
   HTMin_                  (iConfig.getParameter<double>           ("HTMin")), 
+  ExtraDRMin_         (iConfig.getParameter<double>           ("ExtraDRMin")), 
   storePreselEvts_        (iConfig.getParameter<bool>             ("storePreselEvts")),
   doPreselOnly_           (iConfig.getParameter<bool>             ("doPreselOnly")), 
   applyBTagSFs_           (iConfig.getParameter<bool>             ("applyBTagSFs")),
@@ -285,6 +288,33 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double D            (eventshapes.D());
   double thrust       (eventshapes.thrust());
   double thrustminor  (eventshapes.thrustminor());
+
+
+  //create extras AK4 jet collection and event shape variables for said collection
+  vlq::JetCollection extraAK4Jets;
+  std::vector<math::XYZVector> inputVectors_extras;
+
+  for (vlq::Jet& jet : goodAK4Jets){
+    if ( jet.getP4().DeltaR(goodAK8Jets.at(0).getP4()) > ExtraDRMin_ && jet.getP4().DeltaR(goodAK8Jets.at(1).getP4()) > ExtraDRMin_) {
+        extraAK4Jets.push_back(jet);
+    }
+  }
+  for ( vlq::Jet& jet : extraAK4Jets ){
+  	inputVectors_extras.push_back(math::XYZVector(jet.getP4().X(), jet.getP4().Y(), jet.getP4().Z()));
+  }
+  vlq::EventShapeVariables eventshapes_extras(inputVectors_extras);
+  
+  double isotropy_ExtraAK4     (eventshapes_extras.isotropy());	
+  double circularity_ExtraAK4  (eventshapes_extras.circularity());
+  double sphericity_ExtraAK4   (eventshapes_extras.sphericity());
+  double aplanarity_ExtraAK4   (eventshapes_extras.aplanarity());
+  double C_ExtraAK4            (eventshapes_extras.C());
+  double D_ExtraAK4            (eventshapes_extras.D());
+  double thrust_ExtraAK4       (eventshapes_extras.thrust());
+  double thrustminor_ExtraAK4  (eventshapes_extras.thrustminor());
+
+
+
   //// Create 4 regions of the ABCD method according the the scheme below 
   //// | A: Anti-H Anti-top | B: Anti-H Good top | 
   //// | C: Good H Anti-top | D: Good H Good top | 
@@ -497,72 +527,72 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if ( isRegionB ) {
     h1_["RegB_HT"] -> Fill(htak4.getHT(), evtwt) ; 
-    h1_["RegB_HT_wts"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf) ; 
-    h1_["RegB_HT_btagsf_bcUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
-    h1_["RegB_HT_btagsf_bcDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
-    h1_["RegB_HT_btagsf_lUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
-    h1_["RegB_HT_btagsf_lDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
-    h1_["RegB_HT_toptagsfUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*evtwtHT*btagsf) ; 
-    h1_["RegB_HT_toptagsfDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*evtwtHT*btagsf) ; 
-    h1_["RegB_HT_htwtUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTUp*btagsf) ; 
-    h1_["RegB_HT_htwtDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["RegB_HT_wts"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf) ; 
+    h1_["RegB_HT_btagsf_bcUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_bcUp) ; 
+    h1_["RegB_HT_btagsf_bcDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_bcDown) ; 
+    h1_["RegB_HT_btagsf_lUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_lUp) ; 
+    h1_["RegB_HT_btagsf_lDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_lDown) ; 
+    h1_["RegB_HT_toptagsfUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegB_HT_toptagsfDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*btagsf) ; 
+    h1_["RegB_HT_htwtUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegB_HT_htwtDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*btagsf) ; 
 
     h1_["RegB_mtprime"] -> Fill(MtprimeDummy, evtwt) ; 
-    h1_["RegB_mtprime_wts"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf) ; 
-    h1_["RegB_mtprime_btagsf_bcUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
-    h1_["RegB_mtprime_btagsf_bcDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
-    h1_["RegB_mtprime_btagsf_lUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
-    h1_["RegB_mtprime_btagsf_lDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
-    h1_["RegB_mtprime_toptagsfUp"] -> Fill(MtprimeDummy, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
-    h1_["RegB_mtprime_toptagsfDown"] -> Fill(MtprimeDummy, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
-    h1_["RegB_mtprime_htwtUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
-    h1_["RegB_mtprime_htwtDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["RegB_mtprime_wts"] -> Fill(MtprimeDummy, evtwt*toptagsf*btagsf) ; 
+    h1_["RegB_mtprime_btagsf_bcUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*btagsf_bcUp) ; 
+    h1_["RegB_mtprime_btagsf_bcDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*btagsf_bcDown) ; 
+    h1_["RegB_mtprime_btagsf_lUp"] -> Fill(MtprimeDummy, evtwt*toptagsf*btagsf_lUp) ; 
+    h1_["RegB_mtprime_btagsf_lDown"] -> Fill(MtprimeDummy, evtwt*toptagsf*btagsf_lDown) ; 
+    h1_["RegB_mtprime_toptagsfUp"] -> Fill(MtprimeDummy, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegB_mtprime_toptagsfDown"] -> Fill(MtprimeDummy, evtwt*toptagsfDown*btagsf) ; 
+    h1_["RegB_mtprime_htwtUp"] -> Fill(MtprimeDummy, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegB_mtprime_htwtDown"] -> Fill(MtprimeDummy, evtwt*toptagsfDown*btagsf) ; 
 
     h1_["RegB_mtprime_corr"] -> Fill(MtprimeDummy_corr, evtwt) ; 
-    h1_["RegB_mtprime_corr_wts"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf) ; 
-    h1_["RegB_mtprime_corr_btagsf_bcUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
-    h1_["RegB_mtprime_corr_btagsf_bcDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
-    h1_["RegB_mtprime_corr_btagsf_lUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
-    h1_["RegB_mtprime_corr_btagsf_lDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
-    h1_["RegB_mtprime_corr_toptagsfUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
-    h1_["RegB_mtprime_corr_toptagsfDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
-    h1_["RegB_mtprime_corr_htwtUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
-    h1_["RegB_mtprime_corr_htwtDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["RegB_mtprime_corr_wts"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*btagsf) ; 
+    h1_["RegB_mtprime_corr_btagsf_bcUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*btagsf_bcUp) ; 
+    h1_["RegB_mtprime_corr_btagsf_bcDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*btagsf_bcDown) ; 
+    h1_["RegB_mtprime_corr_btagsf_lUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*btagsf_lUp) ; 
+    h1_["RegB_mtprime_corr_btagsf_lDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsf*btagsf_lDown) ; 
+    h1_["RegB_mtprime_corr_toptagsfUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegB_mtprime_corr_toptagsfDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfDown*btagsf) ; 
+    h1_["RegB_mtprime_corr_htwtUp"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegB_mtprime_corr_htwtDown"] -> Fill(MtprimeDummy_corr, evtwt*toptagsfDown*btagsf) ; 
   }
 
   if ( isRegionD ) {
     h1_["RegD_HT"] -> Fill(htak4.getHT(), evtwt) ; 
-    h1_["RegD_HT_wts"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf) ; 
-    h1_["RegD_HT_btagsf_bcUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
-    h1_["RegD_HT_btagsf_bcDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
-    h1_["RegD_HT_btagsf_lUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
-    h1_["RegD_HT_btagsf_lDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
-    h1_["RegD_HT_toptagsfUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*evtwtHT*btagsf) ; 
-    h1_["RegD_HT_toptagsfDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*evtwtHT*btagsf) ; 
-    h1_["RegD_HT_htwtUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTUp*btagsf) ; 
-    h1_["RegD_HT_htwtDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["RegD_HT_wts"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf) ; 
+    h1_["RegD_HT_btagsf_bcUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_bcUp) ; 
+    h1_["RegD_HT_btagsf_bcDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_bcDown) ; 
+    h1_["RegD_HT_btagsf_lUp"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_lUp) ; 
+    h1_["RegD_HT_btagsf_lDown"] -> Fill(htak4.getHT(), evtwt*toptagsf*btagsf_lDown) ; 
+    h1_["RegD_HT_toptagsfUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegD_HT_toptagsfDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*btagsf) ; 
+    h1_["RegD_HT_htwtUp"] -> Fill(htak4.getHT(), evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegD_HT_htwtDown"] -> Fill(htak4.getHT(), evtwt*toptagsfDown*btagsf) ; 
 
     h1_["RegD_mtprime"] -> Fill(Mtprime, evtwt) ; 
-    h1_["RegD_mtprime_wts"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf) ; 
-    h1_["RegD_mtprime_btagsf_bcUp"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
-    h1_["RegD_mtprime_btagsf_bcDown"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
-    h1_["RegD_mtprime_btagsf_lUp"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
-    h1_["RegD_mtprime_btagsf_lDown"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
-    h1_["RegD_mtprime_toptagsfUp"] -> Fill(Mtprime, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
-    h1_["RegD_mtprime_toptagsfDown"] -> Fill(Mtprime, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
-    h1_["RegD_mtprime_htwtUp"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
-    h1_["RegD_mtprime_htwtDown"] -> Fill(Mtprime, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["RegD_mtprime_wts"] -> Fill(Mtprime, evtwt*toptagsf*btagsf) ; 
+    h1_["RegD_mtprime_btagsf_bcUp"] -> Fill(Mtprime, evtwt*toptagsf*btagsf_bcUp) ; 
+    h1_["RegD_mtprime_btagsf_bcDown"] -> Fill(Mtprime, evtwt*toptagsf*btagsf_bcDown) ; 
+    h1_["RegD_mtprime_btagsf_lUp"] -> Fill(Mtprime, evtwt*toptagsf*btagsf_lUp) ; 
+    h1_["RegD_mtprime_btagsf_lDown"] -> Fill(Mtprime, evtwt*toptagsf*btagsf_lDown) ; 
+    h1_["RegD_mtprime_toptagsfUp"] -> Fill(Mtprime, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegD_mtprime_toptagsfDown"] -> Fill(Mtprime, evtwt*toptagsfDown*btagsf) ; 
+    h1_["RegD_mtprime_htwtUp"] -> Fill(Mtprime, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegD_mtprime_htwtDown"] -> Fill(Mtprime, evtwt*toptagsfDown*btagsf) ; 
 
     h1_["RegD_mtprime_corr"] -> Fill(Mtprime_corr, evtwt) ; 
-    h1_["RegD_mtprime_corr_wts"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf) ; 
-    h1_["RegD_mtprime_corr_btagsf_bcUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_bcUp) ; 
-    h1_["RegD_mtprime_corr_btagsf_bcDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_bcDown) ; 
-    h1_["RegD_mtprime_corr_btagsf_lUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_lUp) ; 
-    h1_["RegD_mtprime_corr_btagsf_lDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHT*btagsf_lDown) ; 
-    h1_["RegD_mtprime_corr_toptagsfUp"] -> Fill(Mtprime_corr, evtwt*toptagsfUp*evtwtHT*btagsf) ; 
-    h1_["RegD_mtprime_corr_toptagsfDown"] -> Fill(Mtprime_corr, evtwt*toptagsfDown*evtwtHT*btagsf) ; 
-    h1_["RegD_mtprime_corr_htwtUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHTUp*btagsf) ; 
-    h1_["RegD_mtprime_corr_htwtDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["RegD_mtprime_corr_wts"] -> Fill(Mtprime_corr, evtwt*toptagsf*btagsf) ; 
+    h1_["RegD_mtprime_corr_btagsf_bcUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*btagsf_bcUp) ; 
+    h1_["RegD_mtprime_corr_btagsf_bcDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*btagsf_bcDown) ; 
+    h1_["RegD_mtprime_corr_btagsf_lUp"] -> Fill(Mtprime_corr, evtwt*toptagsf*btagsf_lUp) ; 
+    h1_["RegD_mtprime_corr_btagsf_lDown"] -> Fill(Mtprime_corr, evtwt*toptagsf*btagsf_lDown) ; 
+    h1_["RegD_mtprime_corr_toptagsfUp"] -> Fill(Mtprime_corr, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegD_mtprime_corr_toptagsfDown"] -> Fill(Mtprime_corr, evtwt*toptagsfDown*btagsf) ; 
+    h1_["RegD_mtprime_corr_htwtUp"] -> Fill(Mtprime_corr, evtwt*toptagsfUp*btagsf) ; 
+    h1_["RegD_mtprime_corr_htwtDown"] -> Fill(Mtprime_corr, evtwt*toptagsfDown*btagsf) ; 
   }
 
   std::vector<std::pair<int, double>> lhe_ids_wts;
@@ -616,6 +646,14 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   selectedevt_.D_ = D ;
   selectedevt_.thrust_ = thrust ;
   selectedevt_.thrustminor_ = thrustminor ; 
+  selectedevt_.isotropy_ExtraAK4_ = isotropy_ExtraAK4 ;
+  selectedevt_.circularity_ExtraAK4_ = circularity_ExtraAK4 ;
+  selectedevt_.sphericity_ExtraAK4_ = sphericity_ExtraAK4 ;
+  selectedevt_.aplanarity_ExtraAK4_ = aplanarity_ExtraAK4 ;
+  selectedevt_.C_ExtraAK4_ = C_ExtraAK4 ;
+  selectedevt_.D_ExtraAK4_ = D_ExtraAK4 ;
+  selectedevt_.thrust_ExtraAK4_ = thrust_ExtraAK4 ;
+  selectedevt_.thrustminor_ExtraAK4_ = thrustminor_ExtraAK4 ; 
 
   jets_.idxAK4             .clear() ; jets_.idxAK4             .reserve(goodAK4Jets.size()) ;   
   jets_.ptAK4              .clear() ; jets_.ptAK4              .reserve(goodAK4Jets.size()) ; 
@@ -635,6 +673,26 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.csvAK4             .push_back(jet.getCSV());
     jets_.partonFlavourAK4   .push_back(jet.getPartonFlavour());
     jets_.hadronFlavourAK4   .push_back(jet.getHadronFlavour());
+  }
+
+  jets_.idxExtraAK4             .clear() ; jets_.idxExtraAK4             .reserve(extraAK4Jets.size()) ;   
+  jets_.ptExtraAK4              .clear() ; jets_.ptExtraAK4              .reserve(extraAK4Jets.size()) ; 
+  jets_.etaExtraAK4             .clear() ; jets_.etaExtraAK4             .reserve(extraAK4Jets.size()) ;   
+  jets_.phiExtraAK4             .clear() ; jets_.phiExtraAK4             .reserve(extraAK4Jets.size()) ;   
+  jets_.MExtraAK4               .clear() ; jets_.MExtraAK4               .reserve(extraAK4Jets.size()) ;   
+  jets_.csvExtraAK4             .clear() ; jets_.csvExtraAK4             .reserve(extraAK4Jets.size()) ;   
+  jets_.partonFlavourExtraAK4   .clear() ; jets_.partonFlavourExtraAK4   .reserve(extraAK4Jets.size()) ;   
+  jets_.hadronFlavourExtraAK4   .clear() ; jets_.hadronFlavourExtraAK4   .reserve(extraAK4Jets.size()) ;   
+
+  for (vlq::Jet jet : extraAK4Jets) {
+      jets_.idxExtraAK4             .push_back(jet.getIndex()) ; 
+      jets_.ptExtraAK4              .push_back(jet.getPt()) ; 
+      jets_.etaExtraAK4             .push_back(jet.getEta()) ; 
+      jets_.phiExtraAK4             .push_back(jet.getPhi()) ; 
+      jets_.MExtraAK4               .push_back(jet.getMass()) ; 
+      jets_.csvExtraAK4             .push_back(jet.getCSV());
+      jets_.partonFlavourExtraAK4   .push_back(jet.getPartonFlavour());
+      jets_.hadronFlavourExtraAK4   .push_back(jet.getHadronFlavour());
   }
 
   jets_.idxAK8             .clear() ; jets_.idxAK8             .reserve(goodAK8Jets.size()) ;  
@@ -1029,7 +1087,6 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     jets_.sj1EnergyAntiZTagged           .push_back(jet.getEnergySubjet1()) ;
   }
 
-  tree_->Fill();
 
   //// Lepton veto 
   vlq::ElectronCollection goodElectrons; 
@@ -1038,31 +1095,77 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::MuonCollection goodMuons; 
   muonmaker(evt, goodMuons) ; 
 
-  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
-  h1_["nmu"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  selectedevt_.nEl_ = int(goodElectrons.size());
+  selectedevt_.nMu_ = int(goodMuons.size());
+
+  leptons_.idxEl             .clear() ; leptons_.idxEl             .reserve(goodElectrons.size()) ;   
+  leptons_.ptEl              .clear() ; leptons_.ptEl              .reserve(goodElectrons.size()) ; 
+  leptons_.etaEl             .clear() ; leptons_.etaEl             .reserve(goodElectrons.size()) ;   
+  leptons_.phiEl             .clear() ; leptons_.phiEl             .reserve(goodElectrons.size()) ;   
+  leptons_.EEl               .clear() ; leptons_.EEl               .reserve(goodElectrons.size()) ;  
+  leptons_.IsoDREl               .clear() ; leptons_.IsoDREl               .reserve(goodElectrons.size()) ;  
+  leptons_.dR_Iso2DEl               .clear() ; leptons_.dR_Iso2DEl               .reserve(goodElectrons.size()) ;  
+  leptons_.ptrel_Iso2DEl               .clear() ; leptons_.ptrel_Iso2DEl               .reserve(goodElectrons.size()) ;  
+  leptons_.idxMu             .clear() ; leptons_.idxMu             .reserve(goodMuons.size()) ;   
+  leptons_.ptMu              .clear() ; leptons_.ptMu              .reserve(goodMuons.size()) ; 
+  leptons_.etaMu             .clear() ; leptons_.etaMu             .reserve(goodMuons.size()) ;   
+  leptons_.phiMu             .clear() ; leptons_.phiMu             .reserve(goodMuons.size()) ;   
+  leptons_.EMu               .clear() ; leptons_.EMu               .reserve(goodMuons.size()) ;  
+  leptons_.IsoDRMu               .clear() ; leptons_.IsoDRMu               .reserve(goodMuons.size()) ;  
+  leptons_.dR_Iso2DMu               .clear() ; leptons_.dR_Iso2DMu               .reserve(goodMuons.size()) ;  
+  leptons_.ptrel_Iso2DMu               .clear() ; leptons_.ptrel_Iso2DMu               .reserve(goodMuons.size()) ;  
+ 
+  h1_["nel"]->Fill(goodElectrons.size(),evtwt*toptagsf*btagsf) ;
+  h1_["nmu"]->Fill(goodMuons.size(),evtwt*toptagsf*btagsf) ;
 
   int nel_passreliso(0), nmu_passreliso(0);
 
   for (vlq::Electron el : goodElectrons ) {
-    h1_["elIsoDR"] ->Fill(el.getIso03(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["elIsoDR"] ->Fill(el.getIso03(),evtwt*toptagsf*btagsf) ; 
     //// Get 2D isolation
     std::pair<double, double> el_drmin_ptrel(Utilities::drmin_pTrel<vlq::Electron, vlq::Jet>(el, goodAK4Jets)) ;
-    h2_["elIso2D"] -> Fill(el_drmin_ptrel.first, el_drmin_ptrel.second,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+    h2_["elIso2D"] -> Fill(el_drmin_ptrel.first, el_drmin_ptrel.second,evtwt*toptagsf*btagsf) ;
     //// Get rel. iso
-    if (el.getIso03() < 0.0571) ++nel_passreliso; 
+    if (el.getIso03() < 0.0571) ++nel_passreliso;
+ 
+    leptons_.idxEl           .push_back(el.getIndex());
+    leptons_.ptEl            .push_back(el.getPt());
+    leptons_.etaEl           .push_back(el.getEta());
+    leptons_.phiEl           .push_back(el.getPhi());
+    leptons_.EEl             .push_back(el.getE());
+    leptons_.IsoDREl         .push_back(el.getIso03());
+    leptons_.dR_Iso2DEl      .push_back(el_drmin_ptrel.first);
+    leptons_.ptrel_Iso2DEl   .push_back(el_drmin_ptrel.second);
   }
 
   for (vlq::Muon mu : goodMuons ) {
-    h1_["muIsoDR"] ->Fill(mu.getIso04(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["muIsoDR"] ->Fill(mu.getIso04(),evtwt*toptagsf*btagsf) ; 
     //// Get 2D isolation
     std::pair<double, double> mu_drmin_ptrel(Utilities::drmin_pTrel<vlq::Muon, vlq::Jet>(mu, goodAK4Jets)) ;
-    h2_["muIso2D"] -> Fill(mu_drmin_ptrel.first, mu_drmin_ptrel.second,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+    h2_["muIso2D"] -> Fill(mu_drmin_ptrel.first, mu_drmin_ptrel.second,evtwt*toptagsf*btagsf) ;
     //// Get rel. iso
     if ( mu.getIso04() < 0.3) ++nmu_passreliso ;
+
+//fill muon variables
+    leptons_.idxMu           .push_back(mu.getIndex());
+    leptons_.ptMu            .push_back(mu.getPt());
+    leptons_.etaMu           .push_back(mu.getEta());
+    leptons_.phiMu           .push_back(mu.getPhi());
+    leptons_.EMu             .push_back(mu.getE());
+    leptons_.IsoDRMu         .push_back(mu.getIso04());
+    leptons_.dR_Iso2DMu      .push_back(mu_drmin_ptrel.first);
+    leptons_.ptrel_Iso2DMu   .push_back(mu_drmin_ptrel.second);
+
   }
 
-  h1_["nelAfterRelIso"] -> Fill(nel_passreliso,evtwt*toptagsf*evtwtHTDown*btagsf) ;
-  h1_["nmuAfterRelIso"] -> Fill(nmu_passreliso,evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  h1_["nelAfterRelIso"] -> Fill(nel_passreliso,evtwt*toptagsf*btagsf) ;
+  h1_["nmuAfterRelIso"] -> Fill(nmu_passreliso,evtwt*toptagsf*btagsf) ;
+
+  for (vlq::Electron el : goodElectrons) {
+  }
+
+  for (vlq::Muon mu : goodMuons) {
+  }
 
   //// Apply 2D isolation
   CandidateCleaner cleanleptons(0.4,40); //// The second argument is for lepton 2D iso, setting to -1 disables it
@@ -1073,17 +1176,53 @@ bool VLQAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanleptons(goodElectrons,goodAK8Jets) ;
   cleanleptons(goodMuons,goodAK8Jets) ;
 
-  h1_["nelAfter2DIso"]->Fill(goodElectrons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
-  h1_["nmuAfter2DIso"]->Fill(goodMuons.size(),evtwt*toptagsf*evtwtHTDown*btagsf) ;
+  selectedevt_.nCleanedEl_ = int(goodElectrons.size());
+  selectedevt_.nCleanedMu_ = int(goodMuons.size());
+
+  leptons_.idxCleanedEl             .clear() ; leptons_.idxCleanedEl             .reserve(goodElectrons.size()) ;   
+  leptons_.ptCleanedEl              .clear() ; leptons_.ptCleanedEl              .reserve(goodElectrons.size()) ; 
+  leptons_.etaCleanedEl             .clear() ; leptons_.etaCleanedEl             .reserve(goodElectrons.size()) ;   
+  leptons_.phiCleanedEl             .clear() ; leptons_.phiCleanedEl             .reserve(goodElectrons.size()) ;   
+  leptons_.ECleanedEl               .clear() ; leptons_.ECleanedEl               .reserve(goodElectrons.size()) ;  
+  leptons_.IsoDRAfterIso2DEl .clear() ; leptons_.IsoDRAfterIso2DEl .reserve(goodElectrons.size()) ;  
+  leptons_.idxCleanedMu             .clear() ; leptons_.idxCleanedMu             .reserve(goodMuons.size()) ;   
+  leptons_.ptCleanedMu              .clear() ; leptons_.ptCleanedMu              .reserve(goodMuons.size()) ; 
+  leptons_.etaCleanedMu             .clear() ; leptons_.etaCleanedMu             .reserve(goodMuons.size()) ;   
+  leptons_.phiCleanedMu             .clear() ; leptons_.phiCleanedMu             .reserve(goodMuons.size()) ;   
+  leptons_.ECleanedMu               .clear() ; leptons_.ECleanedMu               .reserve(goodMuons.size()) ;  
+  leptons_.IsoDRAfterIso2DMu .clear() ; leptons_.IsoDRAfterIso2DMu .reserve(goodMuons.size()) ;  
+
+
+  h1_["nelAfter2DIso"]->Fill(goodElectrons.size(),evtwt*toptagsf*btagsf) ;
+  h1_["nmuAfter2DIso"]->Fill(goodMuons.size(),evtwt*toptagsf*btagsf) ;
 
   for (vlq::Electron el : goodElectrons ) {
-    h1_["elIsoDRAfter2DIso"] ->Fill(el.getIso03(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["elIsoDRAfter2DIso"] ->Fill(el.getIso03(),evtwt*toptagsf*btagsf) ; 
+
+//fill cleaned electron info
+    leptons_.IsoDRAfterIso2DEl      .push_back(el.getIso03());
+
+    leptons_.idxCleanedEl           .push_back(el.getIndex());
+    leptons_.ptCleanedEl            .push_back(el.getPt());
+    leptons_.etaCleanedEl           .push_back(el.getEta());
+    leptons_.phiCleanedEl           .push_back(el.getPhi());
+    leptons_.ECleanedEl             .push_back(el.getE());
   }
 
   for (vlq::Muon mu : goodMuons ) {
-    h1_["muIsoDRAfter2DIso"] ->Fill(mu.getIso04(),evtwt*toptagsf*evtwtHTDown*btagsf) ; 
+    h1_["muIsoDRAfter2DIso"] ->Fill(mu.getIso04(),evtwt*toptagsf*btagsf) ;
+
+//fill cleaned muon info 
+    leptons_.IsoDRAfterIso2DMu      .push_back(mu.getIso04());
+
+    leptons_.idxCleanedMu           .push_back(mu.getIndex());
+    leptons_.ptCleanedMu            .push_back(mu.getPt());
+    leptons_.etaCleanedMu           .push_back(mu.getEta());
+    leptons_.phiCleanedMu           .push_back(mu.getPhi());
+    leptons_.ECleanedMu             .push_back(mu.getE());
   }
 
+  tree_->Fill();
   return true;
 
 }
@@ -1098,6 +1237,7 @@ void VLQAna::beginJob() {
     tree_ = fs->make<TTree>("tree", "TtHT") ; 
     selectedevt_.RegisterTree(tree_,"SelectedEvent") ; 
     jets_.RegisterTree(tree_,"JetInfo") ; 
+    leptons_.RegisterTree(tree_,"LeptonInfo") ; 
   }
 
   if (storePreselEvts_ || doPreselOnly_) {

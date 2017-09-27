@@ -215,14 +215,13 @@ class BTagSFUtils {
         }
 
         double jetcsv = jetcsvs.at(idx.first) ;
-        std::cout << "CSV is: " << jetcsv << std::endl;
-        std::cout << "pT is: " << pt << std::endl;
-        std::cout << "eta is: " << eta << std::endl;
-        std::cout << "eff is: " << eff << std::endl;
+        //std::cout << "CSV is: " << jetcsv << std::endl;
+        //std::cout << "pT is: " << pt << std::endl;
+        //std::cout << "eta is: " << eta << std::endl;
+        //std::cout << "eff is: " << eff << std::endl;
  
         if ( jetcsv >= csvMin ) { 
           btagsf *= sf ; 
-        std::cout << "jet passed, sf is: " << btagsf << std::endl;
           //// Get uncertainties 
           if ( fl == 0 || fl == 1) {
             btagsf_bcUp *= sfUpabs ; 
@@ -235,9 +234,7 @@ class BTagSFUtils {
 
         }
         else {
-        std::cout << "jet failed, pre-sf is: " << sf << std::endl;
           btagsf *= eff < 1 ? (1 - std::min(1.,eff*sf))/(1 - eff) : 0 ; 
-        std::cout << "sf is: " << btagsf << std::endl;
 
           //// Get uncertainties 
           if ( fl == 0 || fl == 1) {
