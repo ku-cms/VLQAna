@@ -22,14 +22,14 @@ class CandidateCleaner {
 
         cleanedcands.erase( std::remove_if(cleanedcands.begin(), cleanedcands.end(),
               [othercands, this](T1 t) { 
-                bool isclean(false);
+                bool toremove(false);
                 for (auto cand : othercands) {
                   double dr((t.getP4()).DeltaR(cand.getP4())) ;
                   double ptrel( ( ((t.getP4()).Vect()).Cross((cand.getP4()).Vect()) ).Mag()/(cand.getP4()).Mag() ) ; 
-                  if ( dr > dr_ || ( ptrel_ > 0 ? ptrel > ptrel_ : true)  ) { isclean = true; }
-                  else { isclean = false ; } 
+                  if ( dr < dr_ && ( ptrel_ > 0 ? ptrel < ptrel_ : true)  ) { toremove = true; }
+                  else { toremove = false ; } 
                 }
-                return isclean; 
+                return toremove; 
               }
               )
             ,cleanedcands.end()  ) ; 
