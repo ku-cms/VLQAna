@@ -26,8 +26,7 @@ class CandidateCleaner {
                 for (auto cand : othercands) {
                   double dr((t.getP4()).DeltaR(cand.getP4())) ;
                   double ptrel( ( ((t.getP4()).Vect()).Cross((cand.getP4()).Vect()) ).Mag()/(cand.getP4()).Mag() ) ; 
-                  if ( dr < dr_ && ( ptrel_ > 0 ? ptrel < ptrel_ : true)  ) { toremove = true; }
-                  else { toremove = false ; } 
+                  if ( dr < dr_ && ( ptrel_ > 0 ? ptrel < ptrel_ : true)  ) { toremove = true; return toremove; }
                 }
                 return toremove; 
               }
