@@ -371,6 +371,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   //// jet cleaning w.r.t dileptons
   CandidateCleaner cleanjets(0.4, -1); //// The second argument is for lepton 2D iso, setting to -1 disables it
+  CandidateCleaner cleanak8jets(0.8, -1); //// The second argument is for lepton 2D iso, setting to -1 disables it
   if (zdecayMode_ == "zmumu") {
     cleanjets(goodAK4Jets, goodMuons);
     cleanjets(goodBTaggedAK4Jets, goodMuons);
@@ -395,8 +396,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   vlq::JetCollection goodAK8Jets ;
   jetAK8maker(evt, goodAK8Jets); 
-  cleanjets(goodAK8Jets, goodMuons); 
-  cleanjets(goodAK8Jets, goodElectrons); 
+  cleanak8jets(goodAK8Jets, goodMuons); 
+  cleanak8jets(goodAK8Jets, goodElectrons); 
 
   double presel_wt(evtwt);
   double btagsf(1) ;
@@ -447,20 +448,20 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   vlq::JetCollection  goodWTaggedJets;
   jetWTaggedmaker(evt, goodWTaggedJets);
-  cleanjets(goodWTaggedJets, goodMuons); 
-  cleanjets(goodWTaggedJets, goodElectrons); 
+  cleanak8jets(goodWTaggedJets, goodMuons); 
+  cleanak8jets(goodWTaggedJets, goodElectrons); 
 
   vlq::JetCollection goodHTaggedJets; 
   jetHTaggedmaker(evt, goodHTaggedJets);
-  cleanjets(goodHTaggedJets, goodMuons); 
-  cleanjets(goodHTaggedJets, goodElectrons); 
+  cleanak8jets(goodHTaggedJets, goodMuons); 
+  cleanak8jets(goodHTaggedJets, goodElectrons); 
   
   //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
   //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3
   vlq::JetCollection goodTopTaggedJets;
   jetTopTaggedmaker(evt, goodTopTaggedJets);
-  cleanjets(goodTopTaggedJets, goodMuons); 
-  cleanjets(goodTopTaggedJets, goodElectrons); 
+  cleanak8jets(goodTopTaggedJets, goodMuons); 
+  cleanak8jets(goodTopTaggedJets, goodElectrons); 
 
   double sjbtagsf(1) ;
   double sjbtagsf_bcUp(1) ; 
