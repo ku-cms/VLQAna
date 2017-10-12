@@ -43,38 +43,65 @@ def main():
     # We want to put all the CRAB project directories from the tasks we submit here into one common directory.
     # That's why we need to set this parameter (here or above in the configuration file, it does not matter, we will not overwrite it).
     config.section_("General")
-    config.General.workArea = 'TpToTH_PreselTrees_01Mar2016'
+    config.General.workArea = '80X_trees_3p2_topWp'
     config.General.transferLogs = True
 
     config.section_("JobType")
     config.JobType.pluginName = 'Analysis'
     config.JobType.psetName = 'vlqana_cfg.py' 
-    config.JobType.pyCfgParams = ['isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=800', 'storePreselEvts=True'] 
-    #config.JobType.pyCfgParams = ['isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=800', 'storePreselEvts=True'] 
+    config.JobType.pyCfgParams = ['btageffmap=btagEff_TTJets_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
+    #config.JobType.pyCfgParams = ['btageffmap=btagEff_TttH_2600_Width-10p_loose.root','applyBTagSFs=True','cleanEvents=True','isData=False','doPUReweightingOfficial=True','jecShift=0','jerShift=1', 'HTMin=0', 'storePreselEvts=True', 'storeLHEWts=False'] 
+    #config.JobType.pyCfgParams = ['cleanEvents=True','isData=True','doPUReweightingOfficial=False','jecShift=0','jerShift=0', 'HTMin=0', 'storePreselEvts=True'] 
     config.JobType.inputFiles = [
-         'hnpv_data_Run2015D_mc_RunIISpring15DR74-Asympt25ns_pvwt.root'
-        ,'PUDistData_Run2015ABCD.root'
-        ,'PUDistMC_2015_25ns_Startup_PoissonOOTPU.root'
-        ,'RunII2015_25ns_PUXsec65550nb.root'
-        ,'RunII2015_25ns_PUXsec72450nb.root'
-        ,'RunII2015_25ns_PUXsec69000nb.root'
-        ,'Summer15_25nsV7_MC_L1FastJet_AK4PFchs.txt'
-        ,'Summer15_25nsV7_MC_L2Relative_AK4PFchs.txt'
-        ,'Summer15_25nsV7_MC_L3Absolute_AK4PFchs.txt'
-        ,'Summer15_25nsV7_MC_Uncertainty_AK4PFchs.txt'
-        ,'Summer15_25nsV7_MC_L1FastJet_AK8PFchs.txt'
-        ,'Summer15_25nsV7_MC_L2Relative_AK8PFchs.txt'
-        ,'Summer15_25nsV7_MC_L3Absolute_AK8PFchs.txt'
-        ,'Summer15_25nsV7_MC_Uncertainty_AK8PFchs.txt'
-        ,'Summer15_25nsV7_DATA_L1FastJet_AK8PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_L1RC_AK8PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_L2L3Residual_AK4PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_L2L3Residual_AK8PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_L2Relative_AK8PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_L3Absolute_AK8PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_Uncertainty_AK4PFchs.txt' 
-        ,'Summer15_25nsV7_DATA_Uncertainty_AK8PFchs.txt' 
-        ,'btag-eff-subjet.root'
+        '../data/PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root'
+        ,'../data/RunII2016Rereco_25ns_PUXsec69000nb.root'
+        ,'../data/RunII2016Rereco_25ns_PUXsec65550nb.root'
+        ,'../data/RunII2016Rereco_25ns_PUXsec72450nb.root'
+        ,'../data/RunII2016Rereco_25ns_RunsBtoG_PUXsec69000nb.root'
+        ,'../data/RunII2016Rereco_25ns_RunH_PUXsec69000nb.root'
+        ,'../data/Summer16_23Sep2016V4_MC_L2Relative_AK8PFPuppi.txt'
+        ,'../data/Summer16_23Sep2016V4_MC_L3Absolute_AK8PFPuppi.txt'
+        ,'../data/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'
+        ,'../data/Summer16_23Sep2016V4_MC_L2Relative_AK8PFchs.txt'
+        ,'../data/Summer16_23Sep2016V4_MC_L3Absolute_AK8PFchs.txt'
+        ,'../data/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'
+        ,'../data/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFPuppi.txt'
+        #,'../data/Summer16_23Sep2016V4_DATA_L2L3Residual_AK4PFchs.txt' 
+        #,'../data/Summer16_23Sep2016V4_DATA_L2L3Residual_AK8PFchs.txt' 
+        #,'../data/Summer16_23Sep2016V4_DATA_L2Relative_AK8PFchs.txt' 
+        #,'../data/Summer16_23Sep2016V4_DATA_L3Absolute_AK8PFchs.txt' 
+        #,'../data/Summer16_23Sep2016V4_DATA_Uncertainty_AK4PFchs.txt' 
+        #,'../data/Summer16_23Sep2016V4_DATA_Uncertainty_AK8PFchs.txt' 
+        ,'../data/btagEff_TTJets_loose.root'
+        ,'../data/btagEff_TtH_800_loose.root'
+        ,'../data/btagEff_TtH_900_loose.root'
+        ,'../data/btagEff_TtH_1000_loose.root'
+        ,'../data/btagEff_TtH_1100_loose.root'
+        ,'../data/btagEff_TtH_1200_loose.root'
+        ,'../data/btagEff_TtH_1300_loose.root'
+        ,'../data/btagEff_TtH_1400_loose.root'
+        ,'../data/btagEff_TtH_1500_loose.root'
+        ,'../data/btagEff_TtH_1700_loose.root'
+        ,'../data/btagEff_TtH_1800_loose.root'
+        ,'../data/btagEff_TbtH_2600_Width-10p_loose.root'
+        ,'../data/btagEff_TttH_2600_Width-10p_loose.root'
+        ,'../data/btagEff_loose_QCDHT300.root'
+        ,'../data/btagEff_loose_QCDHT500.root'
+        ,'../data/btagEff_loose_QCDHT700.root'
+        ,'../data/btagEff_loose_QCDHT1000.root'
+        ,'../data/btagEff_loose_QCDHT1500.root'
+        ,'../data/btagEff_loose_QCDHT2000.root'
+        ,'../data/btagEff_loose_QCDPT170.root'
+        ,'../data/btagEff_loose_QCDPT300.root'
+        ,'../data/btagEff_loose_QCDPT470.root'
+        ,'../data/btagEff_loose_QCDPT600.root'
+        ,'../data/btagEff_loose_QCDPT800.root'
+        ,'../data/btagEff_loose_QCDPT1000.root'
+        ,'../data/btagEff_loose_QCDPT1400.root'
+        ,'../data/btagEff_loose_QCDPT1800.root'
+        ,'../data/btagEff_loose_QCDPT2400.root'
+        ,'../data/btagEff_loose_QCDPT3200.root'
+        ,'../data/subjet_CSVv2_Moriond17_B_H.csv'
         ]
     config.JobType.maxJobRuntimeMin = 2000
     config.JobType.maxMemoryMB = 2500
@@ -85,13 +112,13 @@ def main():
     #config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
     config.Data.splitting = 'FileBased'
     #config.Data.splitting = 'LumiBased'
-    config.Data.unitsPerJob = 2
+    config.Data.unitsPerJob = 1
     config.Data.ignoreLocality = False
     config.Data.publication = False     
-    config.Data.outLFNDirBase = '/store/group/phys_b2g/devdatta/TpToTH_PreselTrees_01Mar2016/'
+    config.Data.outLFNDirBase = '/store/user/eschmitz/B2G/80X_VLQAna_B2G3p2_topWp'
     
     config.section_("Site")
-    config.Site.storageSite = 'T2_CH_CERN'
+    config.Site.storageSite = 'T2_US_Nebraska'
 
     #print 'Using config ' + options.config
     #print 'Writing to directory ' + options.dir
@@ -119,8 +146,8 @@ def main():
     for ijob, job in enumerate(jobs) :
 
         print "-->  ", job
-        pd = job.split('/')[1]
-        processing = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] + (job.split('/')[2]).split('-')[2] + (job.split('/')[2]).split('-')[3] #for data
+        pd = job.split('/')[1] + job.split('/')[2].split('-')[0]
+        processing = (job.split('/')[2]).split('-')[0] + (job.split('/')[2]).split('-')[1] + (job.split('/')[2]).split('-')[2] + (job.split('/')[2]).split('-')[0] #for data
         if (len(pd + '_' + processing)<=100): 
           config.General.requestName = pd + '_' + processing
         else:
